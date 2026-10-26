@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>oneecma</AssemblyName>
+    <RootNamespace>$(PackagePrefix).OneEcma.Cli</RootNamespace>
+    <PackageId>$(PackagePrefix).OneEcma.Cli</PackageId>
+    <Description>The oneecma command-line tool: run, repl and check.</Description>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>oneecma</ToolCommandName>
+    <IsAotCompatible>true</IsAotCompatible>
+    <PublishAot>true</PublishAot>
+    <StripSymbols>true</StripSymbols>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../$(PackagePrefix).OneEcma/$(PackagePrefix).OneEcma.csproj" />
+  </ItemGroup>
+</Project>
