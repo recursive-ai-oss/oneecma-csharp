@@ -39,7 +39,7 @@ internal sealed class RegExpParser
     private readonly bool _v;
     private readonly bool _namedMode;
     private readonly int _totalGroups;
-    private readonly List<(string Name, int Index, int[] Path)> _named = [];
+    private readonly List<(string Name, int Index, int[] Path, int Start, int Length)> _named = [];
     private readonly List<(BackrefNode Node, int Start, int Length)> _namedRefs = [];
     private readonly List<int> _path = [];
     private int _i;
@@ -74,7 +74,7 @@ internal sealed class RegExpParser
             p.ResolveNamedReferences();
             var names = new List<(string, List<int>)>();
             var seen = new Dictionary<string, int>(StringComparer.Ordinal);
-            foreach (var (name, index, _) in p._named)
+            foreach (var (name, index, _, _, _) in p._named)
             {
                 if (seen.TryGetValue(name, out int at))
                 {
@@ -283,6 +283,20 @@ internal sealed class RegExpParser
         return c;
     }
 
+    // A lookbehind (and, with u or v, a lookahead) cannot be quantified; V8 reads what follows as a quantifier first.
+    private void CheckNoQuantifierAfterAssertion()
+    {
+        if (IsQuantifierStart())
+        {
+            throw Err(_i, 1, "Invalid quantifier");
+        }
+
+        if (_u && Cur == '{')
+        {
+            throw Err(_i, 1, "Incomplete quantifier");
+        }
+    }
+
     private bool IsQuantifierStart() => Cur is '*' or '+' or '?' || (Cur == '{' && LooksLikeBracedQuantifier(_i));
 
     private bool LooksLikeBracedQuantifier(int at)
@@ -413,11 +427,7 @@ internal sealed class RegExpParser
                 // Annex B.1.2: a lookahead is quantifiable in a pattern without u or v; otherwise it is an error.
                 if (_u)
                 {
-                    if (IsQuantifierStart())
-                    {
-                        throw Err(_i, 1, "Invalid quantifier");
-                    }
-
+                    CheckNoQuantifierAfterAssertion();
                     return look;
                 }
 
@@ -438,27 +448,14 @@ internal sealed class RegExpParser
                 {
                     _i += 3;
                     Node body = ParseGroupBody(open);
-                    if (IsQuantifierStart())
-                    {
-                        throw Err(_i, 1, "Invalid quantifier");
-                    }
-
+                    CheckNoQuantifierAfterAssertion();
                     return new LookNode(true, k2 == '!', body);
                 }
 
                 _i++; // '?'
                 string name = ParseGroupName(out int nameStart, out int nameLength);
-                int[] path = [.. _path];
-                foreach (var (n, _, other) in _named)
-                {
-                    if (n == name && MightBothParticipate(path, other))
-                    {
-                        throw Err(nameStart, nameLength, "Duplicate capture group name");
-                    }
-                }
-
                 int index = ++_groupCount;
-                _named.Add((name, index, path));
+                _named.Add((name, index, [.. _path], nameStart, nameLength));
                 Node body2 = ParseGroupBody(open);
                 return ParseQuantifier(new GroupNode(index, body2), groupsBefore);
             }
@@ -491,20 +488,31 @@ internal sealed class RegExpParser
     private Node ParseModifierGroup(int open, int groupsBefore)
     {
         _i++; // '?'
-        int specStart = _i;
-        ModeFlags add = ReadModifiers(specStart);
+        ModeFlags add = ReadModifiers(open, out bool repeatedAdd);
         ModeFlags remove = ModeFlags.None;
         bool dash = false;
+        bool repeatedRemove = false;
         if (Cur == '-')
         {
             dash = true;
             _i++;
-            remove = ReadModifiers(specStart);
+            remove = ReadModifiers(open, out repeatedRemove);
         }
 
-        if (Cur != ':' || (dash && add == ModeFlags.None && remove == ModeFlags.None) || (add & remove) != 0)
+        if (Cur != ':')
         {
             throw Err(open, Math.Max(2, _i - open + 1), "Invalid group");
+        }
+
+        // 22.2.1.1 early errors: a letter may not repeat in a list or appear in both; '(?-:' is empty on both sides.
+        if (repeatedAdd || repeatedRemove || (add & remove) != 0)
+        {
+            throw Err(open, _i - open + 1, "Repeated flag in flag group");
+        }
+
+        if (dash && add == ModeFlags.None && remove == ModeFlags.None)
+        {
+            throw Err(open, _i - open + 1, "Invalid flag group");
         }
 
         _i++; // ':'
@@ -512,10 +520,11 @@ internal sealed class RegExpParser
         return ParseQuantifier(new ModifierNode(add, remove, body), groupsBefore);
     }
 
-    // 22.2.1.1 early errors: a modifier letter may appear only once per list.
-    private ModeFlags ReadModifiers(int specStart)
+    private ModeFlags ReadModifiers(int open, out bool repeated)
     {
         ModeFlags flags = ModeFlags.None;
+        repeated = false;
+        _ = open;
         while (true)
         {
             ModeFlags f = Cur switch
@@ -532,7 +541,7 @@ internal sealed class RegExpParser
 
             if ((flags & f) != 0)
             {
-                throw Err(specStart - 2, _i - specStart + 3, "Invalid group");
+                repeated = true;
             }
 
             flags |= f;
@@ -599,7 +608,7 @@ internal sealed class RegExpParser
                 _i++;
                 if (!TryReadUnicodeEscape(true, out cp))
                 {
-                    throw Err(esc, _i - esc, reason);
+                    throw Err(esc, _i - esc, "Invalid Unicode escape");
                 }
             }
             else
@@ -630,12 +639,37 @@ internal sealed class RegExpParser
         return sb.ToString();
     }
 
+    // Duplicate names are reported once the whole pattern has parsed, after any other syntax error (as V8 does).
+    private void CheckDuplicateNames()
+    {
+        var byName = new Dictionary<string, List<int>>(StringComparer.Ordinal);
+        for (int i = 0; i < _named.Count; i++)
+        {
+            if (!byName.TryGetValue(_named[i].Name, out var earlier))
+            {
+                byName[_named[i].Name] = [i];
+                continue;
+            }
+
+            foreach (int j in earlier)
+            {
+                if (MightBothParticipate(_named[i].Path, _named[j].Path))
+                {
+                    throw Err(_named[i].Start, _named[i].Length, "Duplicate capture group name");
+                }
+            }
+
+            earlier.Add(i);
+        }
+    }
+
     private void ResolveNamedReferences()
     {
+        CheckDuplicateNames();
         foreach (var (node, start, length) in _namedRefs)
         {
             var list = new List<int>();
-            foreach (var (name, index, _) in _named)
+            foreach (var (name, index, _, _, _) in _named)
             {
                 if (name == node.Name)
                 {
@@ -822,7 +856,7 @@ internal sealed class RegExpParser
 
                 if (_u)
                 {
-                    throw Err(bs, 3, inClass ? "Invalid class escape" : "Invalid decimal escape");
+                    throw Err(bs, 3, "Invalid decimal escape");
                 }
 
                 return ReadLegacyOctal();
@@ -831,7 +865,7 @@ internal sealed class RegExpParser
             case >= '1' and <= '7':
                 if (_u)
                 {
-                    throw Err(bs, 2, inClass ? "Invalid class escape" : "Invalid escape");
+                    throw Err(bs, 2, inClass ? "Invalid decimal escape" : "Invalid escape");
                 }
 
                 return ReadLegacyOctal();
@@ -839,7 +873,7 @@ internal sealed class RegExpParser
             case '9':
                 if (_u)
                 {
-                    throw Err(bs, 2, inClass ? "Invalid class escape" : "Invalid escape");
+                    throw Err(bs, 2, "Invalid escape");
                 }
 
                 _i++;
@@ -1160,6 +1194,12 @@ internal sealed class RegExpParser
 
             bool isAnd = c == '&' && _i + 1 < _s.Length && _s[_i + 1] == '&';
             bool isSub = c == '-' && _i + 1 < _s.Length && _s[_i + 1] == '-';
+            if (isSub && operands.Count == 0)
+            {
+                // A leading '--' is a ClassSetSyntaxCharacter used as an operand, not a set operation.
+                throw Err(_i, 1, "Invalid character in character class");
+            }
+
             if (isAnd || isSub)
             {
                 int want = isAnd ? 1 : 2;
@@ -1205,6 +1245,12 @@ internal sealed class RegExpParser
                 hasRange = true;
                 _ = second;
                 continue;
+            }
+
+            if (single < 0 && _i + 1 < _s.Length && _s[_i] == '-' && _s[_i + 1] != '-')
+            {
+                // A range needs a single character on its left.
+                throw Err(_i, 1, "Invalid character class");
             }
 
             operands.Add(first);
@@ -1328,7 +1374,7 @@ internal sealed class RegExpParser
         {
             if (_i >= _s.Length)
             {
-                throw Err(bs, _i - bs, "Invalid escape");
+                throw Err(bs, _i - bs, "Unterminated character class");
             }
 
             char c = _s[_i];

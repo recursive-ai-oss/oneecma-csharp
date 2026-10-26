@@ -2,6 +2,23 @@ using RecursiveAI.OneEcma.RegExpTest262;
 
 // Usage: oneecma-regexp-test262 <test262-root> [--list-failures]
 // Runs the translators over the directories listed below and prints per-directory pass counts.
+if (args.Length >= 2 && args[0] == "diff")
+{
+    // oneecma-regexp-test262 diff <expected.json> [--list-failures]: replay the recorded Node differential.
+    var diff = Differential.Run(args[1]);
+    foreach (var g in diff.GroupBy(d => d.Category).OrderBy(g => g.Key, StringComparer.Ordinal))
+    {
+        Console.WriteLine($"{g.Key,-10} {g.Count(d => d.Passed)}/{g.Count()}" + (g.Any(d => d.Documented) ? $" ({g.Count(d => d.Documented)} documented deviations)" : string.Empty));
+    }
+
+    foreach (var d in diff.Where(d => !d.Passed))
+    {
+        Console.WriteLine($"  MISMATCH [{d.Category}] /{d.Pattern}/{d.Flags}: {d.Detail}");
+    }
+
+    return diff.All(d => d.Passed) ? 0 : 1;
+}
+
 string root = args.Length > 0 ? args[0] : throw new ArgumentException("usage: oneecma-regexp-test262 <test262-root> [--list-failures]");
 bool list = args.Contains("--list-failures");
 string? only = args.SkipWhile(a => a != "--dir").Skip(1).FirstOrDefault();

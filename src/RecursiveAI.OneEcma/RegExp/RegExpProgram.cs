@@ -182,8 +182,20 @@ public sealed class RegExpProgram
     }
 
     // The messages mimic V8's: 'Invalid regular expression: /<pattern>/<flags>: <reason>'.
-    internal static RegExpDiagnostic MakeDiagnostic(string pattern, string flags, int start, int length, string reason) =>
-        new(start, length, reason, $"Invalid regular expression: /{pattern}/{flags}: {reason}");
+    // V8 prints the flags in its fixed order (dgimsuvy), whatever order they were written in.
+    internal static RegExpDiagnostic MakeDiagnostic(string pattern, string flags, int start, int length, string reason)
+    {
+        var sb = new StringBuilder(flags.Length);
+        foreach (char f in "dgimsuvy")
+        {
+            if (flags.Contains(f, StringComparison.Ordinal))
+            {
+                sb.Append(f);
+            }
+        }
+
+        return new RegExpDiagnostic(start, length, reason, $"Invalid regular expression: /{pattern}/{sb}: {reason}");
+    }
 
     internal static bool ParseFlags(string pattern, string flags, out ModeFlags mode, out bool unicode, out bool unicodeSets, List<RegExpDiagnostic> diagnostics)
     {
