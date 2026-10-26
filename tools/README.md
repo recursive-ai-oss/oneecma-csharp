@@ -19,3 +19,7 @@ dotnet run --project tools/OneEcma.Test262 -- --backend engine --parse-only lang
 `tools/bench-inputs/fetch.sh` downloads the pinned lodash, react, react-dom and preact packages (SHA-256 verified) to `~/oneecma/bench-inputs/`. `bench/inputs/react-ssr-app.js` is the component tree rendered by the server-render benchmark.
 
 The three fetch/install scripts take their destination from `ONEECMA_HOME` (default `$HOME/oneecma`) or a per-script override.
+
+## locale data
+
+`tools/locale-data/fetch.sh` downloads the pinned CLDR 48.0 and UCD 17.0.0 inputs (SHA-256 verified) to `~/oneecma/locale-data/` (override with `ONEECMA_LOCALE_DATA`). `tools/LocaleDataGen` turns them into the embedded blobs under `src/RecursiveAI.OneEcma/Intl/Data/Generated/`; the output is deterministic. Format, pins and how to add a locale: `docs/locale-data.md`.
