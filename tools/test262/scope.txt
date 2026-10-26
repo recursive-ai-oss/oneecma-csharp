@@ -1,0 +1,45 @@
+# What the conformance runs cover. Format: root <dir> | feature-out <feature> | <reason> | locale <tag>.
+
+# Test directories under test/ that are run. staging and harness are left out: staging holds
+# unreviewed tests, harness tests the harness files themselves.
+root annexB
+root built-ins
+root intl402
+root language
+
+# Features of later editions or unfinished proposals. Tests that list one are skipped by
+# feature, not counted as failures. Everything in the current edition, Annex B and the
+# finished 2026 proposals (upsert, JSON.parse source text access, iterator sequencing,
+# Uint8Array base64, Math.sumPrecise, Error.isError, Array.fromAsync) stays in scope.
+feature-out Temporal | finished, but part of the next edition
+feature-out explicit-resource-management | finished, but part of the next edition
+feature-out iterator-chunking | finished, but part of the next edition
+feature-out iterator-includes | finished, but part of the next edition
+feature-out Iterator.prototype.join | finished, but part of the next edition
+feature-out joint-iteration | finished, but part of the next edition
+feature-out Atomics.pause | finished, but part of the next edition
+feature-out ShadowRealm | proposal below stage 4
+feature-out decorators | proposal below stage 4
+feature-out source-phase-imports | proposal below stage 4
+feature-out source-phase-imports-module-source | proposal below stage 4
+feature-out import-defer | proposal below stage 4
+feature-out export-defer | proposal below stage 4
+feature-out import-text | proposal below stage 4
+feature-out import-bytes | proposal below stage 4
+feature-out immutable-arraybuffer | proposal below stage 4
+feature-out await-dictionary | proposal below stage 4
+feature-out error-stack-accessor | proposal below stage 4
+feature-out legacy-regexp | proposal below stage 4
+feature-out nonextensible-applies-to-private | proposal below stage 4
+feature-out Intl.Era-monthcode | tied to Temporal calendars
+feature-out Intl.Locale-info | proposal below stage 4
+
+# Locales the Intl implementation supports. A test whose locale: metadata names any other
+# locale is skipped. A bare language such as en is supported when a supported locale has it.
+locale en-US
+locale en-GB
+locale es
+locale es-US
+locale fr
+locale de
+locale pt-BR
