@@ -1,0 +1,3 @@
+0b4e0812022b18236b5276d2804948fdd9f71603
+# First line: the pinned tc39/test262 commit (main, 2026-10-26). Read by the runner and by fetch.sh.
+# archive-sha256: 6d45b51f95313f3822f3b1b2df247d8566d6c48c5ab5ef2b510eb4cafa537737 (GitHub tar.gz of that commit)
