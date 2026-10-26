@@ -1,0 +1,303 @@
+{
+ "version": 0,
+ "entries": [
+  {
+   "id": "S-BACKTICK",
+   "mistake": "backtick inside a template literal (for example in a comment inside a CSS or HTML template)",
+   "rank": 1,
+   "evidence": "observed",
+   "action": "suggest",
+   "rule": "escape the inner backtick",
+   "guard": "the missing delimiter could instead be a closing backtick",
+   "seed_cases": [
+    "syn-027-backtick-in-template"
+   ],
+   "example_before": "",
+   "example_after": "",
+   "note": "an unescaped backtick inside a template literal"
+  },
+  {
+   "id": "S-AWAIT",
+   "mistake": "top-level `await` in a script",
+   "rank": 2,
+   "evidence": "observed",
+   "action": "suggest",
+   "rule": "wrap the code in an async function and call it, or run it as a module",
+   "guard": "wrapping changes the scope of every declaration and the completion value; a host may instead choose async-function-body mode for the whole call",
+   "seed_cases": [
+    "syn-017-top-level-await"
+   ],
+   "example_before": "",
+   "example_after": "",
+   "note": "top-level await is the most frequent syntax-level mistake"
+  },
+  {
+   "id": "S-REDECL",
+   "mistake": "redeclared `let`/`const`/`class` at top level (often across repeated evaluations in one global scope)",
+   "rank": 3,
+   "evidence": "observed",
+   "action": "suggest",
+   "rule": "rename, assign instead of redeclaring, or evaluate each call in a fresh scope",
+   "guard": "every fix changes meaning",
+   "seed_cases": [
+    "syn-022-redeclared-const"
+   ],
+   "example_before": "",
+   "example_after": "",
+   "note": "redeclaring let/const between evaluations in one global scope"
+  },
+  {
+   "id": "R001",
+   "mistake": "extra closing delimiter `)` `]` `}` after a complete expression or statement",
+   "rank": 4,
+   "evidence": "observed",
+   "action": "apply",
+   "rule": "delete the one closing token the parser reports as unexpected",
+   "guard": "apply only if (a) the token is a closer with no matching opener, (b) deleting it parses, and (c) no other single-token edit (inserting an opener earlier) also parses; otherwise suggest",
+   "seed_cases": [
+    "syn-001-extra-close-paren",
+    "syn-002-extra-close-bracket"
+   ],
+   "example_before": "console.log(items.length));",
+   "example_after": "console.log(items.length);",
+   "note": "extra closing delimiters are the one syntax mistake seen repeatedly; only some are fixed by deleting the reported token"
+  },
+  {
+   "id": "S-CLOSE",
+   "mistake": "missing `)` / `]` / `}` in the middle of the source",
+   "rank": 5,
+   "evidence": "observed",
+   "action": "suggest",
+   "rule": "insert the closer where the indentation or the next statement suggests",
+   "guard": "more than one position parses",
+   "seed_cases": [
+    "syn-003-missing-close-paren"
+   ],
+   "example_before": "",
+   "example_after": "",
+   "note": "a missing closer in the middle of a call"
+  },
+  {
+   "id": "R007",
+   "mistake": "TypeScript type syntax in JavaScript: parameter/variable annotations, `as T`, `interface`/`type` declarations",
+   "rank": 6,
+   "evidence": "observed",
+   "action": "apply",
+   "rule": "erase the type syntax (annotations, `as` casts, interface and type-alias declarations); runtime meaning is unchanged",
+   "guard": "only for the erasable subset (no enum, valueful namespace, parameter properties, decorators); apply only if the erased source parses; report each erased span; code that is meant to be TypeScript is out of scope",
+   "seed_cases": [
+    "syn-019-ts-parameter-types",
+    "syn-020-ts-as-cast",
+    "syn-021-ts-interface"
+   ],
+   "example_before": "function add(a: number, b: number) {",
+   "example_after": "function add(a, b) {",
+   "note": "type annotations appear in code meant for a plain JavaScript host"
+  },
+  {
+   "id": "R002",
+   "mistake": "closing brackets missing at the very end of the input (truncated output)",
+   "rank": 7,
+   "evidence": "prior",
+   "action": "apply",
+   "rule": "append the closers for the open-bracket stack, innermost first, at end of input",
+   "guard": "apply only if every parse error is \"end of input inside open brackets\" and the stack is non-empty; indentation of the last lines is evidence (a dedent to column 0 that is followed by nothing means the closer belongs there); never close an open string or template literal",
+   "seed_cases": [
+    "syn-004-unclosed-brace-at-end"
+   ],
+   "example_before": "function f() {\n  return 1;",
+   "example_after": "function f() {\n  return 1;\n}"
+  },
+  {
+   "id": "R003",
+   "mistake": "markdown code fence lines around the program",
+   "rank": 8,
+   "evidence": "prior",
+   "action": "apply",
+   "rule": "remove lines that consist only of ``` or ```<language> at the start or end of the input",
+   "guard": "a fully fenced block already parses (the backticks form template literals), so this check runs before parsing: if the first or last non-blank line is only a fence, strip it and parse the rest; apply only if the result parses",
+   "seed_cases": [
+    "syn-034-closing-fence-only",
+    "syn-007-fenced-block-runs-as-templates"
+   ],
+   "example_before": "```js\nconst n = 5;\n```",
+   "example_after": "const n = 5;"
+  },
+  {
+   "id": "R004",
+   "mistake": "typographic quotes used as string delimiters",
+   "rank": 9,
+   "evidence": "prior",
+   "action": "apply",
+   "rule": "replace U+2018/U+2019 with ' and U+201C/U+201D with \" when they open or close a string where the parser expects a token",
+   "guard": "only outside strings, comments, template literals and regular expressions ; apply only if the result parses; pairs must match (open/close)",
+   "seed_cases": [
+    "syn-008-smart-double-quotes",
+    "syn-009-smart-single-quotes"
+   ],
+   "example_before": "console.log(“hello”);",
+   "example_after": "console.log(\"hello\");"
+  },
+  {
+   "id": "R005",
+   "mistake": "missing comma between elements, properties or arguments on separate lines",
+   "rank": 10,
+   "evidence": "prior",
+   "action": "apply",
+   "rule": "insert `,` after the previous element when the next line starts a new element",
+   "guard": "inside an array literal, object literal or argument list; previous token ends a value, next token starts a value or property; inserting there parses and no other position does",
+   "seed_cases": [
+    "syn-010-missing-comma-object",
+    "syn-011-missing-comma-array",
+    "syn-012-missing-comma-arguments"
+   ],
+   "example_before": "host: \"x\"\n  port: 1",
+   "example_after": "host: \"x\",\n  port: 1"
+  },
+  {
+   "id": "R006",
+   "mistake": "Python keyword or operator in place of the JavaScript one: `elif`, `and`, `or`",
+   "rank": 11,
+   "evidence": "prior",
+   "action": "apply",
+   "rule": "`elif` -> `else if`; `and` -> `&&`; `or` -> `||`",
+   "guard": "only when the word is the reported unexpected identifier, sits where an operator or `else if` belongs, and the result parses; `not`, `def`, `in range`, `:` blocks, `None/True/False` are not mechanical (see S-PY)",
+   "seed_cases": [
+    "syn-013-python-elif",
+    "syn-016-python-and-or"
+   ],
+   "example_before": "} elif (n > 1) {",
+   "example_after": "} else if (n > 1) {"
+  },
+  {
+   "id": "R008",
+   "mistake": "comma between class members",
+   "rank": 12,
+   "evidence": "prior",
+   "action": "apply",
+   "rule": "delete the comma",
+   "guard": "only directly between two class elements; result parses",
+   "seed_cases": [
+    "syn-026-comma-between-methods"
+   ],
+   "example_before": "inc() {},\n  dec() {}",
+   "example_after": "inc() {}\n  dec() {}"
+  },
+  {
+   "id": "R009",
+   "mistake": "backslash before a quote outside a string (JSON-escaped code pasted raw)",
+   "rank": 13,
+   "evidence": "prior",
+   "action": "apply",
+   "rule": "remove the backslash",
+   "guard": "only when the backslash precedes a quote at token position, and the result parses",
+   "seed_cases": [
+    "syn-028-escaped-quotes"
+   ],
+   "example_before": "console.log(\\\"hi\\\");",
+   "example_after": "console.log(\"hi\");"
+  },
+  {
+   "id": "R010",
+   "mistake": "HTML entities in code: `&amp;`, `&lt;`, `&gt;`, `&quot;`",
+   "rank": 14,
+   "evidence": "prior",
+   "action": "apply",
+   "rule": "decode the entity",
+   "guard": "only outside strings and comments; apply only if the decoded source parses",
+   "seed_cases": [
+    "syn-030-html-entities"
+   ],
+   "example_before": "a &amp;&amp; b",
+   "example_after": "a && b"
+  },
+  {
+   "id": "R011",
+   "mistake": "literal backslash-n between statements",
+   "rank": 15,
+   "evidence": "prior",
+   "action": "apply",
+   "rule": "replace the two characters `\\n` with a line break",
+   "guard": "only outside strings, where `\\` cannot start a token; result parses",
+   "seed_cases": [
+    "syn-029-literal-backslash-n"
+   ],
+   "example_before": "const a = 1;\\nconst b = 2;",
+   "example_after": "const a = 1;\nconst b = 2;"
+  },
+  {
+   "id": "S-RETURN",
+   "mistake": "top-level `return`",
+   "rank": 16,
+   "evidence": "prior",
+   "action": "suggest",
+   "rule": "put the code in a function, or end with the value as an expression",
+   "guard": "the intended result depends on the host",
+   "seed_cases": [
+    "syn-018-top-level-return"
+   ],
+   "example_before": "",
+   "example_after": ""
+  },
+  {
+   "id": "S-STRING",
+   "mistake": "unterminated string, or a literal line break inside a string",
+   "rank": 17,
+   "evidence": "prior",
+   "action": "suggest",
+   "rule": "close the string, use `\\n`, or use a template literal",
+   "guard": "the fix choice changes the string",
+   "seed_cases": [
+    "syn-005-unclosed-string",
+    "syn-006-newline-in-string"
+   ],
+   "example_before": "",
+   "example_after": ""
+  },
+  {
+   "id": "S-PY",
+   "mistake": "other Python-isms: `def`, `for x in range()`, f-strings, `None/True/False`",
+   "rank": 18,
+   "evidence": "prior",
+   "action": "suggest",
+   "rule": "translate by hand",
+   "guard": "no mechanical rewrite keeps the meaning; `None/True/False` parse and fail at run time as undefined names",
+   "seed_cases": [
+    "syn-014-python-def",
+    "syn-015-python-fstring",
+    "syn-032-python-for-in-range",
+    "run-006-python-true"
+   ],
+   "example_before": "",
+   "example_after": ""
+  },
+  {
+   "id": "S-MODULE",
+   "mistake": "`import`/`export` in a script",
+   "rank": 19,
+   "evidence": "prior",
+   "action": "suggest",
+   "rule": "run as a module",
+   "guard": "module mode changes strictness and `this`",
+   "seed_cases": [
+    "syn-023-import-in-script"
+   ],
+   "example_before": "",
+   "example_after": ""
+  },
+  {
+   "id": "S-TRY",
+   "mistake": "`try` without `catch`/`finally`",
+   "rank": 20,
+   "evidence": "prior",
+   "action": "suggest",
+   "rule": "add a catch clause",
+   "guard": "the handler body is the author's",
+   "seed_cases": [
+    "syn-031-try-without-catch"
+   ],
+   "example_before": "",
+   "example_after": ""
+  }
+ ]
+}
