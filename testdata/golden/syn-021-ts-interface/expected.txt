@@ -1,0 +1,7 @@
+error[SyntaxError]: Unexpected identifier 'Item'
+ --> case.js:1:1
+  |
+1 | interface Item { id: number; name: string }
+  | ^^^^^^^^^ `interface` declarations are TypeScript
+  |
+  = help: delete the interface declaration

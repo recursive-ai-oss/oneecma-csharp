@@ -1,0 +1,16 @@
+{
+  "id": "run-012-match-returns-null",
+  "category": "rt:property-of-null",
+  "kind": "runtime",
+  "repair": null,
+  "node": {
+    "name": "TypeError",
+    "message": "Cannot read properties of null (reading '0')",
+    "line": 2,
+    "column": 20,
+    "stack_head": [
+      "console.log(matches[0]);",
+      "^"
+    ]
+  }
+}

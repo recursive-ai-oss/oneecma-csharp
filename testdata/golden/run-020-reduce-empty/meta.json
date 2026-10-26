@@ -1,0 +1,16 @@
+{
+  "id": "run-020-reduce-empty",
+  "category": "rt:type-other",
+  "kind": "runtime",
+  "repair": null,
+  "node": {
+    "name": "TypeError",
+    "message": "Reduce of empty array with no initial value",
+    "line": 2,
+    "column": 20,
+    "stack_head": [
+      "const sum = values.reduce((a, b) => a + b);",
+      "^"
+    ]
+  }
+}

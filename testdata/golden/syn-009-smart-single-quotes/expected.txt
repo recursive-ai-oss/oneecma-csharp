@@ -1,0 +1,7 @@
+error[SyntaxError]: Invalid or unexpected token
+ --> case.js:1:14
+  |
+1 | const name = ‘Ada’;
+  |              ^^^^^ these are typographic quotes (U+2018, U+2019), not `'`
+  |
+  = help: use straight quotes: `const name = 'Ada';`

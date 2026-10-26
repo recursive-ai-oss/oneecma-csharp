@@ -1,0 +1,8 @@
+error[ReferenceError]: True is not defined
+ --> case.js:1:15
+  |
+1 | const ready = True;
+  |               ^^^^ `True` is not declared in this scope
+  |
+  = help: JavaScript spells it `true`
+  = stack: <top-level> (case.js:1)

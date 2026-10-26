@@ -1,0 +1,10 @@
+error[SyntaxError]: "undefined" is not valid JSON
+ --> case.js:2:25
+  |
+1 | const raw = undefined;
+  |             --------- `raw` is set to undefined here
+2 | const data = JSON.parse(raw);
+  |                         ^^^ `raw` is undefined
+  |
+  = help: check that the value exists before parsing it
+  = stack: <top-level> (case.js:2)

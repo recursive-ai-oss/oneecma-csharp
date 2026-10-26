@@ -1,0 +1,7 @@
+error[SyntaxError]: Invalid or unexpected token
+ --> case.js:1:13
+  |
+1 | const a = 1;\nconst b = 2;\nconsole.log(a + b);
+  |             ^ a literal `\n` between statements; this was meant to be a line break
+  |
+  = help: put each statement on its own line

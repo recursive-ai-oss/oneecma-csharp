@@ -1,0 +1,16 @@
+{
+  "id": "run-002-null-property",
+  "category": "rt:property-of-null",
+  "kind": "runtime",
+  "repair": null,
+  "node": {
+    "name": "TypeError",
+    "message": "Cannot read properties of null (reading 'toUpperCase')",
+    "line": 3,
+    "column": 23,
+    "stack_head": [
+      "console.log(first.tag.toUpperCase());",
+      "^"
+    ]
+  }
+}

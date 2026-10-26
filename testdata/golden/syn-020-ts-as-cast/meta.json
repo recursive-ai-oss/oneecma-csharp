@@ -1,0 +1,13 @@
+{
+  "id": "syn-020-ts-as-cast",
+  "category": "syn:typescript-annotation",
+  "kind": "syntax",
+  "repair": "R007",
+  "node": {
+    "name": "SyntaxError",
+    "message": "Unexpected identifier 'as'",
+    "line": 1,
+    "column": 27
+  },
+  "repaired_runs_clean": true
+}

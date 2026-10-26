@@ -1,0 +1,16 @@
+{
+  "id": "run-011-json-parse-undefined",
+  "category": "rt:json-parse",
+  "kind": "runtime",
+  "repair": null,
+  "node": {
+    "name": "SyntaxError",
+    "message": "\"undefined\" is not valid JSON",
+    "line": 2,
+    "column": 19,
+    "stack_head": [
+      "undefined",
+      "^"
+    ]
+  }
+}

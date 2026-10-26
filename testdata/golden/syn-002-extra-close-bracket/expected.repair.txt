@@ -1,0 +1,7 @@
+repair[R001]: removed an extra closing delimiter
+ --> case.js:1:22
+  |
+1 | const row = [1, 2, 3]];
+  |                      ^ removed
+  |
+  = note: the repaired source ran to completion and is returned with this report

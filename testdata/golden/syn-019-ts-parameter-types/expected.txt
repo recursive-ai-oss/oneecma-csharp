@@ -1,0 +1,7 @@
+error[SyntaxError]: Unexpected token ':'
+ --> case.js:1:15
+  |
+1 | function add(a: number, b: number) {
+  |               ^ type annotations are TypeScript, not JavaScript
+  |
+  = help: remove the annotations: `function add(a, b)`

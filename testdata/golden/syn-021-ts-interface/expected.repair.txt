@@ -1,0 +1,7 @@
+repair[R007]: removed TypeScript type syntax
+ --> case.js:1:1
+  |
+1 | interface Item { id: number; name: string }
+  | ^^^^^^^^^ removed
+  |
+  = note: the repaired source ran to completion and is returned with this report

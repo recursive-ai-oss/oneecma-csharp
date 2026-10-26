@@ -1,0 +1,16 @@
+{
+  "id": "run-013-set-on-undefined",
+  "category": "rt:set-property-of-undefined",
+  "kind": "runtime",
+  "repair": null,
+  "node": {
+    "name": "TypeError",
+    "message": "Cannot set properties of undefined (setting 'name')",
+    "line": 2,
+    "column": 17,
+    "stack_head": [
+      "state.user.name = \"ada\";",
+      "^"
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "id": "syn-033-two-errors",
+  "category": "syn:multiple",
+  "kind": "syntax",
+  "repair": null,
+  "node": {
+    "name": "SyntaxError",
+    "message": "Unexpected token ')'",
+    "line": 2,
+    "column": 15
+  }
+}

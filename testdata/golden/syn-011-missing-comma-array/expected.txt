@@ -1,0 +1,9 @@
+error[SyntaxError]: Unexpected string
+ --> case.js:3:3
+  |
+2 |   "ada"
+  |   ----- the previous element ends here
+3 |   "grace",
+  |   ^^^^^^^ expected `,` before this element
+  |
+  = help: add `,` after `"ada"`

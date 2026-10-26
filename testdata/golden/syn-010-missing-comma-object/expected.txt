@@ -1,0 +1,9 @@
+error[SyntaxError]: Unexpected identifier 'port'
+ --> case.js:3:3
+  |
+2 |   host: "localhost"
+  |         ----------- the previous property ends here
+3 |   port: 8080,
+  |   ^^^^ expected `,` before this property
+  |
+  = help: add `,` after `"localhost"`

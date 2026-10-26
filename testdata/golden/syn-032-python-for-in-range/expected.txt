@@ -1,0 +1,8 @@
+error[SyntaxError]: Unexpected identifier 'i'
+ --> case.js:1:1
+  |
+1 | for i in range(3):
+  | ^^^^^^^^^^^^^^^^^ Python loop syntax; JavaScript writes `for (let i = 0; i < 3; i++)`
+  |
+  = help: write `for (let i = 0; i < 3; i++) { console.log(i); }`
+  = note: not repaired automatically: no mechanical rewrite keeps the meaning

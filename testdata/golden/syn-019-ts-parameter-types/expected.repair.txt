@@ -1,0 +1,7 @@
+repair[R007]: removed TypeScript type syntax
+ --> case.js:1:15
+  |
+1 | function add(a: number, b: number) {
+  |               ^ removed
+  |
+  = note: the repaired source ran to completion and is returned with this report

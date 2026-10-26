@@ -1,0 +1,8 @@
+error[SyntaxError]: await is only valid in async functions and the top level bodies of modules
+ --> case.js:1:13
+  |
+1 | const res = await fetch("/api/items");
+  |             ^^^^^ `await` is only allowed in async functions and modules
+  |
+  = help: wrap the code in `async function main() { ... }` and call it, or run it as a module
+  = note: not repaired automatically: wrapping changes the scope of every declaration

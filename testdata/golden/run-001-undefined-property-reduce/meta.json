@@ -1,0 +1,16 @@
+{
+  "id": "run-001-undefined-property-reduce",
+  "category": "rt:property-of-undefined",
+  "kind": "runtime",
+  "repair": null,
+  "node": {
+    "name": "TypeError",
+    "message": "Cannot read properties of undefined (reading 'reduce')",
+    "line": 7,
+    "column": 29,
+    "stack_head": [
+      "at checkout (case.js:7:29)",
+      "at async main (case.js:12:13)"
+    ]
+  }
+}

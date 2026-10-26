@@ -1,0 +1,13 @@
+{
+  "id": "syn-026-comma-between-methods",
+  "category": "syn:comma-in-class",
+  "kind": "syntax",
+  "repair": "R008",
+  "node": {
+    "name": "SyntaxError",
+    "message": "Unexpected token ','",
+    "line": 2,
+    "column": 22
+  },
+  "repaired_runs_clean": true
+}

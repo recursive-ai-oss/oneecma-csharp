@@ -1,0 +1,13 @@
+{
+  "id": "syn-028-escaped-quotes",
+  "category": "syn:escaped-quotes",
+  "kind": "syntax",
+  "repair": "R009",
+  "node": {
+    "name": "SyntaxError",
+    "message": "Invalid or unexpected token",
+    "line": 1,
+    "column": 13
+  },
+  "repaired_runs_clean": true
+}

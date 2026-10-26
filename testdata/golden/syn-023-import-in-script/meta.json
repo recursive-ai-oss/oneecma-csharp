@@ -1,0 +1,12 @@
+{
+  "id": "syn-023-import-in-script",
+  "category": "syn:module-syntax-in-script",
+  "kind": "syntax",
+  "repair": null,
+  "node": {
+    "name": "SyntaxError",
+    "message": "Cannot use import statement outside a module",
+    "line": 1,
+    "column": 1
+  }
+}

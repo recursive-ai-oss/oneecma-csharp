@@ -1,0 +1,7 @@
+error[SyntaxError]: Unexpected identifier 'and'
+ --> case.js:3:7
+  |
+3 | if (a and b) {
+  |       ^^^ `and` is Python; JavaScript writes `&&`
+  |
+  = help: replace `and` with `&&`

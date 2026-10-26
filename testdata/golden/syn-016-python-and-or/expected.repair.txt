@@ -1,0 +1,7 @@
+repair[R006]: replaced a Python keyword with its JavaScript form
+ --> case.js:3:7
+  |
+3 | if (a and b) {
+  |       ^^^ replaced
+  |
+  = note: the repaired source ran to completion and is returned with this report

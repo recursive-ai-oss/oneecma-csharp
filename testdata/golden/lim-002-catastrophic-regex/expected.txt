@@ -1,0 +1,8 @@
+error[LimitExceeded]: regular expression fuel exhausted
+ --> case.js:2:12
+  |
+2 | const ok = /(a+)+$/.test(input);
+  |            ^^^^^^^^ this pattern backtracks exponentially on this input
+  |
+  = help: replace `(a+)+` with `a+`
+  = stack: <top-level> (case.js:2)

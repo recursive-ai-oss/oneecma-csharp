@@ -1,0 +1,8 @@
+error[SyntaxError]: Unexpected identifier 'double'
+ --> case.js:1:1
+  |
+1 | def double(x):
+  | ^^^ `def` is Python; JavaScript declares functions with `function`
+  |
+  = help: write `function double(x) { return x * 2; }`
+  = note: not repaired automatically: the body needs braces and the colon form has no JavaScript equivalent

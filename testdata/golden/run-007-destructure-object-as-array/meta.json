@@ -1,0 +1,16 @@
+{
+  "id": "run-007-destructure-object-as-array",
+  "category": "rt:not-iterable",
+  "kind": "runtime",
+  "repair": null,
+  "node": {
+    "name": "TypeError",
+    "message": "point is not iterable",
+    "line": 2,
+    "column": 16,
+    "stack_head": [
+      "const [x, y] = point;",
+      "^"
+    ]
+  }
+}

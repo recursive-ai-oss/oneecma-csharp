@@ -1,0 +1,10 @@
+error[SyntaxError]: Missing catch or finally after try
+ --> case.js:4:1
+  |
+2 | try {
+  | ----- this `try` needs one of them
+3 |   risky();
+4 | }
+  | ^ the `try` block ends here with no `catch` or `finally`
+  |
+  = help: add `catch (err) { ... }` after the block

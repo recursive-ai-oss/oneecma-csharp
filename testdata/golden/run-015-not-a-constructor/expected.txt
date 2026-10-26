@@ -1,0 +1,10 @@
+error[TypeError]: make is not a constructor
+ --> case.js:2:15
+  |
+1 | const make = () => ({});
+  |              ---------- `make` is defined here as an arrow function
+2 | const o = new make();
+  |               ^^^^ an arrow function cannot be used with `new`
+  |
+  = help: declare it with `function make() { ... }` or call it without `new`
+  = stack: <top-level> (case.js:2)

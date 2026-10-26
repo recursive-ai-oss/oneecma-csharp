@@ -1,0 +1,8 @@
+error[SyntaxError]: Illegal return statement
+ --> case.js:3:3
+  |
+3 |   return x;
+  |   ^^^^^^ `return` is only allowed inside a function
+  |
+  = help: put the code in a function, or replace `return x;` with the value as the last expression
+  = note: not repaired automatically: the intended result depends on the host

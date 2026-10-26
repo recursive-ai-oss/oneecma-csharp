@@ -1,0 +1,7 @@
+error[SyntaxError]: Unexpected identifier 'as'
+ --> case.js:1:27
+  |
+1 | const n = JSON.parse("1") as number;
+  |                           ^^ `as number` is a TypeScript cast
+  |
+  = help: remove ` as number`

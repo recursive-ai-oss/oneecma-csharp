@@ -1,0 +1,8 @@
+error[SyntaxError]: missing ) after argument list
+ --> case.js:3:3
+  |
+3 |   1
+  | --- the previous argument ends here
+  |   ^ expected `,` before this argument
+  |
+  = help: add `,` after `1`

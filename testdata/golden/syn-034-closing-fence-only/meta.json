@@ -1,0 +1,13 @@
+{
+  "id": "syn-034-closing-fence-only",
+  "category": "syn:markdown-fence",
+  "kind": "syntax",
+  "repair": "R003",
+  "node": {
+    "name": "SyntaxError",
+    "message": "Unexpected end of input",
+    "line": 4,
+    "column": 1
+  },
+  "repaired_runs_clean": true
+}

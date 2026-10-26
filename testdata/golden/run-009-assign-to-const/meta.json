@@ -1,0 +1,16 @@
+{
+  "id": "run-009-assign-to-const",
+  "category": "rt:const-assignment",
+  "kind": "runtime",
+  "repair": null,
+  "node": {
+    "name": "TypeError",
+    "message": "Assignment to constant variable.",
+    "line": 2,
+    "column": 7,
+    "stack_head": [
+      "total += 5;",
+      "^"
+    ]
+  }
+}

@@ -1,0 +1,7 @@
+repair[R009]: removed backslashes that escaped quotes outside a string
+ --> case.js:1:13
+  |
+1 | console.log(\"hello\");
+  |             ^ removed
+  |
+  = note: the repaired source ran to completion and is returned with this report

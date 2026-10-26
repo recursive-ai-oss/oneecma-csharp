@@ -1,0 +1,8 @@
+error[TypeError]: Class constructor Box cannot be invoked without 'new'
+ --> case.js:2:11
+  |
+2 | const b = Box();
+  |           ^^^^^ `Box` is a class and needs `new`
+  |
+  = help: write `new Box()`
+  = stack: <top-level> (case.js:2)

@@ -1,0 +1,16 @@
+{
+  "id": "run-022-keys-of-null",
+  "category": "rt:convert-null",
+  "kind": "runtime",
+  "repair": null,
+  "node": {
+    "name": "TypeError",
+    "message": "Cannot convert undefined or null to object",
+    "line": 2,
+    "column": 20,
+    "stack_head": [
+      "console.log(Object.keys(config));",
+      "^"
+    ]
+  }
+}

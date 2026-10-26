@@ -1,0 +1,12 @@
+{
+  "id": "syn-003-missing-close-paren",
+  "category": "syn:missing-closing-delimiter",
+  "kind": "syntax",
+  "repair": null,
+  "node": {
+    "name": "SyntaxError",
+    "message": "missing ) after argument list",
+    "line": 1,
+    "column": 30
+  }
+}

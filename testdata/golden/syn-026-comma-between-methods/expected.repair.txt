@@ -1,0 +1,7 @@
+repair[R008]: removed a comma between class members
+ --> case.js:2:22
+  |
+2 |   inc() { return 1; },
+  |                      ^ removed
+  |
+  = note: the repaired source ran to completion and is returned with this report

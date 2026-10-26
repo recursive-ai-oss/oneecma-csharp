@@ -1,0 +1,7 @@
+error[SyntaxError]: Invalid left-hand side in assignment
+ --> case.js:2:1
+  |
+2 | 1 = a;
+  | ^^^^^ a literal cannot be assigned to
+  |
+  = help: swap the sides: `a = 1` (if `a` were not `const`)

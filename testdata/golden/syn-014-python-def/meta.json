@@ -1,0 +1,12 @@
+{
+  "id": "syn-014-python-def",
+  "category": "syn:python-keyword",
+  "kind": "syntax",
+  "repair": null,
+  "node": {
+    "name": "SyntaxError",
+    "message": "Unexpected identifier 'double'",
+    "line": 1,
+    "column": 5
+  }
+}

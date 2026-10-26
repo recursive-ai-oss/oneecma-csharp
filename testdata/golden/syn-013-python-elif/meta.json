@@ -1,0 +1,13 @@
+{
+  "id": "syn-013-python-elif",
+  "category": "syn:python-keyword",
+  "kind": "syntax",
+  "repair": "R006",
+  "node": {
+    "name": "SyntaxError",
+    "message": "Unexpected token '{'",
+    "line": 4,
+    "column": 16
+  },
+  "repaired_runs_clean": true
+}

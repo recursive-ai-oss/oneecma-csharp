@@ -1,0 +1,13 @@
+{
+  "id": "syn-001-extra-close-paren",
+  "category": "syn:extra-closing-delimiter",
+  "kind": "syntax",
+  "repair": "R001",
+  "node": {
+    "name": "SyntaxError",
+    "message": "Unexpected token ')'",
+    "line": 3,
+    "column": 26
+  },
+  "repaired_runs_clean": true
+}

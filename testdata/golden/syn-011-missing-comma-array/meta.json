@@ -1,0 +1,13 @@
+{
+  "id": "syn-011-missing-comma-array",
+  "category": "syn:missing-comma",
+  "kind": "syntax",
+  "repair": "R005",
+  "node": {
+    "name": "SyntaxError",
+    "message": "Unexpected string",
+    "line": 3,
+    "column": 3
+  },
+  "repaired_runs_clean": true
+}

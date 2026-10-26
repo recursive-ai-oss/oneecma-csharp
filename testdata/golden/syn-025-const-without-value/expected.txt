@@ -1,0 +1,7 @@
+error[SyntaxError]: Missing initializer in const declaration
+ --> case.js:1:7
+  |
+1 | const total;
+  |       ^^^^^^ `const` needs a value here
+  |
+  = help: write `const total = 5;`, or use `let total;` if it is assigned later

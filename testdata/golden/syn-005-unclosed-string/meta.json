@@ -1,0 +1,12 @@
+{
+  "id": "syn-005-unclosed-string",
+  "category": "syn:unterminated-string",
+  "kind": "syntax",
+  "repair": null,
+  "node": {
+    "name": "SyntaxError",
+    "message": "Invalid or unexpected token",
+    "line": 1,
+    "column": 13
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "id": "syn-029-literal-backslash-n",
+  "category": "syn:escaped-newline",
+  "kind": "syntax",
+  "repair": "R011",
+  "node": {
+    "name": "SyntaxError",
+    "message": "Invalid or unexpected token",
+    "line": 1,
+    "column": 13
+  },
+  "repaired_runs_clean": true
+}

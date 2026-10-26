@@ -1,0 +1,12 @@
+{
+  "id": "syn-017-top-level-await",
+  "category": "syn:top-level-await",
+  "kind": "syntax",
+  "repair": null,
+  "node": {
+    "name": "SyntaxError",
+    "message": "await is only valid in async functions and the top level bodies of modules",
+    "line": 1,
+    "column": 13
+  }
+}
