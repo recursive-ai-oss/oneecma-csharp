@@ -1,0 +1,585 @@
+# Failures of the node backend (Node v24.22.1) against the pinned test262 commit, each a gap in
+# Node rather than in the runner. They are documented so that a gate run with --documented
+# reads "passes or is documented". Format: <path> | <reason>.
+# Written from a full run on 2026-10-26; regenerate when the Node or test262 pin changes.
+annexB/language/function-code/block-decl-func-skip-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+annexB/language/function-code/block-decl-nested-blocks-with-fun-decl.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Array/prototype/concat/arg-length-near-integer-limit.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/ArrayBuffer/options-maxbytelength-compared-before-object-creation.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Atomics/notify/retrieve-length-before-index-coercion-non-shared-detached.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Atomics/notify/retrieve-length-before-index-coercion-non-shared-resize-to-zero.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Atomics/notify/retrieve-length-before-index-coercion-non-shared.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Atomics/notify/retrieve-length-before-index-coercion.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Atomics/wait/retrieve-length-before-index-coercion.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Atomics/waitAsync/bigint/true-for-timeout.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Atomics/waitAsync/retrieve-length-before-index-coercion.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Atomics/waitAsync/returns-result-object-value-is-promise-resolves-to-timed-out.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Atomics/waitAsync/true-for-timeout.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/DataView/prototype/byteLength/detached-buffer.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/DataView/prototype/byteLength/resizable-array-buffer-auto.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/DataView/prototype/byteLength/resizable-array-buffer-fixed.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/DataView/prototype/byteOffset/detached-buffer.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/DataView/prototype/byteOffset/resizable-array-buffer-auto.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/DataView/prototype/byteOffset/resizable-array-buffer-fixed.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Date/prototype/setDate/date-value-read-before-tonumber-when-date-is-invalid.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Date/prototype/setDate/date-value-read-before-tonumber-when-date-is-valid.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Date/prototype/setHours/date-value-read-before-tonumber-when-date-is-invalid.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Date/prototype/setHours/date-value-read-before-tonumber-when-date-is-valid.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Date/prototype/setMilliseconds/date-value-read-before-tonumber-when-date-is-invalid.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Date/prototype/setMilliseconds/date-value-read-before-tonumber-when-date-is-valid.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Date/prototype/setMinutes/date-value-read-before-tonumber-when-date-is-invalid.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Date/prototype/setMinutes/date-value-read-before-tonumber-when-date-is-valid.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Date/prototype/setMonth/date-value-read-before-tonumber-when-date-is-invalid.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Date/prototype/setMonth/date-value-read-before-tonumber-when-date-is-valid.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Date/prototype/setSeconds/date-value-read-before-tonumber-when-date-is-invalid.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Date/prototype/setSeconds/date-value-read-before-tonumber-when-date-is-valid.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Date/prototype/setUTCDate/date-value-read-before-tonumber-when-date-is-invalid.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Date/prototype/setUTCDate/date-value-read-before-tonumber-when-date-is-valid.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Date/prototype/setUTCHours/date-value-read-before-tonumber-when-date-is-invalid.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Date/prototype/setUTCHours/date-value-read-before-tonumber-when-date-is-valid.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Date/prototype/setUTCMilliseconds/date-value-read-before-tonumber-when-date-is-invalid.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Date/prototype/setUTCMilliseconds/date-value-read-before-tonumber-when-date-is-valid.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Date/prototype/setUTCMinutes/date-value-read-before-tonumber-when-date-is-invalid.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Date/prototype/setUTCMinutes/date-value-read-before-tonumber-when-date-is-valid.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Date/prototype/setUTCMonth/date-value-read-before-tonumber-when-date-is-invalid.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Date/prototype/setUTCMonth/date-value-read-before-tonumber-when-date-is-valid.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Date/prototype/setUTCSeconds/date-value-read-before-tonumber-when-date-is-invalid.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Date/prototype/setUTCSeconds/date-value-read-before-tonumber-when-date-is-valid.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Function/internals/Construct/derived-this-uninitialized-realm.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Function/prototype/toString/built-in-function-object.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Function/prototype/toString/line-terminator-normalisation-CR.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Iterator/concat/arguments-checked-in-order.js | Iterator.concat not in Node 24
+built-ins/Iterator/concat/fresh-iterator-result.js | Iterator.concat not in Node 24
+built-ins/Iterator/concat/get-iterator-method-only-once.js | Iterator.concat not in Node 24
+built-ins/Iterator/concat/get-iterator-method-throws.js | Iterator.concat not in Node 24
+built-ins/Iterator/concat/get-value-after-done.js | Iterator.concat not in Node 24
+built-ins/Iterator/concat/inner-iterator-created-in-order.js | Iterator.concat not in Node 24
+built-ins/Iterator/concat/is-function.js | Iterator.concat not in Node 24
+built-ins/Iterator/concat/iterable-primitive-wrapper-objects.js | Iterator.concat not in Node 24
+built-ins/Iterator/concat/length.js | Iterator.concat not in Node 24
+built-ins/Iterator/concat/many-arguments.js | Iterator.concat not in Node 24
+built-ins/Iterator/concat/name.js | Iterator.concat not in Node 24
+built-ins/Iterator/concat/next-method-called-with-zero-arguments.js | Iterator.concat not in Node 24
+built-ins/Iterator/concat/next-method-returns-non-object.js | Iterator.concat not in Node 24
+built-ins/Iterator/concat/next-method-returns-throwing-done.js | Iterator.concat not in Node 24
+built-ins/Iterator/concat/next-method-returns-throwing-value-done.js | Iterator.concat not in Node 24
+built-ins/Iterator/concat/next-method-returns-throwing-value.js | Iterator.concat not in Node 24
+built-ins/Iterator/concat/next-method-throws.js | Iterator.concat not in Node 24
+built-ins/Iterator/concat/prop-desc.js | Iterator.concat not in Node 24
+built-ins/Iterator/concat/proto.js | Iterator.concat not in Node 24
+built-ins/Iterator/concat/result-is-iterator.js | Iterator.concat not in Node 24
+built-ins/Iterator/concat/return-is-forwarded.js | Iterator.concat not in Node 24
+built-ins/Iterator/concat/return-is-not-forwarded-after-exhaustion.js | Iterator.concat not in Node 24
+built-ins/Iterator/concat/return-is-not-forwarded-before-initial-start.js | Iterator.concat not in Node 24
+built-ins/Iterator/concat/return-method-called-with-zero-arguments.js | Iterator.concat not in Node 24
+built-ins/Iterator/concat/single-argument.js | Iterator.concat not in Node 24
+built-ins/Iterator/concat/throws-typeerror-when-generator-is-running-next.js | Iterator.concat not in Node 24
+built-ins/Iterator/concat/throws-typeerror-when-generator-is-running-return.js | Iterator.concat not in Node 24
+built-ins/Iterator/concat/throws-typeerror-when-iterator-not-an-object.js | Iterator.concat not in Node 24
+built-ins/Iterator/concat/zero-arguments.js | Iterator.concat not in Node 24
+built-ins/Iterator/prototype/drop/argument-effect-order.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Iterator/prototype/drop/argument-validation-failure-closes-underlying.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Iterator/prototype/drop/limit-rangeerror.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Iterator/prototype/take/argument-effect-order.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Iterator/prototype/take/argument-validation-failure-closes-underlying.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Iterator/prototype/take/limit-rangeerror.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Map/prototype/getOrInsert/append-new-values-normalizes-zero-key.js | Map/WeakMap upsert not in Node 24
+built-ins/Map/prototype/getOrInsert/append-new-values.js | Map/WeakMap upsert not in Node 24
+built-ins/Map/prototype/getOrInsert/append-value-if-key-is-not-present-different-key-types.js | Map/WeakMap upsert not in Node 24
+built-ins/Map/prototype/getOrInsert/getOrInsert.js | Map/WeakMap upsert not in Node 24
+built-ins/Map/prototype/getOrInsert/length.js | Map/WeakMap upsert not in Node 24
+built-ins/Map/prototype/getOrInsert/name.js | Map/WeakMap upsert not in Node 24
+built-ins/Map/prototype/getOrInsert/not-a-constructor.js | Map/WeakMap upsert not in Node 24
+built-ins/Map/prototype/getOrInsert/returns-value-if-key-is-not-present-different-key-types.js | Map/WeakMap upsert not in Node 24
+built-ins/Map/prototype/getOrInsert/returns-value-if-key-is-present-different-key-types.js | Map/WeakMap upsert not in Node 24
+built-ins/Map/prototype/getOrInsert/returns-value-normalized-zero-key.js | Map/WeakMap upsert not in Node 24
+built-ins/Map/prototype/getOrInsertComputed/append-new-values-normalizes-zero-key.js | Map/WeakMap upsert not in Node 24
+built-ins/Map/prototype/getOrInsertComputed/append-new-values.js | Map/WeakMap upsert not in Node 24
+built-ins/Map/prototype/getOrInsertComputed/append-value-if-key-is-not-present-different-key-types.js | Map/WeakMap upsert not in Node 24
+built-ins/Map/prototype/getOrInsertComputed/callbackfn-throws.js | Map/WeakMap upsert not in Node 24
+built-ins/Map/prototype/getOrInsertComputed/canonical-key-passed-to-callback.js | Map/WeakMap upsert not in Node 24
+built-ins/Map/prototype/getOrInsertComputed/check-callback-fn-args.js | Map/WeakMap upsert not in Node 24
+built-ins/Map/prototype/getOrInsertComputed/check-state-after-callback-fn-throws.js | Map/WeakMap upsert not in Node 24
+built-ins/Map/prototype/getOrInsertComputed/different-types-function-callbackfn-does-not-throw.js | Map/WeakMap upsert not in Node 24
+built-ins/Map/prototype/getOrInsertComputed/does-not-evaluate-callbackfn-if-key-present.js | Map/WeakMap upsert not in Node 24
+built-ins/Map/prototype/getOrInsertComputed/getOrInsertComputed.js | Map/WeakMap upsert not in Node 24
+built-ins/Map/prototype/getOrInsertComputed/not-a-constructor.js | Map/WeakMap upsert not in Node 24
+built-ins/Map/prototype/getOrInsertComputed/overwrites-mutation-from-callbackfn.js | Map/WeakMap upsert not in Node 24
+built-ins/Map/prototype/getOrInsertComputed/returns-value-if-key-is-not-present-different-key-types.js | Map/WeakMap upsert not in Node 24
+built-ins/Map/prototype/getOrInsertComputed/returns-value-if-key-is-present-different-key-types.js | Map/WeakMap upsert not in Node 24
+built-ins/Map/prototype/getOrInsertComputed/returns-value-normalized-zero-key.js | Map/WeakMap upsert not in Node 24
+built-ins/Math/sumPrecise/length.js | Math.sumPrecise not in Node 24
+built-ins/Math/sumPrecise/name.js | Math.sumPrecise not in Node 24
+built-ins/Math/sumPrecise/not-a-constructor.js | Math.sumPrecise not in Node 24
+built-ins/Math/sumPrecise/prop-desc.js | Math.sumPrecise not in Node 24
+built-ins/Math/sumPrecise/sum-is-NaN.js | Math.sumPrecise not in Node 24
+built-ins/Math/sumPrecise/sum-is-infinite.js | Math.sumPrecise not in Node 24
+built-ins/Math/sumPrecise/sum-is-minus-zero.js | Math.sumPrecise not in Node 24
+built-ins/Math/sumPrecise/sum.js | Math.sumPrecise not in Node 24
+built-ins/Math/sumPrecise/takes-iterable.js | Math.sumPrecise not in Node 24
+built-ins/Math/sumPrecise/throws-on-non-number.js | Math.sumPrecise not in Node 24
+built-ins/Object/internals/DefineOwnProperty/consistent-value-function-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Object/internals/DefineOwnProperty/consistent-value-function-caller.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Promise/try/avoids-wrap-for-subclass.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Promise/try/avoids-wrap.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/RegExp/prototype/Symbol.replace/flags-tostring-error.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/RegExp/prototype/Symbol.replace/get-flags-err.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/RegExp/prototype/Symbol.replace/get-unicode-error.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/SharedArrayBuffer/options-maxbytelength-compared-before-object-creation.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/String/prototype/match/cstm-matcher-on-bigint-primitive.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/String/prototype/match/cstm-matcher-on-boolean-primitive.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/String/prototype/match/cstm-matcher-on-number-primitive.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/String/prototype/match/cstm-matcher-on-string-primitive.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/String/prototype/matchAll/cstm-matchall-on-bigint-primitive.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/String/prototype/matchAll/cstm-matchall-on-number-primitive.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/String/prototype/matchAll/cstm-matchall-on-string-primitive.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/String/prototype/replace/cstm-replace-on-bigint-primitive.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/String/prototype/replace/cstm-replace-on-boolean-primitive.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/String/prototype/replace/cstm-replace-on-number-primitive.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/String/prototype/replace/cstm-replace-on-string-primitive.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/String/prototype/replaceAll/cstm-replaceall-on-bigint-primitive.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/String/prototype/replaceAll/cstm-replaceall-on-boolean-primitive.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/String/prototype/replaceAll/cstm-replaceall-on-number-primitive.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/String/prototype/replaceAll/cstm-replaceall-on-string-primitive.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/String/prototype/search/cstm-search-on-bigint-primitive.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/String/prototype/search/cstm-search-on-boolean-primitive.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/String/prototype/search/cstm-search-on-number-primitive.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/String/prototype/search/cstm-search-on-string-primitive.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/String/prototype/split/cstm-split-on-bigint-primitive.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/String/prototype/split/cstm-split-on-boolean-primitive.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/String/prototype/split/cstm-split-on-number-primitive.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/String/prototype/split/cstm-split-on-string-primitive.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/TypedArray/from/iterated-array-changed-by-tonumber.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/TypedArray/prototype/subarray/BigInt/speciesctor-get-species-custom-ctor-invocation.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/TypedArray/prototype/subarray/speciesctor-get-species-custom-ctor-invocation.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/TypedArray/prototype/values/make-in-bounds-after-exhausted.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/TypedArray/prototype/values/make-out-of-bounds-after-exhausted.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/TypedArray/prototype/with/BigInt/negative-index-resize-to-out-of-bounds.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/TypedArray/prototype/with/negative-index-resize-to-in-bounds.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/TypedArray/prototype/with/negative-index-resize-to-out-of-bounds.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/TypedArrayConstructors/ctors/typedarray-arg/throw-type-error-before-custom-proto-access.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/TypedArrayConstructors/internals/Set/BigInt/key-is-canonical-invalid-index-prototype-chain-set.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/TypedArrayConstructors/internals/Set/BigInt/key-is-canonical-invalid-index-reflect-set.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/TypedArrayConstructors/internals/Set/key-is-canonical-invalid-index-prototype-chain-set.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/TypedArrayConstructors/internals/Set/key-is-canonical-invalid-index-reflect-set.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/TypedArrayConstructors/internals/Set/key-is-out-of-bounds-receiver-is-not-object.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/TypedArrayConstructors/internals/Set/key-is-out-of-bounds-receiver-is-not-typed-array.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+built-ins/Uint8Array/fromBase64/alphabet.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/fromBase64/descriptor.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/fromBase64/ignores-receiver.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/fromBase64/illegal-characters.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/fromBase64/last-chunk-handling.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/fromBase64/last-chunk-invalid.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/fromBase64/length.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/fromBase64/name.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/fromBase64/nonconstructor.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/fromBase64/option-coercion.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/fromBase64/results.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/fromBase64/whitespace.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/fromHex/descriptor.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/fromHex/ignores-receiver.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/fromHex/illegal-characters.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/fromHex/length.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/fromHex/name.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/fromHex/nonconstructor.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/fromHex/odd-length-input.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/fromHex/results.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/prototype/setFromBase64/alphabet.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/prototype/setFromBase64/descriptor.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/prototype/setFromBase64/detached-buffer.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/prototype/setFromBase64/illegal-characters.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/prototype/setFromBase64/last-chunk-handling.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/prototype/setFromBase64/length.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/prototype/setFromBase64/name.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/prototype/setFromBase64/nonconstructor.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/prototype/setFromBase64/option-coercion.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/prototype/setFromBase64/results.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/prototype/setFromBase64/subarray.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/prototype/setFromBase64/target-size.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/prototype/setFromBase64/trailing-garbage-empty.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/prototype/setFromBase64/trailing-garbage.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/prototype/setFromBase64/whitespace.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/prototype/setFromBase64/writes-up-to-error.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/prototype/setFromHex/descriptor.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/prototype/setFromHex/illegal-characters.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/prototype/setFromHex/length.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/prototype/setFromHex/name.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/prototype/setFromHex/nonconstructor.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/prototype/setFromHex/results.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/prototype/setFromHex/subarray.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/prototype/setFromHex/target-size.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/prototype/setFromHex/throws-when-string-length-is-odd.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/prototype/setFromHex/writes-up-to-error.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/prototype/toBase64/alphabet.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/prototype/toBase64/descriptor.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/prototype/toBase64/detached-buffer.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/prototype/toBase64/length.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/prototype/toBase64/name.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/prototype/toBase64/nonconstructor.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/prototype/toBase64/omit-padding.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/prototype/toBase64/option-coercion.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/prototype/toBase64/results.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/prototype/toHex/descriptor.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/prototype/toHex/length.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/prototype/toHex/name.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/prototype/toHex/nonconstructor.js | Uint8Array base64/hex not in Node 24
+built-ins/Uint8Array/prototype/toHex/results.js | Uint8Array base64/hex not in Node 24
+built-ins/WeakMap/prototype/getOrInsert/adds-object-element.js | Map/WeakMap upsert not in Node 24
+built-ins/WeakMap/prototype/getOrInsert/adds-symbol-element.js | Map/WeakMap upsert not in Node 24
+built-ins/WeakMap/prototype/getOrInsert/getOrInsert.js | Map/WeakMap upsert not in Node 24
+built-ins/WeakMap/prototype/getOrInsert/length.js | Map/WeakMap upsert not in Node 24
+built-ins/WeakMap/prototype/getOrInsert/name.js | Map/WeakMap upsert not in Node 24
+built-ins/WeakMap/prototype/getOrInsert/not-a-constructor.js | Map/WeakMap upsert not in Node 24
+built-ins/WeakMap/prototype/getOrInsert/returns-value-if-key-is-not-present-object-key.js | Map/WeakMap upsert not in Node 24
+built-ins/WeakMap/prototype/getOrInsert/returns-value-if-key-is-not-present-symbol-key.js | Map/WeakMap upsert not in Node 24
+built-ins/WeakMap/prototype/getOrInsert/returns-value-if-key-is-present-object-key.js | Map/WeakMap upsert not in Node 24
+built-ins/WeakMap/prototype/getOrInsert/returns-value-if-key-is-present-symbol-key.js | Map/WeakMap upsert not in Node 24
+built-ins/WeakMap/prototype/getOrInsertComputed/adds-object-element.js | Map/WeakMap upsert not in Node 24
+built-ins/WeakMap/prototype/getOrInsertComputed/adds-symbol-element.js | Map/WeakMap upsert not in Node 24
+built-ins/WeakMap/prototype/getOrInsertComputed/adds-value-different-callbackfn.js | Map/WeakMap upsert not in Node 24
+built-ins/WeakMap/prototype/getOrInsertComputed/callbackfn-throws.js | Map/WeakMap upsert not in Node 24
+built-ins/WeakMap/prototype/getOrInsertComputed/check-callback-fn-args.js | Map/WeakMap upsert not in Node 24
+built-ins/WeakMap/prototype/getOrInsertComputed/check-state-after-callback-fn-throws.js | Map/WeakMap upsert not in Node 24
+built-ins/WeakMap/prototype/getOrInsertComputed/does-not-evaluate-callbackfn-if-key-present.js | Map/WeakMap upsert not in Node 24
+built-ins/WeakMap/prototype/getOrInsertComputed/getOrInsertComputed.js | Map/WeakMap upsert not in Node 24
+built-ins/WeakMap/prototype/getOrInsertComputed/not-a-constructor.js | Map/WeakMap upsert not in Node 24
+built-ins/WeakMap/prototype/getOrInsertComputed/overwrites-mutation-from-callbackfn.js | Map/WeakMap upsert not in Node 24
+built-ins/WeakMap/prototype/getOrInsertComputed/returns-value-if-key-is-not-present-object-key.js | Map/WeakMap upsert not in Node 24
+built-ins/WeakMap/prototype/getOrInsertComputed/returns-value-if-key-is-not-present-symbol-key.js | Map/WeakMap upsert not in Node 24
+built-ins/WeakMap/prototype/getOrInsertComputed/returns-value-if-key-is-present-object-key.js | Map/WeakMap upsert not in Node 24
+built-ins/WeakMap/prototype/getOrInsertComputed/returns-value-if-key-is-present-symbol-key.js | Map/WeakMap upsert not in Node 24
+intl402/Collator/prototype/resolvedOptions/resolved-case-first-unicode-extensions-and-options.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/Collator/prototype/resolvedOptions/resolved-collation-unicode-extensions-and-options.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/Collator/prototype/resolvedOptions/resolved-numeric-unicode-extensions-and-options.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/DateTimeFormat/canonicalize-timezone.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/DateTimeFormat/canonicalize-utc-timezone.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/DateTimeFormat/offset-timezone-no-unicode-minus-sign.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/DateTimeFormat/prototype/format/timedatestyle-en.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/DateTimeFormat/prototype/resolvedOptions/resolved-calendar-unicode-extensions-and-options.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/DateTimeFormat/prototype/resolvedOptions/resolved-numbering-system-unicode-extensions-and-options.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/DateTimeFormat/timezone-case-insensitive.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/DateTimeFormat/timezone-legacy-non-iana.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/DateTimeFormat/timezone-not-canonicalized.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/DurationFormat/prototype/format/digital-style-with-hours-display-auto-with-zero-hour.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/DurationFormat/prototype/format/duration-out-of-range-3.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/DurationFormat/prototype/format/duration-out-of-range-4.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/DurationFormat/prototype/format/precision-exact-mathematical-values.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/DurationFormat/prototype/resolvedOptions/resolved-numbering-system-unicode-extensions-and-options.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/FallbackSymbol/per-realm.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/Intl/getCanonicalLocales/unicode-ext-canonicalize-yes-to-true.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/Intl/supportedValuesOf/currencies-accepted-by-DisplayNames.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/Intl/supportedValuesOf/timeZones-include-non-continental.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/Locale/constructor-getter-order.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/Locale/constructor-options-variants-invalid.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/Locale/constructor-options-variants-valid.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/Locale/constructor-unicode-extension-uvalue-yes.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/Locale/getters-grandfathered.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/Locale/getters-missing.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/Locale/getters.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/Locale/prototype/calendar/canonicalize-case.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/Locale/prototype/collation/canonicalize-case.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/Locale/prototype/minimize/removing-likely-subtags-first-adds-likely-subtags.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/Locale/prototype/numberingSystem/canonicalize-case.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/Locale/prototype/variants/name.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/Locale/prototype/variants/prop-desc.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/NumberFormat/prototype/resolvedOptions/resolved-numbering-system-unicode-extensions-and-options.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/PluralRules/compactDisplay-undefined-unless-notation-compact.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/PluralRules/constructor-option-read-order.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/PluralRules/constructor-options-throwing-getters.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/PluralRules/default-options-object-prototype.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/PluralRules/notation.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/PluralRules/prototype/resolvedOptions/order.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/PluralRules/prototype/resolvedOptions/properties.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/PluralRules/prototype/select/notation.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/RelativeTimeFormat/prototype/resolvedOptions/resolved-numbering-system-unicode-extensions-and-options.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/String/prototype/toLocaleLowerCase/validates-all-locale-identifiers.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+intl402/String/prototype/toLocaleUpperCase/validates-all-locale-identifiers.js | Node 24 Intl differs from the pinned ECMA-402 tests (newer spec text or CLDR/ICU version)
+language/destructuring/binding/keyed-destructuring-property-reference-target-evaluation-order-with-bindings.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/async-gen-func-decl-fn-body-cntns-arguments-func-decl-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/async-gen-func-decl-fn-body-cntns-arguments-func-decl-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/async-gen-func-decl-fn-body-cntns-arguments-lex-bind-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/async-gen-func-decl-fn-body-cntns-arguments-lex-bind-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/async-gen-func-decl-fn-body-cntns-arguments-var-bind-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/async-gen-func-decl-fn-body-cntns-arguments-var-bind-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/async-gen-func-decl-no-pre-existing-arguments-bindings-are-present-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/async-gen-func-decl-no-pre-existing-arguments-bindings-are-present-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/async-gen-func-expr-fn-body-cntns-arguments-func-decl-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/async-gen-func-expr-fn-body-cntns-arguments-func-decl-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/async-gen-func-expr-fn-body-cntns-arguments-lex-bind-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/async-gen-func-expr-fn-body-cntns-arguments-lex-bind-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/async-gen-func-expr-fn-body-cntns-arguments-var-bind-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/async-gen-func-expr-fn-body-cntns-arguments-var-bind-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/async-gen-func-expr-no-pre-existing-arguments-bindings-are-present-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/async-gen-func-expr-no-pre-existing-arguments-bindings-are-present-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/async-gen-meth-fn-body-cntns-arguments-func-decl-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/async-gen-meth-fn-body-cntns-arguments-func-decl-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/async-gen-meth-fn-body-cntns-arguments-lex-bind-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/async-gen-meth-fn-body-cntns-arguments-lex-bind-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/async-gen-meth-fn-body-cntns-arguments-var-bind-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/async-gen-meth-fn-body-cntns-arguments-var-bind-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/async-gen-meth-no-pre-existing-arguments-bindings-are-present-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/async-gen-meth-no-pre-existing-arguments-bindings-are-present-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/async-gen-named-func-expr-fn-body-cntns-arguments-func-decl-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/async-gen-named-func-expr-fn-body-cntns-arguments-func-decl-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/async-gen-named-func-expr-fn-body-cntns-arguments-lex-bind-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/async-gen-named-func-expr-fn-body-cntns-arguments-lex-bind-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/async-gen-named-func-expr-fn-body-cntns-arguments-var-bind-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/async-gen-named-func-expr-fn-body-cntns-arguments-var-bind-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/async-gen-named-func-expr-no-pre-existing-arguments-bindings-are-present-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/async-gen-named-func-expr-no-pre-existing-arguments-bindings-are-present-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/func-decl-fn-body-cntns-arguments-func-decl-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/func-decl-fn-body-cntns-arguments-func-decl-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/func-decl-fn-body-cntns-arguments-lex-bind-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/func-decl-fn-body-cntns-arguments-lex-bind-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/func-decl-fn-body-cntns-arguments-var-bind-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/func-decl-fn-body-cntns-arguments-var-bind-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/func-decl-no-pre-existing-arguments-bindings-are-present-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/func-decl-no-pre-existing-arguments-bindings-are-present-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/func-expr-fn-body-cntns-arguments-func-decl-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/func-expr-fn-body-cntns-arguments-func-decl-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/func-expr-fn-body-cntns-arguments-lex-bind-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/func-expr-fn-body-cntns-arguments-lex-bind-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/func-expr-fn-body-cntns-arguments-var-bind-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/func-expr-fn-body-cntns-arguments-var-bind-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/func-expr-no-pre-existing-arguments-bindings-are-present-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/func-expr-no-pre-existing-arguments-bindings-are-present-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/gen-func-decl-fn-body-cntns-arguments-func-decl-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/gen-func-decl-fn-body-cntns-arguments-func-decl-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/gen-func-decl-fn-body-cntns-arguments-lex-bind-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/gen-func-decl-fn-body-cntns-arguments-lex-bind-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/gen-func-decl-fn-body-cntns-arguments-var-bind-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/gen-func-decl-fn-body-cntns-arguments-var-bind-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/gen-func-decl-no-pre-existing-arguments-bindings-are-present-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/gen-func-decl-no-pre-existing-arguments-bindings-are-present-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/gen-func-expr-named-fn-body-cntns-arguments-func-decl-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/gen-func-expr-named-fn-body-cntns-arguments-func-decl-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/gen-func-expr-named-fn-body-cntns-arguments-lex-bind-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/gen-func-expr-named-fn-body-cntns-arguments-lex-bind-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/gen-func-expr-named-fn-body-cntns-arguments-var-bind-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/gen-func-expr-named-fn-body-cntns-arguments-var-bind-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/gen-func-expr-named-no-pre-existing-arguments-bindings-are-present-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/gen-func-expr-named-no-pre-existing-arguments-bindings-are-present-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/gen-func-expr-nameless-fn-body-cntns-arguments-func-decl-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/gen-func-expr-nameless-fn-body-cntns-arguments-func-decl-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/gen-func-expr-nameless-fn-body-cntns-arguments-lex-bind-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/gen-func-expr-nameless-fn-body-cntns-arguments-lex-bind-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/gen-func-expr-nameless-fn-body-cntns-arguments-var-bind-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/gen-func-expr-nameless-fn-body-cntns-arguments-var-bind-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/gen-func-expr-nameless-no-pre-existing-arguments-bindings-are-present-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/gen-func-expr-nameless-no-pre-existing-arguments-bindings-are-present-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/gen-meth-fn-body-cntns-arguments-func-decl-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/gen-meth-fn-body-cntns-arguments-func-decl-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/gen-meth-fn-body-cntns-arguments-lex-bind-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/gen-meth-fn-body-cntns-arguments-lex-bind-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/gen-meth-fn-body-cntns-arguments-var-bind-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/gen-meth-fn-body-cntns-arguments-var-bind-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/gen-meth-no-pre-existing-arguments-bindings-are-present-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/gen-meth-no-pre-existing-arguments-bindings-are-present-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/meth-fn-body-cntns-arguments-func-decl-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/meth-fn-body-cntns-arguments-func-decl-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/meth-fn-body-cntns-arguments-lex-bind-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/meth-fn-body-cntns-arguments-lex-bind-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/meth-fn-body-cntns-arguments-var-bind-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/meth-fn-body-cntns-arguments-var-bind-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/meth-no-pre-existing-arguments-bindings-are-present-declare-arguments-and-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/meth-no-pre-existing-arguments-bindings-are-present-declare-arguments.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/non-definable-function-with-function.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/non-definable-function-with-variable.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/var-env-func-init-global-update-configurable.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/direct/var-env-var-init-global-exstng.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/indirect/non-definable-function-with-function.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/indirect/non-definable-function-with-variable.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/indirect/var-env-func-init-global-update-configurable.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/eval-code/indirect/var-env-var-init-global-exstng.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/assignment/S11.13.1_A5_T1.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/assignment/S11.13.1_A5_T2.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/assignment/S11.13.1_A5_T3.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/assignment/S11.13.1_A6_T1.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/assignment/S11.13.1_A6_T2.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/assignment/S11.13.1_A6_T3.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/assignmenttargettype/direct-callexpression-as-for-in-lhs.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/assignmenttargettype/direct-callexpression-as-for-of-lhs.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/assignmenttargettype/direct-callexpression-in-compound-assignment.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/assignmenttargettype/direct-callexpression-in-postfix-update.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/assignmenttargettype/direct-callexpression-in-prefix-update.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/assignmenttargettype/direct-callexpression.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/assignmenttargettype/parenthesized-callexpression-in-compound-assignment.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/assignmenttargettype/parenthesized-callexpression.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/async-generator/generator-created-after-decl-inst.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/call/eval-spread.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/call/tco-call-args.js | Node has no proper tail calls
+language/expressions/call/tco-member-args.js | Node has no proper tail calls
+language/expressions/call/tco-non-eval-function-dynamic.js | Node has no proper tail calls
+language/expressions/call/tco-non-eval-function.js | Node has no proper tail calls
+language/expressions/call/tco-non-eval-global.js | Node has no proper tail calls
+language/expressions/call/tco-non-eval-with.js | Node has no proper tail calls
+language/expressions/coalesce/tco-pos-null.js | Node has no proper tail calls
+language/expressions/coalesce/tco-pos-undefined.js | Node has no proper tail calls
+language/expressions/comma/tco-final.js | Node has no proper tail calls
+language/expressions/compound-assignment/S11.13.2_A5.10_T1.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A5.10_T2.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A5.10_T3.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A5.11_T1.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A5.11_T2.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A5.11_T3.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A5.1_T1.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A5.1_T2.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A5.1_T3.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A5.2_T1.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A5.2_T2.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A5.2_T3.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A5.3_T1.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A5.3_T2.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A5.3_T3.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A5.4_T1.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A5.4_T2.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A5.4_T3.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A5.5_T1.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A5.5_T2.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A5.5_T3.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A5.6_T1.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A5.6_T2.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A5.6_T3.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A5.7_T1.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A5.7_T2.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A5.7_T3.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A5.8_T1.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A5.8_T2.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A5.8_T3.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A5.9_T1.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A5.9_T2.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A5.9_T3.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A6.10_T1.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A6.11_T1.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A6.1_T1.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A6.2_T1.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A6.3_T1.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A6.4_T1.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A6.5_T1.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A6.6_T1.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A6.7_T1.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A6.8_T1.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A6.9_T1.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A7.10_T4.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A7.11_T4.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A7.1_T4.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A7.2_T4.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A7.3_T4.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A7.4_T4.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A7.5_T4.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A7.6_T4.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A7.7_T4.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A7.8_T4.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/S11.13.2_A7.9_T4.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/compound-assignment-operator-calls-putvalue-lref--v--1.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/compound-assignment-operator-calls-putvalue-lref--v--11.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/compound-assignment-operator-calls-putvalue-lref--v--13.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/compound-assignment-operator-calls-putvalue-lref--v--15.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/compound-assignment-operator-calls-putvalue-lref--v--17.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/compound-assignment-operator-calls-putvalue-lref--v--19.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/compound-assignment-operator-calls-putvalue-lref--v--21.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/compound-assignment-operator-calls-putvalue-lref--v--3.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/compound-assignment-operator-calls-putvalue-lref--v--5.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/compound-assignment-operator-calls-putvalue-lref--v--7.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/compound-assignment/compound-assignment-operator-calls-putvalue-lref--v--9.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/conditional/tco-cond.js | Node has no proper tail calls
+language/expressions/conditional/tco-pos.js | Node has no proper tail calls
+language/expressions/delete/super-property-uninitialized-this.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/dynamic-import/import-fulfilled-member-of-errored-cycle.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/dynamic-import/syntax/invalid/nested-arrow-assignment-expression-no-new-call-expression-prop-access.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/dynamic-import/syntax/invalid/nested-arrow-no-new-call-expression-prop-access.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/dynamic-import/syntax/invalid/nested-async-arrow-function-await-no-new-call-expression-prop-access.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/dynamic-import/syntax/invalid/nested-async-arrow-function-return-await-no-new-call-expression-prop-access.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/dynamic-import/syntax/invalid/nested-async-function-await-no-new-call-expression-prop-access.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/dynamic-import/syntax/invalid/nested-async-function-no-new-call-expression-prop-access.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/dynamic-import/syntax/invalid/nested-async-function-return-await-no-new-call-expression-prop-access.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/dynamic-import/syntax/invalid/nested-async-gen-await-no-new-call-expression-prop-access.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/dynamic-import/syntax/invalid/nested-block-labeled-no-new-call-expression-prop-access.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/dynamic-import/syntax/invalid/nested-block-no-new-call-expression-prop-access.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/dynamic-import/syntax/invalid/nested-do-while-no-new-call-expression-prop-access.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/dynamic-import/syntax/invalid/nested-else-braceless-no-new-call-expression-prop-access.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/dynamic-import/syntax/invalid/nested-else-no-new-call-expression-prop-access.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/dynamic-import/syntax/invalid/nested-function-no-new-call-expression-prop-access.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/dynamic-import/syntax/invalid/nested-function-return-no-new-call-expression-prop-access.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/dynamic-import/syntax/invalid/nested-if-braceless-no-new-call-expression-prop-access.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/dynamic-import/syntax/invalid/nested-if-no-new-call-expression-prop-access.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/dynamic-import/syntax/invalid/nested-while-no-new-call-expression-prop-access.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/dynamic-import/syntax/invalid/nested-with-expression-no-new-call-expression-prop-access.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/dynamic-import/syntax/invalid/nested-with-no-new-call-expression-prop-access.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/dynamic-import/syntax/invalid/top-level-no-new-call-expression-prop-access.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/generators/generator-created-after-decl-inst.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/logical-and/tco-right.js | Node has no proper tail calls
+language/expressions/logical-or/tco-right.js | Node has no proper tail calls
+language/expressions/object/__proto__-permitted-dup-shorthand.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/postfix-decrement/S11.3.2_A5_T1.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/postfix-decrement/S11.3.2_A5_T2.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/postfix-decrement/S11.3.2_A5_T3.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/postfix-decrement/S11.3.2_A6_T3.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/postfix-decrement/operator-x-postfix-decrement-calls-putvalue-lhs-newvalue--1.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/postfix-increment/S11.3.1_A5_T1.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/postfix-increment/S11.3.1_A5_T2.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/postfix-increment/S11.3.1_A5_T3.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/postfix-increment/S11.3.1_A6_T3.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/postfix-increment/operator-x-postfix-increment-calls-putvalue-lhs-newvalue--1.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/prefix-decrement/S11.4.5_A5_T1.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/prefix-decrement/S11.4.5_A5_T2.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/prefix-decrement/S11.4.5_A5_T3.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/prefix-decrement/S11.4.5_A6_T3.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/prefix-decrement/operator-prefix-decrement-x-calls-putvalue-lhs-newvalue--1.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/prefix-increment/S11.4.4_A5_T1.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/prefix-increment/S11.4.4_A5_T2.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/prefix-increment/S11.4.4_A5_T3.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/prefix-increment/S11.4.4_A6_T3.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/prefix-increment/operator-prefix-increment-x-calls-putvalue-lhs-newvalue--1.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/super/prop-expr-getsuperbase-before-topropertykey-getvalue.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/super/prop-expr-getsuperbase-before-topropertykey-putvalue-compound-assign.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/super/prop-expr-getsuperbase-before-topropertykey-putvalue-increment.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/super/prop-expr-getsuperbase-before-topropertykey-putvalue.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/expressions/tagged-template/tco-call.js | Node has no proper tail calls
+language/expressions/tagged-template/tco-member.js | Node has no proper tail calls
+language/expressions/tco-pos.js | Node has no proper tail calls
+language/global-code/decl-func.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/global-code/script-decl-func-err-non-configurable.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/global-code/script-decl-func-err-non-extensible.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/global-code/script-decl-func.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/global-code/script-decl-lex.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/global-code/script-decl-var-collision.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/global-code/script-decl-var-err.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/global-code/script-decl-var.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/identifier-resolution/assign-to-global-undefined.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/module-code/ambiguous-export-bindings/namespace-unambiguous-if-export-star-as-from-and-import-star-as-and-export.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/module-code/ambiguous-export-bindings/namespace-unambiguous-if-export-star-as-from.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/module-code/ambiguous-export-bindings/namespace-unambiguous-if-import-star-as-and-export.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/module-code/instn-star-iee-multi-cycle-same-name.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/module-code/namespace/internals/super-access-to-tdz-binding.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/module-code/top-level-await/rejection-order.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/module-code/verify-dfs.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/statements/async-generator/generator-created-after-decl-inst.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/statements/block/tco-stmt-list.js | Node has no proper tail calls
+language/statements/block/tco-stmt.js | Node has no proper tail calls
+language/statements/do-while/tco-body.js | Node has no proper tail calls
+language/statements/for/tco-const-body.js | Node has no proper tail calls
+language/statements/for/tco-let-body.js | Node has no proper tail calls
+language/statements/for/tco-lhs-body.js | Node has no proper tail calls
+language/statements/for/tco-var-body.js | Node has no proper tail calls
+language/statements/generators/generator-created-after-decl-inst.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/statements/if/tco-else-body.js | Node has no proper tail calls
+language/statements/if/tco-if-body.js | Node has no proper tail calls
+language/statements/labeled/tco.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/statements/return/tco.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/statements/switch/tco-case-body-dflt.js | Node has no proper tail calls
+language/statements/switch/tco-case-body.js | Node has no proper tail calls
+language/statements/switch/tco-dftl-body.js | Node has no proper tail calls
+language/statements/try/tco-catch-finally.js | Node has no proper tail calls
+language/statements/try/tco-catch.js | Node has no proper tail calls
+language/statements/try/tco-finally.js | Node has no proper tail calls
+language/statements/variable/binding-resolution.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/statements/while/tco-body.js | Node has no proper tail calls
+language/statements/with/get-binding-value-call-with-proxy-env.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/statements/with/get-binding-value-idref-with-proxy-env.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/statements/with/get-mutable-binding-binding-deleted-in-get-unscopables-strict-mode.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/statements/with/set-mutable-binding-binding-deleted-in-get-unscopables-strict-mode.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/statements/with/set-mutable-binding-binding-deleted-with-typed-array-in-proto-chain-strict-mode.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/statements/with/set-mutable-binding-idref-compound-assign-with-proxy-env.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/statements/with/set-mutable-binding-idref-with-proxy-env.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)
+language/statements/with/unscopables-inc-dec.js | Node 24 differs from the pinned test262 expectation (newer spec text or unimplemented proposal)

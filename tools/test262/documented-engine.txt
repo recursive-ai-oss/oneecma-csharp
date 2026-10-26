@@ -1,0 +1,2 @@
+# Known failures of the engine backend, each with a reason. Format: <path> | <reason>.
+# Directory prefixes end in '/', '*' is a glob. Empty until the engine runs scripts.

@@ -149,7 +149,8 @@ function main() {
         const script = new vm.Script(String(src), { importModuleDynamically });
         return script.runInContext(ctx);
       },
-      detachArrayBuffer(buf) { detachTransfer.call(buf); },
+      // Detaching an already detached buffer is a no-op for hosts; transfer would throw.
+      detachArrayBuffer(buf) { if (!buf.detached) detachTransfer.call(buf); },
       gc() { if (typeof globalThis.gc === 'function') globalThis.gc(); else throw new Error('gc unavailable'); },
       agent: makeAgentApi(),
     };
