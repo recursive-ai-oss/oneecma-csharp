@@ -1,0 +1,17 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/RecursiveAI.OneEcma/RecursiveAI.OneEcma.csproj" />
+    <Project Path="src/RecursiveAI.OneEcma.Generators/RecursiveAI.OneEcma.Generators.csproj" />
+    <Project Path="src/OneEcma.Cli/OneEcma.Cli.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/OneEcma.Tests/OneEcma.Tests.csproj" />
+    <Project Path="tests/OneEcma.AotSmoke/OneEcma.AotSmoke.csproj" />
+  </Folder>
+  <Folder Name="/fuzz/">
+    <Project Path="fuzz/OneEcma.Fuzz/OneEcma.Fuzz.csproj" />
+  </Folder>
+  <Folder Name="/bench/">
+    <Project Path="bench/OneEcma.Benchmarks/OneEcma.Benchmarks.csproj" />
+  </Folder>
+</Solution>

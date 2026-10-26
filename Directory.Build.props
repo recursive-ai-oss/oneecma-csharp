@@ -1,0 +1,29 @@
+<Project>
+  <PropertyGroup>
+    <!-- The single place the package/assembly prefix lives. Renaming the product starts here. -->
+    <PackagePrefix>RecursiveAI</PackagePrefix>
+
+    <!-- Build output goes to $(ONEECMA_ARTIFACTS) when set (keeps the checkout clean and lets
+         several worktrees build side by side); otherwise to an ignored artifacts/ in the repo. -->
+    <ArtifactsPath Condition="'$(ONEECMA_ARTIFACTS)' != ''">$([MSBuild]::EnsureTrailingSlash('$(ONEECMA_ARTIFACTS)'))</ArtifactsPath>
+    <ArtifactsPath Condition="'$(ONEECMA_ARTIFACTS)' == ''">$(MSBuildThisFileDirectory)artifacts/</ArtifactsPath>
+
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <AnalysisMode>Recommended</AnalysisMode>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true' or '$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
+    <InvariantGlobalization>true</InvariantGlobalization>
+
+    <Authors>Recursive AI, LLC</Authors>
+    <Company>Recursive AI, LLC</Company>
+    <Copyright>Copyright (c) Recursive AI, LLC</Copyright>
+    <PackageLicenseExpression>MIT OR Apache-2.0</PackageLicenseExpression>
+    <Version>0.0.0-dev</Version>
+  </PropertyGroup>
+</Project>
