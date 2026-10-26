@@ -1,0 +1,62 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+  DOTNET_NOLOGO: 1
+
+jobs:
+  build-test-aot:
+    name: ${{ matrix.rid }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: windows-latest, rid: win-x64 }
+          - { os: ubuntu-latest, rid: linux-x64 }
+          - { os: ubuntu-24.04-arm, rid: linux-arm64 }
+          - { os: macos-latest, rid: osx-arm64 }
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore OneEcma.slnx
+
+      - name: Build
+        run: dotnet build --no-restore -c Release OneEcma.slnx
+
+      - name: Test
+        run: dotnet test --no-build -c Release --solution OneEcma.slnx
+
+      # Warnings are errors, so any trim or AOT warning fails this step.
+      - name: Publish NativeAOT smoke app
+        run: dotnet publish tests/OneEcma.AotSmoke -c Release -r ${{ matrix.rid }} -o out/smoke
+
+      - name: Run NativeAOT smoke app
+        shell: bash
+        run: |
+          ext=""
+          if [ "${{ matrix.rid }}" = "win-x64" ]; then ext=".exe"; fi
+          ./out/smoke/OneEcma.AotSmoke$ext
+
+      - name: Publish NativeAOT CLI
+        run: dotnet publish src/OneEcma.Cli -c Release -r ${{ matrix.rid }} -o out/cli
+
+      - name: Run CLI
+        shell: bash
+        run: |
+          ext=""
+          if [ "${{ matrix.rid }}" = "win-x64" ]; then ext=".exe"; fi
+          ./out/cli/oneecma$ext --version
