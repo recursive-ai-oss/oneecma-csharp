@@ -1,0 +1,33 @@
+# Allowlist: nothing is tracked unless listed here.
+/*
+!/.gitignore
+!/.editorconfig
+!/.github/
+!/src/
+!/tests/
+!/fuzz/
+!/bench/
+!/tools/
+!/docs/
+!/testdata/
+!/global.json
+!/Directory.Build.props
+!/Directory.Packages.props
+!/OneEcma.slnx
+!/README.md
+!/LICENSE-MIT
+!/LICENSE-APACHE
+!/THIRD-PARTY-NOTICES.md
+
+# Build output and fetched inputs, wherever they appear under a tracked directory.
+bin/
+obj/
+artifacts/
+.fetched/
+TestResults/
+BenchmarkDotNet.Artifacts/
+*.user
+.vs/
+.idea/
+*.binlog
+out/
