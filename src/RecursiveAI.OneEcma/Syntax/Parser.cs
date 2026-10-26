@@ -28,7 +28,9 @@ internal sealed partial class Parser
     private Token _next;
     private bool _hasNext;
     private int _prevEnd;
+    private int _prevStart;
     private int _tokenCount;
+    private int _prevAwaitStart = -1;
     private int _depth;
     private bool _strict;
     private Scope _scope = null!;
@@ -58,6 +60,7 @@ internal sealed partial class Parser
             program = new Program(0, _s.Length, [], _module, _strict, _scope ?? new Scope(ScopeKind.Global, null, 0));
         }
 
+        SyntaxHints.Apply(_diags);
         return new ParseResult(program, _src, _diags);
     }
 
@@ -66,6 +69,12 @@ internal sealed partial class Parser
     private void Advance()
     {
         _prevEnd = _tok.End;
+        _prevStart = _tok.Start;
+        if (_sinceSyntaxError < 1000)
+        {
+            _sinceSyntaxError++;
+        }
+        _prevAwaitStart = _tok.Type == TokenType.Identifier && !_tok.Escaped && _tok.Text == "await" ? _tok.Start : -1;
         if (_hasNext)
         {
             _tok = _next;
@@ -113,13 +122,46 @@ internal sealed partial class Parser
 
     // ---- diagnostics -----------------------------------------------------------------------
 
-    private void LexError(int start, int end, string code, string message) => Report(code, message, start, end);
+    // Tokens after a lexical error are usually garbage (an unclosed string swallows the rest of the line,
+    // typographic quotes come in pairs), so errors on the same and the next line are not reported.
+    private int _suppressThroughLine = -1;
 
-    private Diagnostic? Report(string code, string message, int start, int end)
+    private void LexError(int start, int end, string code, string message)
     {
+        if (code == "unterminated-template")
+        {
+            Span last = LastContentSpan();
+            start = Math.Min(start, last.Start);
+            end = last.End;
+        }
+
+        if (Report(code, message, start, end, syntactic: true) is not null)
+        {
+            _suppressThroughLine = _src.GetPosition(start).Line + 1;
+        }
+    }
+
+    private int _sinceSyntaxError = int.MaxValue / 2;
+    private const int ErrorCooldownTokens = 10;
+    private int _lastSyntaxErrorLine = -1;
+
+    private Diagnostic? Report(string code, string message, int start, int end, bool syntactic = false)
+    {
+        // Errors within a few tokens of a parse failure are its fallout, not new mistakes.
+        if (_sinceSyntaxError < ErrorCooldownTokens
+            || (_sinceSyntaxError < 4 * ErrorCooldownTokens && _src.GetPosition(start).Line == _lastSyntaxErrorLine))
+        {
+            return null;
+        }
+
         if (end < start)
         {
             end = start;
+        }
+
+        if (_suppressThroughLine >= 0 && _src.GetPosition(start).Line <= _suppressThroughLine)
+        {
+            return null;
         }
 
         if (!_errorStarts.Add(start))
@@ -129,6 +171,12 @@ internal sealed partial class Parser
 
         var d = new Diagnostic("SyntaxError", code, message, _src, new Span(start, end));
         _diags.Add(d);
+        if (syntactic)
+        {
+            _sinceSyntaxError = 0;
+            _lastSyntaxErrorLine = _src.GetPosition(start).Line;
+        }
+
         if (_diags.Count >= _opt.MaxErrors)
         {
             throw new ParseAbortException();
@@ -188,8 +236,42 @@ internal sealed partial class Parser
             return null;
         }
 
-        string code = t.Type == TokenType.EndOfInput ? "unexpected-end" : "unexpected-token";
-        return Report(code, UnexpectedMessage(t), t.Start, t.End);
+        if (_prevAwaitStart >= 0 && !t.NewlineBefore && t.Type != TokenType.EndOfInput && !_fn.IsAsync)
+        {
+            // `await x` outside an async function: V8 explains the likely intent rather than blaming `x`.
+            return Report("await-outside-async", Messages.AwaitOutsideAsync, _prevAwaitStart, _prevAwaitStart + 5, syntactic: true);
+        }
+
+        if (t.Type == TokenType.EndOfInput)
+        {
+            // Point at the last line of code rather than at the empty position after the final newline.
+            Span last = LastContentSpan();
+            return Report("unexpected-end", Messages.UnexpectedEnd, last.Start, last.End, syntactic: true);
+        }
+
+        return Report("unexpected-token", UnexpectedMessage(t), t.Start, t.End, syntactic: true);
+    }
+
+    private Span LastContentSpan()
+    {
+        int end = _s.Length;
+        while (end > 0 && (char.IsWhiteSpace(_s[end - 1]) || SourceText.IsLineTerminator(_s[end - 1])))
+        {
+            end--;
+        }
+
+        int start = end;
+        while (start > 0 && !SourceText.IsLineTerminator(_s[start - 1]))
+        {
+            start--;
+        }
+
+        while (start < end && char.IsWhiteSpace(_s[start]))
+        {
+            start++;
+        }
+
+        return new Span(start, end);
     }
 
     /// <summary>Records that the parser carried on as if <paramref name="text"/> had been written at the current token.</summary>

@@ -553,7 +553,7 @@ internal sealed partial class Parser
                         optional = true;
                         if (Is(TokenType.LParen))
                         {
-                            var args = ParseArguments(out _);
+                            var args = ParseArguments(out _, start);
                             expr = new CallExpression(start, _prevEnd, expr, args, true, false);
                         }
                         else if (Is(TokenType.LBracket))
@@ -589,7 +589,7 @@ internal sealed partial class Parser
 
                 case TokenType.LParen when !noCalls:
                     {
-                        var args = ParseArguments(out _);
+                        var args = ParseArguments(out _, start);
                         bool evalCandidate = expr is Identifier { Name: "eval" } && !expr.IsParenthesized;
                         if (evalCandidate)
                         {
@@ -650,11 +650,12 @@ internal sealed partial class Parser
     /// <summary>True for an Identifier token or a reserved word (an IdentifierName, 12.7).</summary>
     private static bool IsIdentifierName(in Token t) => t.Type == TokenType.Identifier || t.Type >= TokenType.Break;
 
-    private List<Node> ParseArguments(out bool trailingComma)
+    private List<Node> ParseArguments(out bool trailingComma, int calleeStart)
     {
         // `(` has not been consumed yet.
         trailingComma = false;
         var args = new List<Node>();
+        Token open = _tok;
         Advance();
         while (!Is(TokenType.RParen))
         {
@@ -683,25 +684,13 @@ internal sealed partial class Parser
 
             if (!Is(TokenType.Comma))
             {
-                Diagnostic? d = Report("missing-paren-after-args", Messages.MissingParenAfterArgs, _tok.Start, Math.Max(_tok.End, _tok.Start));
-                if (d is null && _tok.Type == TokenType.Invalid)
-                {
-                    // already reported by the lexer
-                }
-
-                NoteInserted(d, _tok.Start, ")");
+                ReportMissingParen(open, calleeStart, args[^1]);
                 if (_tok.Start == before || _tok.Type is TokenType.Semicolon or TokenType.RBrace or TokenType.RBracket or TokenType.EndOfInput)
                 {
                     return args;
                 }
 
                 // A value follows without a comma: carry on as if the comma were there.
-                if (d is not null)
-                {
-                    d.Recovery.Clear();
-                    NoteInserted(d, _prevEnd, ",");
-                }
-
                 continue;
             }
 
@@ -715,6 +704,48 @@ internal sealed partial class Parser
         Expect(TokenType.RParen);
         return args;
     }
+
+    /// <summary>
+    /// V8 reports a missing <c>)</c> or <c>,</c> in an argument list at the last token before the offending one.
+    /// </summary>
+    private void ReportMissingParen(in Token open, int calleeStart, Node previousArgument)
+    {
+        Token offending = _tok;
+        if (offending.Type == TokenType.Invalid)
+        {
+            return;
+        }
+
+        Diagnostic? d = Report("missing-paren-after-args", Messages.MissingParenAfterArgs, _prevStart, _prevEnd, syntactic: true);
+        if (d is null)
+        {
+            return;
+        }
+
+        bool valueFollows = offending.Type is TokenType.Identifier or TokenType.String or TokenType.Number or TokenType.BigInt or TokenType.Template
+            or TokenType.True or TokenType.False or TokenType.Null or TokenType.This or TokenType.LBracket or TokenType.LBrace;
+        string offendingText = _s.Substring(offending.Start, Math.Max(0, offending.End - offending.Start));
+        if (valueFollows && offending.NewlineBefore)
+        {
+            d.PrimaryLabel = "expected `,` before this argument";
+            d.SecondaryLabels.Add(new Label(previousArgument.Span, "the previous argument ends here"));
+            d.Help.Add("add `,` after `" + SourceOf(previousArgument) + "`");
+            NoteInserted(d, _prevEnd, ",");
+        }
+        else
+        {
+            d.PrimaryLabel = "expected `,` or `)` before this `" + offendingText + "`";
+            d.SecondaryLabels.Add(new Label(new Span(calleeStart, open.End), "the argument list opened here is never closed"));
+            if (offending.Type is TokenType.Semicolon or TokenType.RBrace or TokenType.RBracket or TokenType.EndOfInput)
+            {
+                d.Help.Add("add `)` before `" + offendingText + "`: `" + _s.Substring(calleeStart, offending.Start - calleeStart) + ")" + offendingText + "`");
+            }
+
+            NoteInserted(d, offending.Start, ")");
+        }
+    }
+
+    private string SourceOf(Node n) => _s.Substring(n.Start, n.End - n.Start);
 
     private Expression ParseNew()
     {
@@ -774,7 +805,7 @@ internal sealed partial class Parser
         var args = new List<Node>();
         if (Is(TokenType.LParen))
         {
-            args = ParseArguments(out _);
+            args = ParseArguments(out _, calleeStart);
         }
 
         return new NewExpression(start, _prevEnd, callee, args);
@@ -986,8 +1017,36 @@ internal sealed partial class Parser
             case TokenType.New:
                 return ParseNew();
             default:
-                Unexpected();
-                return new ErrorExpression(start, start);
+                {
+                    Diagnostic? d = Unexpected();
+                    if (d is not null && t.Type != TokenType.EndOfInput && t.Type != TokenType.Invalid)
+                    {
+                        d.PrimaryLabel = string.Concat("expected an expression before `", _s.AsSpan(t.Start, t.End - t.Start), "`");
+                        AddExpressionHelp(d);
+                    }
+
+                    return new ErrorExpression(start, start);
+                }
+        }
+    }
+
+    // Help for a missing operand: names what is incomplete.
+    private void AddExpressionHelp(Diagnostic d)
+    {
+        if (_prevEnd <= 0)
+        {
+            return;
+        }
+
+        string before = _s.Substring(0, _prevEnd);
+        System.Text.RegularExpressions.Match decl = System.Text.RegularExpressions.Regex.Match(before, @"(?:^|[;{}\n])\s*(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=$");
+        if (decl.Success)
+        {
+            d.Help.Add("give `" + decl.Groups[1].Value + "` a value, or remove the declaration");
+        }
+        else if (_prevEnd - _prevStart is >= 1 and <= 3 && "+-*/%&|^<>=!?,:".Contains(_s[_prevStart], StringComparison.Ordinal))
+        {
+            d.Help.Add(string.Concat("complete the expression after `", _s.AsSpan(_prevStart, _prevEnd - _prevStart), "`"));
         }
     }
 

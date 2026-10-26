@@ -87,7 +87,7 @@ public sealed class Diagnostic
     /// <summary>
     /// The primary span: where the problem is. The location line of a report (<c>--&gt; file:line:col</c>) is the start of this span.
     /// </summary>
-    public Span PrimarySpan { get; }
+    public Span PrimarySpan { get; private set; }
 
     /// <summary>
     /// What the primary underline says; may be empty. Supplied by the parser or a later hint pass.
@@ -111,6 +111,9 @@ public sealed class Diagnostic
 
     /// <summary>The 1-based line and column where the primary span starts.</summary>
     public LinePosition Position => Source.GetPosition(PrimarySpan.Start);
+
+    /// <summary>Moves the primary span; used when a hint finds the construct that is actually wrong.</summary>
+    internal void MovePrimary(Span span) => PrimarySpan = span;
 
     /// <summary>Adds a secondary label and returns this diagnostic.</summary>
     public Diagnostic WithLabel(Span span, string message)

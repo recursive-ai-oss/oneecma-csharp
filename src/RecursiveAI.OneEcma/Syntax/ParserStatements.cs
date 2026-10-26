@@ -935,7 +935,9 @@ internal sealed partial class Parser
 
         if (handler is null && finalizer is null)
         {
-            Report("missing-catch-or-finally", Messages.MissingCatchOrFinally, _tok.Start, Math.Max(_tok.End, _tok.Start));
+            // V8 points at the end of the try block.
+            Diagnostic? d = Report("missing-catch-or-finally", Messages.MissingCatchOrFinally, _prevStart, _prevEnd);
+            d?.SecondaryLabels.Add(new Label(new Span(kw.Start, kw.End), "this `try` needs one of them"));
         }
 
         _ = kw;

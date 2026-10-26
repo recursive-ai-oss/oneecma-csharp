@@ -18,7 +18,7 @@ internal static class Messages
     }
 
     internal const string InvalidToken = "Invalid or unexpected token";
-    internal const string UnterminatedTemplate = "Unterminated template literal";
+    internal const string UnterminatedTemplate = "Unexpected end of input";
     internal const string UnterminatedRegExp = "Invalid regular expression: missing /";
     internal const string InvalidRegExpFlags = "Invalid regular expression flags";
     internal const string InvalidHexEscape = "Invalid hexadecimal escape sequence";
