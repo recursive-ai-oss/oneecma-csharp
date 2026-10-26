@@ -12,6 +12,12 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="OneEcma.Tests" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Intl/Data/Generated/*.bin" LogicalName="oneecma-data/%(Filename)%(Extension)" />
+  </ItemGroup>
+  <ItemGroup>
     <None Include="../../README.md" Pack="true" PackagePath="/" />
     <None Include="../../LICENSE-MIT" Pack="true" PackagePath="/" />
     <None Include="../../LICENSE-APACHE" Pack="true" PackagePath="/" />

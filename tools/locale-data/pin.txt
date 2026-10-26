@@ -1,0 +1,16 @@
+# Pinned inputs of the locale-data generator. Format: <sha256>  <relative path under the data root>  <url>
+# CLDR 48.0 is the release the reference Node (v24.22.1, ICU 78.3) reports as process.versions.cldr.
+# cldr-common-48.zip also has an official SHA-512 in https://unicode.org/Public/cldr/48/hashes/SHASUM512.txt:
+#   07c69a6472b6446f2cf940fb2b22e48718e53ec458dc9733487869a851519f77df9f393f797191c04285b2f6532dd1521315bde2b25a237b664da96e152d6b4c
+# UCD 17.0.0 is the Unicode version of that same Node (process.versions.unicode). Unicode publishes no
+# checksum list for individual UCD files, so these SHA-256 values were recorded when the pin was made.
+25ab2651a1a874dd62a727d3c213d7c6bf0fc269b09d2937f0499b82d99fa58e  cldr/48.0/cldr-48.0.0-json-full.zip  https://github.com/unicode-org/cldr-json/releases/download/48.0.0/cldr-48.0.0-json-full.zip
+06c7c698d6fd8d67cefac15a0206b0109b00e0ef1636f86f84449fa959561f74  cldr/48.0/cldr-common-48.zip  https://unicode.org/Public/cldr/48/cldr-common-48.zip
+d6b51d1d2ae5c33b451b7ed994b48f1f4dc62b2272a5831e7fd418514a6bae89  ucd/17.0.0/GraphemeBreakProperty.txt  https://www.unicode.org/Public/17.0.0/ucd/auxiliary/GraphemeBreakProperty.txt
+72274cac1e6b919507db35655c3e175aa27274668a1ece95c28d2069f2ad9852  ucd/17.0.0/WordBreakProperty.txt  https://www.unicode.org/Public/17.0.0/ucd/auxiliary/WordBreakProperty.txt
+871c0c985ad95125e25b302414065a10839d068970bceb383ecec138f22a0a18  ucd/17.0.0/SentenceBreakProperty.txt  https://www.unicode.org/Public/17.0.0/ucd/auxiliary/SentenceBreakProperty.txt
+2cb2bb9455cda83e8481541ecf5b6dfda66a3bb89efa3fa7c5297eccf607b72b  ucd/17.0.0/emoji-data.txt  https://www.unicode.org/Public/17.0.0/ucd/emoji/emoji-data.txt
+24c7fed1195c482faaefd5c1e7eb821c5ee1fb6de07ecdbaa64b56a99da22c08  ucd/17.0.0/DerivedCoreProperties.txt  https://www.unicode.org/Public/17.0.0/ucd/DerivedCoreProperties.txt
+130dcddcaadaf071008bdfce1e7743e04fdfbc910886f017d9f9ac931d8c64dd  ucd/17.0.0/PropList.txt  https://www.unicode.org/Public/17.0.0/ucd/PropList.txt
+c0edefaf1a19771e830a82735472716af6bf3c3975f6c2a23ffbe2580fbbcb15  ucd/17.0.0/Blocks.txt  https://www.unicode.org/Public/17.0.0/ucd/Blocks.txt
+d62e5bab70ca74f099343f71224fa051cb1fdd61a1ab45c0488c44cfc0b6102e  ucd/17.0.0/DerivedGeneralCategory.txt  https://www.unicode.org/Public/17.0.0/ucd/extracted/DerivedGeneralCategory.txt
