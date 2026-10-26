@@ -1,0 +1,9 @@
+error[RangeError]: Maximum call stack size exceeded
+ --> case.js:2:10
+  |
+2 |   return down(n + 1) + 1;
+  |          ^^^^^^^^^^^ `down` calls itself with no base case
+  |
+  = help: add a stop condition before the recursive call
+  = note: the call stack was exhausted by nested calls
+  = stack: down (case.js:2) ×10

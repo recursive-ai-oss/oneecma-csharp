@@ -1,0 +1,12 @@
+{
+  "id": "syn-018-top-level-return",
+  "category": "syn:top-level-return",
+  "kind": "syntax",
+  "repair": null,
+  "node": {
+    "name": "SyntaxError",
+    "message": "Illegal return statement",
+    "line": 3,
+    "column": 3
+  }
+}

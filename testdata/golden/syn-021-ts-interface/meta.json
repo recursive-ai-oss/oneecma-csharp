@@ -1,0 +1,13 @@
+{
+  "id": "syn-021-ts-interface",
+  "category": "syn:typescript-annotation",
+  "kind": "syntax",
+  "repair": "R007",
+  "node": {
+    "name": "SyntaxError",
+    "message": "Unexpected identifier 'Item'",
+    "line": 1,
+    "column": 11
+  },
+  "repaired_runs_clean": true
+}

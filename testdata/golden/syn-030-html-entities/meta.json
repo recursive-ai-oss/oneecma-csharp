@@ -1,0 +1,13 @@
+{
+  "id": "syn-030-html-entities",
+  "category": "syn:html-entity",
+  "kind": "syntax",
+  "repair": "R010",
+  "node": {
+    "name": "SyntaxError",
+    "message": "Unexpected token ';'",
+    "line": 2,
+    "column": 10
+  },
+  "repaired_runs_clean": true
+}

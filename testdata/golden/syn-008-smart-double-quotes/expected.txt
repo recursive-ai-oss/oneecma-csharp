@@ -1,0 +1,7 @@
+error[SyntaxError]: Invalid or unexpected token
+ --> case.js:1:13
+  |
+1 | console.log(“hello”);
+  |             ^^^^^^^ these are typographic quotes (U+201C, U+201D), not `"`
+  |
+  = help: use straight quotes: `console.log("hello");`

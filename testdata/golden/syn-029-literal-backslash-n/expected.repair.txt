@@ -1,0 +1,7 @@
+repair[R011]: turned literal `\n` sequences between statements into line breaks
+ --> case.js:1:13
+  |
+1 | const a = 1;\nconst b = 2;\nconsole.log(a + b);
+  |             ^ replaced
+  |
+  = note: the repaired source ran to completion and is returned with this report

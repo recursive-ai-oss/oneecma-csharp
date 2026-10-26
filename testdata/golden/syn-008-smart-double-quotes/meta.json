@@ -1,0 +1,13 @@
+{
+  "id": "syn-008-smart-double-quotes",
+  "category": "syn:smart-quotes",
+  "kind": "syntax",
+  "repair": "R004",
+  "node": {
+    "name": "SyntaxError",
+    "message": "Invalid or unexpected token",
+    "line": 1,
+    "column": 1
+  },
+  "repaired_runs_clean": true
+}

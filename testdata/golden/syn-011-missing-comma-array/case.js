@@ -1,0 +1,4 @@
+const names = [
+  "ada"
+  "grace",
+];

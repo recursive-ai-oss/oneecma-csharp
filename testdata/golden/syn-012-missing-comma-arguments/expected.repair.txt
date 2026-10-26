@@ -1,0 +1,7 @@
+repair[R005]: inserted a missing comma
+ --> case.js:3:3
+  |
+3 |   1
+  |   ^ inserted `,` before this
+  |
+  = note: the repaired source ran to completion and is returned with this report

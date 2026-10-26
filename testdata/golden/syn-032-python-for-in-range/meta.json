@@ -1,0 +1,12 @@
+{
+  "id": "syn-032-python-for-in-range",
+  "category": "syn:python-keyword",
+  "kind": "syntax",
+  "repair": null,
+  "node": {
+    "name": "SyntaxError",
+    "message": "Unexpected identifier 'i'",
+    "line": 1,
+    "column": 5
+  }
+}

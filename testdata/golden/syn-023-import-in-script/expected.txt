@@ -1,0 +1,8 @@
+error[SyntaxError]: Cannot use import statement outside a module
+ --> case.js:1:1
+  |
+1 | import { readFileSync } from "fs";
+  | ^^^^^^ `import` declarations need module mode
+  |
+  = help: run the code as a module, or use the host-provided functions instead of importing
+  = note: not repaired automatically: module mode changes strictness and `this`

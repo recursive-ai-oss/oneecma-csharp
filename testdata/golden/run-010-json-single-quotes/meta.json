@@ -1,0 +1,16 @@
+{
+  "id": "run-010-json-single-quotes",
+  "category": "rt:json-parse",
+  "kind": "runtime",
+  "repair": null,
+  "node": {
+    "name": "SyntaxError",
+    "message": "Expected property name or '}' in JSON at position 1 (line 1 column 2)",
+    "line": 1,
+    "column": 19,
+    "stack_head": [
+      "{'a': 1}",
+      "^"
+    ]
+  }
+}

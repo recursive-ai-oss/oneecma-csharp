@@ -1,0 +1,12 @@
+{
+  "id": "syn-024-bad-assign-target",
+  "category": "syn:bad-assignment-target",
+  "kind": "syntax",
+  "repair": null,
+  "node": {
+    "name": "SyntaxError",
+    "message": "Invalid left-hand side in assignment",
+    "line": 2,
+    "column": 1
+  }
+}

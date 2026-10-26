@@ -1,0 +1,16 @@
+{
+  "id": "run-014-class-without-new",
+  "category": "rt:class-call",
+  "kind": "runtime",
+  "repair": null,
+  "node": {
+    "name": "TypeError",
+    "message": "Class constructor Box cannot be invoked without 'new'",
+    "line": 2,
+    "column": 11,
+    "stack_head": [
+      "const b = Box();",
+      "^"
+    ]
+  }
+}

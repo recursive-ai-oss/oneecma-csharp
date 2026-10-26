@@ -1,0 +1,9 @@
+error[TypeError]: "" is not a function
+ --> case.js:1:1
+  |
+1 | ```js
+  | ^^^^^ a markdown fence: the backticks parse as template literals, and an empty one is called
+  |
+  = help: remove the lines that contain only ``` (or ```js)
+  = note: this source parses, so it is not repaired automatically; the host can strip a fence before running
+  = stack: <top-level> (case.js:1)

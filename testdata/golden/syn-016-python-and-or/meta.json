@@ -1,0 +1,13 @@
+{
+  "id": "syn-016-python-and-or",
+  "category": "syn:python-keyword",
+  "kind": "syntax",
+  "repair": "R006",
+  "node": {
+    "name": "SyntaxError",
+    "message": "Unexpected identifier 'and'",
+    "line": 3,
+    "column": 7
+  },
+  "repaired_runs_clean": true
+}

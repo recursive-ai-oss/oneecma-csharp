@@ -1,0 +1,13 @@
+{
+  "id": "syn-002-extra-close-bracket",
+  "category": "syn:extra-closing-delimiter",
+  "kind": "syntax",
+  "repair": "R001",
+  "node": {
+    "name": "SyntaxError",
+    "message": "Unexpected token ']'",
+    "line": 1,
+    "column": 22
+  },
+  "repaired_runs_clean": true
+}

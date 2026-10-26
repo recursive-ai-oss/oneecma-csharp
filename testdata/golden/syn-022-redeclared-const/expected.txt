@@ -1,0 +1,10 @@
+error[SyntaxError]: Identifier 'el' has already been declared
+ --> case.js:2:7
+  |
+1 | const el = 1;
+  |       ------ first declared here
+2 | const el = 2;
+  |       ^^^^^^ declared again here
+  |
+  = help: rename one of them, or assign with `el = 2` if `el` should change
+  = note: not repaired automatically: removing `const` turns a declaration into an error for `const`

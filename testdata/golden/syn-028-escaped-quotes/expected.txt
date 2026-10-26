@@ -1,0 +1,7 @@
+error[SyntaxError]: Invalid or unexpected token
+ --> case.js:1:13
+  |
+1 | console.log(\"hello\");
+  |             ^ a backslash outside a string starts nothing valid
+  |
+  = help: remove the backslashes: `console.log("hello");`

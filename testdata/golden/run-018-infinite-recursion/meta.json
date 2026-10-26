@@ -1,0 +1,16 @@
+{
+  "id": "run-018-infinite-recursion",
+  "category": "rt:stack-overflow",
+  "kind": "runtime",
+  "repair": null,
+  "node": {
+    "name": "RangeError",
+    "message": "Maximum call stack size exceeded",
+    "line": 2,
+    "column": 3,
+    "stack_head": [
+      "return down(n + 1) + 1;",
+      "^"
+    ]
+  }
+}

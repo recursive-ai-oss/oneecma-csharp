@@ -1,0 +1,12 @@
+{
+  "id": "syn-027-backtick-in-template",
+  "category": "syn:backtick-in-template",
+  "kind": "syntax",
+  "repair": null,
+  "node": {
+    "name": "SyntaxError",
+    "message": "Unexpected identifier 'auto'",
+    "line": 2,
+    "column": 15
+  }
+}

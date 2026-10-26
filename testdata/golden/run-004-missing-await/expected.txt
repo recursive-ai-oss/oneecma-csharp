@@ -1,0 +1,10 @@
+error[TypeError]: users.map is not a function
+ --> case.js:5:13
+  |
+4 | const users = loadUsers();
+  |               ----------- `loadUsers` is an async function: calling it returns a Promise
+5 | console.log(users.map((u) => u.name));
+  |             ^^^^^^^^^ `users` is a Promise, not an Array
+  |
+  = help: await the call inside an async function: `const users = await loadUsers();`
+  = stack: <top-level> (case.js:5)

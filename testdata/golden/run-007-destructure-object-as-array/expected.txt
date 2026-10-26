@@ -1,0 +1,10 @@
+error[TypeError]: point is not iterable
+ --> case.js:2:16
+  |
+1 | const point = { x: 1, y: 2 };
+  |               -------------- `point` comes from here: { x, y }
+2 | const [x, y] = point;
+  |                ^^^^^ `point` is an Object, which cannot be unpacked with `[...]`
+  |
+  = help: use object destructuring: `const { x, y } = point;`
+  = stack: <top-level> (case.js:2)

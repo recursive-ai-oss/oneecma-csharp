@@ -1,0 +1,8 @@
+error[SyntaxError]: Unexpected token ']'
+ --> case.js:1:22
+  |
+1 | const row = [1, 2, 3]];
+  |             -------- the array opened here is already closed
+  |                      ^ this `]` closes nothing
+  |
+  = help: remove the extra `]`

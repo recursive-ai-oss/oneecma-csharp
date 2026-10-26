@@ -1,0 +1,8 @@
+error[RangeError]: Invalid string length
+ --> case.js:1:13
+  |
+1 | const big = "x".repeat(2 ** 30);
+  |             ^^^^^^^^^^^^^^^^^^^ the result would be longer than the maximum string length
+  |
+  = help: build the text in smaller pieces, or keep it as an array of lines
+  = stack: <top-level> (case.js:1)

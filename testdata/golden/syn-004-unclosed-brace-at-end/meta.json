@@ -1,0 +1,13 @@
+{
+  "id": "syn-004-unclosed-brace-at-end",
+  "category": "syn:truncated-brackets",
+  "kind": "syntax",
+  "repair": "R002",
+  "node": {
+    "name": "SyntaxError",
+    "message": "Unexpected end of input",
+    "line": 7,
+    "column": 1
+  },
+  "repaired_runs_clean": true
+}

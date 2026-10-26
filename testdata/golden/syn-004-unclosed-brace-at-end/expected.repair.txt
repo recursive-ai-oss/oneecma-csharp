@@ -1,0 +1,7 @@
+repair[R002]: closed brackets that were still open at the end of the input
+ --> case.js:6:3
+  |
+6 |   return sum;
+  |   ^^^^^^^^^^^ inserted `}` after this line
+  |
+  = note: the repaired source ran to completion and is returned with this report

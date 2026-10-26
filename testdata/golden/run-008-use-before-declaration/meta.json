@@ -1,0 +1,16 @@
+{
+  "id": "run-008-use-before-declaration",
+  "category": "rt:tdz",
+  "kind": "runtime",
+  "repair": null,
+  "node": {
+    "name": "ReferenceError",
+    "message": "Cannot access 'limit' before initialization",
+    "line": 1,
+    "column": 13,
+    "stack_head": [
+      "console.log(limit);",
+      "^"
+    ]
+  }
+}

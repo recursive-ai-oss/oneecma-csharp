@@ -1,0 +1,8 @@
+error[SyntaxError]: Invalid or unexpected token
+ --> case.js:1:13
+  |
+1 | const msg = "first line
+  |             ^^^^^^^^^^^ a string literal cannot contain a line break
+  |
+  = help: write the break as `\n` inside the string, or use a template literal with backticks
+  = note: not repaired automatically: both fixes give a different string than a reader might expect

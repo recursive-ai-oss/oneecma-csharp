@@ -1,0 +1,8 @@
+error[SyntaxError]: missing ) after argument list
+ --> case.js:2:13
+  |
+2 | console.log(f"hello {who}");
+  |             ^ an `f"..."` string is Python; this string follows the identifier `f`
+  |
+  = help: use a template literal: console.log(`hello ${who}`);
+  = note: not repaired automatically: `{who}` must become `${who}` and the quotes must change

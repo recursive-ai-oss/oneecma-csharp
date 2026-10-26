@@ -1,0 +1,10 @@
+error[TypeError]: Cannot convert undefined or null to object
+ --> case.js:2:25
+  |
+1 | const config = null;
+  |                ---- `config` is set to null here
+2 | console.log(Object.keys(config));
+  |                         ^^^^^^ `config` is null
+  |
+  = help: use a default: `Object.keys(config ?? {})`
+  = stack: <top-level> (case.js:2)

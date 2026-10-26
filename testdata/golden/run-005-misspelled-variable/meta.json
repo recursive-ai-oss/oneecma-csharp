@@ -1,0 +1,16 @@
+{
+  "id": "run-005-misspelled-variable",
+  "category": "rt:not-defined",
+  "kind": "runtime",
+  "repair": null,
+  "node": {
+    "name": "ReferenceError",
+    "message": "itemcount is not defined",
+    "line": 2,
+    "column": 13,
+    "stack_head": [
+      "console.log(itemcount + 1);",
+      "^"
+    ]
+  }
+}

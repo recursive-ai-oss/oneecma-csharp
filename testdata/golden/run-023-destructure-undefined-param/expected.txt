@@ -1,0 +1,11 @@
+error[TypeError]: Cannot destructure property 'a' of 'undefined' as it is undefined.
+ --> case.js:1:12
+  |
+1 | function f({ a }) {
+  |            ^^^^^ the argument is undefined, so `a` cannot be taken from it
+...
+4 | f();
+  | ---- `f` is called here with no arguments
+  |
+  = help: give the parameter a default: `function f({ a } = {})`
+  = stack: f (case.js:1) ← <top-level> (case.js:4)

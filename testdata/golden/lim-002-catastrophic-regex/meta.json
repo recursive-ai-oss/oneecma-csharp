@@ -1,0 +1,7 @@
+{
+  "id": "lim-002-catastrophic-regex",
+  "category": "limit:fuel",
+  "kind": "limit",
+  "repair": null,
+  "node": null
+}

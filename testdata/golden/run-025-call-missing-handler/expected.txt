@@ -1,0 +1,10 @@
+error[TypeError]: handlers.onDone is not a function
+ --> case.js:2:1
+  |
+1 | const handlers = {};
+  |                  -- `handlers` comes from here: {}
+2 | handlers.onDone();
+  | ^^^^^^^^^^^^^^^ `handlers` has no property `onDone`
+  |
+  = help: `handlers` has no own properties; define `onDone` before calling it
+  = stack: <top-level> (case.js:2)

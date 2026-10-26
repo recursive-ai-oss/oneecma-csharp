@@ -1,0 +1,12 @@
+{
+  "id": "syn-025-const-without-value",
+  "category": "syn:const-initializer",
+  "kind": "syntax",
+  "repair": null,
+  "node": {
+    "name": "SyntaxError",
+    "message": "Missing initializer in const declaration",
+    "line": 1,
+    "column": 7
+  }
+}

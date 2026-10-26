@@ -1,0 +1,10 @@
+error[TypeError]: res.forEach is not a function
+ --> case.js:4:3
+  |
+3 |   const res = await api.list();
+  |               ---------------- `res` comes from here: { items, next }
+4 |   res.forEach((x) => x);
+  |   ^^^^^^^^^^^ `res` is an Object, so it has no `forEach`
+  |
+  = help: did you mean `res.items.forEach`? (Array, 2 items)
+  = stack: run (case.js:4)

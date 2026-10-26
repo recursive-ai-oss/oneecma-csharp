@@ -1,0 +1,18 @@
+error[SyntaxError]: Unexpected token ')'
+ --> case.js:2:15
+  |
+2 |   return (1 + );
+  |               ^ expected an expression before `)`
+  |
+  = help: complete the expression after `+`
+  = note: a second error follows: both are reported from one parse
+
+error[SyntaxError]: Unexpected token ';'
+ --> case.js:5:13
+  |
+5 |   const x = ;
+  |             ^ expected an expression before `;`
+  |
+  = help: give `x` a value, or remove the declaration
+
+error: aborting due to 2 syntax errors

@@ -1,0 +1,16 @@
+{
+  "id": "run-003-map-on-object",
+  "category": "rt:not-a-function",
+  "kind": "runtime",
+  "repair": null,
+  "node": {
+    "name": "TypeError",
+    "message": "result.map is not a function",
+    "line": 2,
+    "column": 24,
+    "stack_head": [
+      "const doubled = result.map((n) => n * 2);",
+      "^"
+    ]
+  }
+}

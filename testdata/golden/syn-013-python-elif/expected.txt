@@ -1,0 +1,7 @@
+error[SyntaxError]: Unexpected token '{'
+ --> case.js:4:3
+  |
+4 | } elif (n > 1) {
+  |   ^^^^ `elif` is Python; JavaScript writes `else if`
+  |
+  = help: replace `elif` with `else if`

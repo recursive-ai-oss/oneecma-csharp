@@ -1,0 +1,8 @@
+error[SyntaxError]: Unexpected token ')'
+ --> case.js:3:26
+  |
+3 | console.log(items.length));
+  | ------------------------ this call is already complete after the first `)`
+  |                          ^ this `)` closes nothing: the call already ended
+  |
+  = help: remove the extra `)`

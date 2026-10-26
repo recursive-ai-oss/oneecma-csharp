@@ -1,0 +1,16 @@
+{
+  "id": "run-021-bigint-mix",
+  "category": "rt:type-other",
+  "kind": "runtime",
+  "repair": null,
+  "node": {
+    "name": "TypeError",
+    "message": "Cannot mix BigInt and other types, use explicit conversions",
+    "line": 1,
+    "column": 15,
+    "stack_head": [
+      "const n = 10n + 1;",
+      "^"
+    ]
+  }
+}

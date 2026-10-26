@@ -1,0 +1,12 @@
+{
+  "id": "syn-015-python-fstring",
+  "category": "syn:python-fstring",
+  "kind": "syntax",
+  "repair": null,
+  "node": {
+    "name": "SyntaxError",
+    "message": "missing ) after argument list",
+    "line": 2,
+    "column": 13
+  }
+}

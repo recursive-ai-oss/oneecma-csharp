@@ -1,0 +1,9 @@
+error[LimitExceeded]: execution fuel exhausted
+ --> case.js:2:1
+  |
+2 | while (true) {
+  | ^^^^^^^^^^^^ this loop never exits
+  |
+  = note: execution stopped after 10000000 steps (the default fuel limit)
+  = note: the loop variable `n` was 3333333 when it stopped
+  = stack: <top-level> (case.js:2)

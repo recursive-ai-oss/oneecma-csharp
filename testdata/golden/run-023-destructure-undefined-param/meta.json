@@ -1,0 +1,16 @@
+{
+  "id": "run-023-destructure-undefined-param",
+  "category": "rt:destructure-undefined",
+  "kind": "runtime",
+  "repair": null,
+  "node": {
+    "name": "TypeError",
+    "message": "Cannot destructure property 'a' of 'undefined' as it is undefined.",
+    "line": 1,
+    "column": 14,
+    "stack_head": [
+      "function f({ a }) {",
+      "^"
+    ]
+  }
+}

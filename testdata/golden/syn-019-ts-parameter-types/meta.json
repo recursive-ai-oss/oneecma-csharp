@@ -1,0 +1,13 @@
+{
+  "id": "syn-019-ts-parameter-types",
+  "category": "syn:typescript-annotation",
+  "kind": "syntax",
+  "repair": "R007",
+  "node": {
+    "name": "SyntaxError",
+    "message": "Unexpected token ':'",
+    "line": 1,
+    "column": 15
+  },
+  "repaired_runs_clean": true
+}

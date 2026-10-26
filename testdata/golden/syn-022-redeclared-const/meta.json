@@ -1,0 +1,12 @@
+{
+  "id": "syn-022-redeclared-const",
+  "category": "syn:redeclaration",
+  "kind": "syntax",
+  "repair": null,
+  "node": {
+    "name": "SyntaxError",
+    "message": "Identifier 'el' has already been declared",
+    "line": 2,
+    "column": 7
+  }
+}

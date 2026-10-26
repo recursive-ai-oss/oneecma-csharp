@@ -1,0 +1,12 @@
+{
+  "id": "syn-031-try-without-catch",
+  "category": "syn:try-without-catch",
+  "kind": "syntax",
+  "repair": null,
+  "node": {
+    "name": "SyntaxError",
+    "message": "Missing catch or finally after try",
+    "line": 4,
+    "column": 1
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "id": "run-015-not-a-constructor",
+  "category": "rt:not-a-constructor",
+  "kind": "runtime",
+  "repair": null,
+  "node": {
+    "name": "TypeError",
+    "message": "make is not a constructor",
+    "line": 2,
+    "column": 11,
+    "stack_head": [
+      "const o = new make();",
+      "^"
+    ]
+  }
+}

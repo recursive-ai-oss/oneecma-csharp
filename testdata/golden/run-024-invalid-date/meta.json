@@ -1,0 +1,16 @@
+{
+  "id": "run-024-invalid-date",
+  "category": "rt:range",
+  "kind": "runtime",
+  "repair": null,
+  "node": {
+    "name": "RangeError",
+    "message": "Invalid time value",
+    "line": 2,
+    "column": 18,
+    "stack_head": [
+      "console.log(when.toISOString());",
+      "^"
+    ]
+  }
+}

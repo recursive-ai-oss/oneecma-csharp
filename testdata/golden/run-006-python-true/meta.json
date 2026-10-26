@@ -1,0 +1,16 @@
+{
+  "id": "run-006-python-true",
+  "category": "rt:not-defined",
+  "kind": "runtime",
+  "repair": null,
+  "node": {
+    "name": "ReferenceError",
+    "message": "True is not defined",
+    "line": 1,
+    "column": 15,
+    "stack_head": [
+      "const ready = True;",
+      "^"
+    ]
+  }
+}
