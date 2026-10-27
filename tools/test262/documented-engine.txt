@@ -1,294 +1,86 @@
 # Known failures of the engine backend, each with a reason. Format: <path> | <reason>.
 # Directory prefixes end in '/', '*' is a glob.
 
-# u16 string-number-json
-# The six String.prototype methods that dispatch through the RegExp protocol belong to the RegExp built-in; until it lands they are absent or minimal.
-built-ins/String/prototype/match/ | needs the RegExp built-in (Symbol.match dispatch)
-built-ins/String/prototype/matchAll/ | needs the RegExp built-in (Symbol.matchAll dispatch)
-built-ins/String/prototype/replace/ | needs the RegExp built-in (Symbol.replace dispatch)
-built-ins/String/prototype/replaceAll/ | needs the RegExp built-in (Symbol.replace dispatch)
-built-ins/String/prototype/search/ | needs the RegExp built-in (Symbol.search dispatch)
-built-ins/String/prototype/split/ | needs the RegExp built-in (Symbol.split dispatch)
-annexB/built-ins/String/prototype/match/ | needs the RegExp built-in (IsHTMLDDA matcher)
-annexB/built-ins/String/prototype/matchAll/ | needs the RegExp built-in (IsHTMLDDA matcher)
-annexB/built-ins/String/prototype/replace/ | needs the RegExp built-in (IsHTMLDDA replacer)
-annexB/built-ins/String/prototype/replaceAll/ | needs the RegExp built-in (IsHTMLDDA replacer)
-annexB/built-ins/String/prototype/search/ | needs the RegExp built-in (IsHTMLDDA searcher)
-annexB/built-ins/String/prototype/split/ | needs the RegExp built-in (IsHTMLDDA splitter)
-# Tests that use another area's built-in as their fixture; each passes once that area lands.
-built-ins/String/is-a-constructor.js | uses Reflect.construct
-built-ins/Number/is-a-constructor.js | uses Reflect.construct
-built-ins/BigInt/is-a-constructor.js | uses Reflect.construct
-built-ins/String/proto-from-ctor-realm.js | uses Reflect.construct
-built-ins/Number/proto-from-ctor-realm.js | uses Reflect.construct
-built-ins/Number/prototype/toString/S15.7.4.2_A4_T03.js | uses Date
-built-ins/Number/prototype/valueOf/S15.7.4.4_A2_T03.js | uses Date
-built-ins/BigInt/wrapper-object-ordinary-toprimitive.js | uses Date
-built-ins/String/prototype/lastIndexOf/S15.5.4.8_A1_T12.js | uses Array.prototype.lastIndexOf
-built-ins/String/prototype/endsWith/return-abrupt-from-searchstring-regexp-test.js | uses RegExp
-built-ins/String/prototype/endsWith/searchstring-is-regexp-throws.js | uses RegExp
-built-ins/String/prototype/includes/return-abrupt-from-searchstring-regexp-test.js | uses RegExp
-built-ins/String/prototype/includes/searchstring-is-regexp-throws.js | uses RegExp
-built-ins/String/prototype/startsWith/return-abrupt-from-searchstring-regexp-test.js | uses RegExp
-built-ins/String/prototype/startsWith/searchstring-is-regexp-throws.js | uses RegExp
-built-ins/String/prototype/toLocaleLowerCase/S15.5.4.17_A1_T14.js | uses RegExp
-built-ins/String/prototype/toLocaleUpperCase/S15.5.4.19_A1_T14.js | uses RegExp
-built-ins/String/prototype/toLowerCase/S15.5.4.16_A1_T14.js | uses RegExp
-built-ins/String/prototype/toUpperCase/S15.5.4.18_A1_T14.js | uses RegExp
-built-ins/String/prototype/trim/15.5.4.20-2-49.js | uses RegExp
-built-ins/JSON/parse/reviver-object-own-keys-err.js | uses Proxy
-built-ins/JSON/stringify/replacer-array-abrupt.js | uses Proxy
-built-ins/JSON/stringify/replacer-array-proxy-revoked-realm.js | uses Proxy
-built-ins/JSON/stringify/replacer-array-proxy-revoked.js | uses Proxy
-built-ins/JSON/stringify/replacer-array-proxy.js | uses Proxy
-built-ins/JSON/stringify/replacer-array-wrong-type.js | uses Proxy
-built-ins/JSON/stringify/value-array-abrupt.js | uses Proxy
-built-ins/JSON/stringify/value-array-proxy-revoked.js | uses Proxy
-built-ins/JSON/stringify/value-array-proxy.js | uses Proxy
-built-ins/JSON/stringify/value-object-proxy-revoked.js | uses Proxy
-built-ins/JSON/stringify/value-object-proxy.js | uses Proxy
-built-ins/JSON/rawJSON/returns-expected-object.js | uses Object.hasOwn
-built-ins/JSON/stringify/value-tojson-not-function.js | uses RegExp
-built-ins/JSON/parse/revived-proxy-revoked.js | uses Proxy
-built-ins/JSON/parse/revived-proxy.js | uses Proxy
-built-ins/JSON/parse/reviver-array-define-prop-err.js | uses Proxy
-built-ins/JSON/parse/reviver-array-delete-err.js | uses Proxy
-built-ins/JSON/parse/reviver-array-length-coerce-err.js | uses Proxy
-built-ins/JSON/parse/reviver-array-length-get-err.js | uses Proxy
-built-ins/JSON/parse/reviver-object-define-prop-err.js | uses Proxy
-built-ins/JSON/parse/reviver-object-delete-err.js | uses Proxy
-built-ins/JSON/parse/reviver-forward-modifies-object.js | uses Array.prototype.shift
+# core
+annexB/language/expressions/assignmenttargettype/callexpression-as-for-in-lhs.js | core: Annex B call expression as for-in/of target must throw ReferenceError at runtime after evaluating the call
+annexB/language/expressions/assignmenttargettype/callexpression-as-for-of-lhs.js | core: Annex B call expression as for-in/of target must throw ReferenceError at runtime after evaluating the call
+annexB/language/function-code/block-decl-func-skip-arguments.js | core: Annex B.3.2.1 block function named arguments is not hoisted over the arguments object
+language/eval-code/direct/var-env-lower-lex-non-strict.js | core: Annex B.3.4 var/catch-parameter conflict check for eval inside a catch block
+language/statements/for-in/head-lhs-let.js | core: `for (let in obj)` and `for ([let][1] in obj)` assign through a member expression named let
+language/statements/variable/binding-resolution.js | core: `var x = init` inside `with` resolves the binding before evaluating the initializer (14.3.2.1)
+language/statements/try/scope-catch-block-lex-open.js | core: a destructuring catch parameter and the catch block share one scope (14.15.2 needs two)
+built-ins/Function/internals/Call/class-ctor-realm.js | core: cross-realm errors: the TypeError/ReferenceError thrown by [[Call]]/[[Construct]] must come from the callee realm (10.2.1, 10.2.2)
+built-ins/Function/internals/Construct/derived-return-val-realm.js | core: cross-realm errors: the TypeError/ReferenceError thrown by [[Call]]/[[Construct]] must come from the callee realm (10.2.1, 10.2.2)
+built-ins/Function/internals/Construct/derived-this-uninitialized-realm.js | core: cross-realm errors: the TypeError/ReferenceError thrown by [[Call]]/[[Construct]] must come from the callee realm (10.2.1, 10.2.2)
+language/expressions/delete/super-property-uninitialized-this.js | core: delete super[expr] must read the this binding first
+language/eval-code/direct/non-definable-global-var.js | core: global var and function declarations by eval do not follow CanDeclareGlobalVar/CreateGlobalFunctionBinding (19.2.1.3 steps 9-12)
+language/eval-code/direct/var-env-func-init-global-update-configurable.js | core: global var and function declarations by eval do not follow CanDeclareGlobalVar/CreateGlobalFunctionBinding (19.2.1.3 steps 9-12)
+language/eval-code/indirect/non-definable-global-var.js | core: global var and function declarations by eval do not follow CanDeclareGlobalVar/CreateGlobalFunctionBinding (19.2.1.3 steps 9-12)
+language/eval-code/indirect/var-env-func-init-global-update-configurable.js | core: global var and function declarations by eval do not follow CanDeclareGlobalVar/CreateGlobalFunctionBinding (19.2.1.3 steps 9-12)
+language/arguments-object/10.6-13-a-2.js | core: mapped arguments object exotic [[DefineOwnProperty]]/[[Delete]] with non-configurable mapped indices (10.4.4.2, 10.4.4.5); caller/callee accessors on strict functions
+language/arguments-object/10.6-13-a-3.js | core: mapped arguments object exotic [[DefineOwnProperty]]/[[Delete]] with non-configurable mapped indices (10.4.4.2, 10.4.4.5); caller/callee accessors on strict functions
+language/import/import-attributes/json-extensibility-array.js | core: module evaluation is sequential (no async-module graph ordering) and JSON modules are not supported
+language/import/import-attributes/json-extensibility-object.js | core: module evaluation is sequential (no async-module graph ordering) and JSON modules are not supported
+language/import/import-attributes/json-idempotency.js | core: module evaluation is sequential (no async-module graph ordering) and JSON modules are not supported
+language/import/import-attributes/json-value-array.js | core: module evaluation is sequential (no async-module graph ordering) and JSON modules are not supported
+language/import/import-attributes/json-value-boolean.js | core: module evaluation is sequential (no async-module graph ordering) and JSON modules are not supported
+language/import/import-attributes/json-value-null.js | core: module evaluation is sequential (no async-module graph ordering) and JSON modules are not supported
+language/import/import-attributes/json-value-number.js | core: module evaluation is sequential (no async-module graph ordering) and JSON modules are not supported
+language/import/import-attributes/json-value-object.js | core: module evaluation is sequential (no async-module graph ordering) and JSON modules are not supported
+language/import/import-attributes/json-value-string.js | core: module evaluation is sequential (no async-module graph ordering) and JSON modules are not supported
+language/import/import-attributes/json-via-namespace.js | core: module evaluation is sequential (no async-module graph ordering) and JSON modules are not supported
+language/module-code/import-attributes/allow-nlt-before-with.js | core: module evaluation is sequential (no async-module graph ordering) and JSON modules are not supported
+language/module-code/top-level-await/async-module-does-not-block-sibling-modules.js | core: module evaluation is sequential (no async-module graph ordering) and JSON modules are not supported
+language/expressions/dynamic-import/assignment-expression/this.js | core: needs async test harness behaviour not yet supported (promise result handling in the test)
+language/expressions/in/private-field-rhs-await-present.js | core: needs async test harness behaviour not yet supported (promise result handling in the test)
+language/expressions/optional-chaining/member-expression-async-this.js | core: needs async test harness behaviour not yet supported (promise result handling in the test)
+language/identifier-resolution/assign-to-global-undefined.js | core: strict assignment to the non-writable global `undefined` through a property assignment target must throw
+language/expressions/super/prop-expr-getsuperbase-before-topropertykey-getvalue.js | core: super[key] must capture the super base before ToPropertyKey (13.3.7.1 steps 2-7); the VM converts the key first
+language/expressions/super/prop-expr-getsuperbase-before-topropertykey-putvalue-compound-assign.js | core: super[key] must capture the super base before ToPropertyKey (13.3.7.1 steps 2-7); the VM converts the key first
+language/expressions/super/prop-expr-getsuperbase-before-topropertykey-putvalue-increment.js | core: super[key] must capture the super base before ToPropertyKey (13.3.7.1 steps 2-7); the VM converts the key first
+language/expressions/super/prop-expr-getsuperbase-before-topropertykey-putvalue.js | core: super[key] must capture the super base before ToPropertyKey (13.3.7.1 steps 2-7); the VM converts the key first
+built-ins/Promise/try/avoids-wrap-for-subclass.js | core: test expects Promise.try to return the callback result unwrapped; ES2026 text (27.2.4.8) wraps it in a new promise; kept as the spec says
+built-ins/Promise/try/avoids-wrap.js | core: test expects Promise.try to return the callback result unwrapped; ES2026 text (27.2.4.8) wraps it in a new promise; kept as the spec says
+built-ins/Function/15.3.5.4_2-12gs.js | core: the legacy `caller` extension on sloppy functions is not implemented (feature caller)
+built-ins/Function/15.3.5.4_2-14gs.js | core: the legacy `caller` extension on sloppy functions is not implemented (feature caller)
+built-ins/Function/15.3.5.4_2-75gs.js | core: the legacy `caller` extension on sloppy functions is not implemented (feature caller)
+built-ins/Function/15.3.5.4_2-76gs.js | core: the legacy `caller` extension on sloppy functions is not implemented (feature caller)
+built-ins/Function/15.3.5.4_2-77gs.js | core: the legacy `caller` extension on sloppy functions is not implemented (feature caller)
+built-ins/Function/15.3.5.4_2-78gs.js | core: the legacy `caller` extension on sloppy functions is not implemented (feature caller)
+built-ins/Function/15.3.5.4_2-79gs.js | core: the legacy `caller` extension on sloppy functions is not implemented (feature caller)
+built-ins/Function/15.3.5.4_2-80gs.js | core: the legacy `caller` extension on sloppy functions is not implemented (feature caller)
+built-ins/Function/15.3.5.4_2-81gs.js | core: the legacy `caller` extension on sloppy functions is not implemented (feature caller)
+built-ins/Function/15.3.5.4_2-82gs.js | core: the legacy `caller` extension on sloppy functions is not implemented (feature caller)
+built-ins/Function/15.3.5.4_2-83gs.js | core: the legacy `caller` extension on sloppy functions is not implemented (feature caller)
+built-ins/Function/15.3.5.4_2-84gs.js | core: the legacy `caller` extension on sloppy functions is not implemented (feature caller)
+built-ins/Function/15.3.5.4_2-85gs.js | core: the legacy `caller` extension on sloppy functions is not implemented (feature caller)
+built-ins/Function/15.3.5.4_2-86gs.js | core: the legacy `caller` extension on sloppy functions is not implemented (feature caller)
+built-ins/Function/15.3.5.4_2-87gs.js | core: the legacy `caller` extension on sloppy functions is not implemented (feature caller)
+built-ins/Function/15.3.5.4_2-88gs.js | core: the legacy `caller` extension on sloppy functions is not implemented (feature caller)
+built-ins/Function/15.3.5.4_2-89gs.js | core: the legacy `caller` extension on sloppy functions is not implemented (feature caller)
+built-ins/Function/15.3.5.4_2-90gs.js | core: the legacy `caller` extension on sloppy functions is not implemented (feature caller)
+built-ins/Function/15.3.5.4_2-91gs.js | core: the legacy `caller` extension on sloppy functions is not implemented (feature caller)
+built-ins/Function/15.3.5.4_2-92gs.js | core: the legacy `caller` extension on sloppy functions is not implemented (feature caller)
+built-ins/Function/15.3.5.4_2-93gs.js | core: the legacy `caller` extension on sloppy functions is not implemented (feature caller)
+language/statements/with/get-mutable-binding-binding-deleted-in-get-unscopables-strict-mode.js | core: with-environment GetBindingValue strict-mode ReferenceError after @@unscopables deletes the binding (9.1.1.2.6)
+language/statements/async-generator/yield-star-return-then-getter-ticks.js | core: yield* return(): tick order of the awaited result differs from the spec (27.6.3.8)
 
-# u18 regexp
-# These tests pass with the missing helpers polyfilled; they fail here only because the helper belongs to another built-in area that has not merged yet. Remove each entry when that area lands.
-built-ins/RegExp/property-escapes/generated/ | needs String.fromCodePoint (String built-ins)
-built-ins/RegExp/CharacterClassEscapes/ | needs String.fromCodePoint (String built-ins)
-built-ins/RegExp/escape/escaped-otherpunctuators.js | needs String.prototype.codePointAt (String built-ins)
-built-ins/String/prototype/match/S15.5.4.10_A2_T*.js | needs String.prototype.lastIndexOf (String built-ins)
-built-ins/RegExp/is-a-constructor.js | needs Reflect.construct (Reflect built-in)
-built-ins/RegExp/proto-from-ctor-realm.js | needs Reflect.construct (Reflect built-in)
-built-ins/RegExp/match-indices/indices-array-non-unicode-match.js | harness deepEqual needs Map (collections)
-built-ins/RegExp/match-indices/indices-array-unicode-match.js | harness deepEqual needs Map (collections)
-built-ins/RegExp/prototype/Symbol.split/species-ctor-species-non-ctor.js | needs Date (Date built-in)
+# core (found after the built-in areas landed)
+language/destructuring/binding/keyed-destructuring-property-reference-target-evaluation-order-with-bindings.js | core: binding-pattern evaluation order with a reference target reads the source before resolving the target (8.6.3)
+language/expressions/dynamic-import/import-attributes/2nd-param-with-enumeration-enumerable.js | core: dynamic import does not read the import attributes object through its enumerable own properties (13.3.10.1)
 
-# u15 array-iterators: Array, array iterators, Iterator helpers. Every entry waits on a built-in outside this area.
-built-ins/Array/from/items-is-arraybuffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/fromAsync/asyncitems-arraybuffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/fromAsync/asyncitems-arraylike-promise.js | needs RegExp literals, which are not available yet
-built-ins/Array/fromAsync/asyncitems-asynciterator-exists.js | needs RegExp literals, which are not available yet
-built-ins/Array/fromAsync/asyncitems-asynciterator-null.js | needs RegExp literals, which are not available yet
-built-ins/Array/fromAsync/asyncitems-asynciterator-sync.js | needs RegExp literals, which are not available yet
-built-ins/Array/fromAsync/asyncitems-iterator-exists.js | needs RegExp literals, which are not available yet
-built-ins/Array/fromAsync/asyncitems-iterator-null.js | needs RegExp literals, which are not available yet
-built-ins/Array/fromAsync/asyncitems-iterator-promise.js | needs RegExp literals, which are not available yet
-built-ins/Array/fromAsync/asyncitems-operations.js | needs RegExp literals, which are not available yet
-built-ins/Array/fromAsync/mapfn-result-awaited-once-per-iteration.js | needs RegExp literals, which are not available yet
-built-ins/Array/fromAsync/this-constructor-operations.js | needs Proxy, which is not implemented yet
-built-ins/Array/is-a-constructor.js | needs Reflect.construct, which is not implemented yet
-built-ins/Array/isArray/15.4.3.2-1-10.js | needs RegExp, which is not implemented yet
-built-ins/Array/isArray/proxy-revoked.js | needs Proxy, which is not implemented yet
-built-ins/Array/isArray/proxy.js | needs Proxy, which is not implemented yet
-built-ins/Array/length/define-own-prop-length-coercion-order-set.js | needs Reflect, which is not implemented yet
-built-ins/Array/length/define-own-prop-length-coercion-order.js | needs Reflect, which is not implemented yet
-built-ins/Array/length/define-own-prop-length-no-value-order.js | needs Reflect, which is not implemented yet
-built-ins/Array/of/return-a-new-array-object.js | needs Math.cos, which is not implemented yet
-built-ins/Array/of/return-abrupt-from-data-property-using-proxy.js | needs Proxy, which is not implemented yet
-built-ins/Array/proto-from-ctor-realm-one.js | needs Reflect, which is not implemented yet
-built-ins/Array/proto-from-ctor-realm-two.js | needs Reflect, which is not implemented yet
-built-ins/Array/proto-from-ctor-realm-zero.js | needs Reflect, which is not implemented yet
-built-ins/Array/prototype/at/coerced-index-resize.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/at/typed-array-resizable-buffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/concat/Array.prototype.concat_large-typed-array.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/concat/Array.prototype.concat_small-typed-array.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/concat/Array.prototype.concat_spreadable-reg-exp.js | needs RegExp literals, which are not available yet
-built-ins/Array/prototype/concat/arg-length-exceeding-integer-limit.js | needs Proxy, which is not implemented yet
-built-ins/Array/prototype/concat/create-proxy.js | needs Proxy, which is not implemented yet
-built-ins/Array/prototype/concat/create-revoked-proxy.js | needs Proxy, which is not implemented yet
-built-ins/Array/prototype/concat/is-concat-spreadable-is-array-proxy-revoked.js | needs Proxy, which is not implemented yet
-built-ins/Array/prototype/concat/is-concat-spreadable-proxy-revoked.js | needs Proxy, which is not implemented yet
-built-ins/Array/prototype/concat/is-concat-spreadable-proxy.js | needs Proxy, which is not implemented yet
-built-ins/Array/prototype/copyWithin/resizable-buffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/copyWithin/return-abrupt-from-delete-proxy-target.js | needs Proxy, which is not implemented yet
-built-ins/Array/prototype/copyWithin/return-abrupt-from-has-start.js | needs Proxy, which is not implemented yet
-built-ins/Array/prototype/entries/resizable-buffer-grow-mid-iteration.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/entries/resizable-buffer-shrink-mid-iteration.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/entries/resizable-buffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/every/15.4.4.16-1-12.js | needs RegExp, which is not implemented yet
-built-ins/Array/prototype/every/15.4.4.16-5-16.js | needs RegExp, which is not implemented yet
-built-ins/Array/prototype/every/15.4.4.16-7-c-iii-22.js | needs RegExp, which is not implemented yet
-built-ins/Array/prototype/every/callbackfn-resize-arraybuffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/every/resizable-buffer-grow-mid-iteration.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/every/resizable-buffer-shrink-mid-iteration.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/every/resizable-buffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/fill/resizable-buffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/fill/typed-array-resize.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/filter/15.4.4.20-1-12.js | needs RegExp, which is not implemented yet
-built-ins/Array/prototype/filter/15.4.4.20-5-16.js | needs RegExp, which is not implemented yet
-built-ins/Array/prototype/filter/15.4.4.20-9-c-iii-23.js | needs RegExp, which is not implemented yet
-built-ins/Array/prototype/filter/callbackfn-resize-arraybuffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/filter/create-proxy.js | needs Proxy, which is not implemented yet
-built-ins/Array/prototype/filter/create-revoked-proxy.js | needs Proxy, which is not implemented yet
-built-ins/Array/prototype/filter/resizable-buffer-grow-mid-iteration.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/filter/resizable-buffer-shrink-mid-iteration.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/filter/resizable-buffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/find/callbackfn-resize-arraybuffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/find/predicate-is-not-callable-throws.js | needs RegExp literals, which are not available yet
-built-ins/Array/prototype/find/resizable-buffer-grow-mid-iteration.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/find/resizable-buffer-shrink-mid-iteration.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/find/resizable-buffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/findIndex/callbackfn-resize-arraybuffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/findIndex/predicate-is-not-callable-throws.js | needs RegExp literals, which are not available yet
-built-ins/Array/prototype/findIndex/resizable-buffer-grow-mid-iteration.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/findIndex/resizable-buffer-shrink-mid-iteration.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/findIndex/resizable-buffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/findLast/callbackfn-resize-arraybuffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/findLast/predicate-is-not-callable-throws.js | needs RegExp literals, which are not available yet
-built-ins/Array/prototype/findLast/resizable-buffer-grow-mid-iteration.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/findLast/resizable-buffer-shrink-mid-iteration.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/findLast/resizable-buffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/findLastIndex/callbackfn-resize-arraybuffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/findLastIndex/predicate-is-not-callable-throws.js | needs RegExp literals, which are not available yet
-built-ins/Array/prototype/findLastIndex/resizable-buffer-grow-mid-iteration.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/findLastIndex/resizable-buffer-shrink-mid-iteration.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/findLastIndex/resizable-buffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/flat/proxy-access-count.js | needs Proxy, which is not implemented yet
-built-ins/Array/prototype/flatMap/array-like-objects-nested.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/flatMap/array-like-objects-typedarrays.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/flatMap/proxy-access-count.js | needs Proxy, which is not implemented yet
-built-ins/Array/prototype/forEach/15.4.4.18-1-12.js | needs RegExp, which is not implemented yet
-built-ins/Array/prototype/forEach/15.4.4.18-5-16.js | needs RegExp, which is not implemented yet
-built-ins/Array/prototype/forEach/callbackfn-resize-arraybuffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/forEach/resizable-buffer-grow-mid-iteration.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/forEach/resizable-buffer-shrink-mid-iteration.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/forEach/resizable-buffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/includes/coerced-searchelement-fromindex-resize.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/includes/get-prop.js | needs Proxy, which is not implemented yet
-built-ins/Array/prototype/includes/resizable-buffer-special-float-values.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/includes/resizable-buffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/indexOf/15.4.4.14-1-12.js | needs RegExp, which is not implemented yet
-built-ins/Array/prototype/indexOf/calls-only-has-on-prototype-after-length-zeroed.js | needs Proxy, which is not implemented yet
-built-ins/Array/prototype/indexOf/coerced-searchelement-fromindex-grow.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/indexOf/coerced-searchelement-fromindex-shrink.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/indexOf/resizable-buffer-special-float-values.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/indexOf/resizable-buffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/join/coerced-separator-grow.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/join/coerced-separator-shrink.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/join/resizable-buffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/keys/resizable-buffer-grow-mid-iteration.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/keys/resizable-buffer-shrink-mid-iteration.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/keys/resizable-buffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/lastIndexOf/15.4.4.15-1-12.js | needs RegExp, which is not implemented yet
-built-ins/Array/prototype/lastIndexOf/15.4.4.15-5-21.js | needs RegExp, which is not implemented yet
-built-ins/Array/prototype/lastIndexOf/calls-only-has-on-prototype-after-length-zeroed.js | needs Proxy, which is not implemented yet
-built-ins/Array/prototype/lastIndexOf/coerced-position-grow.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/lastIndexOf/coerced-position-shrink.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/lastIndexOf/resizable-buffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/map/15.4.4.19-1-12.js | needs RegExp, which is not implemented yet
-built-ins/Array/prototype/map/15.4.4.19-5-16.js | needs RegExp, which is not implemented yet
-built-ins/Array/prototype/map/callbackfn-resize-arraybuffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/map/create-proxy.js | needs Proxy, which is not implemented yet
-built-ins/Array/prototype/map/create-revoked-proxy.js | needs Proxy, which is not implemented yet
-built-ins/Array/prototype/map/create-species-undef-invalid-len.js | needs Proxy, which is not implemented yet
-built-ins/Array/prototype/map/resizable-buffer-grow-mid-iteration.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/map/resizable-buffer-shrink-mid-iteration.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/map/resizable-buffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/reduce/15.4.4.21-1-12.js | needs RegExp, which is not implemented yet
-built-ins/Array/prototype/reduce/15.4.4.21-9-c-ii-32.js | needs RegExp, which is not implemented yet
-built-ins/Array/prototype/reduce/callbackfn-resize-arraybuffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/reduce/resizable-buffer-grow-mid-iteration.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/reduce/resizable-buffer-shrink-mid-iteration.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/reduce/resizable-buffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/reduceRight/15.4.4.22-1-12.js | needs RegExp, which is not implemented yet
-built-ins/Array/prototype/reduceRight/15.4.4.22-9-c-ii-32.js | needs RegExp, which is not implemented yet
-built-ins/Array/prototype/reduceRight/callbackfn-resize-arraybuffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/reduceRight/resizable-buffer-grow-mid-iteration.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/reduceRight/resizable-buffer-shrink-mid-iteration.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/reduceRight/resizable-buffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/reverse/length-exceeding-integer-limit-with-proxy.js | needs Proxy, which is not implemented yet
-built-ins/Array/prototype/reverse/resizable-buffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/slice/coerced-start-end-grow.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/slice/coerced-start-end-shrink.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/slice/create-proxied-array-invalid-len.js | needs Proxy, which is not implemented yet
-built-ins/Array/prototype/slice/create-proxy.js | needs Proxy, which is not implemented yet
-built-ins/Array/prototype/slice/create-revoked-proxy.js | needs Proxy, which is not implemented yet
-built-ins/Array/prototype/slice/length-exceeding-integer-limit-proxied-array.js | needs Proxy, which is not implemented yet
-built-ins/Array/prototype/slice/resizable-buffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/some/15.4.4.17-1-12.js | needs RegExp, which is not implemented yet
-built-ins/Array/prototype/some/15.4.4.17-5-16.js | needs RegExp, which is not implemented yet
-built-ins/Array/prototype/some/15.4.4.17-7-c-iii-22.js | needs RegExp, which is not implemented yet
-built-ins/Array/prototype/some/callbackfn-resize-arraybuffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/some/resizable-buffer-grow-mid-iteration.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/some/resizable-buffer-shrink-mid-iteration.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/some/resizable-buffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/sort/comparefn-grow.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/sort/comparefn-nonfunction-call-throws.js | needs RegExp literals, which are not available yet
-built-ins/Array/prototype/sort/comparefn-resizable-buffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/sort/comparefn-shrink.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/sort/resizable-buffer-default-comparator.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/splice/create-proxy.js | needs Proxy, which is not implemented yet
-built-ins/Array/prototype/splice/create-revoked-proxy.js | needs Proxy, which is not implemented yet
-built-ins/Array/prototype/splice/create-species-length-exceeding-integer-limit.js | needs Proxy, which is not implemented yet
-built-ins/Array/prototype/splice/create-species-undef-invalid-len.js | needs Proxy, which is not implemented yet
-built-ins/Array/prototype/splice/property-traps-order-with-species.js | needs Proxy, which is not implemented yet
-built-ins/Array/prototype/toLocaleString/resizable-buffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/toLocaleString/user-provided-tolocalestring-grow.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/toLocaleString/user-provided-tolocalestring-shrink.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/toSorted/comparefn-not-a-function.js | needs RegExp literals, which are not available yet
-built-ins/Array/prototype/toString/non-callable-join-string-tag.js | needs Proxy, which is not implemented yet
-built-ins/Array/prototype/values/resizable-buffer-grow-mid-iteration.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/values/resizable-buffer-shrink-mid-iteration.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/values/resizable-buffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/ArrayIteratorPrototype/next/Float32Array.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/ArrayIteratorPrototype/next/Float64Array.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/ArrayIteratorPrototype/next/Int16Array.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/ArrayIteratorPrototype/next/Int32Array.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/ArrayIteratorPrototype/next/Int8Array.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/ArrayIteratorPrototype/next/Uint16Array.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/ArrayIteratorPrototype/next/Uint32Array.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/ArrayIteratorPrototype/next/Uint8Array.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/ArrayIteratorPrototype/next/Uint8ClampedArray.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/ArrayIteratorPrototype/next/detach-typedarray-in-progress.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Iterator/from/get-return-method-when-call-return.js | needs RegExp literals, which are not available yet
-built-ins/Iterator/from/return-method-calls-base-return-method.js | needs RegExp literals, which are not available yet
-built-ins/Iterator/from/return-method-throws-for-invalid-this.js | needs RegExp literals, which are not available yet
-built-ins/Iterator/proto-from-ctor-realm.js | needs Reflect, which is not implemented yet
+built-ins/Function/prototype/toString/built-in-function-object.js | core: legacy RegExp accessor names such as `$&` are not valid NativeFunction syntax in Function.prototype.toString
+built-ins/Function/prototype/toString/line-terminator-normalisation-CR.js | runner: the harness include nativeFunctionMatcher.js is not loaded for this test
 
-# u17 collections-proxy
-# Each of these fails only because a built-in owned by another area is not present yet; none is a Map, Set, Weak*, Reflect or Proxy defect.
-built-ins/Set/prototype/add/preserves-insertion-order.js | needs Array.prototype.shift (Array area)
-built-ins/Set/prototype/forEach/iterates-in-insertion-order.js | needs Array.prototype.shift (Array area)
-built-ins/Set/prototype/forEach/iterates-in-iterable-entry-order.js | needs Array.prototype.shift (Array area)
-built-ins/Set/prototype/forEach/iterates-values-added-after-foreach-begins.js | needs Array.prototype.shift (Array area)
-built-ins/Set/prototype/forEach/iterates-values-deleted-then-readded.js | needs Array.prototype.shift (Array area)
-built-ins/Set/prototype/forEach/iterates-values-not-deleted.js | needs Array.prototype.shift (Array area)
-built-ins/Set/prototype/forEach/iterates-values-revisits-after-delete-re-add.js | needs Array.prototype.shift (Array area)
-built-ins/Proxy/defineProperty/trap-is-null-target-is-proxy.js | needs RegExp literals (RegExp area)
-built-ins/Proxy/deleteProperty/trap-is-null-target-is-proxy.js | needs RegExp literals (RegExp area)
-built-ins/Proxy/get/trap-is-missing-target-is-proxy.js | needs RegExp literals (RegExp area)
-built-ins/Proxy/getOwnPropertyDescriptor/trap-is-undefined-target-is-proxy.js | needs RegExp literals (RegExp area)
-built-ins/Proxy/has/trap-is-missing-target-is-proxy.js | needs RegExp literals (RegExp area)
-built-ins/Proxy/isExtensible/trap-is-missing-target-is-proxy.js | needs RegExp literals (RegExp area)
-built-ins/Proxy/set/trap-is-missing-target-is-proxy.js | needs RegExp literals (RegExp area)
-
-# date: Date and Annex B Date methods. The format tests read the result with a RegExp literal; the strings themselves match the reference output (testdata/date).
-built-ins/Date/prototype/toDateString/format.js | needs RegExp literals (RegExp area)
-built-ins/Date/prototype/toString/format.js | needs RegExp literals (RegExp area)
-built-ins/Date/prototype/toTimeString/format.js | needs RegExp literals (RegExp area)
-built-ins/Date/prototype/toUTCString/format.js | needs RegExp literals (RegExp area)
+# array-iterators
+built-ins/Iterator/from/return-method-throws-for-invalid-this.js | iterators: Iterator.from reads `constructor` of the original iterator, which the spec does not
 
 # binary-data
 # ArrayBuffer, SharedArrayBuffer, TypedArrays, Uint8Array base64/hex, DataView and Atomics. Every entry is a test that needs something outside this area or a host feature the engine does not have; none is a binary-data defect.
-built-ins/Atomics/add/non-views.js | needs Date (Date area)
-built-ins/Atomics/and/non-views.js | needs Date (Date area)
-built-ins/Atomics/compareExchange/non-views.js | needs Date (Date area)
-built-ins/Atomics/exchange/non-views.js | needs Date (Date area)
-built-ins/Atomics/load/non-shared-bufferdata.js | needs Array.prototype.splice (Array area)
-built-ins/Atomics/load/non-views.js | needs Date (Date area)
 built-ins/Atomics/notify/bigint/notify-all-on-loc.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
 built-ins/Atomics/notify/count-defaults-to-infinity-missing.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
 built-ins/Atomics/notify/count-defaults-to-infinity-undefined.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
 built-ins/Atomics/notify/negative-count.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
-built-ins/Atomics/notify/non-views.js | needs Date (Date area)
 built-ins/Atomics/notify/notify-all-on-loc.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
 built-ins/Atomics/notify/notify-all.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
 built-ins/Atomics/notify/notify-in-order-one-time.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
@@ -301,9 +93,6 @@ built-ins/Atomics/notify/notify-with-no-agents-waiting.js | host-limited: uses $
 built-ins/Atomics/notify/notify-with-no-matching-agents-waiting.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
 built-ins/Atomics/notify/notify-zero.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
 built-ins/Atomics/notify/undefined-index-defaults-to-zero.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
-built-ins/Atomics/or/non-views.js | needs Date (Date area)
-built-ins/Atomics/store/non-views.js | needs Date (Date area)
-built-ins/Atomics/sub/non-views.js | needs Date (Date area)
 built-ins/Atomics/wait/bigint/false-for-timeout-agent.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
 built-ins/Atomics/wait/bigint/nan-for-timeout.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
 built-ins/Atomics/wait/bigint/negative-timeout-agent.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
@@ -400,30 +189,12 @@ built-ins/Atomics/waitAsync/undefined-index-defaults-to-zero-agent.js | host-lim
 built-ins/Atomics/waitAsync/value-not-equal-agent.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
 built-ins/Atomics/waitAsync/waiterlist-block-indexedposition-wake.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
 built-ins/Atomics/waitAsync/was-woken-before-timeout.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
-built-ins/Atomics/xor/non-views.js | needs Date (Date area)
 built-ins/DataView/prototype/byteLength/detached-buffer.js | the pinned test262 follows a change after the 17th edition (an out-of-bounds view reports 0); ECMA-262 17th edition and Node throw TypeError
 built-ins/DataView/prototype/byteLength/resizable-array-buffer-auto.js | the pinned test262 follows a change after the 17th edition (an out-of-bounds view reports 0); ECMA-262 17th edition and Node throw TypeError
 built-ins/DataView/prototype/byteLength/resizable-array-buffer-fixed.js | the pinned test262 follows a change after the 17th edition (an out-of-bounds view reports 0); ECMA-262 17th edition and Node throw TypeError
 built-ins/DataView/prototype/byteOffset/detached-buffer.js | the pinned test262 follows a change after the 17th edition (an out-of-bounds view reports 0); ECMA-262 17th edition and Node throw TypeError
 built-ins/DataView/prototype/byteOffset/resizable-array-buffer-auto.js | the pinned test262 follows a change after the 17th edition (an out-of-bounds view reports 0); ECMA-262 17th edition and Node throw TypeError
 built-ins/DataView/prototype/byteOffset/resizable-array-buffer-fixed.js | the pinned test262 follows a change after the 17th edition (an out-of-bounds view reports 0); ECMA-262 17th edition and Node throw TypeError
-built-ins/TypedArray/prototype/at/returns-undefined-for-holes-in-sparse-arrays.js | needs String.prototype.startsWith (String area)
-built-ins/TypedArray/prototype/copyWithin/coerced-values-end-detached-prototype.js | needs Array.prototype.fill (Array area)
-built-ins/TypedArray/prototype/copyWithin/coerced-values-end-detached.js | needs Array.prototype.fill (Array area)
-built-ins/TypedArray/prototype/copyWithin/coerced-values-start-detached.js | needs Array.prototype.fill (Array area)
-built-ins/TypedArray/prototype/every/BigInt/returns-true-if-every-cb-returns-true.js | needs Array.prototype.unshift (Array area)
-built-ins/TypedArray/prototype/every/returns-true-if-every-cb-returns-true.js | needs Array.prototype.unshift (Array area)
-built-ins/TypedArray/prototype/find/BigInt/predicate-is-not-callable-throws.js | needs RegExp literals (RegExp area)
-built-ins/TypedArray/prototype/find/predicate-is-not-callable-throws.js | needs RegExp literals (RegExp area)
-built-ins/TypedArray/prototype/findIndex/BigInt/predicate-is-not-callable-throws.js | needs RegExp literals (RegExp area)
-built-ins/TypedArray/prototype/findIndex/predicate-is-not-callable-throws.js | needs RegExp literals (RegExp area)
-built-ins/TypedArray/prototype/findLast/BigInt/predicate-is-not-callable-throws.js | needs RegExp literals (RegExp area)
-built-ins/TypedArray/prototype/findLast/predicate-is-not-callable-throws.js | needs RegExp literals (RegExp area)
-built-ins/TypedArray/prototype/findLastIndex/BigInt/predicate-is-not-callable-throws.js | needs RegExp literals (RegExp area)
-built-ins/TypedArray/prototype/findLastIndex/predicate-is-not-callable-throws.js | needs RegExp literals (RegExp area)
-built-ins/TypedArray/prototype/sort/BigInt/comparefn-nonfunction-call-throws.js | needs RegExp literals (RegExp area)
-built-ins/TypedArray/prototype/sort/comparefn-nonfunction-call-throws.js | needs RegExp literals (RegExp area)
-built-ins/TypedArray/prototype/toSorted/comparefn-not-a-function.js | needs RegExp literals (RegExp area)
 
 # intl
 # Intl (ECMA-402) failures that follow from the data the engine carries: Gregorian calendar, Latin digits, six locales, no European Ordering Rules collation.

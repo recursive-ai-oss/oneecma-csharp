@@ -20,7 +20,57 @@ public sealed class EngineBackend : ITestBackend
     public Task<BackendResult> RunAsync(PreparedTest test, TimeSpan timeout, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(test);
-        return Task.Run(() => Run(test, timeout, cancellationToken), cancellationToken);
+        if (test.ParseOnly)
+        {
+            return Task.Run(() => Run(test, timeout, cancellationToken), cancellationToken);
+        }
+
+        return RunOnWatchedThread(test, timeout, cancellationToken);
+    }
+
+    /// <summary>Number of runs abandoned because they ignored the wall-clock limit (a native loop that never charges fuel).</summary>
+    public static int Abandoned => Volatile.Read(ref s_abandoned);
+
+    private static int s_abandoned;
+
+    /// <summary>
+    /// Runs one test on its own background thread with a generous stack. The engine polls its wall-clock limit only when it
+    /// charges fuel, so a native loop that never does would hang the run; the watchdog gives up on that thread after the
+    /// limit plus a grace period and reports a timeout. The abandoned thread is a background thread and dies with the process.
+    /// Any exception that escapes the engine becomes a failed result instead of ending the run.
+    /// </summary>
+    private static Task<BackendResult> RunOnWatchedThread(PreparedTest test, TimeSpan timeout, CancellationToken cancellationToken)
+    {
+        var tcs = new TaskCompletionSource<BackendResult>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var thread = new Thread(() =>
+        {
+            try
+            {
+                tcs.TrySetResult(Run(test, timeout, cancellationToken));
+            }
+            catch (Exception e)
+            {
+                tcs.TrySetResult(new BackendResult(true, "runtime", "HarnessCrash", e.GetType().Name + ": " + e.Message));
+            }
+        }, 64 << 20)
+        {
+            IsBackground = true,
+        };
+        thread.Start();
+        return WaitWithWatchdog(tcs.Task, timeout + TimeSpan.FromSeconds(5), cancellationToken);
+    }
+
+    private static async Task<BackendResult> WaitWithWatchdog(Task<BackendResult> task, TimeSpan limit, CancellationToken cancellationToken)
+    {
+        Task done = await Task.WhenAny(task, Task.Delay(limit, cancellationToken)).ConfigureAwait(false);
+        if (ReferenceEquals(done, task))
+        {
+            return await task.ConfigureAwait(false);
+        }
+
+        cancellationToken.ThrowIfCancellationRequested();
+        Interlocked.Increment(ref s_abandoned);
+        return new BackendResult(true, "runtime", "Limit", "native code ignored the wall-clock limit") with { TimedOut = true };
     }
 
     private static BackendResult Run(PreparedTest test, TimeSpan timeout, CancellationToken cancellationToken)

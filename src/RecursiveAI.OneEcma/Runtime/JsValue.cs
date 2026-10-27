@@ -185,6 +185,7 @@ internal sealed class Rope
             return _flat;
         }
 
+        Agent.CurrentOrNull?.Alloc((long)Length * 2);
         string result = string.Create(Length, this, static (span, root) =>
         {
             var stack = new Stack<object>();

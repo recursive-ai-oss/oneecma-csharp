@@ -580,7 +580,8 @@ internal static class Ops
             return Str(string.Concat(x, y));
         }
 
-        ag.Alloc(total * 2);
+        // A rope node is small; the characters are charged when the rope is flattened.
+        ag.Alloc(48);
         return JsValue.FromRope(new Rope(a.Ref!, b.Ref!, (int)total));
     }
 

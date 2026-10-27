@@ -241,9 +241,14 @@ internal sealed class JsStringObject : JsObject
     {
         if (key.TryGetIndex(out uint i) && i < (uint)Value.Length)
         {
-            // 10.4.3.2 step 3: an existing string index is compatible only with an identical descriptor.
-            GetOwnProperty(key, out PropertyDescriptor cur);
-            return ValidateAndApply(key, false, desc, true, cur);
+            // 10.4.3.2 step 3: an existing string index is compatible only with an identical descriptor
+            // (IsCompatiblePropertyDescriptor against {value: the character, writable: false, enumerable: true, configurable: false}).
+            // Nothing is stored: the character is not a property of the object's storage.
+            return !desc.IsAccessor
+                && !(desc.HasConfigurable && desc.Configurable)
+                && !(desc.HasEnumerable && !desc.Enumerable)
+                && !(desc.HasWritable && desc.Writable)
+                && !(desc.HasValue && !Ops.SameValue(desc.Value, JsValue.FromString(Value[(int)i].ToString())));
         }
 
         return base.DefineOwnProperty(key, desc);

@@ -10,6 +10,5 @@
     <!-- Jint is a black-box comparison target. It must not appear in any project that ships. -->
     <PackageReference Include="Jint" />
     <ProjectReference Include="../../src/$(PackagePrefix).OneEcma/$(PackagePrefix).OneEcma.csproj" />
-    <ProjectReference Include="../../spike/OneEcma.ExecutorSpike/OneEcma.ExecutorSpike.csproj" />
   </ItemGroup>
 </Project>

@@ -522,6 +522,34 @@ internal static partial class Vm
             }
         }
 
+        // 10.2.11 step 29: a sloppy function keeps its top-level lexical declarations in an environment of their own between the
+        // body and the variable environment, so the walk above also passes over them.
+        if (varEnv?.Info is { } vi)
+        {
+            foreach (string n in names)
+            {
+                int i = vi.IndexOf(n);
+                if (i >= 0 && vi.Kinds[i] is ScopeInfo.KLet or ScopeInfo.KConst)
+                {
+                    throw Errors.Syntax("Identifier '" + n + "' has already been declared");
+                }
+            }
+        }
+
+        // 19.2.1.3 step 3.d: eval in a parameter expression runs with the parameter environment as its lexical environment
+        // and the function environment as its variable environment, so any name the parameter environment holds (a parameter
+        // or the arguments object) collides with a var of the same name.
+        if (varEnv?.Info is { IsParamScope: true })
+        {
+            foreach (string n in names)
+            {
+                if (varEnv.Info.IndexOf(n) >= 0)
+                {
+                    throw Errors.Syntax("Identifier '" + n + "' has already been declared");
+                }
+            }
+        }
+
         if (varEnv is null)
         {
             Realm r = f.Realm;

@@ -15,7 +15,6 @@
     <Compile Include="../../samples/OrderHost/Domain.cs" Link="HostFixtures/Domain.cs" />
     <ProjectReference Include="../../src/OneEcma.Cli/OneEcma.Cli.csproj" />
     <ProjectReference Include="../../tools/OneEcma.Test262/OneEcma.Test262.csproj" />
-    <ProjectReference Include="../../spike/OneEcma.ExecutorSpike/OneEcma.ExecutorSpike.csproj" />
     <ProjectReference Include="../../tools/RegExpTest262/RegExpTest262.csproj" />
   </ItemGroup>
   <ItemGroup>

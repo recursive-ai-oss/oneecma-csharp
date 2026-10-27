@@ -1298,6 +1298,9 @@ internal static partial class Vm
                                 JsValue rv = st[--sp];
                                 if (f.IsConstruct)
                                 {
+                                    // 10.2.2 [[Construct]] steps 10-13 run after the body has finished, so a try block around the
+                                    // return statement cannot catch the TypeError or ReferenceError raised here.
+                                    f.Handlers?.Clear();
                                     rv = ConstructResult(f, rv);
                                 }
 
@@ -1378,6 +1381,7 @@ internal static partial class Vm
                             }
 
                         case Op.TailCall:
+                        case Op.TailCallEval:
                             {
                                 int argc = ins.A;
                                 int bs = sp - argc - 2;
@@ -1403,6 +1407,11 @@ internal static partial class Vm
                                     code = f.Code.Ops;
                                     fc = f.Code;
                                     break;
+                                }
+
+                                if (ins.Op == Op.TailCallEval)
+                                {
+                                    goto case Op.CallEval;
                                 }
 
                                 goto case Op.Call;
@@ -1506,7 +1515,7 @@ internal static partial class Vm
                             {
                                 JsValue[] args;
                                 int bs;
-                                if (ins.Op == Op.CallEval)
+                                if (ins.Op != Op.CallEvalSpread)
                                 {
                                     args = new JsValue[ins.A];
                                     Array.Copy(st, sp - ins.A, args, 0, ins.A);
@@ -1529,7 +1538,7 @@ internal static partial class Vm
                                         break;
                                     }
 
-                                    Frame ef = PrepareDirectEval(ag, f, args[0].AsString, ins.Op == Op.CallEval ? ins.B : EvalFlagsFor(f));
+                                    Frame ef = PrepareDirectEval(ag, f, args[0].AsString, ins.Op != Op.CallEvalSpread ? ins.B : EvalFlagsFor(f));
                                     ef.Caller = f;
                                     f = ef;
                                     ag.CallDepth++;
@@ -1542,7 +1551,7 @@ internal static partial class Vm
                                     break;
                                 }
 
-                                JsValue r = CallValue(fv, st[bs + 1], args, ins.Op == Op.CallEval ? "eval" : fc.Names[ins.B]);
+                                JsValue r = CallValue(fv, st[bs + 1], args, ins.Op != Op.CallEvalSpread ? "eval" : fc.Names[ins.B]);
                                 sp = bs;
                                 st[sp++] = r;
                                 break;
@@ -1675,12 +1684,12 @@ internal static partial class Vm
                             }
 
                         case Op.IterClose:
-                            Ops.IteratorClose(new IteratorRecord((JsObject)st[sp - 2].Ref!, st[sp - 1]));
+                            Ops.IteratorClose(new IteratorRecord((JsObject)st[sp - 2 - ins.B].Ref!, st[sp - 1 - ins.B]));
                             break;
                         case Op.IterCloseIfNotDone:
                             if (!st[ins.A].IsTrue)
                             {
-                                Ops.IteratorClose(new IteratorRecord((JsObject)st[sp - 2].Ref!, st[sp - 1]));
+                                Ops.IteratorClose(new IteratorRecord((JsObject)st[sp - 2 - ins.B].Ref!, st[sp - 1 - ins.B]));
                             }
 
                             break;

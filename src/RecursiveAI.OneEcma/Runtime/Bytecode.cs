@@ -42,7 +42,7 @@ internal enum Op : byte
     TryEnter, TryLeave, Throw, ThrowError, Return, ReturnUndef,
 
     // calls
-    Call, TailCall, CallSpread, New, NewSpread, SuperCall, SuperCallSpread, CallEval, CallEvalSpread, ImportCallOp, ImportMeta, MakeClosure,
+    Call, TailCall, TailCallEval, CallSpread, New, NewSpread, SuperCall, SuperCallSpread, CallEval, CallEvalSpread, ImportCallOp, ImportMeta, MakeClosure,
 
     // iteration
     GetIterator, IterNext, IterClose, IterCloseIfNotDone, IterCloseSilent, IterStep, IterRest,
@@ -72,6 +72,9 @@ internal sealed class ScopeInfo
     internal byte[] Kinds = [];
     internal JsValue[] Template = [];
     internal bool IsFunctionVarScope;
+
+    /// <summary>The parameter environment of a function with parameter expressions; the body's vars live in a separate scope.</summary>
+    internal bool IsParamScope;
     internal bool IsStrict;
     private Dictionary<string, int>? _index;
 
