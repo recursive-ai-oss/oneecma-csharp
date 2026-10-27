@@ -1,3 +1,4 @@
+using RecursiveAI.OneEcma.Diagnostics;
 using RecursiveAI.OneEcma.Syntax;
 
 namespace RecursiveAI.OneEcma;
@@ -47,6 +48,7 @@ internal sealed class ModuleRecord
     internal JsObject? Meta;
     internal PromiseObject? EvalPromise;
     internal Action? OnDone;
+    internal Action<JsValue>? OnError;
     internal readonly List<Action> Waiters = [];
     internal bool Instantiated;
 }
@@ -180,7 +182,7 @@ internal static class ModuleLoader
     // ---- loading ------------------------------------------------------------------------------------
 
     /// <summary>ParseModule + HostLoadImportedModule for the whole static graph. Throws a SyntaxError for bad source.</summary>
-    internal static ModuleRecord Load(Realm realm, HostModule hm)
+    internal static ModuleRecord Load(Realm realm, HostModule hm, bool root = true)
     {
         if (realm.Modules.TryGetValue(hm.Id, out ModuleRecord? existing))
         {
@@ -191,7 +193,8 @@ internal static class ModuleLoader
         if (pr.HasErrors)
         {
             JsException pe = Errors.Syntax(pr.Diagnostics[0].Headline);
-            pe.Report = pr.Diagnostics[0];
+            // A broken dependency surfaces while resolving the importing module's imports, not while parsing it.
+            pe.Report = root ? pr.Diagnostics[0] : ErrorReport.ForException(pe, "link");
             throw pe;
         }
 
@@ -210,7 +213,7 @@ internal static class ModuleLoader
                     throw Errors.Make("Error", "Cannot find module '" + spec + "' imported from " + hm.Id);
                 }
 
-                m.Requested[req] = Load(realm, dep);
+                m.Requested[req] = Load(realm, dep, false);
             }
         }
         catch
@@ -243,7 +246,6 @@ internal static class ModuleLoader
             if (st is ImportDeclaration imp)
             {
                 string spec = imp.Source.Value;
-                Request(m, spec);
                 foreach (ImportSpecifier s in imp.Specifiers)
                 {
                     var e = new ImportEntry
@@ -267,6 +269,10 @@ internal static class ModuleLoader
         {
             switch (st)
             {
+                case ImportDeclaration imp:
+                    // Requested modules are recorded in source order across imports and re-exports (16.2.1.3 ModuleRequests).
+                    Request(m, imp.Source.Value);
+                    break;
                 case ExportAllDeclaration ea:
                     Request(m, ea.Source.Value);
                     if (ea.Exported is null)
@@ -484,6 +490,16 @@ internal static class ModuleLoader
 
     private static void BindImports(ModuleRecord m)
     {
+        // 16.2.1.6.4 InitializeEnvironment step: every indirect export must resolve to exactly one binding.
+        foreach (IndirectExport ie in m.IndirectExports)
+        {
+            ImportRef? res = ResolveExport(m, ie.ExportName, []);
+            if (res is null || ReferenceEquals(res, Ambiguous))
+            {
+                throw LinkError("The requested module '" + ie.Request + "' does not provide an export named '" + (ie.ImportName ?? ie.ExportName) + "'");
+            }
+        }
+
         foreach (ImportEntry ie in m.Imports)
         {
             ModuleRecord target = m.Requested[ie.Request];
@@ -518,7 +534,7 @@ internal static class ModuleLoader
     private static JsException LinkError(string message)
     {
         JsException e = Errors.Syntax(message);
-        e.Report = Diagnostics.ErrorReport.ForException(e, "link");
+        e.Report = ErrorReport.ForException(e, "link");
         return e;
     }
 
@@ -718,6 +734,21 @@ internal static class ModuleLoader
             m.Status = ModuleStatus.Evaluating;
             int resume = i + 1;
             m.OnDone = () => RunFrom(order, resume, promise);
+            int failedAt = i;
+            m.OnError = err =>
+            {
+                // The modules that depend on the failing one (later in dependency order) share its error.
+                for (int k = failedAt + 1; k < order.Count; k++)
+                {
+                    if (order[k].Status is ModuleStatus.Loaded or ModuleStatus.Linked)
+                    {
+                        order[k].Status = ModuleStatus.Errored;
+                        order[k].Error = err;
+                    }
+                }
+
+                Promises.Reject(promise, err);
+            };
             m.Frame!.State = FrameState.SuspendedStart;
             m.Frame.Mode = ResumeMode.Next;
             if (!Step(ag, m))
@@ -763,12 +794,13 @@ internal static class ModuleLoader
     {
         m.Status = ModuleStatus.Errored;
         m.Error = err;
-        Action? done = m.OnDone;
+        Action<JsValue>? onError = m.OnError;
         m.OnDone = null;
+        m.OnError = null;
         Action[] ws = [.. m.Waiters];
         m.Waiters.Clear();
-        // Waiters and the driver re-run and observe the Errored status.
-        done?.Invoke();
+        // Waiters re-run and observe the Errored status.
+        onError?.Invoke(err);
         foreach (Action w in ws)
         {
             w();

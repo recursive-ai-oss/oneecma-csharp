@@ -355,8 +355,9 @@ internal sealed partial class Compiler
                 if (!names.Contains(n))
                 {
                     names.Add(n);
-                    kinds.Add(n.StartsWith('#') ? ScopeInfo.KConst : ScopeInfo.KVar);
-                    tdz.Add(false);
+                    bool hiddenDefault = n == "*default*"; // the binding of `export default <expression>` starts uninitialized
+                    kinds.Add(n.StartsWith('#') ? ScopeInfo.KConst : hiddenDefault ? ScopeInfo.KLet : ScopeInfo.KVar);
+                    tdz.Add(hiddenDefault);
                 }
             }
         }

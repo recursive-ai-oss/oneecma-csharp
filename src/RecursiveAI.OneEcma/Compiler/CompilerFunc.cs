@@ -641,6 +641,11 @@ internal sealed partial class Compiler
                     case FunctionDeclaration:
                         break;
                     case ClassDeclaration cd:
+                        if (cd.Class.Id is null)
+                        {
+                            _nameHint = "default";
+                        }
+
                         ClassExpr(cd.Class);
                         InitIdent(cd.Class.Id?.Name ?? "*default*");
                         if (cd.Class.Id is null)

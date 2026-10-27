@@ -262,8 +262,14 @@ internal sealed partial class Compiler
 
             if (cur is FunctionDeclaration fd)
             {
+                // `export default function () {}` binds the hidden name *default* and is named "default".
+                if (fd.Function.Id is null)
+                {
+                    _nameHint = "default";
+                }
+
                 CompileClosure(fd.Function);
-                InitIdent(fd.Function.Id!.Name);
+                InitIdent(fd.Function.Id?.Name ?? "*default*");
             }
         }
     }
