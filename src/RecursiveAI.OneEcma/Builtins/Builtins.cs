@@ -583,7 +583,8 @@ internal static partial class Builtins
             if (t.Ref is JsObject o && o.IsCallable)
             {
                 string name = o.GetOwnProperty("name", out PropertyDescriptor d) && d.Value.IsString ? d.Value.AsString : string.Empty;
-                return Ops.Str("function " + name + "() { [native code] }");
+                // A bound function has no name of its own that fits the NativeFunction grammar.
+                return Ops.Str(o is BoundFunction ? "function () { [native code] }" : "function " + name + "() { [native code] }");
             }
 
             throw Errors.Type("Function.prototype.toString requires that 'this' be a Function");
@@ -638,9 +639,9 @@ internal static partial class Builtins
         JsValue fv = Vm.RunEntry(r.Agent, frame);
         if (fv.Ref is ScriptFunction sf)
         {
-            // The text of a dynamic function starts at "function", not at the wrapping parenthesis.
-            sf.Code.SrcStart += 1;
-            sf.Code.SrcEnd = sf.Code.SrcStart + src.Length;
+            // The text of a dynamic function is the CreateDynamicFunction source, without the wrapping parentheses.
+            sf.Code.SrcStart = 1;
+            sf.Code.SrcEnd = 1 + src.Length;
             if (newTarget is not null && !ReferenceEquals(newTarget, r.Intrinsics.GetValueOrDefault("%" + (kind == "function" ? "Function" : kind) + "%")))
             {
                 JsObject proto = Ops.GetPrototypeFromConstructor(newTarget, rr => kind switch

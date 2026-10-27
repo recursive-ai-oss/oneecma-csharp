@@ -915,7 +915,8 @@ internal static class AsyncFromSync
                         return JsValue.FromObject(cap.Promise);
                     }
 
-                    Ops.IteratorCloseSilently(sync);
+                    // 27.1.4.4 step 8: close the sync iterator (an error from return() wins), then reject with a TypeError.
+                    Ops.IteratorClose(sync);
                     throw Errors.Type("The iterator does not provide a 'throw' method");
                 }
 
@@ -929,11 +930,23 @@ internal static class AsyncFromSync
 
             bool done = Ops.ToBoolean(ro.Get("done"));
             JsValue value = ro.Get("value");
-            JsObject vw = Promises.PromiseResolve(JsValue.FromObject(r.PromiseConstructor), value);
+            bool closeOnRejection = method != "return";
+            JsObject vw;
+            try
+            {
+                vw = Promises.PromiseResolve(JsValue.FromObject(r.PromiseConstructor), value);
+            }
+            catch (JsException) when (!done && closeOnRejection)
+            {
+                // 27.1.5.4 step 7: a failing PromiseResolve closes the sync iterator before the rejection.
+                Ops.IteratorCloseSilently(sync);
+                throw;
+            }
+
             Promises.PerformThen(
                 (PromiseObject)vw,
                 JsValue.FromObject(r.Fn(string.Empty, 1, (t, a, nt) => JsValue.FromObject(Ops.CreateIterResult(Ops.Arg(a, 0), done)))),
-                done || method == "return"
+                done || !closeOnRejection
                     ? default
                     : JsValue.FromObject(r.Fn(string.Empty, 1, (t, a, nt) =>
                     {
