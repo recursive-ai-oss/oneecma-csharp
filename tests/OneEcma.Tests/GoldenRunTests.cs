@@ -27,15 +27,14 @@ public sealed partial class GoldenRunTests
     // code (top-level await) the core does not offer. Each one must still fail until its feature lands.
     private static readonly Dictionary<string, string> NeedsLibrary = new()
     {
-        ["run-010-json-single-quotes"] = "JSON.parse",
-        ["run-011-json-parse-undefined"] = "JSON.parse",
-        ["run-026-string-too-long"] = "String.prototype.repeat",
     };
 
     // The error is the right one but a native function raised it, so the span is the call; the corpus points at the
     // offending argument, which needs the value provenance the diagnostics work adds.
     private static readonly HashSet<string> SpanIsTheArgument =
     [
+        "run-010-json-single-quotes",
+        "run-011-json-parse-undefined",
         "run-017-invalid-array-length",
         "run-022-keys-of-null",
     ];
