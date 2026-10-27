@@ -113,7 +113,7 @@ internal sealed class Agent
         _fuelTotal = limits.Fuel;
         if (limits.WallClockMs > 0)
         {
-            _deadline = host.MonotonicMs() + limits.WallClockMs;
+            _deadline = (host is LoggedHost lh0 ? lh0.Inner.MonotonicMs() : host.MonotonicMs()) + limits.WallClockMs;
         }
 
         Fuel = 0;
@@ -134,6 +134,15 @@ internal sealed class Agent
     internal readonly Shape NullProtoRoot = new(null, default, 0, null, false);
 
     internal Frame? Frame;
+
+    /// <summary>Records (or replays) everything the run takes from the host; null only inside a replay-free internal engine.</summary>
+    internal Recorder? Recorder;
+
+    /// <summary>The traced-replay state, or null for a normal run.</summary>
+    internal TraceState? Trace;
+
+    // Limit polling reads the real clock without logging it: how often it is read depends on fuel, not on the script.
+    internal double PollClock() => Host is LoggedHost lh ? lh.Inner.MonotonicMs() : Host.MonotonicMs();
 
     /// <summary>The built-in function whose body is running (null while script runs), with its receiver and whether it was called with <c>new</c>; stack traces show it as a frame.</summary>
     internal NativeFunction? CurrentNative;
@@ -208,7 +217,7 @@ internal sealed class Agent
             throw Limit(LimitKind.Cancelled, "Execution was cancelled");
         }
 
-        if (_deadline > 0 && Host.MonotonicMs() > _deadline)
+        if (_deadline > 0 && PollClock() > _deadline)
         {
             throw Limit(LimitKind.WallClock, "Execution exceeded the wall-clock limit of " + Limits.WallClockMs.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + " ms");
         }

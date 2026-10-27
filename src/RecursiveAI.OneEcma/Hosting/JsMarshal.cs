@@ -880,6 +880,13 @@ public static class JsMarshal
     private static JsValue Bridge(JsRealm realm, string member, Func<Task> start, Action<Task, JsPromise> succeed)
     {
         ScriptEngine engine = realm.Engine;
+        Recorder? rec = Agent.Current.Recorder;
+        long callId = rec?.CurrentCall ?? -1;
+        if (rec is not null && !rec.Replaying)
+        {
+            rec.TaskStarted = true;
+        }
+
         JsPromise promise = realm.NewPromise();
         List<StackFrameInfo> callSite = Agent.Current.CaptureFrames(10);
         Task task;
@@ -906,16 +913,29 @@ public static class JsMarshal
                 try
                 {
                     succeed(task, promise);
+                    rec?.LogSettlement(callId, promise);
                 }
                 catch (JsException je)
                 {
                     promise.Reject(je.Value);
+                    rec?.LogSettlement(callId, promise);
                 }
             }
             else
             {
                 Exception e = task.Exception is { InnerExceptions.Count: > 0 } agg ? agg.InnerExceptions[0] : new TaskCanceledException(task);
                 promise.Reject(e is JsException je ? je.Value : HostErrors.FromException(e, member, callSite).Value);
+                if (rec is not null)
+                {
+                    if (e is JsException)
+                    {
+                        rec.LogSettlement(callId, promise);
+                    }
+                    else
+                    {
+                        rec.WriteDotNet("task", member, e, callId);
+                    }
+                }
             }
         }
 

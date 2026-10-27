@@ -53,8 +53,12 @@ internal static class HostErrors
     /// <see cref="Exception.InnerException"/> if the error reaches C# uncaught.
     /// </summary>
     internal static JsException FromException(Exception e, string member, IReadOnlyList<StackFrameInfo>? scriptFrames = null)
+        => FromParts(e.GetType().Name, e.GetType().FullName ?? e.GetType().Name, e.Message, ParseFrames(e), e, member, scriptFrames);
+
+    /// <summary>The same from a recorded exception: its type names, message and .NET frames (a replay has no live exception).</summary>
+    internal static JsException FromParts(string typeName, string fullName, string message, List<StackFrameInfo> frames, Exception? cause, string member, IReadOnlyList<StackFrameInfo>? scriptFrames)
     {
-        string text = e.GetType().Name + ": " + e.Message;
+        string text = typeName + ": " + message;
         JsException je = Errors.Make("Error", text);
         var err = (JsError)je.Value.Ref!;
         if (scriptFrames is not null)
@@ -64,16 +68,16 @@ internal static class HostErrors
             err.DefineDirect("stack", JsValue.FromString(Errors.FormatStack("Error: " + text, err.Frames)), PropFlags.Hidden);
         }
 
-        err.DefineDirect("dotnetType", JsValue.FromString(e.GetType().FullName ?? e.GetType().Name), PropFlags.Hidden);
-        var info = new HostErrorInfo { Cause = e };
-        info.HostFrames.AddRange(ParseFrames(e));
+        err.DefineDirect("dotnetType", JsValue.FromString(fullName), PropFlags.Hidden);
+        var info = new HostErrorInfo { Cause = cause };
+        info.HostFrames.AddRange(frames);
         if (info.HostFrames.Count == 0 && member.Length > 0)
         {
             info.HostFrames.Add(new StackFrameInfo(member, new SourceText(string.Empty, member), new Span(0, 0)) { IsHost = true });
         }
 
         string where = info.HostFrames.Count > 0 ? info.HostFrames[0].Function : member;
-        info.Notes.Add("thrown by .NET code: " + (e.GetType().FullName ?? e.GetType().Name) + (where.Length > 0 ? " in " + where : string.Empty));
+        info.Notes.Add("thrown by .NET code: " + fullName + (where.Length > 0 ? " in " + where : string.Empty));
         Attach(err, info);
         return je;
     }
@@ -157,13 +161,76 @@ internal static class HostCalls
 {
     internal static NativeFn Wrap(HostFunction fn, string member) => (t, a, nt) =>
     {
+        Recorder? rec = Agent.Current.Recorder;
+        if (rec is null)
+        {
+            try
+            {
+                return fn(t, a);
+            }
+            catch (Exception e) when (e is not (JsException or JsLimitException or OperationCanceledException))
+            {
+                throw HostErrors.FromException(e, member);
+            }
+        }
+
+        return rec.Replaying ? Replay(rec, fn, member, t, a) : Record(rec, fn, member, t, a);
+    };
+
+    private static JsValue Record(Recorder rec, HostFunction fn, string member, JsValue t, ReadOnlySpan<JsValue> a)
+    {
+        long previous = rec.CurrentCall;
+        bool previousTask = rec.TaskStarted;
+        rec.CurrentCall = rec.NextCallId++;
+        rec.TaskStarted = false;
         try
         {
-            return fn(t, a);
+            JsValue result = fn(t, a);
+            rec.WriteHostCallValue(member, result);
+            return result;
         }
-        catch (Exception e) when (e is not (JsException or JsLimitException or OperationCanceledException))
+        catch (JsException je)
         {
+            rec.WriteHostThrow(member, je.Value);
+            throw;
+        }
+        catch (Exception e) when (e is not (JsLimitException or OperationCanceledException))
+        {
+            rec.WriteDotNet("host", member, e);
             throw HostErrors.FromException(e, member);
         }
-    };
+        finally
+        {
+            rec.CurrentCall = previous;
+            rec.TaskStarted = previousTask;
+        }
+    }
+
+    private static JsValue Replay(Recorder rec, HostFunction fn, string member, JsValue t, ReadOnlySpan<JsValue> a)
+    {
+        LogReader r = rec.Expect(LogTag.HostCall);
+        string recorded = r.Str();
+        if (recorded != member)
+        {
+            rec.Divergence ??= "the script called host function '" + member + "' where the recorded run called '" + recorded + "'";
+            throw new ReplayDivergedException(rec.Divergence);
+        }
+
+        JsValue v = Recorder.ReadOutcome(r, member, Agent.Current.Realm, out bool opaque, out long taskId);
+        if (opaque)
+        {
+            // The recorded result was not data (a function, a host object): only the live host function can make it again.
+            return fn(t, a);
+        }
+
+        if (taskId >= 0)
+        {
+            PromiseObject p = Promises.NewPromise(Agent.Current.Realm);
+            rec.PendingTasks[taskId] = p;
+            rec.SettleReady();
+            return JsValue.FromObject(p);
+        }
+
+        return v;
+    }
 }

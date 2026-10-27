@@ -18,6 +18,7 @@ public sealed partial class ScriptEngine
     /// <returns>The new realm.</returns>
     public JsRealm CreateRealm()
     {
+        NoteNotReplayable("a second realm was created");
         Realm r = Guard(() => Realm.Create(_agent), default);
         return new JsRealm(this, r);
     }

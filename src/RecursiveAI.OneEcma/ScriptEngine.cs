@@ -30,6 +30,30 @@ public sealed class ScriptEngineOptions
     /// </summary>
     public bool ProperTailCalls { get; set; }
 
+    /// <summary>
+    /// Receives the record of the run: every clock reading, random number, host call result, module and entry call, in order
+    /// (<see cref="RecordLog"/>). Default null: the engine keeps a log of its own, which <see cref="ScriptEngine.RecordLog"/> returns.
+    /// </summary>
+    public RecordLog? Log { get; set; }
+
+    /// <summary>
+    /// When true (the default), an uncaught script error is explained by replaying the run from its log with full tracing, which adds
+    /// where values came from, "did you mean" suggestions and frame locals to <c>JsException.Report</c>. The normal run pays only for the log.
+    /// The replay needs the same host functions: define them in <see cref="Configure"/> (or with <see cref="ScriptEngine.DefineGlobalFunction"/>,
+    /// which the log remembers); when the replay cannot reproduce the failure the plain report is kept.
+    /// </summary>
+    public bool ExplainErrors { get; set; } = true;
+
+    /// <summary>
+    /// Called with the new engine after its realm exists, and again with the engine of a replay. Put the host setup that script
+    /// depends on here (objects, functions, <c>[JsExport]</c> installs) so a replay rebuilds the same world.
+    /// </summary>
+    public Action<ScriptEngine>? Configure { get; set; }
+
+    internal Recorder? ReplayRecorder { get; set; }
+
+    internal bool TraceReplay { get; set; }
+
     /// <summary>When true the global object gets the test-harness additions <c>print</c> and <c>$262</c>. Default false.</summary>
     public bool InstallTest262Host { get; set; }
 }
@@ -47,6 +71,11 @@ public sealed partial class ScriptEngine
     private readonly Agent _agent;
     private readonly bool _throwOnUnhandled;
     private readonly Realm _realm;
+    private readonly ScriptEngineOptions? _options;
+    private readonly Recorder _recorder;
+
+    /// <summary>The record of this engine's run so far (see <see cref="ScriptEngineOptions.Log"/>).</summary>
+    public RecordLog RecordLog => _recorder.Log;
 
     /// <summary>Creates an engine with the default host and limits.</summary>
     public ScriptEngine()
@@ -58,7 +87,14 @@ public sealed partial class ScriptEngine
     /// <param name="options">Host, limits and switches; <see langword="null"/> means all defaults.</param>
     public ScriptEngine(ScriptEngineOptions? options)
     {
-        _agent = new Agent(options?.Host ?? new DefaultHost(), options?.Limits ?? new EngineLimits()) { InstallTest262Host = options?.InstallTest262Host ?? false, ProperTailCalls = options?.ProperTailCalls ?? false };
+        _options = options;
+        _recorder = options?.ReplayRecorder ?? new Recorder(options?.Log ?? new RecordLog(), null);
+        _agent = new Agent(new LoggedHost(options?.Host ?? new DefaultHost(), _recorder), options?.Limits ?? new EngineLimits()) { InstallTest262Host = options?.InstallTest262Host ?? false, ProperTailCalls = options?.ProperTailCalls ?? false, Recorder = _recorder };
+        if (options?.TraceReplay == true)
+        {
+            _agent.Trace = new TraceState();
+        }
+
         _throwOnUnhandled = options?.ThrowOnUnhandledRejection ?? true;
         Agent? old = Agent.Enter(_agent);
         try
@@ -70,6 +106,8 @@ public sealed partial class ScriptEngine
         {
             Agent.Leave(old);
         }
+
+        options?.Configure?.Invoke(this);
     }
 
     /// <summary>The global object of the engine's realm.</summary>
@@ -84,7 +122,10 @@ public sealed partial class ScriptEngine
     /// <exception cref="JsException">The script has a syntax error or threw; <see cref="JsException.Report"/> explains it.</exception>
     /// <exception cref="JsLimitException">A resource limit ended the run.</exception>
     public JsValue Evaluate(string source, string fileName = "<anonymous>", CancellationToken cancellationToken = default)
-        => EvaluateIn(_realm, source, fileName, cancellationToken);
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        return Entry(LogTag.Eval, source, fileName, () => EvaluateIn(_realm, source, fileName, cancellationToken));
+    }
 
     internal JsValue EvaluateIn(Realm realm, string source, string fileName, CancellationToken cancellationToken)
     {
@@ -115,7 +156,7 @@ public sealed partial class ScriptEngine
     public JsValue EvaluateModule(string specifier, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(specifier);
-        return Guard(() =>
+        return Entry(LogTag.Module, specifier, null, () => Guard(() =>
         {
             HostModule hm = _agent.Host.ResolveModule(specifier, null, new Dictionary<string, string>())
                 ?? throw Errors.Make("Error", "Cannot find module '" + specifier + "'");
@@ -135,18 +176,18 @@ public sealed partial class ScriptEngine
             }
 
             return JsValue.FromObject(ModuleLoader.GetNamespace(m));
-        }, cancellationToken);
+        }, cancellationToken));
     }
 
     /// <summary>Runs queued promise jobs until the queue is empty.</summary>
     /// <param name="cancellationToken">Cancels the run.</param>
     /// <exception cref="JsException">A job threw outside any promise.</exception>
     /// <exception cref="JsLimitException">A resource limit ended the run.</exception>
-    public void RunJobs(CancellationToken cancellationToken = default) => Guard(() =>
+    public void RunJobs(CancellationToken cancellationToken = default) => Entry(LogTag.Jobs, null, null, () => Guard(() =>
     {
         DrainJobs();
         return default(JsValue);
-    }, cancellationToken);
+    }, cancellationToken));
 
     private void DrainJobs()
     {
@@ -172,6 +213,7 @@ public sealed partial class ScriptEngine
     public JsValue Call(JsValue function, JsValue thisValue, ReadOnlySpan<JsValue> args = default, CancellationToken cancellationToken = default)
     {
         JsValue[] copy = args.ToArray();
+        NoteNotReplayable("ScriptEngine.Call was used, and its function argument is not part of the log");
         return Guard(() => Ops.Call(function, thisValue, copy), cancellationToken);
     }
 
@@ -196,6 +238,7 @@ public sealed partial class ScriptEngine
     {
         ArgumentNullException.ThrowIfNull(target);
         ArgumentNullException.ThrowIfNull(name);
+        NoteNotReplayable("ScriptEngine.SetProperty was used");
         Guard(() =>
         {
             target.Set(name, value, JsValue.FromObject(target));
@@ -211,6 +254,23 @@ public sealed partial class ScriptEngine
     {
         ArgumentNullException.ThrowIfNull(name);
         ArgumentNullException.ThrowIfNull(function);
+        if (_recorder.Replaying)
+        {
+            // The replay rebuilds this function from the log; skip its record, and any call of it is answered from the log.
+            if (_recorder.Reader!.Peek == LogTag.DefineFn && _recorder.Reader.PeekStringAfterTag() == name)
+            {
+                _recorder.Reader.Tag();
+                _recorder.Reader.Str();
+                _recorder.Reader.Varint();
+            }
+        }
+        else
+        {
+            _recorder.Log.Tag(LogTag.DefineFn);
+            _recorder.Log.Str(name);
+            _recorder.Log.Varint((ulong)Math.Max(0, length));
+        }
+
         var f = _realm.Fn(name, length, HostCalls.Wrap(function, name));
         _realm.Global.DefineDirect(name, JsValue.FromObject(f), PropFlags.Hidden);
     }
