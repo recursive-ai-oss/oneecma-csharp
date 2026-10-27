@@ -132,6 +132,9 @@ internal sealed class Agent
 
     internal readonly Queue<Action> Jobs = new();
 
+    /// <summary>Promises rejected while nobody was waiting on them, in rejection order; the entry point reports what is left after the jobs ran.</summary>
+    internal readonly List<PromiseObject> UnhandledRejections = [];
+
     internal readonly Dictionary<string, JsSymbol> SymbolRegistry = new(StringComparer.Ordinal);
 
     internal long Allocated => _allocated;

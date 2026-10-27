@@ -18,6 +18,12 @@ public sealed class ScriptEngineOptions
     /// <summary>Resource limits. Default: <see cref="EngineLimits"/> defaults.</summary>
     public EngineLimits? Limits { get; set; }
 
+    /// <summary>
+    /// When true (the default, as in Node) a promise that is rejected and never handled by the time the job queue is empty ends the
+    /// run with a <see cref="JsException"/> carrying the rejection reason; when false such rejections are ignored.
+    /// </summary>
+    public bool ThrowOnUnhandledRejection { get; set; } = true;
+
     /// <summary>When true the global object gets the test-harness additions <c>print</c> and <c>$262</c>. Default false.</summary>
     public bool InstallTest262Host { get; set; }
 }
@@ -33,6 +39,7 @@ public sealed class ScriptEngine
     public const string Version = "0.0.0-dev";
 
     private readonly Agent _agent;
+    private readonly bool _throwOnUnhandled;
     private readonly Realm _realm;
 
     /// <summary>Creates an engine with the default host and limits.</summary>
@@ -46,6 +53,7 @@ public sealed class ScriptEngine
     public ScriptEngine(ScriptEngineOptions? options)
     {
         _agent = new Agent(options?.Host ?? new DefaultHost(), options?.Limits ?? new EngineLimits()) { InstallTest262Host = options?.InstallTest262Host ?? false };
+        _throwOnUnhandled = options?.ThrowOnUnhandledRejection ?? true;
         Agent? old = Agent.Enter(_agent);
         try
         {
@@ -83,7 +91,7 @@ public sealed class ScriptEngine
             FunctionCode code = Compiler.CompileScript(pr.Program, pr.Source);
             var frame = new Frame(code, _realm) { Env = null, This = JsValue.FromObject(_realm.Global) };
             JsValue v = Vm.RunEntry(_agent, frame);
-            _agent.RunJobs();
+            DrainJobs();
             return v;
         }, cancellationToken);
     }
@@ -127,9 +135,22 @@ public sealed class ScriptEngine
     /// <exception cref="JsLimitException">A resource limit ended the run.</exception>
     public void RunJobs(CancellationToken cancellationToken = default) => Guard(() =>
     {
-        _agent.RunJobs();
+        DrainJobs();
         return default(JsValue);
     }, cancellationToken);
+
+    private void DrainJobs()
+    {
+        _agent.RunJobs();
+        List<PromiseObject> pending = _agent.UnhandledRejections;
+        PromiseObject? first = pending.Find(static p => !p.IsHandled);
+        pending.Clear();
+        if (first is not null && _throwOnUnhandled)
+        {
+            first.IsHandled = true;
+            throw new JsException(first.Result);
+        }
+    }
 
     /// <summary>Calls a function value.</summary>
     /// <param name="function">The function; anything else throws a TypeError.</param>

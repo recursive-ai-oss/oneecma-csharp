@@ -719,13 +719,14 @@ internal static partial class Vm
                         case Op.ToPropKey:
                             {
                                 JsValue k = st[sp - 1];
+                                if (ins.B == 1 && st[sp - 2].IsNullish)
+                                {
+                                    // The base is checked before the key is converted (ECMA-262 13.15.2 / 6.2.5.5 GetValue order).
+                                    throw Errors.Type("Cannot read properties of " + (st[sp - 2].IsNull ? "null" : "undefined") + KeySuffix("reading", k));
+                                }
+
                                 if (!k.IsString && !k.IsNumber && !k.IsSymbol)
                                 {
-                                    if (k.IsNullish && false)
-                                    {
-                                        break;
-                                    }
-
                                     st[sp - 1] = Ops.ToPropertyKey(k).ToValue();
                                 }
 

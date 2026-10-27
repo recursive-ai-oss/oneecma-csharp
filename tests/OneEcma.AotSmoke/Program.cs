@@ -17,13 +17,13 @@ if (hit?.Match is null || hit.Match.End != 4)
 }
 
 var engine = new ScriptEngine();
-if (engine.Check("let a = 1; function f(x) { return x + a; }").Count != 0)
+if (ScriptEngine.Check("let a = 1; function f(x) { return x + a; }").Count != 0)
 {
     Console.Error.WriteLine("smoke: valid script reported errors");
     return 1;
 }
 
-var errors = engine.Check("let a = ;\nlet ok = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];\nlet b = (1 + );");
+var errors = ScriptEngine.Check("let a = ;\nlet ok = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];\nlet b = (1 + );");
 string report = DiagnosticRenderer.RenderAll(errors);
 if (errors.Count != 2 || !report.StartsWith("error[SyntaxError]: Unexpected token ';'", StringComparison.Ordinal))
 {
@@ -31,7 +31,7 @@ if (errors.Count != 2 || !report.StartsWith("error[SyntaxError]: Unexpected toke
     return 1;
 }
 
-RepairResult repaired = engine.CheckAndRepair("const row = [1, 2, 3]];\nconsole.log(\u201chi\u201d);\n");
+RepairResult repaired = ScriptEngine.CheckAndRepair("const row = [1, 2, 3]];\nconsole.log(\u201chi\u201d);\n");
 string repairReport = DiagnosticRenderer.RenderRepairResult(repaired);
 if (!repaired.Parses || repaired.Repairs.Count != 2
     || repaired.RepairedSource != "const row = [1, 2, 3];\nconsole.log(\"hi\");\n"
@@ -50,7 +50,7 @@ if (!json.StartsWith("{\"version\":1,\"format\":\"oneecma.report\"", StringCompa
 }
 
 SourceMap? map = SourceMap.Parse("{\"version\":3,\"sources\":[\"app.ts\"],\"sourcesContent\":[\"let a: number = ;\\n\"],\"names\":[],\"mappings\":\"AAAA\"}").Map;
-IReadOnlyList<Diagnostic> generatedErrors = engine.Check("let a = ;\n", new RecursiveAI.OneEcma.Syntax.ParseOptions { FileName = "app.js" });
+IReadOnlyList<Diagnostic> generatedErrors = ScriptEngine.Check("let a = ;\n", new RecursiveAI.OneEcma.Syntax.ParseOptions { FileName = "app.js" });
 Diagnostic mapped = SourceMapReports.Remap(generatedErrors[0], map!);
 if (mapped.Source.Name != "app.ts" || mapped.Mapping is not { SpansAreOriginal: true } || !DiagnosticRenderer.Render(mapped).Contains("generated position: app.js:1:9", StringComparison.Ordinal))
 {
@@ -106,13 +106,28 @@ if (money != "1.234,50\u00A0\u20AC" || names.Of("US") != "\u00C9tats-Unis")
     return 1;
 }
 
-try
+// The interpreter runs scripts: closures, classes, generators, async functions, destructuring and error reports.
+var runner = new ScriptEngine();
+JsValue answer = runner.Evaluate(
+    "class Counter { #n = 0; inc() { return ++this.#n; } }\n" +
+    "function* gen() { yield 1; yield 2; }\n" +
+    "const { a, ...rest } = { a: 40, b: 1, c: 1 };\n" +
+    "let seen = 0; (async () => { await null; seen = 100; })();\n" +
+    "const c = new Counter(); c.inc();\n" +
+    "a + c.inc() + [...gen()].length - 2 + Object.keys(rest).length");
+if (runner.ToDisplayString(answer) != "44" || runner.ToDisplayString(runner.Evaluate("seen")) != "100")
 {
-    engine.Evaluate("1 + 1");
-    Console.Error.WriteLine("smoke: expected NotSupportedException");
+    Console.Error.WriteLine("smoke: evaluate gave " + runner.ToDisplayString(answer));
     return 1;
 }
-catch (NotSupportedException)
+
+try
+{
+    runner.Evaluate("const o = {};\no.missing.x;", "smoke.js");
+    Console.Error.WriteLine("smoke: expected a JsException");
+    return 1;
+}
+catch (JsException e) when (e.Report is { Kind: "TypeError" } r && r.Position.Line == 2)
 {
     Console.Out.WriteLine("aot-smoke ok " + ScriptEngine.Version);
     return 0;

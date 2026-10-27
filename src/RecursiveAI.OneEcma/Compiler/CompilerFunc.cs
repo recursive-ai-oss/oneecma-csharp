@@ -128,11 +128,13 @@ internal sealed partial class Compiler
                 case RestElement re:
                     Emit(Op.CollectRest, i);
                     DestructureText = "undefined";
+                    _destructureSpan = (re.Argument.Start, re.Argument.End);
                     BindTarget(re.Argument, BindMode.Init);
                     break;
                 default:
                     Emit(Op.LoadArg, i);
                     DestructureText = "undefined";
+                    _destructureSpan = (p.Start, p.End);
                     BindTarget(p, BindMode.Init);
                     break;
             }

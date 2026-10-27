@@ -346,6 +346,7 @@ internal sealed partial class Compiler
                 {
                     Expr(d.Init);
                     DestructureText = SourceSlice(d.Init);
+                    _destructureSpan = (d.Init.Start, d.Init.End);
                     BindTarget(d.Id, BindMode.Assign);
                 }
             }
@@ -368,6 +369,7 @@ internal sealed partial class Compiler
                 {
                     Expr(d.Init!);
                     DestructureText = SourceSlice(d.Init!);
+                    _destructureSpan = (d.Init!.Start, d.Init.End);
                     BindTarget(d.Id, BindMode.Init);
                 }
             }
@@ -375,6 +377,9 @@ internal sealed partial class Compiler
     }
 
     private string DestructureText = "undefined";
+
+    /// <summary>Where the value being destructured came from, so a failing pattern points at the source expression.</summary>
+    private (int Start, int End)? _destructureSpan;
 
     private string SourceSlice(Node n)
     {

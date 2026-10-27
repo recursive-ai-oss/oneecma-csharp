@@ -147,6 +147,7 @@ internal static class Promises
         if (!p.IsHandled)
         {
             Agent.Current.Host.PromiseRejectionTracker(p, false);
+            Agent.Current.UnhandledRejections.Add(p);
         }
 
         if (rs is not null)
@@ -233,6 +234,7 @@ internal static class Promises
             if (!p.IsHandled)
             {
                 Agent.Current.Host.PromiseRejectionTracker(p, true);
+                Agent.Current.UnhandledRejections.Remove(p);
             }
 
             EnqueueReaction(r, p.Result, false);

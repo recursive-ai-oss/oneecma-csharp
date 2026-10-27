@@ -40,7 +40,7 @@ public sealed class EngineBackend : ITestBackend
 
         var host = new TestHost(test);
         var limits = new EngineLimits { WallClockMs = timeout.TotalMilliseconds, MaxAllocatedBytes = 768L << 20, Fuel = 20_000_000_000L };
-        var engine = new ScriptEngine(new ScriptEngineOptions { Host = host, Limits = limits, InstallTest262Host = true });
+        var engine = new ScriptEngine(new ScriptEngineOptions { Host = host, Limits = limits, InstallTest262Host = true, ThrowOnUnhandledRejection = false });
         string phase = "runtime";
         try
         {

@@ -87,6 +87,7 @@ internal sealed partial class Compiler
                 }
 
                 DestructureText = SourceSlice(a.Right);
+                _destructureSpan = (a.Right.Start, a.Right.End);
                 BindTarget(left, BindMode.Assign);
                 return;
         }
@@ -229,7 +230,7 @@ internal sealed partial class Compiler
             Expr(m.Property);
             if (a.Operator != AssignOp.Assign)
             {
-                Emit(Op.ToPropKey);
+                Emit(Op.ToPropKey, 0, 1);
             }
         }
 
@@ -428,7 +429,7 @@ internal sealed partial class Compiler
                     else if (m.Computed)
                     {
                         Expr(m.Property);
-                        Emit(Op.ToPropKey);
+                        Emit(Op.ToPropKey, 0, 1);
                     }
 
                     SetSpan(m.Object);
@@ -568,7 +569,15 @@ internal sealed partial class Compiler
 
     private void ArrayPatternBind(ArrayPattern arr, BindMode mode)
     {
+        int ds = _f.CurS;
+        int de = _f.CurE;
+        if (_destructureSpan is var (spS, spE))
+        {
+            SetSpan(spS, spE);
+        }
+
         Emit(Op.GetIterator, 0, NameConst(DestructureText));
+        SetSpan(ds, de);
         int done = NewTemp();
         Emit(Op.PushFalse);
         Emit(Op.StoreLocal, done);
@@ -628,7 +637,15 @@ internal sealed partial class Compiler
             }
         }
 
+        int cs = _f.CurS;
+        int ce = _f.CurE;
+        if (_destructureSpan is var (spS, spE))
+        {
+            SetSpan(spS, spE);
+        }
+
         Emit(Op.CheckObjectCoercibleDestructure, first is null ? -1 : NameConst(first), NameConst(DestructureText));
+        SetSpan(cs, ce);
         int keys = -1;
         if (hasRest)
         {
