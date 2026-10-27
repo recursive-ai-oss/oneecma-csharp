@@ -108,7 +108,7 @@ internal static class ValueCodec
         else if (v.IsBigInt)
         {
             log.Byte((byte)VT.BigInt);
-            log.Str(((System.Numerics.BigInteger)v.Ref!).ToString(System.Globalization.CultureInfo.InvariantCulture));
+            log.Str(((System.Numerics.BigInteger)v.Ref!).ToString(System.Globalization.NumberFormatInfo.InvariantInfo));
         }
         else
         {
@@ -143,7 +143,7 @@ internal static class ValueCodec
                 log.Varint((ulong)entries.Count);
                 foreach ((string key, JsValue val) in entries)
                 {
-                    log.Varint(uint.Parse(key, System.Globalization.CultureInfo.InvariantCulture));
+                    log.Varint(uint.Parse(key, System.Globalization.NumberFormatInfo.InvariantInfo));
                     Write(log, val, ids);
                 }
             }
@@ -176,7 +176,7 @@ internal static class ValueCodec
             case VT.True: return JsValue.True;
             case VT.Number: return JsValue.FromNumber(r.Double());
             case VT.String: return JsValue.FromString(r.Str());
-            case VT.BigInt: return JsValue.FromBigInt(System.Numerics.BigInteger.Parse(r.Str(), System.Globalization.CultureInfo.InvariantCulture));
+            case VT.BigInt: return JsValue.FromBigInt(System.Numerics.BigInteger.Parse(r.Str(), System.Globalization.NumberFormatInfo.InvariantInfo));
             case VT.Ref: return JsValue.FromObject(made[checked((int)r.Varint())]);
             case VT.Array:
                 {
@@ -186,7 +186,7 @@ internal static class ValueCodec
                     arr.Set("length", JsValue.FromNumber(len), JsValue.FromObject(arr));
                     for (ulong n = r.Varint(); n > 0; n--)
                     {
-                        string key = r.Varint().ToString(System.Globalization.CultureInfo.InvariantCulture);
+                        string key = r.Varint().ToString(System.Globalization.NumberFormatInfo.InvariantInfo);
                         arr.CreateDataPropertyOrThrow(key, Read(r, realm, made));
                     }
 
