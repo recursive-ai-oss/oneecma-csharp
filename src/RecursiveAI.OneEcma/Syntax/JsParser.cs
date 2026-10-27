@@ -14,6 +14,14 @@ public enum ParseGoal
 
     /// <summary>Eval code (19.2.1.1 PerformEval): a script whose context flags come from <see cref="ParseOptions"/>.</summary>
     Eval,
+
+    /// <summary>
+    /// The body of an async function (<c>AsyncFunctionBody</c>, the goal <c>new AsyncFunction(body)</c> parses), written without the surrounding function:
+    /// <c>await</c> and <c>return</c> are allowed at the top level, positions are those of the source itself, and every declaration
+    /// (<c>let</c>, <c>const</c>, <c>var</c>, functions, classes) belongs to the body. Sloppy unless the body starts with <c>"use strict"</c> or
+    /// <see cref="ParseOptions.Strict"/> is set. <c>new.target</c> is allowed (and undefined); <c>super</c> is not.
+    /// </summary>
+    AsyncFunctionBody,
 }
 
 /// <summary>Called for every regular expression literal whose flags are valid, to check its pattern (ECMA-262 12.9.5 early errors).</summary>
@@ -73,12 +81,16 @@ public sealed class ParseOptions
 /// <summary>The outcome of a parse: a tree and every diagnostic found.</summary>
 public sealed class ParseResult
 {
-    internal ParseResult(Program program, SourceText source, IReadOnlyList<Diagnostic> diagnostics)
+    internal ParseResult(Program program, SourceText source, IReadOnlyList<Diagnostic> diagnostics, FunctionNode? asyncBody = null)
     {
+        AsyncBody = asyncBody;
         Program = program;
         Source = source;
         Diagnostics = diagnostics;
     }
+
+    /// <summary>For <see cref="ParseGoal.AsyncFunctionBody"/>: the async function that wraps <see cref="Program"/>'s statements; null for other goals.</summary>
+    internal FunctionNode? AsyncBody { get; }
 
     /// <summary>The tree. When <see cref="HasErrors"/> is true it is a best-effort tree that may contain <see cref="ErrorExpression"/> and <see cref="ErrorStatement"/> nodes and must not be executed.</summary>
     public Program Program { get; }
