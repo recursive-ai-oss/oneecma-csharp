@@ -24,6 +24,11 @@
     <Company>Recursive AI, LLC</Company>
     <Copyright>Copyright (c) Recursive AI, LLC</Copyright>
     <PackageLicenseExpression>MIT OR Apache-2.0</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/recursive-ai-oss/oneecma-csharp</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/recursive-ai-oss/oneecma-csharp</PackageProjectUrl>
+    <PackageTags>ecmascript;javascript-interpreter;diagnostics;error-reports;nativeaot</PackageTags>
     <Version>0.0.0-dev</Version>
   </PropertyGroup>
   <ItemGroup>

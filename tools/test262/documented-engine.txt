@@ -1,7 +1,7 @@
 # Known failures of the engine backend, each with a reason. Format: <path> | <reason>.
 # Directory prefixes end in '/', '*' is a glob.
 
-# core
+# Language and core built-ins
 annexB/language/expressions/assignmenttargettype/callexpression-as-for-in-lhs.js | core: Annex B call expression as for-in/of target must throw ReferenceError at runtime after evaluating the call
 annexB/language/expressions/assignmenttargettype/callexpression-as-for-of-lhs.js | core: Annex B call expression as for-in/of target must throw ReferenceError at runtime after evaluating the call
 annexB/language/function-code/block-decl-func-skip-arguments.js | core: Annex B.3.2.1 block function named arguments is not hoisted over the arguments object
@@ -65,7 +65,7 @@ built-ins/Function/15.3.5.4_2-93gs.js | core: the legacy `caller` extension on s
 language/statements/with/get-mutable-binding-binding-deleted-in-get-unscopables-strict-mode.js | core: with-environment GetBindingValue strict-mode ReferenceError after @@unscopables deletes the binding (9.1.1.2.6)
 language/statements/async-generator/yield-star-return-then-getter-ticks.js | core: yield* return(): tick order of the awaited result differs from the spec (27.6.3.8)
 
-# core (found after the built-in areas landed)
+# Language and core built-ins (continued)
 language/destructuring/binding/keyed-destructuring-property-reference-target-evaluation-order-with-bindings.js | core: binding-pattern evaluation order with a reference target reads the source before resolving the target (8.6.3)
 language/expressions/dynamic-import/import-attributes/2nd-param-with-enumeration-enumerable.js | core: dynamic import does not read the import attributes object through its enumerable own properties (13.3.10.1)
 
