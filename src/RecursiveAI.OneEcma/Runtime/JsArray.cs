@@ -158,9 +158,10 @@ internal sealed class JsArray : JsObject
                 if (Dense is not null)
                 {
                     bool plain = !desc.IsAccessor && (!desc.HasWritable || desc.Writable) && (!desc.HasEnumerable || desc.Enumerable) && (!desc.HasConfigurable || desc.Configurable);
+                    // The dense store grows over a gap only while it stays at least about one slot in nine used, so a script writing x[2^k] cannot make it reserve gigabytes.
                     bool exists = idx < (uint)Count && !Dense[idx].IsHole;
                     bool full = desc.HasValue && desc.HasWritable && desc.HasEnumerable && desc.HasConfigurable;
-                    if (plain && (exists || full) && (exists || Extensible) && idx <= (uint)Count + 1024 + (uint)Count)
+                    if (plain && (exists || full) && (exists || Extensible) && (idx < (uint)Count || idx - (uint)Count <= 16u + ((uint)Count / 8u)))
                     {
                         if (exists)
                         {
@@ -182,7 +183,7 @@ internal sealed class JsArray : JsObject
                             }
 
                             Dense[idx] = desc.Value;
-                            Count = (int)idx + 1;
+                            Count = Math.Max(Count, (int)idx + 1);
                         }
 
                         if (idx >= Length)

@@ -242,8 +242,9 @@ internal static partial class Vm
                         Promises.Reject(asyncPromise, thrown);
                         if (f.IsEntry)
                         {
+                            // A call from native code gets the rejected promise back, as a call from script does.
                             ag.Frame = f.Caller;
-                            return default;
+                            return JsValue.FromObject(asyncPromise);
                         }
 
                         f = f.Caller!;
