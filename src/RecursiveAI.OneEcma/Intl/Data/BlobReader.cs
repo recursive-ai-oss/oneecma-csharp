@@ -13,6 +13,7 @@ internal struct BlobReader
     internal const byte KindPlurals = 2;
     internal const byte KindCollation = 3;
     internal const byte KindBreaks = 4;
+    internal const byte KindNormalization = 5;
 
     private readonly byte[] _data;
 
