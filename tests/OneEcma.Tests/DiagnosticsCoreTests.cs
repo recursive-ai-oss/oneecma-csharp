@@ -88,4 +88,15 @@ public sealed class DiagnosticsCoreTests
         Assert.Equal(first.Report!.ToString(), r.Exception.Report!.ToString());
         Assert.Equal(DiagnosticJson.Render([first.Report]), DiagnosticJson.Render([r.Exception.Report]));
     }
+
+    [Fact]
+    public void ExplanationStaysBoundedForHugeAndLongChainedValues()
+    {
+        // A huge array is not enumerated for suggestions, and a value copied many times keeps a capped chain.
+        JsException e = Fail("const big = new Array(2000000).fill(0);\nbig.foo.bar;");
+        Assert.Empty(e.Report!.Suggestions);
+
+        JsException chain = Fail("let o = { a: 1 };\nfor (let i = 0; i < 3000; i++) { const c = o; o = c; }\no.zz.y;");
+        Assert.True(chain.Report!.Provenance.Count <= 8, "the provenance chain is capped");
+    }
 }

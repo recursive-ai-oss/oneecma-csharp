@@ -201,8 +201,9 @@ internal static class Explain
     private static List<string> OwnKeys(JsObject o)
     {
         var result = new List<string>();
-        if (o is ProxyObject)
+        if (o is ProxyObject or JsTypedArray || o is JsArray { Length: > 10_000 })
         {
+            // Listing the keys of a huge indexed object would cost more than the explanation is worth.
             return result;
         }
 
