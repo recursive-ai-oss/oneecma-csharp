@@ -106,6 +106,12 @@ internal static class ArrayAlgo
     {
         if (!o.Set(k, v, JsValue.FromObject(o)))
         {
+            // V8 names the frozen length when an element cannot be added because of it.
+            if (o is JsArray { LengthWritable: false } ja && k.TryGetIndex(out uint idx) && idx >= ja.Length)
+            {
+                throw Errors.Type("Cannot assign to read only property 'length' of object '[object Array]'");
+            }
+
             throw Errors.Type(Ops.SetFailureMessage(o, k));
         }
     }
@@ -244,12 +250,13 @@ internal static class ArrayAlgo
     /// <summary>Accounts for a list of <paramref name="count"/> values before it is allocated.</summary>
     internal static void ReserveList(long count)
     {
+        // The budget check comes first so that a huge request is reported as a memory limit when the host sets one.
+        Agent.Current.Alloc(count * 16);
         if (count > int.MaxValue / 2)
         {
             throw Errors.Range("Invalid array length");
         }
 
-        Agent.Current.Alloc(count * 16);
     }
 
     // ---- relative indices ------------------------------------------------------------------------------------------------
@@ -270,7 +277,7 @@ internal static class ArrayAlgo
 
     /// <summary>
     /// A stable bottom-up merge sort. It never recurses and tolerates a comparator that is inconsistent or throws: every
-    /// comparison goes through <paramref name="cmp"/> (positive means the first argument sorts after the second), the
+    /// comparison goes through <paramref name="cmp"/> (negative means the first argument sorts before the second), the
     /// result is always a permutation of the input, and a throw leaves <paramref name="items"/> unspecified but valid.
     /// </summary>
     internal static void MergeSort<T>(T[] items, int n, Func<T, T, int> cmp)
@@ -293,8 +300,9 @@ internal static class ArrayAlgo
                 int k = lo;
                 while (i < mid && j < hi)
                 {
-                    // Take from the right run only when the left element sorts strictly after it: that keeps equal elements in order.
-                    dst[k++] = cmp(src[i], src[j]) > 0 ? src[j++] : src[i++];
+                    // Take from the right run only when it sorts strictly before the left element: that keeps equal elements in order.
+                    // The right element is passed first, so a degenerate comparator such as () => -1 reverses the input as it does in Node.
+                    dst[k++] = cmp(src[j], src[i]) < 0 ? src[j++] : src[i++];
                 }
 
                 while (i < mid)
