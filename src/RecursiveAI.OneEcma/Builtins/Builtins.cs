@@ -29,6 +29,7 @@ internal static partial class Builtins
         SetupWeak(r);
         SetupReflect(r);
         SetupProxy(r);
+        BinaryData.Setup(r);
         SetupHost(r);
     }
 

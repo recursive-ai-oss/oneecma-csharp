@@ -457,7 +457,7 @@ internal static partial class Builtins
             return nr.Global.Get("$262");
         });
         r.Method(h, "evalScript", 1, (t, a, nt) => ScriptRunner.RunScript(r, Ops.ToStr(A(a, 0)), "<evalScript>"));
-        r.Method(h, "detachArrayBuffer", 1, (t, a, nt) => throw Errors.Type("detachArrayBuffer is not available in this build"));
+        r.Method(h, "detachArrayBuffer", 1, (t, a, nt) => BinaryData.HostDetach(A(a, 0)));
         var agent = r.NewObject();
         Realm.Value(h, "agent", JsValue.FromObject(agent));
         var dda = new HtmlDdaObject(r.ObjectPrototype);

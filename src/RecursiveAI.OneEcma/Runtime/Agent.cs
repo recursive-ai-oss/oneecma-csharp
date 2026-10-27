@@ -132,6 +132,9 @@ internal sealed class Agent
 
     internal readonly Queue<Action> Jobs = new();
 
+    /// <summary>Called when the job queue is empty; returns true if it made progress (queued jobs or settled promises), so the loop runs again. Atomics.waitAsync uses it to expire timeouts on virtual time.</summary>
+    internal Func<bool>? IdleHook;
+
     /// <summary>Weak-reference bookkeeping (WeakRef, FinalizationRegistry).</summary>
     internal readonly WeakTracker Weak = new();
 
@@ -230,12 +233,16 @@ internal sealed class Agent
     {
         // ClearKeptObjects (9.10.3): the synchronous run that led here has ended, and so has each job below.
         Weak.ClearKept();
-        while (Jobs.Count > 0)
+        do
         {
-            Action job = Jobs.Dequeue();
-            Tick();
-            job();
-            Weak.ClearKept();
+            while (Jobs.Count > 0)
+            {
+                Action job = Jobs.Dequeue();
+                Tick();
+                job();
+                Weak.ClearKept();
+            }
         }
+        while (IdleHook is not null && IdleHook());
     }
 }

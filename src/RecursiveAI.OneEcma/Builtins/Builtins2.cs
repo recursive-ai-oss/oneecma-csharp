@@ -48,7 +48,7 @@ internal static partial class Builtins
                 return JsValue.FromObject(Ops.CreateIterResult(default, true));
             }
 
-            long len = Ops.LengthOfArrayLike(it.Target);
+            long len = it.Target is JsTypedArray ita ? BinaryData.IteratedLength(ita) : Ops.LengthOfArrayLike(it.Target);
             if (it.Index >= len)
             {
                 it.Target = null;

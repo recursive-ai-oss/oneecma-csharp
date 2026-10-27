@@ -702,6 +702,11 @@ internal static partial class Vm
                     }
                 }
             }
+            else if (o.Ref is JsTypedArray ta)
+            {
+                // Every Number key is a canonical numeric index: out of range reads give undefined without touching the prototype chain.
+                return ta.GetByNumber(d);
+            }
             else if (o.Ref is string s)
             {
                 uint i = (uint)d;
@@ -766,6 +771,12 @@ internal static partial class Vm
                     return;
                 }
             }
+        }
+
+        if (o.Ref is JsTypedArray tarr && k.IsNumber)
+        {
+            tarr.SetByNumber(k.Num, v);
+            return;
         }
 
         if (o.IsNullish)
