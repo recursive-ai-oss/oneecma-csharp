@@ -39,7 +39,13 @@ internal static class ReplayFuzz
     {
         if (error is not null)
         {
-            return "throw: " + error.Report!.ToString() + DiagnosticJson.Render([error.Report]);
+            string text = error.Report!.ToString() + DiagnosticRenderer.Render(error.Report, new RenderOptions { MaxLineWidth = 40, Compact = true });
+            if (text.Contains(DiagnosticRenderer.FallbackNote, StringComparison.Ordinal))
+            {
+                throw new InvalidOperationException("rendering the report fell back");
+            }
+
+            return "throw: " + error.Report.ToString() + DiagnosticJson.Render([error.Report]);
         }
 
         if (limit is not null)

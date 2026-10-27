@@ -157,7 +157,26 @@ public static class DiagnosticRenderer
         return sb.ToString();
     }
 
+    /// <summary>The text that replaces a section whose rendering failed; tests look for it so a renderer bug is never silent.</summary>
+    internal const string FallbackNote = "the source excerpt could not be rendered";
+
     private static void AppendRepair(StringBuilder sb, AppliedRepair r, RenderOptions o)
+    {
+        int start = sb.Length;
+        try
+        {
+            AppendRepairUnguarded(sb, r, o);
+        }
+        catch (Exception e) when (e is not OperationCanceledException)
+        {
+            // A report must never take the host down: keep the title and say what went wrong.
+            sb.Length = start;
+            sb.Append(Paint(o, Green, "repair[" + r.Id + "]")).Append(Paint(o, Bold, ": " + r.Title)).Append('\n');
+            sb.Append(" = note: ").Append(FallbackNote).Append(" (").Append(e.GetType().Name).Append(")\n");
+        }
+    }
+
+    private static void AppendRepairUnguarded(StringBuilder sb, AppliedRepair r, RenderOptions o)
     {
         sb.Append(Paint(o, Green, "repair[" + r.Id + "]")).Append(Paint(o, Bold, ": " + r.Title)).Append('\n');
         var labels = new List<Label> { new Label(r.Span, r.Label, true) };
@@ -165,6 +184,35 @@ public static class DiagnosticRenderer
     }
 
     private static void Append(StringBuilder sb, Diagnostic d, RenderOptions o)
+    {
+        int start = sb.Length;
+        try
+        {
+            AppendUnguarded(sb, d, o);
+        }
+        catch (Exception e) when (e is not OperationCanceledException)
+        {
+            // A report must never take the host down: fall back to the headline, the location when it can be computed, and a note.
+            sb.Length = start;
+            string level = d.Severity == Severity.Error ? "error" : "warning";
+            sb.Append(Paint(o, d.Severity == Severity.Error ? Red : "\u001b[1;33m", level + "[" + d.Kind + "]"))
+              .Append(Paint(o, Bold, ": " + d.Headline)).Append('\n');
+            try
+            {
+                LinePosition p = d.Source.GetPosition(d.PrimarySpan.Start);
+                sb.Append(" --> ").Append(d.Source.Name).Append(':').Append(p.Line.ToString(NumberFormatInfo.InvariantInfo)).Append(':')
+                  .Append(p.Column.ToString(NumberFormatInfo.InvariantInfo)).Append('\n');
+            }
+            catch (Exception inner) when (inner is not OperationCanceledException)
+            {
+                // No location to give.
+            }
+
+            sb.Append(" = note: ").Append(FallbackNote).Append(" (").Append(e.GetType().Name).Append(")\n");
+        }
+    }
+
+    private static void AppendUnguarded(StringBuilder sb, Diagnostic d, RenderOptions o)
     {
         string level = d.Severity == Severity.Error ? "error" : "warning";
         sb.Append(Paint(o, d.Severity == Severity.Error ? Red : "\u001b[1;33m", level + "[" + d.Kind + "]"))
@@ -426,8 +474,9 @@ public static class DiagnosticRenderer
             int viewEnd = col;
             if (col > limit)
             {
-                int gLo = group.Min(g => g.S);
-                int gHi = group.Max(g => g.E);
+                // A line shown only as context has no labels: show its start.
+                int gLo = group.Count > 0 ? group.Min(g => g.S) : 0;
+                int gHi = group.Count > 0 ? group.Max(g => g.E) : 0;
                 int pad = Math.Min(gLo, Math.Min(24, Math.Max(8, (limit - (gHi - gLo)) / 2)));
                 view = Math.Max(0, gLo - pad);
                 viewEnd = Math.Min(col, view + limit);
