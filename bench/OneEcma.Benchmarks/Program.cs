@@ -36,7 +36,9 @@ internal static class Program
     /// </summary>
     private static void LongRun(int rounds)
     {
-        Console.WriteLine("round  mode  " + string.Join(" ", BenchScripts.All.Select(x => x.Name.PadLeft(9))));
+        // Jint running one kernel in the same process is the control: machine contention moves both, a real slowdown only ours.
+        string controlSource = BenchScripts.All.First(x => x.Name == "props").Source;
+        Console.WriteLine("round  mode  " + string.Join(" ", BenchScripts.All.Select(x => x.Name.PadLeft(9))) + "  jint-props");
         var shared = BenchScripts.All.ToDictionary(x => x.Name, _ => new ScriptEngine());
         for (int round = 0; round < rounds; round++)
         {
@@ -54,7 +56,9 @@ internal static class Program
                     cells.Add((sw.Elapsed.TotalMilliseconds / 3).ToString("F1", System.Globalization.CultureInfo.InvariantCulture).PadLeft(9));
                 }
 
-                Console.WriteLine($"{round,5}  {(reuse ? "reuse" : "fresh")} {string.Join(" ", cells)}");
+                var control = System.Diagnostics.Stopwatch.StartNew();
+                new global::Jint.Engine().Evaluate(controlSource);
+                Console.WriteLine($"{round,5}  {(reuse ? "reuse" : "fresh")} {string.Join(" ", cells)} {control.Elapsed.TotalMilliseconds,11:F1}");
             }
         }
     }
