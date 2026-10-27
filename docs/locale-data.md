@@ -8,6 +8,7 @@ Normative description of the data the Intl implementation reads: where it comes 
 |---|---|---|
 | CLDR JSON (`cldr-48.0.0-json-full.zip`) | 48.0 | SHA-256 in `tools/locale-data/pin.txt` |
 | CLDR common (`cldr-common-48.zip`: `uca/allkeys_CLDR.txt`, `collation/*.xml`) | 48 | SHA-256 and the official SHA-512 in `pin.txt` |
+| tzdata (`tzdata2025b.tar.gz`, only `zone.tab`) | 2025b | SHA-256 in `pin.txt` |
 | UCD files (grapheme, word, sentence break properties, `emoji-data.txt`, `DerivedCoreProperties.txt`, `PropList.txt`, `Blocks.txt`, `DerivedGeneralCategory.txt`) | 17.0.0 | SHA-256 in `pin.txt` |
 
 CLDR 48.0 and Unicode 17.0 are what the reference Node releases (v22.22.1 and v24.22.1) report as `process.versions.cldr` / `process.versions.unicode`, so Intl output compared against them carries no data-version noise. Raw inputs are fetched by `tools/locale-data/fetch.sh` (checksum-verified, never committed). The licence for all of it is the Unicode License v3 (see `THIRD-PARTY-NOTICES.md`).
@@ -17,7 +18,7 @@ CLDR 48.0 and Unicode 17.0 are what the reference Node releases (v22.22.1 and v2
 ```
 tools/locale-data/fetch.sh                      # -> $ONEECMA_LOCALE_DATA or ~/oneecma/locale-data
 dotnet run --project tools/LocaleDataGen -- \
-  --cldr <root>/cldr/48.0 --ucd <root>/ucd/17.0.0 \
+  --cldr <root>/cldr/48.0 --ucd <root>/ucd/17.0.0 --tzdata <dir holding zone.tab> \
   --out src/RecursiveAI.OneEcma/Intl/Data/Generated
 ```
 
@@ -75,6 +76,19 @@ After the header: varint range count and per range varint gap since the previous
 ### Breaks (kind 4)
 
 Varint property count; per property: UTF-8 name (`Grapheme_Cluster_Break`, `Word_Break`, `Sentence_Break`, `Extended_Pictographic`, `Indic_Conjunct_Break`), varint value count and the value names (index 0 is the default for unlisted code points), varint range count and per range: varint gap since the previous end, varint length-1, byte value index. Adjacent ranges with the same value are merged.
+
+## Time zone data
+
+Date-time formatting needs the display names of time zones and the country of each zone. `supplemental.bin` carries, besides the CLDR metazone mapping:
+
+- `zoneRegions`: CLDR canonical zone id to the ISO 3166 region of the `zone.tab` line that names it or one of its aliases (tzdata 2025b, public domain; `fetch.sh` extracts `zone.tab` from the pinned archive).
+- `primaryZones`: region to the zone CLDR names as that region's primary zone (a zone whose location name is the bare country name).
+- `metaZoneInfo`: per zone, a list of periods `usesMetazone` with `_mzone` and optional `_from` and `_to` (`yyyy-MM-dd HH:mm`, UTC; a missing `_from` is 1970-01-01).
+- `metaZoneMap`: the reference ("golden") zone of each metazone per territory, `001` for the world.
+
+The data holds no offsets: the services ask an `ITimeZoneSource` for the UTC offset and daylight flag at an instant (see `docs/intl.md`).
+
+**Empty markers.** A child locale that blocks a name its parent has (CLDR spells this with the inheritance marker, e.g. en-GB short names that are absent from en-001 although present in en) is stored as an explicit empty string inside `timeZoneNames`, so that the delta against the parent does not make the parent's name reappear. A reader treats an empty string as "no name" and falls back to the localized GMT format.
 
 ## Adding a locale
 
