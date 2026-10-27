@@ -106,6 +106,19 @@ if (money != "1.234,50\u00A0\u20AC" || names.Of("US") != "\u00C9tats-Unis")
     return 1;
 }
 
+// Date-time and duration formatting: pattern matching over the embedded CLDR data, zone names, and the unit list.
+DateTimeFormatService dtf = DateTimeFormatService.Create(["en-US"], new DateTimeFormatOptions { DateStyle = "full", TimeStyle = "long", TimeZone = "America/New_York" }, "en-US", "UTC", new FixedZone(-4 * 3600000, true));
+string when = dtf.Format(1720105509123);
+DateTimeFormatService range = DateTimeFormatService.Create(["de"], new DateTimeFormatOptions { Year = "numeric", Month = "long", Day = "numeric" }, "en-US", "UTC", new FixedZone(0, false));
+string between = range.FormatRange(1720105509123, 1720105509123 + (3 * 86400000.0));
+DurationFormatService dur = DurationFormatService.Create(["en"], new DurationFormatOptions { Style = "digital" }, "en-US");
+string clock = dur.Format(DurationRecord.Create([null, null, null, null, 1, 2, 3, null, null, null]));
+if (when != "Thursday, July 4, 2024 at 11:05:09 AM EDT" || between != "4.–7. Juli 2024" || clock != "1:02:03")
+{
+    Console.Error.WriteLine($"smoke: date-time {when} | {between} | {clock}");
+    return 1;
+}
+
 // The interpreter runs scripts: closures, classes, generators, async functions, destructuring and error reports.
 var runner = new ScriptEngine();
 JsValue answer = runner.Evaluate(
@@ -131,4 +144,14 @@ catch (JsException e) when (e.Report is { Kind: "TypeError" } r && r.Position.Li
 {
     Console.Out.WriteLine("aot-smoke ok " + ScriptEngine.Version);
     return 0;
+}
+
+/// <summary>A zone source with one fixed offset.</summary>
+internal sealed class FixedZone(int offsetMs, bool daylight) : ITimeZoneSource
+{
+    public bool TryGetOffset(string zoneId, double epochMs, out TimeZoneOffset offset)
+    {
+        offset = new TimeZoneOffset(offsetMs, daylight);
+        return true;
+    }
 }

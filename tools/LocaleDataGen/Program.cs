@@ -2,35 +2,37 @@ using System.Text.Json;
 using System.Xml.Linq;
 using RecursiveAI.OneEcma.LocaleDataGen;
 
-// Usage: oneecma-localedata-gen --cldr <dir with json/ and common/> --ucd <dir> --out <dir>
+// Usage: oneecma-localedata-gen --cldr <dir with json/ and common/> --ucd <dir> --tzdata <dir with zone.tab> --out <dir>
 // Writes the embedded locale-data blobs. Output is a pure function of the pinned inputs.
 string? cldr = null;
 string? ucd = null;
 string? output = null;
+string? tzdata = null;
 for (int i = 0; i + 1 < args.Length; i += 2)
 {
     switch (args[i])
     {
         case "--cldr": cldr = args[i + 1]; break;
         case "--ucd": ucd = args[i + 1]; break;
+        case "--tzdata": tzdata = args[i + 1]; break;
         case "--out": output = args[i + 1]; break;
         default: Console.Error.WriteLine($"unknown option {args[i]}"); return 2;
     }
 }
 
-if (cldr is null || ucd is null || output is null)
+if (cldr is null || ucd is null || output is null || tzdata is null)
 {
-    Console.Error.WriteLine("usage: --cldr <dir> --ucd <dir> --out <dir>");
+    Console.Error.WriteLine("usage: --cldr <dir> --ucd <dir> --tzdata <dir> --out <dir>");
     return 2;
 }
 
 Directory.CreateDirectory(output);
-var gen = new Generator(Path.Combine(cldr, "json"), Path.Combine(cldr, "common", "common"), ucd, output);
+var gen = new Generator(Path.Combine(cldr, "json"), Path.Combine(cldr, "common", "common"), ucd, tzdata, output);
 gen.Run();
 return 0;
 
 /// <summary>Builds every blob. The locale list here is the only place a locale is added.</summary>
-internal sealed class Generator(string json, string common, string ucd, string output)
+internal sealed class Generator(string json, string common, string ucd, string tzdata, string output)
 {
     // Stored locales. A region locale needs its CLDR parent chain stored too (en-GB -> en-001 -> en -> und),
     // since each blob holds only what differs from its parent. en-US and pt-BR are CLDR default content
@@ -70,6 +72,8 @@ internal sealed class Generator(string json, string common, string ucd, string o
         ("calendarPreferenceData", ["calendarPreferenceData"], "calendarPreferenceData"),
         ("numberingSystems", ["numberingSystems"], "numberingSystems"),
         ("metaZones", ["metaZones", "metazoneInfo", "timezone"], "metaZoneInfo"),
+        ("primaryZones", ["primaryZones"], "primaryZones"),
+        ("metaZones", ["metaZones", "metazones"], "metaZoneMap"),
         ("pluralRanges", ["plurals"], "pluralRanges"),
         ("dayPeriods", ["dayPeriodRuleSet"], "dayPeriodRules"),
         ("dayPeriods", ["dayPeriodRuleSet-type-selection"], "dayPeriodSelectionRules"),
@@ -257,8 +261,48 @@ internal sealed class Generator(string json, string common, string ucd, string o
         }
 
         sup.Members["bcp47"] = bcp;
+        sup.Members["zoneRegions"] = ZoneRegions(bcp);
         sup.Members["collationTailoring"] = Tailorings();
         return sup;
+    }
+
+    // Country of each CLDR canonical time zone id, from the IANA zone.tab (the first alias present in the table decides). Time zone
+    // display names use it to tell a country's only or primary zone from its other zones.
+    private Obj ZoneRegions(Obj bcp)
+    {
+        var tab = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (string line in File.ReadAllLines(Path.Combine(tzdata, "zone.tab")))
+        {
+            if (line.Length == 0 || line[0] == '#')
+            {
+                continue;
+            }
+
+            string[] cols = line.Split('	');
+            tab[cols[2]] = cols[0];
+        }
+
+        var result = new Obj();
+        Obj tz = (Obj)((Obj)bcp.Members["timezone"]).Members["tz"];
+        foreach (var (key, value) in tz.Members)
+        {
+            if (key.StartsWith('_') || value is not Obj entry || !entry.Members.TryGetValue("_alias", out Node? aliasNode) || aliasNode is not Str alias)
+            {
+                continue;
+            }
+
+            string[] ids = alias.Value.Split(' ');
+            foreach (string id in ids)
+            {
+                if (tab.TryGetValue(id, out string? region))
+                {
+                    result.Members[ids[0]] = new Str(region);
+                    break;
+                }
+            }
+        }
+
+        return result;
     }
 
     // Day period rules are keyed by language; keep the languages we have locale data for.
