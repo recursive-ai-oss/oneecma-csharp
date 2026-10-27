@@ -100,7 +100,7 @@ public sealed partial class ScriptEngine
         return Settled(p);
     }
 
-    /// <summary>Runs a script, then waits for what it started: if the completion value is a promise (an async function was called) its result is returned; host tasks are awaited without blocking the thread.</summary>
+    /// <summary>Runs a script, then waits for what it started without blocking the thread. If the completion value is a promise (an async function was called) the wait ends when that promise settles and its result is returned; otherwise it ends when the engine is idle (no job queued, no host task running).</summary>
     /// <param name="source">The script text.</param>
     /// <param name="fileName">The name reports use.</param>
     /// <param name="cancellationToken">Cancels the run and the wait.</param>

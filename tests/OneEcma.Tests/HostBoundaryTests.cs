@@ -247,7 +247,9 @@ public sealed class HostBoundaryTests
     [Fact]
     public async Task AsyncFailureReachesCSharpWithTheOriginalException()
     {
-        JsException? e = await _f.RunAsync("new Streams().fail();\nnew Streams().later(1, 'x').then(() => 1);");
+        // The script's completion value is not a promise, so EvaluateAsync waits for every host task, whichever finishes first. (A
+        // promise as the completion value makes it wait for that promise only, which would race with the failing task.)
+        JsException? e = await _f.RunAsync("new Streams().fail();\nnew Streams().later(1, 'x').then(() => 1);\n0;");
         // The rejected promise is never handled, so the run ends with it.
         Assert.NotNull(e);
         Assert.IsType<InvalidOperationException>(e.InnerException);
