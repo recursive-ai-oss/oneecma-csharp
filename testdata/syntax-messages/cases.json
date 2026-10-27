@@ -1,0 +1,869 @@
+[
+ {
+  "src": "3in []",
+  "message": "Invalid or unexpected token",
+  "line": 1
+ },
+ {
+  "src": "1_",
+  "message": "Numeric separators are not allowed at the end of numeric literals",
+  "line": 1
+ },
+ {
+  "src": "1__0",
+  "message": "Only one underscore is allowed as numeric separator",
+  "line": 1
+ },
+ {
+  "src": "0_1",
+  "message": "Numeric separator can not be used after leading 0.",
+  "line": 1
+ },
+ {
+  "src": "0x",
+  "message": "Invalid or unexpected token",
+  "line": 1
+ },
+ {
+  "src": "0b2",
+  "message": "Invalid or unexpected token",
+  "line": 1
+ },
+ {
+  "src": "1n.5",
+  "message": "Unexpected number",
+  "line": 1
+ },
+ {
+  "src": "01n",
+  "message": "Invalid or unexpected token",
+  "line": 1
+ },
+ {
+  "src": "'\\x1'",
+  "message": "Invalid hexadecimal escape sequence",
+  "line": 1
+ },
+ {
+  "src": "'\\u12'",
+  "message": "Invalid Unicode escape sequence",
+  "line": 1
+ },
+ {
+  "src": "'\\u{110000}'",
+  "message": "Undefined Unicode code-point",
+  "line": 1
+ },
+ {
+  "src": "`abc",
+  "message": "Unexpected end of input",
+  "line": 1
+ },
+ {
+  "src": "/abc",
+  "message": "Invalid regular expression: missing /",
+  "line": 1
+ },
+ {
+  "src": "/abc/gg",
+  "message": "Invalid regular expression flags",
+  "line": 1
+ },
+ {
+  "src": "/a/\\u0067",
+  "message": "Invalid regular expression flags",
+  "line": 1
+ },
+ {
+  "src": "/*",
+  "message": "Invalid or unexpected token",
+  "line": 1
+ },
+ {
+  "src": "@",
+  "message": "Invalid or unexpected token",
+  "line": 1
+ },
+ {
+  "src": "#",
+  "message": "Invalid or unexpected token",
+  "line": 1
+ },
+ {
+  "src": "a\\u0020b",
+  "message": "Invalid or unexpected token",
+  "line": 1
+ },
+ {
+  "src": "'use strict'; 010",
+  "message": "Octal literals are not allowed in strict mode.",
+  "line": 1
+ },
+ {
+  "src": "'use strict'; 08",
+  "message": "Decimals with leading zeros are not allowed in strict mode.",
+  "line": 1
+ },
+ {
+  "src": "'use strict'; '\\01'",
+  "message": "Octal escape sequences are not allowed in strict mode.",
+  "line": 1
+ },
+ {
+  "src": "'use strict'; '\\8'",
+  "message": "\\8 and \\9 are not allowed in strict mode.",
+  "line": 1
+ },
+ {
+  "src": "`\\01`",
+  "message": "Octal escape sequences are not allowed in template strings.",
+  "line": 1
+ },
+ {
+  "src": "x = 1 +",
+  "message": "Unexpected end of input",
+  "line": 1
+ },
+ {
+  "src": "var 1",
+  "message": "Unexpected number",
+  "line": 1
+ },
+ {
+  "src": "let let = 1",
+  "message": "let is disallowed as a lexically bound name",
+  "line": 1
+ },
+ {
+  "src": "'use strict'; var let",
+  "message": "Unexpected strict mode reserved word",
+  "line": 1
+ },
+ {
+  "src": "'use strict'; var yield",
+  "message": "Unexpected strict mode reserved word",
+  "line": 1
+ },
+ {
+  "src": "var enum",
+  "message": "Unexpected reserved word",
+  "line": 1
+ },
+ {
+  "src": "'use strict'; var eval",
+  "message": "Unexpected eval or arguments in strict mode",
+  "line": 1
+ },
+ {
+  "src": "'use strict'; arguments = 1",
+  "message": "Unexpected eval or arguments in strict mode",
+  "line": 1
+ },
+ {
+  "src": "var \\u0069f",
+  "message": "Keyword must not contain escaped characters",
+  "line": 1
+ },
+ {
+  "src": "f(a b)",
+  "message": "missing ) after argument list",
+  "line": 1
+ },
+ {
+  "src": "[a b]",
+  "message": "Unexpected identifier 'b'",
+  "line": 1
+ },
+ {
+  "src": "({a b})",
+  "message": "Unexpected identifier 'b'",
+  "line": 1
+ },
+ {
+  "src": "if",
+  "message": "Unexpected end of input",
+  "line": 1
+ },
+ {
+  "src": "foo bar",
+  "message": "Unexpected identifier 'bar'",
+  "line": 1
+ },
+ {
+  "src": "1 2",
+  "message": "Unexpected number",
+  "line": 1
+ },
+ {
+  "src": "'a' 'b'",
+  "message": "Unexpected string",
+  "line": 1
+ },
+ {
+  "src": "a `x` b",
+  "message": "Unexpected identifier 'b'",
+  "line": 1
+ },
+ {
+  "src": "{",
+  "message": "Unexpected end of input",
+  "line": 1
+ },
+ {
+  "src": "}",
+  "message": "Unexpected token '}'",
+  "line": 1
+ },
+ {
+  "src": ")",
+  "message": "Unexpected token ')'",
+  "line": 1
+ },
+ {
+  "src": "function(){}",
+  "message": "Function statements require a function name",
+  "line": 1
+ },
+ {
+  "src": "class",
+  "message": "Unexpected end of input",
+  "line": 1
+ },
+ {
+  "src": "x = {a:1,,}",
+  "message": "Unexpected token ','",
+  "line": 1
+ },
+ {
+  "src": "for(;;",
+  "message": "Unexpected end of input",
+  "line": 1
+ },
+ {
+  "src": "1++",
+  "message": "Invalid left-hand side expression in postfix operation",
+  "line": 1
+ },
+ {
+  "src": "a?.b = 1",
+  "message": "Invalid left-hand side in assignment",
+  "line": 1
+ },
+ {
+  "src": "new a?.b",
+  "message": "Invalid optional chain from new expression",
+  "line": 1
+ },
+ {
+  "src": "a?.`x`",
+  "message": "Invalid tagged template on optional chain",
+  "line": 1
+ },
+ {
+  "src": "async function f(){ await }",
+  "message": "Unexpected token '}'",
+  "line": 1
+ },
+ {
+  "src": "function* g(){ yield\n* 1 }",
+  "message": "Unexpected token '*'",
+  "line": 2
+ },
+ {
+  "src": "({a=1})",
+  "message": "Invalid shorthand property initializer",
+  "line": 1
+ },
+ {
+  "src": "[...a,]=1",
+  "message": "Rest element must be last element",
+  "line": 1
+ },
+ {
+  "src": "(a,b)=>{} ()",
+  "message": "Unexpected token '('",
+  "line": 1
+ },
+ {
+  "src": "(...a,b)=>1",
+  "message": "Rest parameter must be last formal parameter",
+  "line": 1
+ },
+ {
+  "src": "function f(a,a){'use strict'}",
+  "message": "Duplicate parameter name not allowed in this context",
+  "line": 1
+ },
+ {
+  "src": "function f(a=1){'use strict'}",
+  "message": "Illegal 'use strict' directive in function with non-simple parameter list",
+  "line": 1
+ },
+ {
+  "src": "label: label: 1",
+  "message": "Label 'label' has already been declared",
+  "line": 1
+ },
+ {
+  "src": "break",
+  "message": "Illegal break statement",
+  "line": 1
+ },
+ {
+  "src": "continue",
+  "message": "Illegal continue statement: no surrounding iteration statement",
+  "line": 1
+ },
+ {
+  "src": "break x",
+  "message": "Undefined label 'x'",
+  "line": 1
+ },
+ {
+  "src": "while(1) continue x",
+  "message": "Undefined label 'x'",
+  "line": 1
+ },
+ {
+  "src": "return",
+  "message": "Illegal return statement",
+  "line": 1
+ },
+ {
+  "src": "with(a){}",
+  "ok": true
+ },
+ {
+  "src": "'use strict'; with(a){}",
+  "message": "Strict mode code may not include a with statement",
+  "line": 1
+ },
+ {
+  "src": "'use strict'; delete a",
+  "message": "Delete of an unqualified identifier in strict mode.",
+  "line": 1
+ },
+ {
+  "src": "if (1) class C {}",
+  "message": "Unexpected token 'class'",
+  "line": 1
+ },
+ {
+  "src": "if (1) let x",
+  "message": "Lexical declaration cannot appear in a single-statement context",
+  "line": 1
+ },
+ {
+  "src": "while(1) function f(){}",
+  "message": "In non-strict mode code, functions can only be declared at top level, inside a block, or as the body of an if statement.",
+  "line": 1
+ },
+ {
+  "src": "'use strict'; if(1) function f(){}",
+  "message": "In strict mode code, functions can only be declared at top level or inside a block.",
+  "line": 1
+ },
+ {
+  "src": "let x; var x",
+  "message": "Identifier 'x' has already been declared",
+  "line": 1
+ },
+ {
+  "src": "let x; let x",
+  "message": "Identifier 'x' has already been declared",
+  "line": 1
+ },
+ {
+  "src": "var x; let x",
+  "message": "Identifier 'x' has already been declared",
+  "line": 1
+ },
+ {
+  "src": "function f(){ let a; var a }",
+  "message": "Identifier 'a' has already been declared",
+  "line": 1
+ },
+ {
+  "src": "try {} catch(e){ let e }",
+  "message": "Identifier 'e' has already been declared",
+  "line": 1
+ },
+ {
+  "src": "switch(1){ case 1: let a; case 2: let a }",
+  "message": "Identifier 'a' has already been declared",
+  "line": 1
+ },
+ {
+  "src": "class A { constructor(){} constructor(){} }",
+  "message": "A class may only have one constructor",
+  "line": 1
+ },
+ {
+  "src": "class A { get constructor(){} }",
+  "message": "Class constructor may not be an accessor",
+  "line": 1
+ },
+ {
+  "src": "class A { static prototype(){} }",
+  "message": "Classes may not have a static property named 'prototype'",
+  "line": 1
+ },
+ {
+  "src": "class A { #a; #a }",
+  "message": "Identifier '#a' has already been declared",
+  "line": 1
+ },
+ {
+  "src": "class A { m(){ this.#b } }",
+  "message": "Private field '#b' must be declared in an enclosing class",
+  "line": 1
+ },
+ {
+  "src": "this.#a",
+  "message": "Private field '#a' must be declared in an enclosing class",
+  "line": 1
+ },
+ {
+  "src": "class A extends B { m(){ super() } }",
+  "message": "'super' keyword unexpected here",
+  "line": 1
+ },
+ {
+  "src": "function f(){ super.x }",
+  "message": "'super' keyword unexpected here",
+  "line": 1
+ },
+ {
+  "src": "function f(){ new.target }",
+  "ok": true
+ },
+ {
+  "src": "new.target",
+  "message": "new.target expression is not allowed here",
+  "line": 1
+ },
+ {
+  "src": "import.meta",
+  "message": "Cannot use 'import.meta' outside a module",
+  "line": 1
+ },
+ {
+  "src": "import('a', 'b', 'c')",
+  "message": "Unexpected string",
+  "line": 1
+ },
+ {
+  "src": "import x from 'y'",
+  "message": "Cannot use import statement outside a module",
+  "line": 1
+ },
+ {
+  "src": "export var a",
+  "message": "Unexpected token 'export'",
+  "line": 1
+ },
+ {
+  "src": "a => {} ()",
+  "message": "Unexpected token '('",
+  "line": 1
+ },
+ {
+  "src": "a\n=> 1",
+  "message": "Unexpected token '=>'",
+  "line": 2
+ },
+ {
+  "src": "async a\n=> 1",
+  "message": "Unexpected token '=>'",
+  "line": 2
+ },
+ {
+  "src": "x = async (a, a) => 1",
+  "message": "Duplicate parameter name not allowed in this context",
+  "line": 1
+ },
+ {
+  "src": "(a, a) => 1",
+  "message": "Duplicate parameter name not allowed in this context",
+  "line": 1
+ },
+ {
+  "src": "({get a(x){}})",
+  "message": "Getter must not have any formal parameters.",
+  "line": 1
+ },
+ {
+  "src": "({set a(){}})",
+  "message": "Setter must have exactly one formal parameter.",
+  "line": 1
+ },
+ {
+  "src": "({set a(...x){}})",
+  "message": "Setter function argument must not be a rest parameter",
+  "line": 1
+ },
+ {
+  "src": "function f(...a,){}",
+  "message": "Rest parameter must be last formal parameter",
+  "line": 1
+ },
+ {
+  "src": "function f(...a=1){}",
+  "message": "Rest parameter may not have a default initializer",
+  "line": 1
+ },
+ {
+  "src": "({__proto__:1,__proto__:2})",
+  "message": "Duplicate __proto__ fields are not allowed in object literals",
+  "line": 1
+ },
+ {
+  "src": "a ?? b || c",
+  "message": "Unexpected token '||'",
+  "line": 1
+ },
+ {
+  "src": "a || b ?? c",
+  "message": "Unexpected token '??'",
+  "line": 1
+ },
+ {
+  "src": "-1 ** 2",
+  "message": "Unary operator used immediately before exponentiation expression. Parenthesis must be used to disambiguate operator precedence",
+  "line": 1
+ },
+ {
+  "src": "typeof a ** 2",
+  "message": "Unary operator used immediately before exponentiation expression. Parenthesis must be used to disambiguate operator precedence",
+  "line": 1
+ },
+ {
+  "src": "for (let of x);",
+  "message": "Unexpected identifier 'x'",
+  "line": 1
+ },
+ {
+  "src": "for (let x = 1 of y);",
+  "message": "for-of loop variable declaration may not have an initializer.",
+  "line": 1
+ },
+ {
+  "src": "for (var x = 1 in y);",
+  "ok": true
+ },
+ {
+  "src": "'use strict'; for (var x = 1 in y);",
+  "message": "for-in loop variable declaration may not have an initializer.",
+  "line": 1
+ },
+ {
+  "src": "for (a, b of c);",
+  "message": "Invalid left-hand side in for-loop",
+  "line": 1
+ },
+ {
+  "src": "for (async of x);",
+  "message": "The left-hand side of a for-of loop may not be 'async'.",
+  "line": 1
+ },
+ {
+  "src": "for await (x of y);",
+  "message": "Unexpected reserved word",
+  "line": 1
+ },
+ {
+  "src": "`${}`",
+  "message": "Unexpected token '}'",
+  "line": 1
+ },
+ {
+  "src": "`${a`",
+  "message": "Unexpected end of input",
+  "line": 1
+ },
+ {
+  "src": "({a:1} = 1)",
+  "message": "Invalid destructuring assignment target",
+  "line": 1
+ },
+ {
+  "src": "[a, b] += 1",
+  "message": "Invalid left-hand side in assignment",
+  "line": 1
+ },
+ {
+  "src": "(a, b) = 1",
+  "message": "Invalid left-hand side in assignment",
+  "line": 1
+ },
+ {
+  "src": "++a++",
+  "message": "Invalid left-hand side expression in prefix operation",
+  "line": 1
+ },
+ {
+  "src": "a++ = 1",
+  "message": "Invalid left-hand side in assignment",
+  "line": 1
+ },
+ {
+  "src": "for (x of y, z);",
+  "message": "Unexpected token ','",
+  "line": 1
+ },
+ {
+  "src": "var [a];",
+  "message": "Missing initializer in destructuring declaration",
+  "line": 1
+ },
+ {
+  "src": "var {a};",
+  "message": "Missing initializer in destructuring declaration",
+  "line": 1
+ },
+ {
+  "src": "let [a] = 1, b;",
+  "ok": true
+ },
+ {
+  "src": "const a;",
+  "message": "Missing initializer in const declaration",
+  "line": 1
+ },
+ {
+  "src": "for (const a;;);",
+  "message": "Missing initializer in const declaration",
+  "line": 1
+ },
+ {
+  "src": "let\nlet",
+  "message": "let is disallowed as a lexically bound name",
+  "line": 2
+ },
+ {
+  "src": "(async function(){ function await(){} })",
+  "message": "Unexpected reserved word",
+  "line": 1
+ },
+ {
+  "src": "function* g(){ function yield(){} }",
+  "message": "Unexpected identifier 'yield'",
+  "line": 1
+ },
+ {
+  "src": "function* g(a = yield){}",
+  "message": "Yield expression not allowed in formal parameter",
+  "line": 1
+ },
+ {
+  "src": "async function f(a = await 1){}",
+  "message": "Illegal await-expression in formal parameters of async function",
+  "line": 1
+ },
+ {
+  "src": "async (a = await 1) => 1",
+  "message": "missing ) after argument list",
+  "line": 1
+ },
+ {
+  "src": "yield => 1",
+  "ok": true
+ },
+ {
+  "src": "'use strict'; yield => 1",
+  "message": "Unexpected strict mode reserved word",
+  "line": 1
+ },
+ {
+  "src": "function* g(){ yield => 1 }",
+  "message": "Unexpected token '=>'",
+  "line": 1
+ },
+ {
+  "src": "async function f(){ (await) => 1 }",
+  "message": "Unexpected token ')'",
+  "line": 1
+ },
+ {
+  "src": "\\u{61}wait",
+  "ok": true
+ },
+ {
+  "src": "({ async *[x]() {} })",
+  "ok": true
+ },
+ {
+  "src": "({ async get a(){} })",
+  "message": "Unexpected identifier 'a'",
+  "line": 1
+ },
+ {
+  "src": "({ get\nfoo(){} })",
+  "ok": true
+ },
+ {
+  "src": "class C { static { await } }",
+  "message": "Unexpected reserved word",
+  "line": 1
+ },
+ {
+  "src": "class C { static { return } }",
+  "message": "Illegal return statement",
+  "line": 1
+ },
+ {
+  "src": "class C { static { arguments } }",
+  "message": "'arguments' is not allowed in class field initializer or static initialization block",
+  "line": 1
+ },
+ {
+  "src": "class C { x = arguments }",
+  "message": "'arguments' is not allowed in class field initializer or static initialization block",
+  "line": 1
+ },
+ {
+  "src": "a: function* g(){}",
+  "message": "Generators can only be declared at the top level or inside a block.",
+  "line": 1
+ },
+ {
+  "src": "a: async function f(){}",
+  "message": "Async functions can only be declared at the top level or inside a block.",
+  "line": 1
+ },
+ {
+  "src": "if(1) async function f(){}",
+  "message": "Async functions can only be declared at the top level or inside a block.",
+  "line": 1
+ },
+ {
+  "src": "do function f(){} while(0)",
+  "message": "In non-strict mode code, functions can only be declared at top level, inside a block, or as the body of an if statement.",
+  "line": 1
+ },
+ {
+  "src": "label: let\nx",
+  "ok": true
+ },
+ {
+  "src": "/(/",
+  "message": "Invalid regular expression: /(/: Unterminated group",
+  "line": 1
+ },
+ {
+  "src": "/(?<a>.)(?<a>.)/",
+  "message": "Invalid regular expression: /(?<a>.)(?<a>.)/: Duplicate capture group name",
+  "line": 1
+ },
+ {
+  "src": "/\\k<a>(?<b>.)/",
+  "message": "Invalid regular expression: /\\k<a>(?<b>.)/: Invalid named capture referenced",
+  "line": 1
+ },
+ {
+  "src": "/a**/",
+  "message": "Invalid regular expression: /a**/: Nothing to repeat",
+  "line": 1
+ },
+ {
+  "src": "/[b-a]/",
+  "message": "Invalid regular expression: /[b-a]/: Range out of order in character class",
+  "line": 1
+ },
+ {
+  "src": "/{1}/u",
+  "message": "Invalid regular expression: /{1}/u: Nothing to repeat",
+  "line": 1
+ },
+ {
+  "src": "/\\p{Foo}/u",
+  "message": "Invalid regular expression: /\\p{Foo}/u: Invalid property name",
+  "line": 1
+ },
+ {
+  "src": "/(?<=a)+/",
+  "message": "Invalid regular expression: /(?<=a)+/: Invalid quantifier",
+  "line": 1
+ },
+ {
+  "src": "/\\1(a)/u",
+  "ok": true
+ },
+ {
+  "src": "/\\2(a)/u",
+  "message": "Invalid regular expression: /\\2(a)/u: Invalid escape",
+  "line": 1
+ },
+ {
+  "src": "`abc${1}",
+  "message": "Unexpected end of input",
+  "line": 1
+ },
+ {
+  "src": "`abc${1}def",
+  "message": "Unexpected end of input",
+  "line": 1
+ },
+ {
+  "src": "`a${",
+  "message": "Unexpected end of input",
+  "line": 1
+ },
+ {
+  "src": "x = `\\u{`",
+  "message": "Invalid Unicode escape sequence",
+  "line": 1
+ },
+ {
+  "src": "tag`\\u{`",
+  "ok": true
+ },
+ {
+  "src": "await 1",
+  "message": "await is only valid in async functions and the top level bodies of modules",
+  "line": 1
+ },
+ {
+  "src": "await x",
+  "message": "await is only valid in async functions and the top level bodies of modules",
+  "line": 1
+ },
+ {
+  "src": "function f(){ await x }",
+  "message": "await is only valid in async functions and the top level bodies of modules",
+  "line": 1
+ },
+ {
+  "src": "var a = await fetch(1)",
+  "message": "await is only valid in async functions and the top level bodies of modules",
+  "line": 1
+ },
+ {
+  "src": "await\nx",
+  "ok": true
+ },
+ {
+  "src": "a = await (1)",
+  "ok": true
+ },
+ {
+  "src": "await 1; \nvar x",
+  "message": "await is only valid in async functions and the top level bodies of modules",
+  "line": 1
+ },
+ {
+  "src": "function f(){ var x = await y; }",
+  "message": "await is only valid in async functions and the top level bodies of modules",
+  "line": 1
+ },
+ {
+  "src": "class A { x = await 1 }",
+  "message": "await is only valid in async functions and the top level bodies of modules",
+  "line": 1
+ },
+ {
+  "src": "async function f(){ function g(){ await 1 } }",
+  "message": "await is only valid in async functions and the top level bodies of modules",
+  "line": 1
+ }
+]

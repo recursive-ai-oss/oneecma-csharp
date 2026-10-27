@@ -1,3 +1,6 @@
+using RecursiveAI.OneEcma.Diagnostics;
+using RecursiveAI.OneEcma.Syntax;
+
 namespace RecursiveAI.OneEcma.Test262;
 
 /// <summary>
@@ -22,6 +25,19 @@ public sealed class EngineBackend : ITestBackend
 
     private static BackendResult Run(PreparedTest test, TimeSpan timeout, CancellationToken cancellationToken)
     {
+        if (test.ParseOnly)
+        {
+            var options = new ParseOptions { Goal = test.Mode == SourceMode.Module ? ParseGoal.Module : ParseGoal.Script };
+            var result = JsParser.Parse(test.EffectiveSource, options, cancellationToken);
+            if (!result.HasErrors)
+            {
+                return BackendResult.Passed;
+            }
+
+            Diagnostic d = result.Diagnostics[0];
+            return new BackendResult(true, "parse", d.Kind, d.Headline + " at " + d.Position.Line + ":" + d.Position.Column);
+        }
+
         if (test.Mode == SourceMode.Module)
         {
             return new BackendResult(false, NotImplemented: true, Message: "modules");
@@ -32,12 +48,6 @@ public sealed class EngineBackend : ITestBackend
         var engine = new ScriptEngine();
         try
         {
-            if (test.ParseOnly)
-            {
-                engine.Check(test.EffectiveSource, cts.Token);
-                return BackendResult.Passed;
-            }
-
             if (test.IsAsync)
             {
                 return new BackendResult(false, NotImplemented: true, Message: "async tests need host print");
