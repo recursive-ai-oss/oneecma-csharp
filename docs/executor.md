@@ -56,7 +56,18 @@ thread; the traced run.
 `Ref == null` so zeroed registers and slot arrays are already correct; null, true, false and the TDZ marker are tag
 objects; strings are `string` or `Rope`; objects are `JsObject`. Numbers never allocate. Safe code only, no NaN boxing.
 
-@@VALUEREP@@
+Measured on the same arithmetic loop (5,000,000 iterations, four operations each; BenchmarkDotNet, in-process, one run,
+subject to the load noted below, ratios are robust to it):
+
+| representation | mean | vs raw `double` | allocated |
+|---|---:|---:|---:|
+| raw `double` (floor) | 6.1 ms | 1.0x | 60 B |
+| 16-byte struct (reference tag + double), the spike's choice | 44.5 ms | 7.3x | 768 B |
+| heap object per number (`sealed class` hierarchy) | 197.9 ms | 32.5x | 480 MB |
+| boxed `double` in an `object` slot | 121.4 ms | 19.9x | 480 MB |
+
+The struct is 3 to 4.5 times faster than either heap form and allocates nothing; the heap forms would need a small-integer
+cache and escape tricks to approach it, and still allocate for every non-integer result.
 
 Property keys are strings. Objects are a `Shape` (prototype included, so a shape hit implies the prototype) and a slot
 array; property sites cache `shape -> slot` for own properties, `shape + holder shape -> slot` one prototype up, and
@@ -134,7 +145,77 @@ to a flat basic-block form, which is a bytecode compiler plus the interpreter fo
 - The closure tree's many small methods stay in unoptimised code until the runtime's tiering delay passes (100 ms), so
   one-shot scripts shorter than that run unoptimised; marking the loop statements as aggressively optimised did not help.
 
-@@MEASURED@@
+## Measured
+
+Sources: `SpikeScripts` (fib(25); 1,000x1,000 nested loops; property get/set; closures, `map`/`filter` written in script
+and a counter factory; string building with `charCodeAt`; a vector class with `new` and prototype methods; a
+recursive-descent calculator over a string; quicksort on 40,000 numbers; 10,000 throw/catch). Each iteration creates a fresh
+realm or engine from an already parsed program, so realm set-up, compilation and execution are inside the number.
+Ratios are mean time divided by Jint's. Allocation is managed bytes per operation.
+
+### Steady state (BenchmarkDotNet 0.15.8, out-of-process, 3 warm-up and 10 measured iterations)
+
+| script | Jint mean (ms) | Jint alloc | A closure mean (ms) | A alloc | A / Jint | B bytecode mean (ms) | B alloc | B / Jint | B / A |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| startup | 0.001 | 8 KB | 0.002 | 12 KB | 1.43 | 0.002 | 17 KB | 1.83 | 1.28 |
+| fib25 | 30.158 | 37 KB | 4.874 | 25 KB | 0.16 | 7.962 | 25 KB | 0.26 | 1.63 |
+| loops | 66.312 | 89.4 MB | 12.616 | 19 KB | 0.19 | 18.492 | 24 KB | 0.28 | 1.47 |
+| props | 55.497 | 41.7 MB | 16.269 | 24 KB | 0.29 | 22.380 | 34 KB | 0.40 | 1.38 |
+| closures | 37.566 | 5.3 MB | 10.509 | 4.8 MB | 0.28 | 15.695 | 4.8 MB | 0.42 | 1.49 |
+| strings | 2.941 | 4.5 MB | 2.565 | 3.7 MB | 0.87 | 2.810 | 3.7 MB | 0.96 | 1.10 |
+| vectors | 88.959 | 68.2 MB | 15.202 | 24.4 MB | 0.17 | 23.285 | 24.5 MB | 0.26 | 1.53 |
+| calc | 112.767 | 6.9 MB | 21.578 | 431 KB | 0.19 | 35.341 | 446 KB | 0.31 | 1.64 |
+| qsort | 107.468 | 27.9 MB | 22.868 | 2.0 MB | 0.21 | 23.728 | 2.0 MB | 0.22 | 1.04 |
+| throws | 31.840 | 14.3 MB | 17.621 | 6.0 MB | 0.55 | 1.400 | 1.3 MB | 0.04 | 0.08 |
+
+The `startup` row (`1 + 1`) is realm construction: 2 microseconds for both executors, against Jint's 1.
+
+An earlier run of the same harness (before the dispatch loop was marked aggressively optimised and the frame pools
+became lazy) gave ratios to Jint within 0.1 of these on every script (closure tree 0.15 to 0.97, bytecode 0.21 to 1.01,
+except `throws` 0.52 and 0.04 and `startup`), so the conclusions do not depend on the noise below.
+
+### Cold, one script per fresh process (parse included, median of 5, ms and peak resident set in MB)
+
+| script | Jint ms | Jint peak RSS MB | A ms | A RSS MB | B ms | B RSS MB |
+|---|---:|---:|---:|---:|---:|---:|
+| startup | 64 | 47 | 15 | 33 | 28 | 40 |
+| fib25 | 255 | 50 | 59 | 36 | 44 | 43 |
+| loops | 441 | 98 | 173 | 36 | 57 | 43 |
+| props | 324 | 95 | 126 | 37 | 90 | 43 |
+| closures | 318 | 56 | 105 | 42 | 63 | 48 |
+| strings | 117 | 55 | 40 | 40 | 47 | 46 |
+| vectors | 415 | 98 | 118 | 61 | 78 | 67 |
+| calc | 449 | 60 | 190 | 38 | 119 | 43 |
+| qsort | 425 | 80 | 169 | 38 | 82 | 45 |
+| throws | 195 | 72 | 76 | 51 | 44 | 44 |
+
+A fresh process pays JIT time: the closure tree runs most of a short script in unoptimised code, the bytecode loop (marked
+aggressively optimised) pays about 10 ms up front and then runs optimised. Under NativeAOT there is no such phase.
+
+### Reachable call depth (host thread stack, `MaxDepth` raised to 1,000,000)
+
+| host stack | closure tree | bytecode |
+|---|---:|---:|
+| 1 MB | 854 | 400,000 (probe cap) |
+| 8 MB | 7,689 | 400,000 (probe cap) |
+| 64 MB | 232,542 | 400,000 (probe cap) |
+
+Front-end acceptance of 100,000-link chains on a 256 KB thread: binary operators, member accesses and calls parse; a chain of
+100,000 nested assignments stops with the parser's own nesting limit.
+
+### Method and caveats
+
+- Machine: AMD Ryzen 9 7950X3D, 16 cores / 32 threads, Linux x86-64, .NET SDK 10.0.402, runtime 10.0.13, BenchmarkDotNet
+  0.15.8, Jint 4.17.0, Release builds with default tiering and dynamic PGO. The runs were serial and single-threaded.
+- Load: the machine was shared and other jobs ran during every run (load average between 4 and 14 on 32 threads), so
+  these numbers are indicative, not publishable; repeat on an idle machine before quoting absolute times. Reproduce with
+  `bench/OneEcma.Benchmarks` (`--filter '*ExecutorBenchmarks*' '*ValueRepBenchmarks*'`, then `cold <jint|closure|bytecode> <script>`
+  five times per pair).
+- Within-run noise is visible in the differences between the two runs (up to 25% on one executor for a script); the
+  Jint column moved by a similar amount, which is why only ratios are used for conclusions.
+- The closure tree has pooled frames, fused register/constant nodes and inline caches; the bytecode has inline caches,
+  fused compare-and-jump and window-passed arguments. Neither is tuned to the end.
+
 
 ## Open points for the engine core
 
