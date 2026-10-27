@@ -102,7 +102,6 @@ internal static class Messages
     internal const string DuplicateLabel = "Label '{0}' has already been declared";
     internal const string DuplicateBinding = "Identifier '{0}' has already been declared";
     internal const string UndeclaredPrivate = "Private field '{0}' must be declared in an enclosing class";
-    internal const string InvalidRegExpPrefix = "Invalid regular expression: /{0}/{1}: {2}";
     internal const string DepthLimit = "Maximum nesting depth exceeded";
     internal const string InvalidLhsInFor = "Invalid left-hand side in for-in loop: Must have a single binding.";
     internal const string ClassHeritageInvalid = "Unexpected token";

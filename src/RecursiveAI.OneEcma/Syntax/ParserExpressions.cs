@@ -81,9 +81,15 @@ internal sealed partial class Parser
     };
 
     /// <summary>ECMA-262 13.15 AssignmentExpression (including arrow functions and yield).</summary>
+    // ECMA-262 15.3: ArrowFunction[In] : ArrowParameters => ConciseBody[?In]. An arrow function is recognised deep inside
+    // primary-expression parsing, so the In parameter of the enclosing AssignmentExpression is kept here for its body.
+    private bool _assignmentNoIn;
+
     private Expression ParseAssignment(bool noIn, CoverErrors? cover = null)
     {
         Enter();
+        bool savedNoIn = _assignmentNoIn;
+        _assignmentNoIn = noIn;
         try
         {
             if (IsContextual("yield") && _fn.IsGenerator)
@@ -154,6 +160,7 @@ internal sealed partial class Parser
         }
         finally
         {
+            _assignmentNoIn = savedNoIn;
             Leave();
         }
     }
@@ -1228,10 +1235,12 @@ internal sealed partial class Parser
             return;
         }
 
-        string? error = _regExpValidator?.Invoke(body, flags);
-        if (error is not null)
+        // The body starts right after the opening slash; the validator returns spans in source offsets.
+        var found = _regExpValidator?.Invoke(body, flags, r.Start + 1);
+        if (found is { Count: > 0 })
         {
-            Report("invalid-regexp", Messages.Format(Messages.InvalidRegExpPrefix, body, flags, error), r.Start, r.End);
+            var d = found[0];
+            Report("invalid-regexp", d.Message, d.Start, d.Start + Math.Max(1, d.Length));
         }
     }
 

@@ -454,6 +454,7 @@ internal sealed partial class Parser
         _strictFromDirective = false;
         _useStrictFound = false;
         Node body;
+        bool bodyNoIn = _assignmentNoIn;
         bool bodyIsBlock = Is(TokenType.LBrace);
         if (bodyIsBlock)
         {
@@ -461,7 +462,7 @@ internal sealed partial class Parser
         }
         else
         {
-            body = ParseAssignment(noIn: false);
+            body = ParseAssignment(bodyNoIn);
         }
 
         bool viaDirective = _strictFromDirective;
