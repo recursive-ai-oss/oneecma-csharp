@@ -140,7 +140,7 @@ to a flat basic-block form, which is a bytecode compiler plus the interpreter fo
 
 - The dispatch loop is one very long-running method. Without `MethodImplOptions.AggressiveOptimization` it spends its
   first calls in unoptimised code and on-stack replacement; with it, a single cold run of the bytecode executor dropped
-  by 35 to 45% on the scripts tried (fib 76 to 44 ms, loops 92 to 57 ms, local timing before the worker runs). It costs
+  by 35 to 45% on the scripts tried (fib 76 to 44 ms, loops 92 to 57 ms, informal local timing). It costs
   about 10 ms of JIT up front on a `1 + 1` script. NativeAOT has no such phase.
 - The closure tree's many small methods stay in unoptimised code until the runtime's tiering delay passes (100 ms), so
   one-shot scripts shorter than that run unoptimised; marking the loop statements as aggressively optimised did not help.
