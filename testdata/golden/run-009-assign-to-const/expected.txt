@@ -2,9 +2,9 @@ error[TypeError]: Assignment to constant variable.
  --> case.js:2:1
   |
 1 | const total = 0;
-  |       --------- `total` is declared `const` here
+  |       ----- `total` is declared `const` here
 2 | total += 5;
   | ^^^^^^^^^^ assignment to a `const` binding
   |
-  = help: declare it with `let total = 0;`
+  = help: declare `total` with `let` if it is meant to change
   = stack: <top-level> (case.js:2)

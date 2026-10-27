@@ -104,7 +104,8 @@ public class ControlFlowTests
             function g(_, n) { if (n === 0) return 'tag'; return g`${n - 1}`; }
             f(200000) + g(null, 1)
             """;
-        Assert.StartsWith("done", Run(src), StringComparison.Ordinal);
+        var engine = new ScriptEngine(new ScriptEngineOptions { ProperTailCalls = true });
+        Assert.StartsWith("done", engine.ToDisplayString(engine.Evaluate(src, cancellationToken: Ct)), StringComparison.Ordinal);
     }
 
     [Fact]

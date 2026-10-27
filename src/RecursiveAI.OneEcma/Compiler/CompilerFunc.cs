@@ -140,7 +140,9 @@ internal sealed partial class Compiler
                     Emit(Op.LoadArg, i);
                     DestructureText = "undefined";
                     _destructureSpan = (p.Start, p.End);
+                    _paramPattern = true;
                     BindTarget(p, BindMode.Init);
+                    _paramPattern = false;
                     break;
             }
         }
@@ -245,6 +247,11 @@ internal sealed partial class Compiler
         ctorCode.IsClassMember = true;
         _f.Funcs.Add(ctorCode);
         SetSpan(cn);
+        if (cn.SuperClass is not null and not (NumberLiteral or StringLiteral or BooleanLiteral or BigIntLiteral or NullLiteral))
+        {
+            _f.CurP = cn.SuperClass.Start;
+        }
+
         Emit(Op.NewClass, _f.Funcs.Count - 1, hasHeritage ? 1 : 0);
         int tProto = NewTemp();
         int tCtor = NewTemp();

@@ -6,4 +6,4 @@ error[TypeError]: Shop.OrderApi.Find: the value returned by callback 'predicate'
   |
   = help: pass true or false; Boolean(value) converts
   = note: host function: Shop.OrderApi.Find(Func<Order, bool> predicate)
-  = stack: Shop.OrderApi.Find [.NET] ← <anonymous> (case.js:2)
+  = stack: Shop.OrderApi.Find [.NET] ← <top-level> (case.js:2)

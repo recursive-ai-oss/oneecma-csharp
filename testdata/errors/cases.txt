@@ -1,0 +1,588 @@
+//// type-read-undefined
+let o;
+o.x;
+//// type-read-null
+const o = null;
+o.x;
+//// type-read-nested
+const a = { b: undefined };
+a.b.c;
+//// type-read-method-call-undefined
+const order = { id: 1 };
+order.items.reduce((s, i) => s + i, 0);
+//// type-read-deep-chain
+const cfg = { server: { port: undefined } };
+cfg.server.port.toString();
+//// type-set-undefined
+let o;
+o.x = 1;
+//// type-set-null
+const o = null;
+o.name = "a";
+//// type-not-function-call
+const o = {};
+o.go();
+//// type-not-function-plain
+const f = 5;
+f();
+//// type-not-function-nested
+const o = { a: { b: 1 } };
+o.a.b();
+//// type-not-function-array-method
+const o = { a: 1 };
+o.map(x => x);
+//// type-not-function-new-call
+const x = {};
+new x();
+//// type-not-constructor-arrow
+const f = () => 1;
+new f();
+//// type-not-constructor-method
+const o = { m() {} };
+new o.m();
+//// type-class-without-new
+class A {}
+A();
+//// type-class-without-new-nested
+class Foo { constructor() {} }
+function make() { return Foo(); }
+make();
+//// type-not-iterable-spread
+const n = 5;
+[...n];
+//// type-not-iterable-forof
+const o = {};
+for (const x of o) {}
+//// type-not-iterable-destructure
+const [a] = {};
+//// type-not-iterable-destructure-undefined
+const [a] = undefined;
+//// type-not-iterable-new-set
+new Set(5);
+//// type-destructure-undefined
+const { a } = undefined;
+//// type-destructure-null
+const { a } = null;
+//// type-destructure-param
+function f({ a }) { return a; }
+f();
+//// type-destructure-nested
+const { a: { b } } = { a: undefined };
+//// type-const-assign
+const x = 1;
+x = 2;
+//// type-const-assign-compound
+const x = 1;
+x += 2;
+//// type-readonly-strict
+"use strict";
+const o = Object.freeze({ a: 1 });
+o.a = 2;
+//// type-add-property-nonextensible
+"use strict";
+const o = Object.preventExtensions({});
+o.a = 1;
+//// type-delete-nonconfigurable
+"use strict";
+const o = Object.freeze({ a: 1 });
+delete o.a;
+//// type-in-primitive
+"a" in "abc";
+//// type-instanceof-nonobject
+({}) instanceof 5;
+//// type-instanceof-noncallable
+({}) instanceof {};
+//// type-symbol-to-string
+const s = Symbol("x");
+"" + s;
+//// type-symbol-to-number
++Symbol("x");
+//// type-bigint-mix
+1n + 1;
+//// type-bigint-to-number
++1n;
+//// type-json-circular
+const a = {};
+a.self = a;
+JSON.stringify(a);
+//// type-reduce-empty
+[].reduce((a, b) => a + b);
+//// type-map-not-function
+[1, 2].map(5);
+//// type-sort-bad-comparator
+[3, 1].sort(5);
+//// type-object-define-bad
+Object.defineProperty(1, "a", {});
+//// type-object-redefine
+const o = {};
+Object.defineProperty(o, "a", { value: 1 });
+Object.defineProperty(o, "a", { value: 2 });
+//// type-object-create-bad
+Object.create(5);
+//// type-object-keys-null
+Object.keys(null);
+//// type-object-assign-null
+Object.assign(null, {});
+//// type-object-fromentries
+Object.fromEntries([1]);
+//// type-proxy-revoked
+const { proxy, revoke } = Proxy.revocable({}, {});
+revoke();
+proxy.a;
+//// type-proxy-nonobject
+new Proxy(1, {});
+//// type-reflect-nonobject
+Reflect.get(1, "a");
+//// type-weakmap-key
+new WeakMap().set(1, 1);
+//// type-weakref-target
+new WeakRef(1);
+//// type-map-incompatible
+Map.prototype.get.call({}, 1);
+//// type-promise-no-new
+Promise(() => {});
+//// type-promise-executor
+new Promise(5);
+//// type-string-repeat-negative
+"a".repeat(-1);
+//// type-string-normalize-bad
+"a".normalize("X");
+//// type-tofixed-range
+(1).toFixed(101);
+//// type-tostring-radix
+(1).toString(1);
+//// type-date-invalid-iso
+new Date(NaN).toISOString();
+//// type-array-length-negative
+new Array(-1);
+//// type-call-stack
+function f() { f(); }
+f();
+//// type-call-stack-mutual
+function a() { b(); }
+function b() { a(); }
+a();
+//// type-regexp-bad
+new RegExp("(");
+//// type-regexp-nonglobal-matchall
+"a".matchAll(/a/);
+//// type-generator-running
+function* g() { it.next(); }
+const it = g();
+it.next();
+//// type-iterator-result
+const it = { [Symbol.iterator]() { return { next() { return 1; } }; } };
+[...it];
+//// type-super-before-this
+class A {}
+class B extends A { constructor() { this.x = 1; super(); } }
+new B();
+//// type-super-not-called
+class A {}
+class B extends A { constructor() { } }
+new B();
+//// type-extends-bad
+class A extends 5 {}
+//// type-extends-null-proto
+const f = () => {};
+class A extends f {}
+//// type-class-private-missing
+class A { #x = 1; static get(o) { return o.#x; } }
+A.get({});
+//// type-class-getter-throws
+class A { get x() { throw new TypeError("bad getter"); } }
+new A().x;
+//// type-class-method-this-undefined
+class A { constructor() { this.v = 1; } m() { return this.v; } }
+const m = new A().m;
+m();
+//// type-class-field-init-throws
+class A { x = (() => { throw new Error("field"); })(); }
+new A();
+//// type-class-constructor-throws
+class A { constructor() { throw new Error("ctor"); } }
+new A();
+//// type-class-derived-ctor-throws
+class A { constructor() { throw new RangeError("base"); } }
+class B extends A { constructor() { super(); } }
+new B();
+//// type-class-method-nested
+class A { run() { return this.step(); } step() { return this.deep(); } deep() { null.x; } }
+new A().run();
+//// type-class-static-method
+class A { static make() { return A.build(); } static build() { undefined.x; } }
+A.make();
+//// type-object-literal-method
+const o = { run() { return this.nothing.x; } };
+o.run();
+//// type-arrow-nested
+const f = () => () => undefined.x;
+f()();
+//// type-anonymous-function
+(function () { null.x; })();
+//// type-anonymous-callback
+[1].forEach(function () { null.x; });
+//// type-arrow-callback
+[1].map(x => x.y.z);
+//// type-nested-calls
+function a() { return b(); }
+function b() { return c(); }
+function c() { return undefined.p; }
+a();
+//// type-nested-calls-args
+function a(x) { return b(x + 1); }
+function b(x) { return c(x * 2); }
+function c(x) { return x.foo.bar; }
+a(1);
+//// type-callback-sort
+[2, 1].sort(() => { throw new Error("cmp"); });
+//// type-callback-map-nested
+[[1]].map(x => x.map(y => y.z.w));
+//// type-callback-reduce
+[1, 2].reduce((a, b) => { throw new Error("red"); });
+//// type-callback-tostring
+({ toString() { throw new Error("ts"); } }) + "";
+//// type-callback-proxy-trap
+new Proxy({}, { get() { throw new Error("trap"); } }).x;
+//// type-callback-symbol-iterator
+const o = { [Symbol.iterator]() { throw new Error("iter"); } };
+[...o];
+//// type-callback-new-promise
+new Promise(() => { throw new Error("exec"); }).catch(e => { globalThis.__e = e; });
+//// type-new-function
+new Function("return undefined.x")();
+//// type-eval-throws
+eval("null.x");
+//// type-eval-nested
+function f() { return eval("undefined.y"); }
+f();
+//// type-eval-in-method
+const o = { m() { return eval("this.q.r"); } };
+o.m();
+//// type-try-catch-rethrow
+try { null.x; } catch (e) { throw e; }
+//// type-try-catch-wrap
+try { null.x; } catch (e) { throw new Error("wrapped", { cause: e }); }
+//// type-ternary
+const a = undefined;
+const b = a ? 1 : a.x;
+//// type-optional-chain-call
+const o = {};
+o.a?.b.c.d;
+//// type-tagged-template
+const tag = 5;
+tag`a`;
+//// type-spread-call
+function f() {}
+f(...5);
+//// type-getter-prototype
+const proto = { get v() { return this.nope.deep; } };
+const o = Object.create(proto);
+o.v;
+//// type-bound-function
+function f() { null.x; }
+const g = f.bind(null);
+g();
+//// type-bigint-from-float
+BigInt(1.5);
+//// type-bigint-divide-zero
+1n / 0n;
+//// type-string-from-codepoint
+String.fromCodePoint(-1);
+//// type-uri-malformed
+decodeURIComponent("%");
+//// type-json-parse-single-quote
+JSON.parse("{'a':1}");
+//// type-json-parse-undefined
+JSON.parse(undefined);
+//// type-json-parse-long
+JSON.parse('{"alpha":1,"beta":2,"gamma":3,"delta":4,"epsilon":5,"zeta":6,"eta":7 x}');
+//// range-array-length
+new Array(-5);
+//// range-string-length
+"x".repeat(2 ** 30).repeat(2 ** 30);
+//// range-date-iso
+new Date("garbage").toISOString();
+//// range-intl-bad-locale
+new Intl.NumberFormat("xx-invalid-locale-!!");
+//// range-number-format-digits
+new Intl.NumberFormat("en", { minimumFractionDigits: 200 });
+//// range-bigint-too-big
+2n ** (2n ** 40n);
+//// range-typedarray-length
+new Uint8Array(-1);
+//// range-dataview-offset
+new DataView(new ArrayBuffer(2), 3);
+//// range-stack-recursion
+const f = () => f();
+f();
+//// range-time-zone
+new Intl.DateTimeFormat("en", { timeZone: "Nowhere/Land" });
+//// reference-undefined-variable
+foo;
+//// reference-undefined-variable-call
+foo();
+//// reference-undefined-in-function
+function f() { return missing + 1; }
+f();
+//// reference-undefined-nested
+function a() { return b(); }
+function b() { return typo; }
+a();
+//// reference-tdz-let
+x;
+let x = 1;
+//// reference-tdz-const
+console_ = y + 1;
+const y = 2;
+//// reference-tdz-function-scope
+function f() { return v; let v = 1; }
+f();
+//// reference-assign-undeclared-strict
+"use strict";
+undeclared = 1;
+//// reference-this-before-super
+class A {}
+class B extends A { constructor() { super.x; } }
+new B();
+//// reference-member-of-undeclared
+undeclaredObj.prop;
+//// reference-in-class-method
+class A { m() { return nope; } }
+new A().m();
+//// reference-eval
+eval("zzz");
+//// syntax-eval-bad
+eval("var");
+//// syntax-eval-unexpected-token
+eval("1 +");
+//// syntax-eval-unterminated-string
+eval("'abc");
+//// syntax-eval-invalid-assignment
+eval("1 = 2");
+//// syntax-eval-await-outside
+eval("await 1");
+//// syntax-eval-return-outside
+eval("return 1");
+//// syntax-eval-unexpected-eos
+eval("function f( {");
+//// syntax-eval-invalid-regex
+eval("/(/");
+//// syntax-eval-strict-reserved
+eval("'use strict'; var let = 1;");
+//// syntax-new-function
+new Function("a b", "return 1");
+//// syntax-new-function-body
+new Function("return (");
+//// eval-error-subclass
+throw new EvalError("custom eval");
+//// custom-error-class
+class AppError extends Error { constructor(m) { super(m); this.name = "AppError"; } }
+throw new AppError("custom");
+//// custom-error-class-no-name
+class AppError extends Error {}
+throw new AppError("custom2");
+//// custom-error-nested
+class DbError extends Error { constructor(m) { super(m); this.name = "DbError"; } }
+function query() { throw new DbError("conn"); }
+function run() { return query(); }
+run();
+//// custom-error-with-cause
+function f() { throw new Error("outer", { cause: new Error("inner") }); }
+f();
+//// error-throw-string
+throw "just a string";
+//// error-throw-error-no-message
+throw new Error();
+//// error-throw-typeerror-explicit
+throw new TypeError("explicit type");
+//// error-throw-rangeerror-explicit
+function f() { throw new RangeError("explicit range"); }
+f();
+//// error-throw-in-constructor
+function Thing() { throw new Error("in ctor"); }
+new Thing();
+//// error-throw-in-method-chain
+const o = { a() { return this.b(); }, b() { return this.c(); }, c() { throw new Error("chain"); } };
+o.a();
+//// error-aggregate
+new AggregateError([new Error("x")], "agg");
+//// error-aggregate-promise-any
+Promise.any([Promise.reject(new Error("a"))]).catch(e => { globalThis.__e = e; });
+//// error-promise-reject-native
+Promise.reject(new Error("rejected")).catch(e => { globalThis.__e = e; });
+//// error-promise-then-throws
+Promise.resolve().then(() => { throw new Error("in then"); }).catch(e => { globalThis.__e = e; });
+//// error-promise-all-reject
+Promise.all([Promise.resolve(1), Promise.reject(new TypeError("pall"))]).catch(e => { globalThis.__e = e; });
+//// error-promise-microtask-fn
+function boom() { null.x; }
+Promise.resolve().then(boom).catch(e => { globalThis.__e = e; });
+//// async-throw
+async function f() { throw new Error("async throw"); }
+f().catch(e => { globalThis.__e = e; });
+//// async-type-error
+async function f() { null.x; }
+f().catch(e => { globalThis.__e = e; });
+//// async-await-rejected
+async function f() { await Promise.reject(new Error("awaited")); }
+f().catch(e => { globalThis.__e = e; });
+//// async-await-then-throw
+async function f() { await 1; null.x; }
+f().catch(e => { globalThis.__e = e; });
+//// async-nested
+async function inner() { await null; throw new Error("inner async"); }
+async function outer() { await inner(); }
+outer().catch(e => { globalThis.__e = e; });
+//// async-nested-three
+async function c() { await null; undefined.q; }
+async function b() { await c(); }
+async function a() { await b(); }
+a().catch(e => { globalThis.__e = e; });
+//// async-sync-prefix
+async function inner() { throw new Error("sync part"); }
+async function outer() { await inner(); }
+outer().catch(e => { globalThis.__e = e; });
+//// async-method
+class S { async run() { await null; null.x; } }
+new S().run().catch(e => { globalThis.__e = e; });
+//// async-arrow
+const f = async () => { await null; undefined.x; };
+f().catch(e => { globalThis.__e = e; });
+//// async-anonymous
+(async function () { await null; null.x; })().catch(e => { globalThis.__e = e; });
+//// async-promise-all
+async function a() { await null; throw new Error("pa"); }
+async function b() { await Promise.all([a()]); }
+b().catch(e => { globalThis.__e = e; });
+//// async-try-catch-rethrow
+async function f() { try { await Promise.reject(new Error("first")); } catch (e) { throw new Error("second: " + e.message); } }
+f().catch(e => { globalThis.__e = e; });
+//// async-generator
+async function* g() { await null; throw new Error("agen"); }
+g().next().catch(e => { globalThis.__e = e; });
+//// async-for-await
+async function f() { for await (const x of (async function* () { throw new Error("fa"); })()) {} }
+f().catch(e => { globalThis.__e = e; });
+//// async-await-host-like
+const getOrder = async (id) => ({ id });
+async function checkout() { const order = await getOrder(1); return order.items.reduce((a, b) => a + b, 0); }
+async function main() { await checkout(); }
+main().catch(e => { globalThis.__e = e; });
+//// generator-throw
+function* g() { yield 1; throw new Error("gen"); }
+const it = g();
+it.next();
+it.next();
+//// generator-type-error
+function* g() { yield null.x; }
+g().next();
+//// generator-nested-yield-star
+function* inner() { throw new Error("inner gen"); }
+function* outer() { yield* inner(); }
+outer().next();
+//// generator-method
+const o = { *g() { null.x; } };
+o.g().next();
+//// getter-setter-static
+class A { static get v() { return A.nope.x; } }
+A.v;
+//// function-name-inferred
+const handler = function () { null.x; };
+handler();
+//// function-name-property-assign
+const o = {};
+o.handler = function () { null.x; };
+o.handler();
+//// function-name-arrow-property
+const o = { handler: () => { null.x; } };
+o.handler();
+//// function-default-param-throws
+function f(a = undefined.x) { return a; }
+f();
+//// function-iife-named
+(function named() { null.x; })();
+//// function-new-target
+function F() { if (!new.target) throw new TypeError("need new"); }
+F();
+//// function-constructor-method-on-new
+function Thing() { this.x = this.y.z; }
+new Thing();
+//// function-constructor-class-new
+class Thing { constructor() { this.x = this.y.z; } }
+new Thing();
+//// function-recursive-then-throw
+function f(n) { if (n === 0) throw new Error("bottom"); return f(n - 1); }
+f(3);
+//// function-recursive-many
+function f(n) { if (n === 0) throw new Error("deep"); return f(n - 1); }
+f(15);
+//// function-method-call-on-prototype
+function A() {}
+A.prototype.go = function () { null.x; };
+new A().go();
+//// function-in-object-in-array
+const list = [{ run() { null.x; } }];
+list[0].run();
+//// function-symbol-toprimitive
+const o = { [Symbol.toPrimitive]() { throw new Error("prim"); } };
++o;
+//// function-valueof-bad
+const o = { valueOf() { return {}; }, toString() { return {}; } };
+o + "";
+//// strict-this-undefined
+"use strict";
+function f() { return this.x; }
+f();
+//// strict-arguments-callee
+"use strict";
+(function () { return arguments.callee; })();
+//// strict-frozen-array-push
+"use strict";
+Object.freeze([1]).push(2);
+//// strict-primitive-property
+"use strict";
+(5).foo = 1;
+//// strict-undefined-assign
+"use strict";
+undefined = 1;
+//// strict-global-this
+"use strict";
+this.x.y;
+//// misc-logical-assign
+let a = null;
+a ??= undefined;
+a.x;
+//// misc-delete-super
+class A { m() { delete super.x; } }
+new A().m();
+//// misc-nested-destructure-default
+const { a = undefined } = {};
+a.b;
+//// misc-getter-on-class-static-chain
+class A { static a() { return B.b(); } }
+class B { static b() { return C.c(); } }
+class C { static c() { throw new Error("static chain"); } }
+A.a();
+//// misc-closure-counter
+function mk() { let n = 0; return () => { n++; if (n > 1) throw new Error("twice"); }; }
+const c = mk();
+c();
+c();
+//// misc-error-capture
+function f() { return new Error("captured"); }
+globalThis.__e = f();
+//// misc-error-capture-class
+class V { make() { return new TypeError("made"); } }
+globalThis.__e = new V().make();
+//// misc-error-stack-limit
+function f(n) { return n ? f(n - 1) : new Error("limit"); }
+globalThis.__e = f(30);
+//// misc-error-message-multi-line
+throw new Error("line1\nline2");
+//// misc-error-empty-name
+const e = new Error("m");
+e.name = "";
+throw e;
+//// misc-error-object-message
+throw new Error({ a: 1 });

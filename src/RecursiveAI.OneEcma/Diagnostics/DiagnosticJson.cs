@@ -191,12 +191,55 @@ public static class DiagnosticJson
                 WriteSourceRef(w, "source", fr.Source);
                 WriteSpan(w, "span", fr.Source, fr.Span);
                 w.WriteBoolean("async", fr.IsAsync);
+                if (fr.Locals is { Count: > 0 } locals)
+                {
+                    w.WriteStartArray("locals");
+                    foreach (LocalInfo l in locals)
+                    {
+                        w.WriteStartObject();
+                        Str(w, "name", l.Name);
+                        Str(w, "value", l.Value);
+                        w.WriteEndObject();
+                    }
+
+                    w.WriteEndArray();
+                }
+
                 if (fr.IsHost)
                 {
                     w.WriteBoolean("host", true);
                     w.WriteNumber("hostLine", fr.HostLine);
                 }
 
+                w.WriteEndObject();
+            }
+
+            w.WriteEndArray();
+        }
+
+        if (d.Provenance.Count > 0)
+        {
+            w.WriteStartArray("provenance");
+            foreach (ProvenanceStep step in d.Provenance)
+            {
+                w.WriteStartObject();
+                WriteSourceRef(w, "source", d.Source);
+                WriteSpan(w, "span", d.Source, step.Span);
+                Str(w, "description", step.Description);
+                w.WriteEndObject();
+            }
+
+            w.WriteEndArray();
+        }
+
+        if (d.Suggestions.Count > 0)
+        {
+            w.WriteStartArray("didYouMean");
+            foreach (DidYouMean s in d.Suggestions)
+            {
+                w.WriteStartObject();
+                Str(w, "name", s.Name);
+                Str(w, "description", s.Description);
                 w.WriteEndObject();
             }
 

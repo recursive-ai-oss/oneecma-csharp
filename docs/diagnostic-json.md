@@ -66,16 +66,16 @@ Added by `SourceMapReports` when a mapping exists for the primary span:
 - `spansAreOriginal: false`: the map has an entry but no text for the original source; `source` and spans still refer to the generated code, and `original` says where the problem is in the original file (the text report adds an `original position:` note).
 - `name` (optional) is the identifier the map names at that position.
 
-### Slots for later report features (optional, documented now)
+### Runtime explanation members (optional)
 
-These members are defined so a version 1 consumer keeps working when runtime reports add them. Nothing writes them yet; when one is written it is present only if non-empty. Shapes are in the schema.
+A runtime report built by a traced replay (the default for an uncaught error when recording is on) writes these members; each is present only if non-empty. Shapes are in the schema. Version 1 stays: they were defined as optional slots from the start and nothing changed shape.
 
 | field | content |
 |---|---|
-| `stack` | frames, innermost first: `{ function, source, span, async, locals: [{ name, value }] }` |
-| `provenance` | where the failing value came from, nearest step first: `{ source, span, description }` |
-| `didYouMean` | candidates drawn from what the object or scope actually holds, best first: `{ name, description }` |
-| `asyncStack` | stack segments stitched across `await` and promise reactions: an array of frame arrays |
+| `stack` | frames, innermost first: `{ function, source, span, async, locals: [{ name, value }] }`. `locals` lists the bindings of the frame's function scope (script top level: the script's `let`/`const`/`class` bindings), innermost scope first, at most 24 per frame, each value a preview of at most 60 characters (`{ id, lineItems, total }` for an object: its first 6 own enumerable keys; `Array (3 items)`; literals for primitives). Only present on a traced report. |
+| `provenance` | where the failing value came from, nearest step first: `{ source, span, description }`. Each step is the span of an expression a binding or property was written from (`const order = await api.getOrder(id)`), followed by the earlier places the same object was stored; the chain is capped at 8 steps and a note says so when it is cut. The same spans are the report's secondary labels. |
+| `didYouMean` | candidates drawn from what the object or scope actually holds, best first: `{ name, description }`. A candidate is a key of the object, a binding visible at the failing place, or a key whose value has the member being called (`order.lineItems`, `result.items.map`); ranking is case-insensitive equality, then substring either way, then optimal-string-alignment distance up to max(2, length/3). Never a name the object or scope does not hold. |
+| `asyncStack` | reserved, not written: frames stitched across `await` are in `stack` with `async: true` |
 
 ## Files
 

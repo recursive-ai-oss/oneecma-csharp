@@ -1,10 +1,7 @@
 error[TypeError]: Reduce of empty array with no initial value
  --> case.js:2:13
   |
-1 | const values = [];
-  |                -- `values` comes from here: an empty Array
 2 | const sum = values.reduce((a, b) => a + b);
-  |             ^^^^^^^^^^^^^ `values` is an empty Array and `reduce` has no starting value
+  |             ^^^^^^^^^^^^^
   |
-  = help: pass a starting value: `values.reduce((a, b) => a + b, 0)`
   = stack: <top-level> (case.js:2)

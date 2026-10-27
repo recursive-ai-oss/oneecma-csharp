@@ -121,28 +121,21 @@ internal sealed partial class Realm
         return e;
     }
 
-    internal void InitError(JsError e, string? message)
+    /// <param name="e">The error object.</param>
+    /// <param name="message">The message, or null for none.</param>
+    /// <param name="skipUntil">The <c>new.target</c> of the construction: V8 leaves the frames of a subclass constructor out of the trace, so frames up to and including this function's are dropped.</param>
+    internal void InitError(JsError e, string? message, JsObject? skipUntil = null)
     {
         if (message is not null)
         {
             e.DefineDirect("message", JsValue.FromString(message), PropFlags.Hidden);
         }
 
-        // V8 formats `stack` when the error is created: "Name: message" then one line per frame.
-        string name = "Error";
-        for (JsObject? q = e; q is not null; q = q.Proto)
-        {
-            int ns = q.Shape.Lookup("name", out PropFlags nf);
-            if (ns >= 0 && (nf & PropFlags.Accessor) == 0 && q.Slots[ns].IsString)
-            {
-                name = q.Slots[ns].AsString;
-                break;
-            }
-        }
-
-        string header = string.IsNullOrEmpty(message) ? name : name + ": " + message;
-        e.Frames = Agent.CaptureFrames(10);
-        e.DefineDirect("stack", JsValue.FromString(Errors.FormatStack(header, e.Frames)), PropFlags.Hidden);
+        // V8 captures the frames when the error is created and formats `stack` ("Name: message" then one line per frame) when it is
+        // first read, so the text is rendered once now and again on the first read, which sees a name or message set in between.
+        e.Frames = Agent.CaptureFrames(10, skipUntil);
+        e.DefineDirect("stack", JsValue.FromString(Errors.FormatStack(Errors.Header(e), e.Frames)), PropFlags.Hidden);
+        e.StackPending = true;
     }
 
     // ---- helpers for defining built-ins -----------------------------------------------------------

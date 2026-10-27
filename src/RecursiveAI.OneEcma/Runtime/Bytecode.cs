@@ -178,7 +178,13 @@ internal sealed class FunctionCode
 {
     internal Instr[] Ops = [];
     internal int[] SpanStart = [];
+
+    /// <summary>The offset a stack trace reports for each instruction (V8's position: a property name, an operator, a callee).</summary>
+    internal int[] Pos = [];
     internal int[] SpanEnd = [];
+
+    /// <summary>For a store into a binding or an object-literal property: the span of the value written (instruction index to start and end).</summary>
+    internal Dictionary<int, (int Start, int End)>? ValueSpans;
     internal JsValue[] Consts = [];
     internal string[] Names = [];
     internal FunctionCode[] Functions = [];
@@ -186,6 +192,12 @@ internal sealed class FunctionCode
     internal object[] Tables = [];
     internal PropCache[] Caches = [];
     internal string Name = "";
+
+    /// <summary>For an anonymous function assigned to a member (<c>o.handler = function () {}</c>), the target's text, which stack traces show as V8 does; null otherwise.</summary>
+    internal string? InferredName;
+
+    /// <summary>The name stack traces show instead of <see cref="Name"/> (<c>eval</c> for code made by <c>new Function</c>).</summary>
+    internal string? StackName;
     internal int Length;
     internal bool Strict;
     internal bool IsAsync;
@@ -276,10 +288,154 @@ internal sealed class Frame
         ThisFrame = this;
     }
 
-    internal StackFrameInfo ToInfo()
+    /// <summary>The built-in function that called into this frame (an entry frame), with its receiver, so traces show it between the two script frames.</summary>
+    internal NativeFunction? NativeCaller;
+
+    /// <summary>For an arrow function, the receiver of the call (an arrow ignores it, but a trace shows it as V8 does).</summary>
+    internal JsValue CallReceiver;
+
+    internal JsValue NativeCallerThis;
+
+    internal bool NativeCallerNew;
+
+    internal static readonly SourceText NativeSource = new(string.Empty, "<anonymous>");
+
+    /// <summary>Describes this activation for a stack trace. A suspended frame (an <c>await</c> in progress) reports the await; <paramref name="async"/> marks it as one stitched behind the running frames.</summary>
+    internal StackFrameInfo ToInfo(bool async = false)
     {
-        int pc = Math.Clamp(Pc, 0, Math.Max(0, Code.SpanStart.Length - 1));
+        // A frame that is not running has already advanced past the instruction that suspended it.
+        int at = State == FrameState.Awaiting || State == FrameState.SuspendedYield ? Pc - 1 : Pc;
+        int pc = Math.Clamp(at, 0, Math.Max(0, Code.SpanStart.Length - 1));
         var span = Code.SpanStart.Length == 0 ? new Span(0, 0) : new Span(Code.SpanStart[pc], Code.SpanEnd[pc]);
-        return new StackFrameInfo(Code.Kind is FunctionKind.Script or FunctionKind.Module or FunctionKind.Eval ? "" : Code.Name, Code.Source, span, Code.IsAsync, IsConstruct);
+        bool top = Code.Kind is FunctionKind.Script or FunctionKind.Module;
+        JsValue receiver = Code.Kind == FunctionKind.Arrow ? CallReceiver : This;
+        string? type = null;
+        if (!top && !IsConstruct && Func is not null && !receiver.IsNullish && !receiver.IsTdz && !(receiver.Ref is JsObject g && ReferenceEquals(g, Realm.Global)))
+        {
+            type = TypeNameOf(receiver);
+        }
+
+        string name = top ? "" : Code.StackName ?? (Code.Kind == FunctionKind.Eval ? "eval" : Code.Name);
+        if (name.Length == 0 && Func is not null)
+        {
+            // Computed keys and symbol-keyed methods get their name when the function is created, not when it is compiled.
+            int ns = Func.Shape.Lookup("name", out PropFlags nf);
+            if (ns >= 0 && (nf & PropFlags.Accessor) == 0 && Func.Slots[ns].IsString)
+            {
+                name = Func.Slots[ns].AsString;
+            }
+        }
+
+        if (name.Length == 0 && Code.InferredName is { } inferred)
+        {
+            name = inferred;
+            type = null;
+        }
+
+        bool tracing = Agent.CurrentOrNull?.Trace is not null;
+        return new StackFrameInfo(name, Code.Source, span, async, IsConstruct)
+        {
+            Pos = Code.Pos.Length > pc ? Code.Pos[pc] : -1,
+            TypeName = type,
+            IsTopLevel = top,
+            Locals = tracing ? Diagnostics.Explain.LocalsOf(this) : null,
+            ScopeEnv = tracing ? Env : null,
+            ScopeRealm = tracing ? Realm : null,
+        };
+    }
+
+    /// <summary>The file name of code made by <c>eval</c> or <c>new Function</c> from this frame: V8 shows where it was created, as <c>eval at f (file:1:2), &lt;anonymous&gt;</c>.</summary>
+    internal string EvalOrigin()
+    {
+        StackFrameInfo i = ToInfo();
+        LinePosition p = i.Position;
+        string fn = i.Function.Length == 0 ? "<anonymous>" : i.Function;
+        return "eval at " + fn + " (" + i.Source.Name + ":" + p.Line.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + ":"
+            + p.Column.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "), <anonymous>";
+    }
+
+    /// <summary>The receiver's class name as V8 prints it in <c>at Type.method</c>: the constructor's name, found without running any script.</summary>
+    internal static string TypeNameOf(JsValue v)
+    {
+        if (v.IsString)
+        {
+            return "String";
+        }
+
+        if (v.IsNumber)
+        {
+            return "Number";
+        }
+
+        if (v.IsBoolean)
+        {
+            return "Boolean";
+        }
+
+        if (v.IsSymbol)
+        {
+            return "Symbol";
+        }
+
+        if (v.IsBigInt)
+        {
+            return "BigInt";
+        }
+
+        if (v.Ref is ScriptFunction { IsClassConstructor: true } cf)
+        {
+            return cf.Code.Name;
+        }
+
+        if (v.Ref is NativeFunction nf && nf.Slots[1].IsString && nf.IsConstructor)
+        {
+            return nf.Slots[1].AsString;
+        }
+
+        if (v.Ref is JsFunction)
+        {
+            return "Function";
+        }
+
+        if (v.Ref is JsGenerator gen)
+        {
+            return gen.Frame.Code.Name.Length > 0 ? gen.Frame.Code.Name : "Generator";
+        }
+
+        if (v.Ref is JsAsyncGenerator)
+        {
+            return "AsyncGenerator";
+        }
+
+        for (JsObject? q = v.Ref as JsObject; q is not null; q = q.Proto)
+        {
+            int s = q.Shape.Lookup("constructor", out PropFlags f);
+            if (s >= 0 && (f & PropFlags.Accessor) == 0 && q.Slots[s].Ref is JsFunction c)
+            {
+                int ns = c.Shape.Lookup("name", out PropFlags nf2);
+                if (ns >= 0 && (nf2 & PropFlags.Accessor) == 0 && c.Slots[ns].IsString && c.Slots[ns].AsString.Length > 0)
+                {
+                    string ctorName = c.Slots[ns].AsString;
+                    return ctorName == "Object" ? TagOrObject(v) : ctorName;
+                }
+            }
+        }
+
+        return TagOrObject(v);
+    }
+
+    // An ordinary object is "Object" to V8, except the namespace-like built-ins (JSON, Reflect, Math) that carry a tag.
+    private static string TagOrObject(JsValue v)
+    {
+        for (JsObject? q = v.Ref as JsObject; q is not null; q = q.Proto)
+        {
+            int ts = q.Shape.Lookup(new PropertyKey(WellKnown.ToStringTag), out PropFlags tf);
+            if (ts >= 0)
+            {
+                return (tf & PropFlags.Accessor) == 0 && q.Slots[ts].IsString ? q.Slots[ts].AsString : "Object";
+            }
+        }
+
+        return "Object";
     }
 }

@@ -1,0 +1,11 @@
+{
+  "id": "ref-001-checkout",
+  "category": "rt:property-of-undefined",
+  "kind": "runtime",
+  "repair": null,
+  "node": {
+    "name": "TypeError",
+    "message": "Cannot read properties of undefined (reading 'reduce')"
+  },
+  "note": "The reference report of the design, run under the file name checkout.js with api.getOrder as a host function (see GoldenRunTests). The reference text writes the headline in lower case and puts the arrow at 12:27; the engine keeps V8's capital 'Cannot' (err.message is word for word Node's) and the arrow is the start of the primary span, 12:23."
+}

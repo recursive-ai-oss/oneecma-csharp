@@ -2,8 +2,8 @@ error[RangeError]: Invalid array length
  --> case.js:2:21
   |
 1 | const size = -1;
-  |              -- `size` is set here
+  |              -- `size` comes from here: -1
 2 | const a = new Array(size);
-  |                     ^^^^ `size` is -1; an array length must be a non-negative integer
+  |                     ^^^^ `size` is -1
   |
   = stack: <top-level> (case.js:2)

@@ -7,6 +7,19 @@ internal static class Program
 {
     private static void Main(string[] args)
     {
+        if (args.Length == 1 && args[0] == "logsize")
+        {
+            // Size of the record log of each kernel: what recording keeps for a run that finishes.
+            foreach ((string name, string source, _) in BenchScripts.All)
+            {
+                var engine = new ScriptEngine();
+                engine.Evaluate(source);
+                Console.WriteLine($"{name}: {engine.RecordLog.ToArray().Length} bytes, {engine.RecordLog.EventCount} events");
+            }
+
+            return;
+        }
+
         BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args);
     }
 }

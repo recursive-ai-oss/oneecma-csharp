@@ -917,9 +917,15 @@ internal static partial class Vm
 
     // ---- literals and classes ----------------------------------------------------------------------------
 
-    private static void SpreadInto(JsArray target, JsValue iterable)
+    private static void SpreadInto(JsArray target, JsValue iterable, bool inCall, string text)
     {
-        IteratorRecord rec = Ops.GetIterator(iterable);
+        JsValue m = iterable.IsNullish ? default : Ops.GetV(iterable, new PropertyKey(WellKnown.Iterator));
+        if (!Ops.IsCallable(m))
+        {
+            throw Errors.Type(inCall && !iterable.IsNullish ? "Spread syntax requires ...iterable[Symbol.iterator] to be a function" : text + " is not iterable");
+        }
+
+        IteratorRecord rec = Ops.GetIteratorFromMethod(iterable, m);
         Agent ag = Agent.Current;
         while (Ops.IteratorStepValue(rec, out JsValue v))
         {
@@ -1198,12 +1204,21 @@ internal static partial class Vm
         return fn;
     }
 
+    // The text names the expression in the source (V8 prints it); a parameter pattern has none, so V8 names the value instead.
     private static string IterErrorText(JsValue v, string text) =>
-        v.IsNullish ? Ops.DisplayValue(v) + " is not iterable (cannot read property Symbol(Symbol.iterator))" : text + " is not iterable";
+        text == "\u0002" ? ValueKind(v) + " is not iterable (cannot read property Symbol(Symbol.iterator))" : text + " is not iterable";
+
+    private static string ValueKind(JsValue v) => v.IsNull ? "object null" : v.IsUndefined ? "undefined" : v.IsNumber ? "number " + Ops.DisplayValue(v)
+        : v.IsBoolean ? "boolean " + Ops.DisplayValue(v) : v.IsString ? "string \"" + v.AsString + "\"" : v.IsObject ? "object" : Ops.DisplayValue(v);
 
     private static string DestructureError(JsValue v, string? firstKey, string text)
     {
         string what = v.IsNull ? "null" : "undefined";
+        if (text == "\u0001" && firstKey is not null)
+        {
+            return "Cannot read properties of " + what + " (reading '" + firstKey + "')";
+        }
+
         return firstKey is null
             ? "Cannot destructure '" + text + "' as it is " + what + "."
             : "Cannot destructure property '" + firstKey + "' of '" + text + "' as it is " + what + ".";
@@ -1237,7 +1252,7 @@ internal static partial class Vm
             AllowSuperCall = (flags & 8) != 0 || f.Code.AllowsSuperCall,
             InClassFieldInitializer = (flags & 16) != 0 || f.Code.InFieldInit,
             PrivateNames = names,
-            FileName = "<eval>",
+            FileName = f.EvalOrigin(),
         };
         ParseResult pr = JsParser.Parse(src, opts);
         if (pr.HasErrors)

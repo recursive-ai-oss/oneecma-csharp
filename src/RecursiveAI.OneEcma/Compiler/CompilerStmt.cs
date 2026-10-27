@@ -37,8 +37,11 @@ internal sealed partial class Compiler
         EnsureStack();
         int ss = _f.CurS;
         int se = _f.CurE;
+        int savedStmt = _f.StmtStart;
+        _f.StmtStart = s.Start;
         SetSpan(s);
         StmtCore(s, labels);
+        _f.StmtStart = savedStmt;
         SetSpan(ss, se);
     }
 
@@ -344,7 +347,10 @@ internal sealed partial class Compiler
                 if (d.Id is Identifier id)
                 {
                     ExprNamed(d.Init, id.Name);
+                    _f.ValS = d.Init.Start;
+                    _f.ValE = d.Init.End;
                     StoreIdent(id.Name);
+                    _f.ValS = -1;
                 }
                 else
                 {
@@ -365,9 +371,12 @@ internal sealed partial class Compiler
                     else
                     {
                         ExprNamed(d.Init, id.Name);
+                        _f.ValS = d.Init.Start;
+                        _f.ValE = d.Init.End;
                     }
 
                     InitIdent(id.Name);
+                    _f.ValS = -1;
                 }
                 else
                 {

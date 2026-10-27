@@ -192,7 +192,7 @@ internal static class InterpFuzz
         return findings == 0 ? 0 : 1;
     }
 
-    private static string Mutate(string s, Random rng)
+    internal static string Mutate(string s, Random rng)
     {
         var sb = new StringBuilder(s);
         int edits = 1 + rng.Next(4);

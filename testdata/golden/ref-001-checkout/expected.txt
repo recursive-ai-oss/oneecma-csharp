@@ -1,0 +1,11 @@
+error[TypeError]: Cannot read properties of undefined (reading 'reduce')
+  --> checkout.js:12:23
+   |
+ 9 |   const order = await api.getOrder(id);
+   |                 ---------------------- `order` comes from here: { id, lineItems, total }
+...
+12 |   const total = order.items.reduce((s, i) => s + i.price, 0);
+   |                       ^^^^^ `order.items` is undefined
+   |
+   = help: did you mean `order.lineItems`? (Array, 3 items)
+   = stack: checkout (checkout.js:12) ← async main (checkout.js:20)

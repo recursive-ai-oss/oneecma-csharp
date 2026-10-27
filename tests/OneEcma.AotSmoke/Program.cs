@@ -182,14 +182,26 @@ catch (JsException e) when (e.InnerException is InvalidOperationException)
 {
 }
 
+// An explained runtime report: the traced replay says where the value came from and what the object holds.
 try
 {
-    runner.Evaluate("const o = {};\no.missing.x;", "smoke.js");
+    runner.Evaluate("const order = { id: 1, lineItems: [1, 2] };\nconst total = order.items.reduce((a, b) => a + b);", "smoke.js");
     Console.Error.WriteLine("smoke: expected a JsException");
     return 1;
 }
-catch (JsException e) when (e.Report is { Kind: "TypeError" } r && r.Position.Line == 2)
+catch (JsException e) when (e.Report is { Kind: "TypeError" } r)
 {
+    string text = r.ToString();
+    if (r.Position.Line != 2 || r.Provenance.Count != 1 || !text.Contains("`order` comes from here: { id, lineItems }", StringComparison.Ordinal)
+        || !text.Contains("`order.items` is undefined", StringComparison.Ordinal)
+        || !text.Contains("did you mean `order.lineItems`? (Array, 2 items)", StringComparison.Ordinal)
+        || r.Stack[0].Locals is not { Count: > 0 })
+    {
+        Console.Error.WriteLine("smoke: unexpected explained report\n" + text);
+        return 1;
+    }
+
+    Console.Out.WriteLine(text);
     Console.Out.WriteLine("aot-smoke ok " + ScriptEngine.Version);
     return 0;
 }

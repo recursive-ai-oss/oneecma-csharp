@@ -6,4 +6,4 @@ error[TypeError]: Shop.OrderApi.List: argument 'status' must be one of 'Pending'
   |
   = help: did you mean 'Pending'?
   = note: host function: Shop.OrderApi.List(OrderStatus? status)
-  = stack: Shop.OrderApi.List [.NET] ← <anonymous> (case.js:2)
+  = stack: Shop.OrderApi.List [.NET] ← <top-level> (case.js:2)

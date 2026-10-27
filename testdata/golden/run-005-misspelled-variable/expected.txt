@@ -4,5 +4,5 @@ error[ReferenceError]: itemcount is not defined
 2 | console.log(itemcount + 1);
   |             ^^^^^^^^^ `itemcount` is not declared in this scope
   |
-  = help: did you mean `itemCount`?
+  = help: did you mean `itemCount`? (number)
   = stack: <top-level> (case.js:2)

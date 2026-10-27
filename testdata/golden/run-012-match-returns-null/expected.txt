@@ -2,9 +2,9 @@ error[TypeError]: Cannot read properties of null (reading '0')
  --> case.js:2:13
   |
 1 | const matches = "abc".match(/x/);
-  |                 ---------------- `match` returns null when nothing matches
+  |                 ---------------- `matches` is set to null here
 2 | console.log(matches[0]);
   |             ^^^^^^^ `matches` is null
   |
-  = help: test it first: `if (matches) { ... }`
+  = help: guard it: `matches?.[0]`
   = stack: <top-level> (case.js:2)

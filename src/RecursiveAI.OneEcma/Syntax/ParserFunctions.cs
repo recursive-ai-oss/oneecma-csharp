@@ -1514,7 +1514,9 @@ internal sealed partial class Parser
         Expression? superClass = null;
         if (Eat(TokenType.Extends))
         {
-            superClass = ParseLeftHandSide(new CoverErrors());
+            var heritageErrors = new CoverErrors();
+            superClass = ParseLeftHandSide(heritageErrors);
+            CheckExpressionErrors(heritageErrors);
             if (superClass is FunctionNode { IsArrow: true, IsParenthesized: false })
             {
                 Report("unexpected-token", "Unexpected token '=>'", superClass.Start, superClass.Start + 1);

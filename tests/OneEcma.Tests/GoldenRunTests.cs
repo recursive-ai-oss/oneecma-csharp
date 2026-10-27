@@ -1,5 +1,4 @@
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using RecursiveAI.OneEcma.Diagnostics;
 
 namespace RecursiveAI.OneEcma.Tests;
@@ -8,11 +7,8 @@ namespace RecursiveAI.OneEcma.Tests;
 /// Runs every runtime case of the error golden corpus. The error name and message must equal what Node printed (recorded in
 /// meta.json), the report's headline and its <c>--&gt;</c> location must equal the expected text.
 /// </summary>
-public sealed partial class GoldenRunTests
+public sealed class GoldenRunTests
 {
-    [GeneratedRegex(@"^ *--> case\.js:(\d+):(\d+)$", RegexOptions.Multiline)]
-    private static partial Regex Arrow();
-
     public static IEnumerable<TheoryDataRow<string>> Cases()
     {
         string dir = Path.Combine(RepoPaths.Root, "testdata", "golden");
@@ -21,23 +17,6 @@ public sealed partial class GoldenRunTests
             yield return new TheoryDataRow<string>(Path.GetFileName(d));
         }
     }
-
-    // Cases that need something outside the interpreter core: library functions that arrive with the built-in areas
-    // (JSON.parse, Number.prototype.toFixed), or a mode of running
-    // code (top-level await) the core does not offer. Each one must still fail until its feature lands.
-    private static readonly Dictionary<string, string> NeedsLibrary = new()
-    {
-    };
-
-    // The error is the right one but a native function raised it, so the span is the call; the corpus points at the
-    // offending argument, which needs the value provenance the diagnostics work adds.
-    private static readonly HashSet<string> SpanIsTheArgument =
-    [
-        "run-010-json-single-quotes",
-        "run-011-json-parse-undefined",
-        "run-017-invalid-array-length",
-        "run-022-keys-of-null",
-    ];
 
     private static (JsException? Error, JsLimitException? Limit) Run(string source)
     {
@@ -59,11 +38,12 @@ public sealed partial class GoldenRunTests
         }
     }
 
-    private static bool Matches(string id, out string detail)
+    [Theory]
+    [MemberData(nameof(Cases))]
+    public void ReportMatchesTheCorpusText(string id)
     {
         string dir = Path.Combine(RepoPaths.Root, "testdata", "golden", id);
         string source = File.ReadAllText(Path.Combine(dir, "case.js"));
-        string expected = File.ReadAllText(Path.Combine(dir, "expected.txt"));
         using JsonDocument meta = JsonDocument.Parse(File.ReadAllText(Path.Combine(dir, "meta.json")));
         JsonElement node = meta.RootElement.GetProperty("node");
         string name = node.GetProperty("name").GetString()!;
@@ -71,32 +51,74 @@ public sealed partial class GoldenRunTests
 
         (JsException? err, JsLimitException? limit) = Run(source);
         Diagnostic? report = err?.Report ?? limit?.Report;
-        if (report is null)
+        Assert.NotNull(report);
+        Assert.Equal(name, report.Kind);
+        Assert.Equal(message, report.Headline);
+
+        string actual = report.ToString();
+        string path = Path.Combine(dir, "expected.txt");
+        if (Environment.GetEnvironmentVariable("ONEECMA_UPDATE_GOLDEN") == "1")
         {
-            detail = "the script finished without an error";
-            return false;
+            File.WriteAllText(path, actual);
         }
 
-        string firstLine = expected.Split('\n')[0];
-        string actualFirst = report.ToString().Split('\n')[0];
-        Match arrow = Arrow().Match(expected);
-        string actualArrow = Arrow().Match(report.ToString()).Value.Trim();
-        detail = $"expected [{name}] {message} / {arrow.Value.Trim()}; got [{report.Kind}] {report.Headline} / {actualArrow}";
-        bool spanOk = SpanIsTheArgument.Contains(id) || arrow.Value.Trim() == actualArrow;
-        return report.Kind == name && report.Headline == message && firstLine == actualFirst && spanOk;
+        Assert.Equal(File.ReadAllText(path), actual);
     }
 
-    [Theory]
-    [MemberData(nameof(Cases))]
-    public void ErrorNameMessageAndLocationMatchTheCorpus(string id)
+    // The reference report as the design states it, with the two differences the case's meta.json explains.
+    private const string ReferenceReport = """
+        error[TypeError]: cannot read properties of undefined (reading 'reduce')
+          --> checkout.js:12:27
+           |
+         9 |   const order = await api.getOrder(id);
+           |                 ---------------------- `order` comes from here: { id, lineItems, total }
+        ...
+        12 |   const total = order.items.reduce((s, i) => s + i.price, 0);
+           |                       ^^^^^ `order.items` is undefined
+           |
+           = help: did you mean `order.lineItems`? (Array, 3 items)
+           = stack: checkout (checkout.js:12) ← async main (checkout.js:20)
+        """;
+
+    [Fact]
+    public void TheReferenceReportRendersAsDesigned()
     {
-        bool ok = Matches(id, out string detail);
-        if (NeedsLibrary.TryGetValue(id, out string? reason))
+        string dir = Path.Combine(RepoPaths.Root, "testdata", "golden", "ref-001-checkout");
+        var engine = new ScriptEngine();
+        engine.DefineGlobalFunction("print", 1, (_, _) => JsValue.Undefined);
+        engine.DefineGlobalFunction("getOrder", 1, (_, a) =>
         {
-            Assert.False(ok, $"{id} now passes; remove it from NeedsLibrary ({reason})");
-            return;
+            JsRealm realm = engine.MainRealm;
+            JsObject order = realm.NewObject();
+            realm.DefineData(order, "id", a[0]);
+            var lines = new List<JsValue>();
+            foreach (int price in (ReadOnlySpan<int>)[5, 7, 9])
+            {
+                JsObject line = realm.NewObject();
+                realm.DefineData(line, "price", JsValue.FromNumber(price));
+                lines.Add(JsValue.FromObject(line));
+            }
+
+            realm.DefineData(order, "lineItems", JsValue.FromObject(realm.NewArray(lines.ToArray())));
+            realm.DefineData(order, "total", JsValue.FromNumber(21));
+            return JsValue.FromObject(order);
+        });
+        engine.Evaluate("globalThis.api = { getOrder };", "setup.js", TestContext.Current.CancellationToken);
+        var ex = Assert.Throws<JsException>(() =>
+        {
+            engine.Evaluate(File.ReadAllText(Path.Combine(dir, "case.js")), "checkout.js", TestContext.Current.CancellationToken);
+            engine.RunJobs(TestContext.Current.CancellationToken);
+        });
+        string expected = ReferenceReport.Replace("error[TypeError]: cannot", "error[TypeError]: Cannot", StringComparison.Ordinal)
+            .Replace("checkout.js:12:27", "checkout.js:12:23", StringComparison.Ordinal) + "\n";
+        string actual = ex.Report!.ToString();
+        string path = Path.Combine(dir, "expected.txt");
+        if (Environment.GetEnvironmentVariable("ONEECMA_UPDATE_GOLDEN") == "1")
+        {
+            File.WriteAllText(path, actual);
         }
 
-        Assert.True(ok, detail);
+        Assert.Equal(expected, actual);
+        Assert.Equal(expected, File.ReadAllText(path));
     }
 }

@@ -251,6 +251,21 @@ internal sealed partial class Compiler
 
     private void LoadIdent(string name)
     {
+        // V8 reports a failed variable lookup (not defined, before initialization) at the start of the statement.
+        if (_f.StmtStart >= 0)
+        {
+            int keep = _f.CurP;
+            _f.CurP = _f.StmtStart;
+            LoadIdentCore(name);
+            _f.CurP = keep;
+            return;
+        }
+
+        LoadIdentCore(name);
+    }
+
+    private void LoadIdentCore(string name)
+    {
         Ref r = Resolve(name);
         switch (r.Kind)
         {
@@ -412,6 +427,7 @@ internal sealed partial class Compiler
             int s = _f.CurS;
             int e = _f.CurE;
             SetSpan(x);
+            _f.CurP = OperatorPos(x.Left.End);
             Emit(BinOp(x.Operator));
             SetSpan(s, e);
         }
@@ -466,6 +482,11 @@ internal sealed partial class Compiler
     /// </summary>
     private bool CanTailCall()
     {
+        if (!Agent.CurrentOrNull?.ProperTailCalls ?? true)
+        {
+            return false;
+        }
+
         if (!_f.Strict || _f.IsAsync || _f.IsGenerator || _f.Kind is not (FunctionKind.Normal or FunctionKind.Arrow or FunctionKind.Method or FunctionKind.Getter or FunctionKind.Setter))
         {
             return false;
@@ -709,6 +730,7 @@ internal sealed partial class Compiler
             int s = _f.CurS;
             int e = _f.CurE;
             SetSpan(x.Object);
+            _f.CurP = x.Property.Start;
             if (x.Property is PrivateIdentifier pi)
             {
                 LoadPrivateName(pi.Name);
@@ -718,6 +740,7 @@ internal sealed partial class Compiler
             {
                 Expr(x.Property);
                 SetSpan(x.Object);
+                _f.CurP = x.Property.Start;
                 Emit(Op.GetElem);
             }
             else
@@ -853,6 +876,7 @@ internal sealed partial class Compiler
                 }
 
                 SetSpan(m.Object);
+                _f.CurP = m.Property.Start;
                 if (m.Property is PrivateIdentifier pi)
                 {
                     Emit(Op.Dup);
@@ -864,6 +888,7 @@ internal sealed partial class Compiler
                 {
                     Expr(m.Property);
                     SetSpan(m.Object);
+                    _f.CurP = m.Property.Start;
                     Emit(Op.GetElemMethod);
                 }
                 else
@@ -938,8 +963,9 @@ internal sealed partial class Compiler
         int callSpanE = callee.End;
         if (hasSpread)
         {
-            ArgsArray(call.Arguments);
+            ArgsArray(call.Arguments, CallPos(callee));
             SetSpan(callSpanS, callSpanE);
+            _f.CurP = CallPos(callee);
             Emit(direct ? Op.CallEvalSpread : Op.CallSpread, 0, textIdx);
         }
         else
@@ -950,6 +976,7 @@ internal sealed partial class Compiler
             }
 
             SetSpan(callSpanS, callSpanE);
+            _f.CurP = CallPos(callee);
             bool tail = tailRequested && !call.IsOptional;
             Emit(direct ? (tail ? Op.TailCallEval : Op.CallEval) : tail ? Op.TailCall : Op.Call, call.Arguments.Count, direct ? EvalFlags() : textIdx);
         }
@@ -1009,7 +1036,7 @@ internal sealed partial class Compiler
         return false;
     }
 
-    private void ArgsArray(IReadOnlyList<Node> args)
+    private void ArgsArray(IReadOnlyList<Node> args, int pos = -1)
     {
         Emit(Op.NewArray);
         foreach (Node a in args)
@@ -1017,7 +1044,13 @@ internal sealed partial class Compiler
             if (a is SpreadElement sp)
             {
                 Expr(sp.Argument);
-                Emit(Op.ArraySpread);
+                SetSpan(sp.Argument);
+                if (pos >= 0)
+                {
+                    _f.CurP = pos;
+                }
+
+                Emit(Op.ArraySpread, 1, TextConst(sp.Argument));
             }
             else
             {
@@ -1027,14 +1060,23 @@ internal sealed partial class Compiler
         }
     }
 
+    /// <summary>Where a stack trace points for a call: the property name of a method call, else the callee.</summary>
+    private int CallPos(Expression callee) => callee switch
+    {
+        MemberExpression { Computed: false } mm => mm.Property.Start,
+        Identifier or MemberExpression or SuperExpression => callee.Start,
+        _ => OperatorPos(callee.End),
+    };
+
     private void NewExpr(NewExpression ne)
     {
         int textIdx = TextConst(ne.Callee);
         Expr(ne.Callee);
         if (HasSpread(ne.Arguments))
         {
-            ArgsArray(ne.Arguments);
+            ArgsArray(ne.Arguments, ne.Start);
             SetSpan(ne.Callee);
+            _f.CurP = ne.Start;
             Emit(Op.NewSpread, 0, textIdx);
         }
         else
@@ -1045,6 +1087,7 @@ internal sealed partial class Compiler
             }
 
             SetSpan(ne.Callee);
+            _f.CurP = ne.Start;
             Emit(Op.New, ne.Arguments.Count, textIdx);
         }
     }
@@ -1109,6 +1152,7 @@ internal sealed partial class Compiler
         }
 
         SetSpan(tt.Tag);
+        _f.CurP = tt.Quasi.Start;
         Emit(tailRequested ? Op.TailCall : Op.Call, tt.Quasi.Expressions.Count + 1, TextConst(tt.Tag));
     }
 
@@ -1124,7 +1168,8 @@ internal sealed partial class Compiler
             else if (el is SpreadElement sp)
             {
                 Expr(sp.Argument);
-                Emit(Op.ArraySpread);
+                SetSpan(sp.Argument);
+                Emit(Op.ArraySpread, 0, TextConst(sp.Argument));
             }
             else
             {
@@ -1178,7 +1223,10 @@ internal sealed partial class Compiler
                         else
                         {
                             ExprNamed(prop.Value, name);
+                            _f.ValS = prop.Start;
+                            _f.ValE = prop.End;
                             Emit(Op.DefineField, NameConst(name));
+                            _f.ValS = -1;
                         }
                     }
                     else
@@ -1241,6 +1289,7 @@ internal sealed partial class Compiler
             Emit(Op.PushUndef);
             JumpLabel ret = NewLabel();
             JumpLabel end = NewLabel();
+            _f.CurP = y.Argument!.Start;
             Jump(Op.YieldStar, ret, asyncGen ? 1 : 0);
             Jump(Op.Jmp, end);
             Mark(ret);

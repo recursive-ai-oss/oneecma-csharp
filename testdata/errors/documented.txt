@@ -1,0 +1,8 @@
+# Snippets whose error name, message or stack differ from Node, with the reason. A listed snippet that starts to match fails the test.
+type-call-stack-mutual | The frame the limit hits depends on how much native stack V8 has left; ours stops at a fixed call depth (10,000), so the innermost frame of a mutual recursion can be either function.
+type-super-not-called | V8 points at the parameter list of a derived constructor that returns without calling super(); the engine points at the constructor body.
+type-class-field-init-throws | V8 runs field initializers in a synthetic <instance_members_initializer> frame under the constructor frame; the engine runs them inline and shows a frame named after the field.
+syntax-new-function | V8 words a parameter list that closes early as "Arg string terminates parameters early"; the engine reports the parse error of the parameters ("Unexpected identifier 'b'").
+async-promise-all | V8 stitches an "async Promise.all (index 0)" frame between async frames when an async function awaits Promise.all; the engine stitches only direct awaits of a promise made by an async function.
+async-for-await | V8 reports a for-await loop at its binding (the position of x in for await (const x of ...)); the engine reports at the for statement.
+strict-undefined-assign | Assigning to undefined in strict code names the receiver as '[object Object]' (the global object's string form in V8's vm context) where the engine says '#<Object>'.

@@ -2,7 +2,6 @@ error[SyntaxError]: Expected property name or '}' in JSON at position 1 (line 1 
  --> case.js:1:25
   |
 1 | const data = JSON.parse("{'a': 1}");
-  |                         ^^^^^^^^^^ this text is not valid JSON: keys and strings need double quotes
+  |                         ^^^^^^^^^^ `JSON.parse` rejected this argument
   |
-  = help: write the JSON with double quotes: `{"a": 1}`
   = stack: <top-level> (case.js:1)
