@@ -13,6 +13,12 @@ internal static class Program
             return;
         }
 
+        if (args.Length == 3 && args[0] == "cold")
+        {
+            Probes.Cold(args[1], args[2]);
+            return;
+        }
+
         BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args);
     }
 }

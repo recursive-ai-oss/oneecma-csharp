@@ -35,6 +35,23 @@ internal static class Probes
         }
     }
 
+    /// <summary>One cold evaluation in a fresh process (parse included): milliseconds, managed bytes allocated, peak working set in KB.</summary>
+    internal static void Cold(string engine, string script)
+    {
+        string src = script == "startup" ? "1 + 1;" : SpikeScripts.All.First(x => x.Name == script).Source;
+        var sw = System.Diagnostics.Stopwatch.StartNew();
+        object? r = engine switch
+        {
+            "jint" => new Jint.Engine().Evaluate(src).ToObject(),
+            "closure" => ClosureEngine.Evaluate(src),
+            "bytecode" => BytecodeEngine.Evaluate(src),
+            _ => throw new ArgumentException("engine must be jint, closure or bytecode", nameof(engine)),
+        };
+        sw.Stop();
+        long peak = System.Diagnostics.Process.GetCurrentProcess().PeakWorkingSet64 / 1024;
+        Console.WriteLine($"{engine},{script},{sw.Elapsed.TotalMilliseconds:F1},{GC.GetTotalAllocatedBytes()},{peak},{r}");
+    }
+
     private static string Src(long n) => $"function f(n){{ return n === 0 ? 0 : 1 + f(n - 1); }} f({n})";
 
     private static T RunOnThread<T>(int stack, Func<T> f)
