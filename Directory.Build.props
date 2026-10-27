@@ -26,4 +26,8 @@
     <PackageLicenseExpression>MIT OR Apache-2.0</PackageLicenseExpression>
     <Version>0.0.0-dev</Version>
   </PropertyGroup>
+  <ItemGroup>
+    <!-- The host-binding generator names its JsExports class in the project root namespace. -->
+    <CompilerVisibleProperty Include="RootNamespace" />
+  </ItemGroup>
 </Project>

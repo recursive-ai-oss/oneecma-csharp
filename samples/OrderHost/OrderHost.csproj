@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Shop</RootNamespace>
+    <PublishAot>true</PublishAot>
+    <IsAotCompatible>true</IsAotCompatible>
+    <IsPackable>false</IsPackable>
+    <EmitCompilerGeneratedFiles Condition="'$(EmitGenerated)' == 'true'">true</EmitCompilerGeneratedFiles>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/$(PackagePrefix).OneEcma/$(PackagePrefix).OneEcma.csproj" />
+    <!-- A real project references the Generators package; inside this repository the project is referenced as an analyzer. -->
+    <ProjectReference Include="../../src/$(PackagePrefix).OneEcma.Generators/$(PackagePrefix).OneEcma.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+</Project>

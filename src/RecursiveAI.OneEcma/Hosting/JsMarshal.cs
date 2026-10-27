@@ -142,7 +142,7 @@ public struct JsConv
         if (_unknownProperty is not null)
         {
             message = _member + ": " + what + " has no property '" + _unknownProperty + "'";
-            label = "unknown property '" + _unknownProperty + "'";
+            label = "unknown property '" + _unknownProperty + "' in `" + path + "`";
             string? near = JsMarshal.Nearest(_unknownProperty, _known!);
             if (near is not null)
             {
@@ -157,14 +157,14 @@ public struct JsConv
         else if (_missing)
         {
             message = _member + ": " + what + " is missing; expected " + _expected;
-            label = "no value for " + what + "; expected " + _expected;
+            label = "`" + path + "` is missing";
             help.Add("pass " + _expected + (_segments is null ? " for '" + _root + "'" : " as '" + path + "'"));
         }
         else
         {
             string actual = JsMarshal.Describe(_actual);
             message = _member + ": " + what + " must be " + _expected + ", got " + actual;
-            label = what + " must be " + _expected + ", found " + actual;
+            label = (_isResult ? "callback '" + _root + "' returned " : "`" + path + "` is ") + actual + ", expected " + _expected;
             string? fix = JsMarshal.HelpFor(_expected!, _actual);
             if (_hint is not null)
             {
@@ -288,7 +288,7 @@ public static class JsMarshal
     /// <summary>A one-line suggestion for converting <paramref name="actual"/> into what was <paramref name="expected"/>, or null.</summary>
     public static string? HelpFor(string expected, JsValue actual)
     {
-        bool wantNumber = expected.StartsWith("a number", StringComparison.Ordinal) || expected.StartsWith("an integer", StringComparison.Ordinal);
+        bool wantNumber = expected.StartsWith("a number", StringComparison.Ordinal) || expected.StartsWith("a finite number", StringComparison.Ordinal) || expected.StartsWith("an integer", StringComparison.Ordinal);
         if (wantNumber && actual.IsString)
         {
             return "convert the string first: Number(" + Quote(actual.AsString) + ")";
@@ -321,6 +321,9 @@ public static class JsMarshal
 
         return null;
     }
+
+    /// <summary>"a Name" or "an Name".</summary>
+    public static string An(string noun) => (noun.Length > 0 && "AEIOUaeiou".Contains(noun[0], StringComparison.Ordinal) ? "an " : "a ") + noun;
 
     private static string Quote(string s) => "\"" + (s.Length > 20 ? s[..20] + "…" : s) + "\"";
 
@@ -543,6 +546,69 @@ public static class JsMarshal
         return c.Fail("an object", v);
     }
 
+    /// <summary>Builds the TypeError for a call that matches none of a member's overloads.</summary>
+    public static JsException NoOverload(JsRealm realm, string member, ReadOnlySpan<JsValue> args, string[] candidates)
+    {
+        _ = realm;
+        var kinds = new List<string>();
+        foreach (JsValue v in args)
+        {
+            kinds.Add(KindName(v));
+        }
+
+        string got = "(" + string.Join(", ", kinds) + ")";
+        JsException ex = Errors.Make("TypeError", member + ": no overload accepts " + got);
+        var info = new HostErrorInfo { PrimaryLabel = "arguments " + got + " match no overload" };
+        foreach (string c in candidates)
+        {
+            info.Notes.Add("overload: " + c);
+        }
+
+        info.HostFrames.Add(new StackFrameInfo(member, new Text.SourceText(string.Empty, member), new Text.Span(0, 0)) { IsHost = true });
+        HostErrors.Attach((JsObject)ex.Value.Ref!, info);
+        return ex;
+    }
+
+    private static string KindName(JsValue v)
+    {
+        if (v.IsUndefined)
+        {
+            return "undefined";
+        }
+
+        if (v.IsNull)
+        {
+            return "null";
+        }
+
+        if (v.IsNumber)
+        {
+            return "number";
+        }
+
+        if (v.IsString)
+        {
+            return "string";
+        }
+
+        if (v.IsBoolean)
+        {
+            return "boolean";
+        }
+
+        if (v.IsBigInt)
+        {
+            return "bigint";
+        }
+
+        if (v.IsSymbol)
+        {
+            return "symbol";
+        }
+
+        return v.Ref is JsArray ? "array" : v.Ref is JsObject { IsCallable: true } ? "function" : "object";
+    }
+
     /// <summary>Converts a script array to a list, converting each element.</summary>
     public static bool TryList<T>(JsValue v, ref JsConv c, JsTryConvert<T> element, string expected, out List<T> result)
     {
@@ -665,7 +731,13 @@ public static class JsMarshal
             return t;
         }
 
-        throw Errors.Type(member + ": called on an incompatible receiver; expected " + typeof(T).Name + " but got " + Describe(thisValue));
+        JsException ex = Errors.Make("TypeError", member + ": called on an incompatible receiver (this is " + Describe(thisValue) + "); expected " + An(typeof(T).Name) + " object");
+        var info = new HostErrorInfo { PrimaryLabel = "`this` is " + Describe(thisValue) + " here, expected " + An(typeof(T).Name) + " object" };
+        info.Help.Add("call the method on the object, as in obj.method(...), or bind it first: obj.method.bind(obj)");
+        info.Notes.Add("host function: " + member);
+        info.HostFrames.Add(new StackFrameInfo(member, new Text.SourceText(string.Empty, member), new Text.Span(0, 0)) { IsHost = true });
+        HostErrors.Attach((JsObject)ex.Value.Ref!, info);
+        throw ex;
     }
 
     // ---- kind tests for overload resolution --------------------------------------------------------
@@ -762,6 +834,7 @@ public static class JsMarshal
     {
         ScriptEngine engine = realm.Engine;
         JsPromise promise = realm.NewPromise();
+        List<StackFrameInfo> callSite = Agent.Current.CaptureFrames(10);
         Task task;
         SynchronizationContext? previous = SynchronizationContext.Current;
         SynchronizationContext.SetSynchronizationContext(engine.HostContext);
@@ -771,7 +844,7 @@ public static class JsMarshal
         }
         catch (Exception e) when (e is not (JsLimitException or OperationCanceledException))
         {
-            promise.Reject(e is JsException je ? je.Value : HostErrors.FromException(e, member).Value);
+            promise.Reject(e is JsException je ? je.Value : HostErrors.FromException(e, member, callSite).Value);
             return promise.Value;
         }
         finally
@@ -795,7 +868,7 @@ public static class JsMarshal
             else
             {
                 Exception e = task.Exception is { InnerExceptions.Count: > 0 } agg ? agg.InnerExceptions[0] : new TaskCanceledException(task);
-                promise.Reject(e is JsException je ? je.Value : HostErrors.FromException(e, member).Value);
+                promise.Reject(e is JsException je ? je.Value : HostErrors.FromException(e, member, callSite).Value);
             }
         }
 

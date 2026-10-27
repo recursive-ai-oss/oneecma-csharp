@@ -1,0 +1,8 @@
+{
+  "id": "host-001-decimal-price-as-string",
+  "category": "host:argument-type",
+  "kind": "runtime",
+  "repair": null,
+  "node": null,
+  "host": "OrderApi"
+}

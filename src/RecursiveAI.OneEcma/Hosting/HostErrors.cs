@@ -52,11 +52,18 @@ internal static class HostErrors
     /// and carries its message, with the full type name in <c>dotnetType</c>. The original exception comes back as the
     /// <see cref="Exception.InnerException"/> if the error reaches C# uncaught.
     /// </summary>
-    internal static JsException FromException(Exception e, string member)
+    internal static JsException FromException(Exception e, string member, IReadOnlyList<StackFrameInfo>? scriptFrames = null)
     {
         string text = e.GetType().Name + ": " + e.Message;
         JsException je = Errors.Make("Error", text);
-        var err = (JsObject)je.Value.Ref!;
+        var err = (JsError)je.Value.Ref!;
+        if (scriptFrames is not null)
+        {
+            // The failure surfaced later than the call (an async host method): report the script frames of the call, not of now.
+            err.Frames = [.. scriptFrames];
+            err.DefineDirect("stack", JsValue.FromString(Errors.FormatStack("Error: " + text, err.Frames)), PropFlags.Hidden);
+        }
+
         err.DefineDirect("dotnetType", JsValue.FromString(e.GetType().FullName ?? e.GetType().Name), PropFlags.Hidden);
         var info = new HostErrorInfo { Cause = e };
         info.HostFrames.AddRange(ParseFrames(e));
@@ -65,7 +72,8 @@ internal static class HostErrors
             info.HostFrames.Add(new StackFrameInfo(member, new SourceText(string.Empty, member), new Span(0, 0)) { IsHost = true });
         }
 
-        info.Notes.Add("thrown by .NET code: " + (e.GetType().FullName ?? e.GetType().Name) + (member.Length > 0 ? " in " + member : string.Empty));
+        string where = info.HostFrames.Count > 0 ? info.HostFrames[0].Function : member;
+        info.Notes.Add("thrown by .NET code: " + (e.GetType().FullName ?? e.GetType().Name) + (where.Length > 0 ? " in " + where : string.Empty));
         Attach(err, info);
         return je;
     }

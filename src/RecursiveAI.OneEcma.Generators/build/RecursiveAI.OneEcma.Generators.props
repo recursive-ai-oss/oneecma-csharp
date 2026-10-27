@@ -1,0 +1,6 @@
+<Project>
+  <ItemGroup>
+    <!-- The generator names its JsExports class in the project's root namespace. -->
+    <CompilerVisibleProperty Include="RootNamespace" />
+  </ItemGroup>
+</Project>

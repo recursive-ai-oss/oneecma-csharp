@@ -8,6 +8,7 @@
 !/fuzz/
 !/bench/
 !/spike/
+!/samples/
 !/tools/
 !/docs/
 !/testdata/

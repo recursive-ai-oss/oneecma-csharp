@@ -1,0 +1,9 @@
+error[TypeError]: Shop.OrderApi.Find: the value returned by callback 'predicate' must be a boolean, got number 1
+ --> case.js:2:15
+  |
+2 | const found = api.find(order => order.id);
+  |               ^^^^^^^^ callback 'predicate' returned number 1, expected a boolean
+  |
+  = help: pass true or false; Boolean(value) converts
+  = note: host function: Shop.OrderApi.Find(Func<Order, bool> predicate)
+  = stack: Shop.OrderApi.Find [.NET] ← <anonymous> (case.js:2)

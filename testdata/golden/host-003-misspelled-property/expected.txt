@@ -1,0 +1,10 @@
+error[TypeError]: Shop.OrderApi.AddOrder: argument 'order' has no property 'lineItem'
+ --> case.js:2:1
+  |
+2 | api.addOrder({ id: 4, lineItem: [{ sku: 'pen', quantity: 1, price: 1.5 }] });
+  | ^^^^^^^^^^^^ unknown property 'lineItem' in `order`
+  |
+  = help: did you mean 'lineItems'?
+  = help: it accepts: id, lineItems, status, note
+  = note: host function: Shop.OrderApi.AddOrder(Order order)
+  = stack: Shop.OrderApi.AddOrder [.NET] ← <anonymous> (case.js:2)

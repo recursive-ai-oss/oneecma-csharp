@@ -1,0 +1,9 @@
+error[TypeError]: Shop.OrderApi.Describe: no overload accepts (boolean)
+ --> case.js:1:1
+  |
+1 | api.describe(true);
+  | ^^^^^^^^^^^^ arguments (boolean) match no overload
+  |
+  = note: overload: Shop.OrderApi.Describe(int id)
+  = note: overload: Shop.OrderApi.Describe(string name)
+  = stack: Shop.OrderApi.Describe [.NET] ← <anonymous> (case.js:1)

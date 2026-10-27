@@ -1,0 +1,8 @@
+{
+  "id": "host-008-async-rejection",
+  "category": "host:async-rejection",
+  "kind": "runtime",
+  "repair": null,
+  "node": null,
+  "host": "OrderApi"
+}
