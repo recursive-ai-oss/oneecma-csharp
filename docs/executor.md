@@ -274,6 +274,52 @@ same bench project on the commit before this change.
 No row is slower beyond its measured error; the rows that look slower in one run (closures, qsort, loops) have error bars of
 20 to 50 ms there and are faster or equal when repeated.
 
+## Strings, closures and one-step loop sequences
+
+The `strings` and `closures` kernels sat at about 2x Jint after frame reuse. What cost the time, in the order it was found:
+
+- **`Array.prototype.push` listed the keys of every prototype on each call.** The dense fast path asks whether an index key anywhere on
+  the prototype chain could intercept the new element; it answered by collecting the keys of `Array.prototype` and
+  `Object.prototype` (about 60) per push. `Shape.DigitKeys` now counts keys that start with a digit, kept up to date as keys are
+  added and removed, so the answer is a field read per prototype. 300,000 pushes: 101 ms to 37 ms.
+- **Function objects built their `prototype` object eagerly.** It is now created on first use (see "Deferred own properties" in
+  `runtime.md`); a closure that is only called costs a function object and an exactly sized three-slot array. Creating 300,000 closures:
+  57 ms to 42 ms. Built-in functions also get exactly sized slot arrays (realm creation allocates 15 KB less).
+- **Rope flattening** fills the result from the end and follows the left spine without a stack; `String.prototype` method lookups on a
+  string primitive are cached per site, and `length` does not flatten a rope; `string + number` skips `ToPrimitive`.
+- **Loop sequences.** Variables live in scope environments, so a counting loop spent most of its time in `LoadSlot`/`PushInt`/`Lt`/
+  `JmpIfFalse`-style instruction chains. The compiler marks the first instruction of three sequences (`Instr.Fused`): a slot compared
+  with an integer constant and a branch, `a++` as a statement, and `a += n` as a statement. The untraced dispatch loop runs a marked
+  sequence in one step when the slot holds a number and otherwise executes the instructions one by one; the instructions after the
+  first are unchanged and remain jump targets, so positions, handlers and behaviour are the same and a traced run never looks at the
+  mark. An empty 1,000,000-iteration loop: 50 ms to 13 ms.
+
+One defect turned up by the replay fuzzer is fixed in `Agent`: describing a memory limit lists frame locals, previewing a rope local
+flattens it, and flattening is charged to the budget that had just run out, which raised the limit again inside its own description
+until the host stack was gone. Charges made while a limit is being described are recorded but do not raise.
+
+Measured in one locked job on the benchmark machine (AMD Ryzen 9 7950X3D, 32 threads; load average 8 to 11 from other projects'
+unlocked jobs before, during and after; .NET 10.0.402, Jint 4.17.0, BenchmarkDotNet 0.15.8, same bench project and command for
+both trees). Each tree ran twice, interleaved; the "before" tree is the commit before this change. Times are means in ms, and
+the two runs of a tree agreed within 3% except where noted.
+
+| row | before ms | after ms | Jint ms | after / Jint | alloc before to after, KB |
+|---|---:|---:|---:|---:|---|
+| fib25 | 28.6 | 24.7 | 33.7 | 0.73 | 313 to 297 |
+| loops | 85.1 | 53.7 | 65.8 | 0.82 | 303 to 287 |
+| props | 59.1 | 49.0 | 58.9 | 0.83 | 313 to 298 |
+| closures | 80.2 | 42.5 | 40.5 | 1.05 | 5,315 to 5,268 |
+| strings | 6.78 | 3.81 | 3.24 | 1.18 | 4,050 to 3,010 |
+| vectors | 67.1 | 63.4 | 94.8 | 0.67 | 28,457 to 28,442 |
+| calc | 88.7 | 84.5 | 120.1 | 0.70 | 806 to 790 |
+| qsort | 94.5 | 79.2 | 114.2 | 0.69 | 2,402 to 2,387 |
+| throws | 10.8 | 9.4 | 34.4 | 0.27 | 23,362 to 23,347 |
+| startup (realm) | 0.111 | 0.107 | 0.002 | 60 | 287 to 272 |
+
+No row is slower. Startup time is unchanged within noise; only its allocation moved. An earlier locked run of the tree before
+the loop-sequence change gave closures 48.5 and 50.5 ms and strings 5.3 ms, so the first three changes account for most of the
+closures row and the loop sequences for most of the strings row.
+
 ## Realm creation
 
 A new realm defines roughly 1,500 built-in functions. Two costs dominated it and are fixed in `Shape`:
