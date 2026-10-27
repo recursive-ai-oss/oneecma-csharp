@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "format": "oneecma.report",
+  "summary": {
+    "errors": 1,
+    "warnings": 0,
+    "repairs": 0
+  },
+  "diagnostics": [
+    {
+      "kind": "SyntaxError",
+      "code": "import-outside-module",
+      "severity": "error",
+      "headline": "Cannot use import statement outside a module",
+      "source": {
+        "name": "case.js",
+        "length": 69
+      },
+      "span": {
+        "start": 0,
+        "end": 6,
+        "line": 1,
+        "column": 1,
+        "endLine": 1,
+        "endColumn": 7
+      },
+      "label": "`import` declarations need module mode",
+      "secondary": [],
+      "notes": [
+        "not repaired automatically: module mode changes strictness and `this`"
+      ],
+      "help": [
+        "run the code as a module, or use the host-provided functions instead of importing"
+      ],
+      "fixes": [],
+      "recovery": []
+    }
+  ]
+}

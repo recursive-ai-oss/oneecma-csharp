@@ -1,0 +1,13 @@
+{
+  "id": "map-001-syntax-error-in-generated-code",
+  "category": "map:syntax-in-generated",
+  "kind": "syntax",
+  "repair": null,
+  "node": {
+    "name": "SyntaxError",
+    "message": "missing ) after argument list",
+    "line": 5,
+    "column": 34
+  },
+  "note": "node reports the generated position; the report moves it to original.ts through case.js.map"
+}

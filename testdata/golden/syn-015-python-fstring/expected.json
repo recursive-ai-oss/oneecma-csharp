@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "format": "oneecma.report",
+  "summary": {
+    "errors": 1,
+    "warnings": 0,
+    "repairs": 0
+  },
+  "diagnostics": [
+    {
+      "kind": "SyntaxError",
+      "code": "missing-paren-after-args",
+      "severity": "error",
+      "headline": "missing ) after argument list",
+      "source": {
+        "name": "case.js",
+        "length": 48
+      },
+      "span": {
+        "start": 31,
+        "end": 32,
+        "line": 2,
+        "column": 13,
+        "endLine": 2,
+        "endColumn": 14
+      },
+      "label": "an `f\"...\"` string is Python; this string follows the identifier `f`",
+      "secondary": [],
+      "notes": [
+        "not repaired automatically: `{who}` must become `${who}` and the quotes must change"
+      ],
+      "help": [
+        "use a template literal: console.log(`hello ${who}`);"
+      ],
+      "fixes": [
+        {
+          "description": "use a template literal",
+          "edits": [
+            {
+              "start": 31,
+              "length": 14,
+              "line": 2,
+              "column": 13,
+              "text": "`hello ${who}`"
+            }
+          ]
+        }
+      ],
+      "recovery": [
+        {
+          "action": "insertedToken",
+          "span": {
+            "start": 32,
+            "end": 32,
+            "line": 2,
+            "column": 14,
+            "endLine": 2,
+            "endColumn": 14
+          },
+          "text": ")"
+        }
+      ]
+    }
+  ]
+}

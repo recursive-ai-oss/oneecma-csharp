@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "format": "oneecma.report",
+  "summary": {
+    "errors": 1,
+    "warnings": 0,
+    "repairs": 0
+  },
+  "diagnostics": [
+    {
+      "kind": "SyntaxError",
+      "code": "illegal-return",
+      "severity": "error",
+      "headline": "Illegal return statement",
+      "source": {
+        "name": "case.js",
+        "length": 36
+      },
+      "span": {
+        "start": 24,
+        "end": 30,
+        "line": 3,
+        "column": 3,
+        "endLine": 3,
+        "endColumn": 9
+      },
+      "label": "`return` is only allowed inside a function",
+      "secondary": [],
+      "notes": [
+        "not repaired automatically: the intended result depends on the host"
+      ],
+      "help": [
+        "put the code in a function, or replace `return x;` with the value as the last expression"
+      ],
+      "fixes": [],
+      "recovery": []
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "format": "oneecma.report",
+  "summary": {
+    "errors": 1,
+    "warnings": 0,
+    "repairs": 0
+  },
+  "diagnostics": [
+    {
+      "kind": "SyntaxError",
+      "code": "unexpected-token",
+      "severity": "error",
+      "headline": "Unexpected identifier 'port'",
+      "source": {
+        "name": "case.js",
+        "length": 54
+      },
+      "span": {
+        "start": 39,
+        "end": 43,
+        "line": 3,
+        "column": 3,
+        "endLine": 3,
+        "endColumn": 7
+      },
+      "label": "expected `,` before this property",
+      "secondary": [
+        {
+          "span": {
+            "start": 25,
+            "end": 36,
+            "line": 2,
+            "column": 9,
+            "endLine": 2,
+            "endColumn": 20
+          },
+          "message": "the previous property ends here"
+        }
+      ],
+      "notes": [],
+      "help": [
+        "add `,` after `\"localhost\"`"
+      ],
+      "fixes": [],
+      "recovery": [
+        {
+          "action": "insertedToken",
+          "span": {
+            "start": 36,
+            "end": 36,
+            "line": 2,
+            "column": 20,
+            "endLine": 2,
+            "endColumn": 20
+          },
+          "text": ","
+        }
+      ]
+    }
+  ]
+}

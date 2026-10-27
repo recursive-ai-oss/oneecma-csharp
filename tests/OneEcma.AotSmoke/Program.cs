@@ -1,6 +1,8 @@
 using RecursiveAI.OneEcma;
 using RecursiveAI.OneEcma.Diagnostics;
 using RecursiveAI.OneEcma.RegExp;
+using RecursiveAI.OneEcma.SourceMaps;
+using RecursiveAI.OneEcma.Text;
 
 // Published with NativeAOT in CI: the build must produce no trim or AOT warnings and this must run.
 // RegExp: loads the embedded Unicode table (a manifest resource) and runs a property escape and a case-folded match.
@@ -34,6 +36,23 @@ if (!repaired.Parses || repaired.Repairs.Count != 2
     || !repairReport.StartsWith("repair[R001]: removed an extra closing delimiter", StringComparison.Ordinal))
 {
     Console.Error.WriteLine("smoke: unexpected repair\n" + repairReport);
+    return 1;
+}
+
+// JSON report and source map: a one-segment map sends the error in generated code back to the original file.
+string json = DiagnosticJson.Render(errors);
+if (!json.StartsWith("{\"version\":1,\"format\":\"oneecma.report\"", StringComparison.Ordinal) || !json.Contains("\"headline\":\"Unexpected token ';'\"", StringComparison.Ordinal))
+{
+    Console.Error.WriteLine("smoke: unexpected json\n" + json);
+    return 1;
+}
+
+SourceMap? map = SourceMap.Parse("{\"version\":3,\"sources\":[\"app.ts\"],\"sourcesContent\":[\"let a: number = ;\\n\"],\"names\":[],\"mappings\":\"AAAA\"}").Map;
+IReadOnlyList<Diagnostic> generatedErrors = engine.Check("let a = ;\n", new RecursiveAI.OneEcma.Syntax.ParseOptions { FileName = "app.js" });
+Diagnostic mapped = SourceMapReports.Remap(generatedErrors[0], map!);
+if (mapped.Source.Name != "app.ts" || mapped.Mapping is not { SpansAreOriginal: true } || !DiagnosticRenderer.Render(mapped).Contains("generated position: app.js:1:9", StringComparison.Ordinal))
+{
+    Console.Error.WriteLine("smoke: unexpected source map report\n" + DiagnosticRenderer.Render(mapped));
     return 1;
 }
 

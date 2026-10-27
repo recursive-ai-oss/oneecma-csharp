@@ -1,0 +1,75 @@
+{
+  "version": 1,
+  "format": "oneecma.report",
+  "summary": {
+    "errors": 1,
+    "warnings": 0,
+    "repairs": 0
+  },
+  "diagnostics": [
+    {
+      "kind": "SyntaxError",
+      "code": "unexpected-token",
+      "severity": "error",
+      "headline": "Unexpected token ']'",
+      "source": {
+        "name": "case.js",
+        "length": 49
+      },
+      "span": {
+        "start": 21,
+        "end": 22,
+        "line": 1,
+        "column": 22,
+        "endLine": 1,
+        "endColumn": 23
+      },
+      "label": "this `]` closes nothing",
+      "secondary": [
+        {
+          "span": {
+            "start": 12,
+            "end": 20,
+            "line": 1,
+            "column": 13,
+            "endLine": 1,
+            "endColumn": 21
+          },
+          "message": "the array opened here is already closed"
+        }
+      ],
+      "notes": [],
+      "help": [
+        "remove the extra `]`"
+      ],
+      "fixes": [
+        {
+          "description": "remove the extra `]`",
+          "edits": [
+            {
+              "start": 21,
+              "length": 1,
+              "line": 1,
+              "column": 22,
+              "text": ""
+            }
+          ]
+        }
+      ],
+      "recovery": [
+        {
+          "action": "insertedToken",
+          "span": {
+            "start": 21,
+            "end": 21,
+            "line": 1,
+            "column": 22,
+            "endLine": 1,
+            "endColumn": 22
+          },
+          "text": ";"
+        }
+      ]
+    }
+  ]
+}

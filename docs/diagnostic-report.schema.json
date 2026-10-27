@@ -1,0 +1,204 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:oneecma:diagnostic-report:1",
+  "title": "OneEcma diagnostic report, version 1",
+  "description": "The JSON form of a report. Offsets are UTF-16 code unit offsets into the source; line and column are 1-based and columns count UTF-16 code units. Consumers must ignore properties they do not know: fields are only added within a version.",
+  "type": "object",
+  "required": ["version", "format", "summary", "diagnostics"],
+  "properties": {
+    "version": { "const": 1 },
+    "format": { "const": "oneecma.report" },
+    "summary": {
+      "type": "object",
+      "required": ["errors", "warnings", "repairs"],
+      "properties": {
+        "errors": { "type": "integer", "minimum": 0 },
+        "warnings": { "type": "integer", "minimum": 0 },
+        "repairs": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "repairs": {
+      "description": "Applied repairs, first to last. Absent when nothing was repaired.",
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/repair" }
+    },
+    "repairedSource": {
+      "description": "The source after all repairs. Present exactly when repairs is present.",
+      "type": "string"
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/diagnostic" }
+    }
+  },
+  "$defs": {
+    "span": {
+      "type": "object",
+      "required": ["start", "end", "line", "column", "endLine", "endColumn"],
+      "properties": {
+        "start": { "type": "integer", "minimum": 0 },
+        "end": { "type": "integer", "minimum": 0 },
+        "line": { "type": "integer", "minimum": 1 },
+        "column": { "type": "integer", "minimum": 1 },
+        "endLine": { "type": "integer", "minimum": 1 },
+        "endColumn": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "sourceRef": {
+      "type": "object",
+      "required": ["name", "length"],
+      "properties": {
+        "name": { "type": "string" },
+        "length": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "edit": {
+      "type": "object",
+      "required": ["start", "length", "line", "column", "text"],
+      "properties": {
+        "start": { "type": "integer", "minimum": 0 },
+        "length": { "type": "integer", "minimum": 0 },
+        "line": { "type": "integer", "minimum": 1 },
+        "column": { "type": "integer", "minimum": 1 },
+        "text": { "type": "string" }
+      }
+    },
+    "location": {
+      "type": "object",
+      "required": ["source", "line", "column", "endLine", "endColumn"],
+      "properties": {
+        "source": { "type": "string" },
+        "line": { "type": "integer", "minimum": 1 },
+        "column": { "type": "integer", "minimum": 1 },
+        "endLine": { "type": "integer", "minimum": 1 },
+        "endColumn": { "type": "integer", "minimum": 1 },
+        "name": { "type": "string" }
+      }
+    },
+    "repair": {
+      "type": "object",
+      "required": ["id", "title", "label", "source", "span", "edits"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^R[0-9]{3}$" },
+        "title": { "type": "string" },
+        "label": { "type": "string" },
+        "source": { "$ref": "#/$defs/sourceRef" },
+        "span": { "$ref": "#/$defs/span" },
+        "edits": { "type": "array", "items": { "$ref": "#/$defs/edit" } }
+      }
+    },
+    "diagnostic": {
+      "type": "object",
+      "required": ["kind", "code", "severity", "headline", "source", "span", "label", "secondary", "notes", "help", "fixes", "recovery"],
+      "properties": {
+        "kind": { "type": "string" },
+        "code": { "type": "string" },
+        "severity": { "enum": ["error", "warning"] },
+        "headline": { "type": "string" },
+        "source": { "$ref": "#/$defs/sourceRef" },
+        "span": { "$ref": "#/$defs/span" },
+        "label": { "type": "string" },
+        "secondary": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["span", "message"],
+            "properties": {
+              "span": { "$ref": "#/$defs/span" },
+              "message": { "type": "string" }
+            }
+          }
+        },
+        "notes": { "type": "array", "items": { "type": "string" } },
+        "help": { "type": "array", "items": { "type": "string" } },
+        "fixes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["description", "edits"],
+            "properties": {
+              "description": { "type": "string" },
+              "edits": { "type": "array", "items": { "$ref": "#/$defs/edit" } }
+            }
+          }
+        },
+        "recovery": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["action", "span", "text"],
+            "properties": {
+              "action": { "enum": ["insertedToken", "skippedTokens"] },
+              "span": { "$ref": "#/$defs/span" },
+              "text": { "type": "string" }
+            }
+          }
+        },
+        "mapping": {
+          "description": "Present when a source map was applied to this diagnostic.",
+          "type": "object",
+          "required": ["spansAreOriginal", "original", "generated", "generatedSpan"],
+          "properties": {
+            "spansAreOriginal": { "type": "boolean" },
+            "original": { "$ref": "#/$defs/location" },
+            "generated": { "$ref": "#/$defs/location" },
+            "generatedSpan": {
+              "type": "object",
+              "required": ["start", "end"],
+              "properties": {
+                "start": { "type": "integer", "minimum": 0 },
+                "end": { "type": "integer", "minimum": 0 }
+              }
+            }
+          }
+        },
+        "stack": {
+          "description": "Reserved for runtime reports: frames innermost first. Absent when there are none.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "function": { "type": "string" },
+              "source": { "$ref": "#/$defs/sourceRef" },
+              "span": { "$ref": "#/$defs/span" },
+              "async": { "type": "boolean" },
+              "locals": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": { "name": { "type": "string" }, "value": { "type": "string" } }
+                }
+              }
+            }
+          }
+        },
+        "provenance": {
+          "description": "Reserved for runtime reports: where the failing value came from, nearest step first. Absent when unknown.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "source": { "$ref": "#/$defs/sourceRef" },
+              "span": { "$ref": "#/$defs/span" },
+              "description": { "type": "string" }
+            }
+          }
+        },
+        "didYouMean": {
+          "description": "Reserved for runtime reports: candidates drawn from what the object or scope actually holds, best first. Absent when there are none.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": { "name": { "type": "string" }, "description": { "type": "string" } }
+          }
+        },
+        "asyncStack": {
+          "description": "Reserved for runtime reports: stack segments stitched across await and promise reactions. Absent when the error did not cross one.",
+          "type": "array",
+          "items": { "type": "array", "items": { "type": "object" } }
+        }
+      }
+    }
+  }
+}

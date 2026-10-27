@@ -45,6 +45,22 @@ public enum RecoveryKind
 /// <param name="Text">For an insertion, the token text that was assumed (such as <c>)</c>); empty for a skip.</param>
 public sealed record RecoveryAction(RecoveryKind Kind, Span Span, string Text);
 
+/// <summary>A place in some source, as line and column (both 1-based, columns in UTF-16 code units) with the half-open end.</summary>
+/// <param name="Source">The file name or URL.</param>
+/// <param name="Line">First line, 1-based.</param>
+/// <param name="Column">First column, 1-based.</param>
+/// <param name="EndLine">Line of the (exclusive) end.</param>
+/// <param name="EndColumn">Column of the (exclusive) end.</param>
+/// <param name="Name">The identifier the source map names at this place, or null.</param>
+public sealed record MappedLocation(string Source, int Line, int Column, int EndLine, int EndColumn, string? Name = null);
+
+/// <summary>How a diagnostic was moved from generated code to its original source by a source map.</summary>
+/// <param name="Generated">The primary span in the generated code.</param>
+/// <param name="GeneratedSpan">The same span as offsets into the generated source.</param>
+/// <param name="Original">The primary span in the original source.</param>
+/// <param name="SpansAreOriginal">True when the diagnostic's spans and <see cref="Diagnostic.Source"/> are the original source (its text was available); false when only the location is known and the spans still refer to the generated source.</param>
+public sealed record SourceMapping(MappedLocation Generated, Span GeneratedSpan, MappedLocation Original, bool SpansAreOriginal);
+
 /// <summary>
 /// A report about one problem. The shape is the stable core of every report the engine produces: syntax
 /// and early errors fill it now, and runtime reports add stack frames, locals and provenance as
@@ -109,6 +125,12 @@ public sealed class Diagnostic
 
     /// <summary>What the parser assumed or skipped to continue after this error.</summary>
     public List<RecoveryAction> Recovery { get; } = [];
+
+    /// <summary>
+    /// Set when a source map was applied: where the primary span is in the generated code and in the original source.
+    /// Null when no mapping was applied. See <see cref="SourceMaps.SourceMapReports"/>.
+    /// </summary>
+    public SourceMapping? Mapping { get; internal set; }
 
     /// <summary>Where the parser noticed the problem; a hint may later move <see cref="PrimarySpan"/> to the construct that is actually wrong, this stays.</summary>
     internal int ParseOffset { get; }
