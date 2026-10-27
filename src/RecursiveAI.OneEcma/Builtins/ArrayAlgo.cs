@@ -506,9 +506,6 @@ internal static class ArrayAlgo
         }
     }
 
-    [ThreadStatic]
-    private static List<PropertyKey>? t_keys;
-
     /// <summary>
     /// True when no object on the prototype chain of <paramref name="o"/> can hold or intercept an integer key, so adding an element
     /// to <paramref name="o"/> with [[Set]] is the same as defining it directly. Prototypes that are not plain objects or arrays
@@ -530,29 +527,9 @@ internal static class ArrayAlgo
                 return false;
             }
 
-            Shape sh = p.Shape;
-            if (sh.IsDictionary)
+            if (p.Shape.DigitKeys > 0)
             {
-                for (int slot = 0; slot < sh.Count; slot++)
-                {
-                    if (!sh.IsDeleted(slot) && sh.KeyAt(slot).Ref is string s && s.Length > 0 && s[0] is >= '0' and <= '9')
-                    {
-                        return false;
-                    }
-                }
-            }
-            else
-            {
-                List<PropertyKey> keys = t_keys ??= [];
-                keys.Clear();
-                sh.CollectKeys(keys);
-                foreach (PropertyKey k in keys)
-                {
-                    if (k.Ref is string s && s.Length > 0 && s[0] is >= '0' and <= '9')
-                    {
-                        return false;
-                    }
-                }
+                return false;
             }
         }
 

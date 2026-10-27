@@ -12,7 +12,7 @@ internal abstract class JsFunction : JsObject
     internal Realm Realm;
 
     protected JsFunction(Shape shape, Realm realm)
-        : base(shape)
+        : base(shape, true)
     {
         Realm = realm;
     }
@@ -118,9 +118,10 @@ internal sealed class ScriptFunction : JsFunction
     internal string ModuleId = "";
     internal ModuleRecord? Module;
 
-    internal ScriptFunction(Realm realm, FunctionCode code, Env? env, JsObject proto, bool withPrototype, bool readOnlyPrototype = false)
-        : base(realm.FunctionShape(proto, withPrototype ? (readOnlyPrototype ? 2 : 1) : 0), realm)
+    internal ScriptFunction(Realm realm, FunctionCode code, Env? env, JsObject proto, bool withPrototype, bool readOnlyPrototype = false, bool lazyPrototype = false)
+        : base(realm.FunctionShape(proto, withPrototype ? (lazyPrototype ? 3 : readOnlyPrototype ? 2 : 1) : 0), realm)
     {
+        Lazy = withPrototype && lazyPrototype;
         Code = code;
         Env = env;
         env?.MarkCaptured();
@@ -134,6 +135,78 @@ internal sealed class ScriptFunction : JsFunction
         FunctionKind.ClassConstructor or FunctionKind.DerivedConstructor => true,
         _ => false,
     };
+
+    // ---- the deferred "prototype" property ------------------------------------------------------
+    // OrdinaryFunctionCreate and MakeConstructor (ECMA-262 10.2.3, 10.2.5) give every ordinary function an own "prototype" holding
+    // a fresh object whose "constructor" points back. Most closures never touch it, so the object is created the first time anything
+    // can observe it: a lookup or definition of that key, listing or deleting own keys, adding another property (it keeps its place
+    // after "length" and "name"), changing the prototype or extensibility. Until then the slot is an accessor-flagged placeholder.
+
+    private static bool IsPrototypeKey(PropertyKey key) => key.Ref is string s && s == "prototype";
+
+    internal override void Realize()
+    {
+        if (!Lazy)
+        {
+            return;
+        }
+
+        Lazy = false;
+        var p = new JsObject(Realm.ObjectPrototype);
+        p.AddProperty("constructor", JsValue.FromObject(this), PropFlags.Hidden);
+        Shape = Realm.FunctionShape(Shape.Proto!, 1);
+        Slots[2] = JsValue.FromObject(p);
+    }
+
+    internal override bool GetOwnProperty(PropertyKey key, out PropertyDescriptor desc)
+    {
+        if (Lazy && IsPrototypeKey(key))
+        {
+            Realize();
+        }
+
+        return base.GetOwnProperty(key, out desc);
+    }
+
+    internal override bool TryGetOwn(PropertyKey key, JsValue receiver, out JsValue value)
+    {
+        if (Lazy && IsPrototypeKey(key))
+        {
+            Realize();
+        }
+
+        return base.TryGetOwn(key, receiver, out value);
+    }
+
+    internal override bool DefineOwnProperty(PropertyKey key, in PropertyDescriptor desc)
+    {
+        Realize();
+        return base.DefineOwnProperty(key, desc);
+    }
+
+    internal override bool Delete(PropertyKey key)
+    {
+        Realize();
+        return base.Delete(key);
+    }
+
+    internal override void OwnKeys(List<PropertyKey> keys)
+    {
+        Realize();
+        base.OwnKeys(keys);
+    }
+
+    internal override bool SetPrototypeOf(JsObject? p)
+    {
+        Realize();
+        return base.SetPrototypeOf(p);
+    }
+
+    internal override bool PreventExtensions()
+    {
+        Realize();
+        return base.PreventExtensions();
+    }
 
     internal override JsValue Call(JsValue thisValue, ReadOnlySpan<JsValue> args) => Vm.CallFunction(this, thisValue, args, null);
 

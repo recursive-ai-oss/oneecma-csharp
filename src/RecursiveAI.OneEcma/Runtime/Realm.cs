@@ -62,6 +62,12 @@ internal sealed partial class Realm
         {
             s = s.Add("prototype", PropFlags.None);
         }
+        else if (variant == 3)
+        {
+            // A function whose prototype object is not created yet: the slot is marked as an accessor so that no cached or direct slot
+            // read ever treats it as a data property, and the function replaces this shape with variant 1 when the property is first used.
+            s = s.Add("prototype", PropFlags.Writable | PropFlags.Accessor);
+        }
 
         _fnShapes[(proto, variant)] = s;
         return s;

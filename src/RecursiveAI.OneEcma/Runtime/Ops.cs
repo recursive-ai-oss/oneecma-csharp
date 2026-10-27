@@ -597,6 +597,12 @@ internal static class Ops
             return Concat(a, b);
         }
 
+        // A string and a number need no ToPrimitive: neither is an object.
+        if (a.IsString && b.IsNumber)
+        {
+            return Concat(a, Str(NumberToStr(b.Num)));
+        }
+
         JsValue pa = ToPrimitive(a);
         JsValue pb = ToPrimitive(b);
         if (pa.IsString || pb.IsString)

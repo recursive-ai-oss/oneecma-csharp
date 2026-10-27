@@ -188,30 +188,38 @@ internal sealed class Rope
         Agent.CurrentOrNull?.Alloc((long)Length * 2);
         string result = string.Create(Length, this, static (span, root) =>
         {
-            var stack = new Stack<object>();
-            stack.Push(root);
-            int pos = 0;
-            while (stack.Count > 0)
+            // Fills from the end. Ropes built by a loop lean to the left, so following the left spine needs no stack at all;
+            // a stack of pending left children is only created when a right child is itself a rope.
+            Stack<object>? pending = null;
+            int pos = span.Length;
+            object cur = root;
+            while (true)
             {
-                object n = stack.Pop();
-                if (n is string s)
+                string? leaf = cur as string ?? ((Rope)cur)._flat;
+                if (leaf is not null)
                 {
-                    s.CopyTo(span[pos..]);
-                    pos += s.Length;
+                    pos -= leaf.Length;
+                    leaf.CopyTo(span[pos..]);
+                    if (pending is null || pending.Count == 0)
+                    {
+                        return;
+                    }
+
+                    cur = pending.Pop();
+                    continue;
+                }
+
+                var r = (Rope)cur;
+                if (r._right is string rs)
+                {
+                    pos -= rs.Length;
+                    rs.CopyTo(span[pos..]);
+                    cur = r._left;
                 }
                 else
                 {
-                    var r = (Rope)n;
-                    if (r._flat is not null)
-                    {
-                        r._flat.CopyTo(span[pos..]);
-                        pos += r._flat.Length;
-                    }
-                    else
-                    {
-                        stack.Push(r._right!);
-                        stack.Push(r._left);
-                    }
+                    (pending ??= new Stack<object>()).Push(r._left);
+                    cur = r._right!;
                 }
             }
         });

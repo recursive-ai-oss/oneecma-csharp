@@ -59,10 +59,31 @@ internal enum Op : byte
 internal struct Instr
 {
     internal Op Op;
+
+    /// <summary>
+    /// Set on the first instruction of a short sequence that the untraced run may execute in one step (see <see cref="Fusion"/>). The
+    /// instructions after it are unchanged and still reachable by a jump, so ignoring this field is always correct.
+    /// </summary>
+    internal Fusion Fused;
     internal int A;
     internal int B;
 
     public override readonly string ToString() => Op + " " + A + " " + B;
+}
+
+/// <summary>Instruction sequences the dispatch loop can run as one step when the operands are numbers.</summary>
+internal enum Fusion : byte
+{
+    None,
+
+    /// <summary><c>LoadSlot a; PushInt n; Lt|Le|Gt|Ge; JmpIfFalse t</c>: a loop condition against a constant.</summary>
+    CompareSlotInt,
+
+    /// <summary><c>LoadSlot a; ToNumeric; Inc; StoreSlot a</c>: <c>a++</c> as a statement.</summary>
+    IncrementSlot,
+
+    /// <summary><c>LoadSlot a; PushInt n; Add; StoreSlot a</c>: <c>a += n</c> as a statement.</summary>
+    AddIntToSlot,
 }
 
 /// <summary>One live binding table: names and kinds of a runtime scope, shared by all its instances.</summary>
