@@ -154,7 +154,7 @@ public class LimitTests
     [Fact]
     public void LongRunningBuiltinsChargeFuel()
     {
-        var e = Assert.Throws<JsLimitException>(() => Engine(l => l.Fuel = 100_000).Evaluate("var o = { length: 1e9 }; Array.prototype.indexOf.call(o, 1);", cancellationToken: Ct));
+        var e = Assert.Throws<JsLimitException>(() => Engine(l => l.Fuel = 100_000).Evaluate("var o = { length: 1e9 }; Array.prototype.join.call(o);", cancellationToken: Ct));
         Assert.Equal(LimitKind.Fuel, e.Kind);
     }
 }

@@ -63,12 +63,7 @@ internal static class RegExpHook
 
     internal static JsValue Create(Realm r, string pattern, string flags)
     {
-        if (Factory is null)
-        {
-            throw Errors.Syntax("RegExp objects are not available in this build");
-        }
-
-        return Factory(r, pattern, flags);
+        return Factory is null ? RegExpBuiltins.CreateLiteral(r, pattern, flags) : Factory(r, pattern, flags);
     }
 }
 

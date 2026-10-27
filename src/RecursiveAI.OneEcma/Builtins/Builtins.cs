@@ -31,6 +31,7 @@ internal static partial class Builtins
         SetupProxy(r);
         BinaryData.Setup(r);
         SetupHost(r);
+        RegExpBuiltins.Setup(r);
     }
 
     private static JsValue A(ReadOnlySpan<JsValue> a, int i) => i < a.Length ? a[i] : default;
