@@ -223,6 +223,12 @@ internal sealed class JsTypedArray : JsObject
 
     internal bool LengthTracking => FixedLength < 0;
 
+    /// <summary>IsTypedArrayFixedLength (10.4.5.15).</summary>
+    internal bool IsFixedLength => FixedLength >= 0 && (Buffer.Shared || !Buffer.Resizable);
+
+    /// <summary>[[PreventExtensions]] (10.4.5.?): a view that can change size could gain integer-indexed properties, so it cannot be made non-extensible.</summary>
+    internal override bool PreventExtensions() => IsFixedLength && base.PreventExtensions();
+
     /// <summary>IsTypedArrayOutOfBounds (10.4.5.14), which also covers a detached buffer.</summary>
     internal bool IsOutOfBounds
     {

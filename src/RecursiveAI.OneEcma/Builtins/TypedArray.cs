@@ -68,10 +68,10 @@ internal static partial class TypedArrays
         AllocateLength(ProtoFor(Ops.CurrentRealm, exemplar.Kind), exemplar.Kind, length);
 
     /// <summary>TypedArrayCreateFromConstructor (23.2.4.1).</summary>
-    private static JsTypedArray CreateFromConstructor(JsObject ctor, ReadOnlySpan<JsValue> args)
+    private static JsTypedArray CreateFromConstructor(JsObject ctor, ReadOnlySpan<JsValue> args, string? method = null)
     {
         JsObject o = Ops.Construct(ctor, args);
-        JsTypedArray ta = Require(JsValue.FromObject(o));
+        JsTypedArray ta = o as JsTypedArray ?? (method is null ? Require(JsValue.FromObject(o)) : throw ArrayBuffers.Incompatible(method, JsValue.FromObject(o)));
         if (ta.IsOutOfBounds)
         {
             throw DetachedOp("Construct");
@@ -326,7 +326,7 @@ internal static partial class TypedArrays
             if (!usingIterator.IsUndefined)
             {
                 List<JsValue> values = Ops.IterableToList(source, usingIterator);
-                JsTypedArray target = CreateFromConstructor(c, [Num(values.Count)]);
+                JsTypedArray target = CreateFromConstructor(c, [Num(values.Count)], "%TypedArray%.from");
                 for (int k = 0; k < values.Count; k++)
                 {
                     Agent.Current.Tick();
@@ -339,7 +339,7 @@ internal static partial class TypedArrays
 
             JsObject arrayLike = Ops.ToObject(source);
             long len = Ops.LengthOfArrayLike(arrayLike);
-            JsTypedArray tgt = CreateFromConstructor(c, [Num(len)]);
+            JsTypedArray tgt = CreateFromConstructor(c, [Num(len)], "%TypedArray%.from");
             for (long k = 0; k < len; k++)
             {
                 Agent.Current.Tick();
@@ -359,7 +359,7 @@ internal static partial class TypedArrays
                 throw Errors.Type("Method %TypedArray%.of called on incompatible receiver " + (t.IsString ? t.AsString : Ops.DisplayValue(t)));
             }
 
-            JsTypedArray target = CreateFromConstructor((JsObject)t.Ref!, [Num(a.Length)]);
+            JsTypedArray target = CreateFromConstructor((JsObject)t.Ref!, [Num(a.Length)], "%TypedArray%.of");
             for (int k = 0; k < a.Length; k++)
             {
                 target.SetByNumber(k, a[k]);
@@ -371,7 +371,7 @@ internal static partial class TypedArrays
 
     private static void SetupAccessors(Realm r, JsObject proto)
     {
-        JsTypedArray Get(JsValue t, string n) => t.Ref as JsTypedArray ?? throw ArrayBuffers.Incompatible("get TypedArray.prototype." + n, t);
+        JsTypedArray Get(JsValue t, string n) => t.Ref as JsTypedArray ?? throw Errors.Type("Method get TypedArray.prototype." + n + " called on incompatible receiver " + (t.Ref is JsObject ro ? "[object " + ro.ClassName + "]" : Ops.DisplayValue(t)));
         r.Getter(proto, "buffer", "buffer", (t, a, nt) => JsValue.FromObject(Get(t, "buffer").Buffer));
         r.Getter(proto, "byteLength", "byteLength", (t, a, nt) => Num(Get(t, "byteLength").ByteLength));
         r.Getter(proto, "byteOffset", "byteOffset", (t, a, nt) =>
@@ -551,7 +551,12 @@ internal static partial class TypedArrays
         // 23.2.3.18 join ( separator )
         r.Method(proto, "join", 1, (t, a, nt) =>
         {
-            JsTypedArray o = Validate(t, "join");
+            JsTypedArray o = t.Ref as JsTypedArray ?? throw ArrayBuffers.Incompatible("%TypedArray%.prototype.join", t);
+            if (o.IsOutOfBounds)
+            {
+                throw DetachedOp("%TypedArray%.prototype.join");
+            }
+
             long len = o.Length;
             string sep = A(a, 0).IsUndefined ? "," : Ops.ToStr(A(a, 0));
             return Ops.Str(Join(o, len, sep));
@@ -616,11 +621,14 @@ internal static partial class TypedArrays
     {
         var sb = new StringBuilder();
         int max = Agent.Current.Limits.MaxStringLength;
+        long charged = 0;
         for (long k = 0; k < len; k++)
         {
             if ((k & 63) == 0)
             {
                 Agent.Current.Tick();
+                Agent.Current.Alloc((sb.Length - charged) * 2);
+                charged = sb.Length;
             }
 
             if (k > 0)

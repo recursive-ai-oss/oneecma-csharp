@@ -138,6 +138,7 @@ internal static partial class TypedArrays
     /// <summary>FromBase64 (23.3.3.7).</summary>
     private static Decoded FromBase64(string s, string alphabet, string lastChunkHandling, long maxLength)
     {
+        Agent.Current.Alloc(s.Length);
         var bytes = new List<byte>();
         if (maxLength == 0)
         {
@@ -264,6 +265,7 @@ internal static partial class TypedArrays
     /// <summary>FromHex (23.3.3.8).</summary>
     private static Decoded FromHex(string s, long maxLength)
     {
+        Agent.Current.Alloc(s.Length / 2);
         var bytes = new List<byte>();
         if (s.Length % 2 != 0)
         {
@@ -323,9 +325,21 @@ internal static partial class TypedArrays
         return JsValue.FromObject(res);
     }
 
+    /// <summary>Refuses a result string longer than the engine's string limit and charges its memory before it is built.</summary>
+    private static void ChargeText(long chars)
+    {
+        if (chars > Agent.Current.Limits.MaxStringLength)
+        {
+            throw Errors.Range("Invalid string length");
+        }
+
+        Agent.Current.Alloc(chars * 2);
+    }
+
     private static string ToBase64(ReadOnlySpan<byte> data, bool url, bool omitPadding)
     {
         string table = url ? Base64UrlChars : Base64Chars;
+        ChargeText(((long)data.Length + 2) / 3 * 4);
         var sb = new StringBuilder((data.Length + 2) / 3 * 4);
         int i = 0;
         for (; i + 2 < data.Length; i += 3)
@@ -444,6 +458,7 @@ internal static partial class TypedArrays
             ReadOnlySpan<byte> data = Uint8Bytes(o, "toHex");
             Work(data.Length);
             const string Digits = "0123456789abcdef";
+            ChargeText((long)data.Length * 2);
             var sb = new StringBuilder(data.Length * 2);
             foreach (byte b in data)
             {
