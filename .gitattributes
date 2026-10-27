@@ -1,0 +1,10 @@
+# Every text file is checked out with LF line endings on every platform. Golden reports,
+# repaired sources and test scripts are compared byte for byte, and source positions in
+# reports depend on the exact line terminators.
+* text=auto eol=lf
+
+# Bytes that must stay exactly as committed.
+*.bin binary
+*.gz binary
+# Holds carriage returns on purpose (JSON error positions after CR and CRLF).
+testdata/builtins/json-errors.expected -text
