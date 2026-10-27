@@ -63,4 +63,14 @@ public class LazyPrototypeAndRopeTests
         // Left-leaning and right-leaning shapes, each far deeper than the host stack could recurse.
         Assert.Equal("200000:200000:200000", Eval("var a = ''; for (var i = 0; i < 200000; i++) a = a + 'x'; var b = ''; for (var i = 0; i < 200000; i++) b = 'x' + b; var d = ''; for (var i = 0; i < 100000; i++) d = d + 'x' + 'y'; a.length + ':' + b.length + ':' + d.length"));
     }
+
+    [Fact]
+    public void ExplainingAMemoryLimitDoesNotFlattenARopeIntoAnotherLimitReport()
+    {
+        // The report lists locals, and previewing a rope local flattens it, which is charged to the same budget that just ran out.
+        var limits = new EngineLimits { Fuel = 50_000_000, MaxAllocatedBytes = 1 << 20 };
+        var engine = new ScriptEngine(new ScriptEngineOptions { Limits = limits });
+        var e = Assert.Throws<JsLimitException>(() => engine.Evaluate("function f() { var s = 'x'.repeat(100000); var r = s + 'a'; var t = 'y'.repeat(2000000); return r.length + t.length; }\nf();", "m.js", Ct));
+        Assert.Equal(LimitKind.Memory, e.Kind);
+    }
 }

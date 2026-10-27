@@ -248,13 +248,28 @@ internal sealed class Agent
     internal void Alloc(long bytes)
     {
         _allocated += bytes;
-        if (_allocated > Limits.MaxAllocatedBytes)
+        if (_allocated > Limits.MaxAllocatedBytes && _describingLimit == 0)
         {
             throw Limit(LimitKind.Memory, "Execution exceeded the allocation limit of " + Limits.MaxAllocatedBytes.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + " bytes");
         }
     }
 
-    internal JsLimitException Limit(LimitKind kind, string message) => new(kind, message, CaptureFrames(20));
+    // Describing a limit lists frame locals, and previewing a string local can flatten a rope, which is charged here. Without this the
+    // charge would raise the same limit again from inside its own description, without end.
+    private int _describingLimit;
+
+    internal JsLimitException Limit(LimitKind kind, string message)
+    {
+        _describingLimit++;
+        try
+        {
+            return new(kind, message, CaptureFrames(20));
+        }
+        finally
+        {
+            _describingLimit--;
+        }
+    }
 
     /// <summary>Walks the frame chain, innermost first.</summary>
     internal List<StackFrameInfo> CaptureFrames(int max, JsObject? skipUntil = null)
