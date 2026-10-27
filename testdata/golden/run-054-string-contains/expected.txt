@@ -1,0 +1,10 @@
+error[TypeError]: title.contains is not a function
+ --> case.js:2:12
+  |
+1 | const title = "hello world";
+  |               ------------- `title` comes from here: "hello world"
+2 | const ok = title.contains("world");
+  |            ^^^^^^^^^^^^^^ `title` is a string, so it has no `contains`
+  |
+  = help: strings have no `contains`; use `title.includes(text)`
+  = stack: <top-level> (case.js:2)

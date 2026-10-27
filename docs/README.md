@@ -13,6 +13,7 @@ These files describe behaviour the specifications leave open, the formats the en
 
 - [diagnostic-json.md](diagnostic-json.md) and [diagnostic-report.schema.json](diagnostic-report.schema.json): the versioned JSON report and its schema.
 - [stack-traces.md](stack-traces.md): the `err.stack` format and the frames of a report.
+- [error-help.md](error-help.md): how the `= help:` line of a runtime report is chosen, and the idiom table.
 - [syntax-messages.md](syntax-messages.md): the wording of every syntax and early error, with the script that produces it.
 - [record-log.md](record-log.md): the record log (version 1) that makes runs replayable.
 

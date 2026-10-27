@@ -1,0 +1,16 @@
+{
+  "id": "run-051-array-first",
+  "category": "rt:not-a-function",
+  "kind": "runtime",
+  "repair": null,
+  "node": {
+    "name": "TypeError",
+    "message": "rows.first is not a function",
+    "line": 2,
+    "column": 19,
+    "stack_head": [
+      "const head = rows.first();",
+      "                  ^"
+    ]
+  }
+}

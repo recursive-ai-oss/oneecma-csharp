@@ -1,0 +1,16 @@
+{
+  "id": "run-054-string-contains",
+  "category": "rt:not-a-function",
+  "kind": "runtime",
+  "repair": null,
+  "node": {
+    "name": "TypeError",
+    "message": "title.contains is not a function",
+    "line": 2,
+    "column": 18,
+    "stack_head": [
+      "const ok = title.contains(\"world\");",
+      "                 ^"
+    ]
+  }
+}

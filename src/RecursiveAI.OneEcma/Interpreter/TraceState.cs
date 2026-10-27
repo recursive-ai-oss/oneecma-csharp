@@ -51,6 +51,15 @@ internal sealed class UndefinedOrigin
     internal JsArray? Receiver;
 }
 
+/// <summary>Where an Invalid Date was made (`new Date(x)`), and the argument it was made from.</summary>
+internal sealed class MadeDate(SourceText source, int start, int end, JsValue argument)
+{
+    internal readonly SourceText Source = source;
+    internal readonly int Start = start;
+    internal readonly int End = end;
+    internal readonly JsValue Argument = argument;
+}
+
 /// <summary>A call in flight in one frame: it finishes when the frame runs its next instruction.</summary>
 internal sealed class PendingCall(int pc, JsValue fn, JsValue thisValue)
 {
@@ -119,6 +128,13 @@ internal sealed class TraceState
     private string? _getName;
 
     private readonly ConditionalWeakTable<JsObject, FilterResult> _filtered = new();
+    private readonly ConditionalWeakTable<JsObject, MadeDate> _madeDates = new();
+    private Frame? _newFrame;
+    private int _newPc;
+    private JsValue _newArg;
+
+    /// <summary>Where an Invalid Date was made and from what, for a Date built with `new Date(x)` in the traced run.</summary>
+    internal MadeDate? MadeDateOf(JsObject date) => _madeDates.TryGetValue(date, out MadeDate? m) ? m : null;
 
     /// <summary>The record behind a tagged undefined, or null for any other value.</summary>
     internal UndefinedOrigin? UndefinedOriginOf(JsValue v)
@@ -156,6 +172,16 @@ internal sealed class TraceState
             }
         }
 
+        if (_newFrame is not null)
+        {
+            Frame nf = _newFrame;
+            _newFrame = null;
+            if (ReferenceEquals(nf, frame) && pc == _newPc + 1 && sp >= 1 && st[sp - 1].Ref is JsDate { Tv: double tv } made && double.IsNaN(tv))
+            {
+                _madeDates.AddOrUpdate(made, new MadeDate(frame.Code.Source, frame.Code.SpanStart[_newPc], frame.Code.SpanEnd[_newPc], _newArg));
+            }
+        }
+
         if (_pendingCallCount > 0 && _pendingCalls.TryGetValue(frame, out PendingCall? call))
         {
             _pendingCalls.Remove(frame);
@@ -181,6 +207,11 @@ internal sealed class TraceState
                 _getOwner = st[sp - 2];
                 _getKey = st[sp - 1];
                 _getName = null;
+                break;
+            case Op.New when ins.A == 1 && sp >= 2 && st[sp - 2].Ref is NativeFunction:
+                _newFrame = frame;
+                _newPc = pc;
+                _newArg = st[sp - 1];
                 break;
             case Op.Call when sp >= ins.A + 2:
                 {

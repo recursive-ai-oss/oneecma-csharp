@@ -1,0 +1,16 @@
+{
+  "id": "run-060-invalid-date-misnamed-field",
+  "category": "rt:range",
+  "kind": "runtime",
+  "repair": null,
+  "node": {
+    "name": "RangeError",
+    "message": "Invalid time value",
+    "line": 4,
+    "column": 20,
+    "stack_head": [
+      "console.log(latest.toISOString());",
+      "                   ^"
+    ]
+  }
+}

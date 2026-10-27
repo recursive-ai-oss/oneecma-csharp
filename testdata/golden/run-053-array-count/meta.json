@@ -1,0 +1,16 @@
+{
+  "id": "run-053-array-count",
+  "category": "rt:not-a-function",
+  "kind": "runtime",
+  "repair": null,
+  "node": {
+    "name": "TypeError",
+    "message": "rows.count is not a function",
+    "line": 2,
+    "column": 16,
+    "stack_head": [
+      "const n = rows.count();",
+      "               ^"
+    ]
+  }
+}
