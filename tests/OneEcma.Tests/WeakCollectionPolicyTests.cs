@@ -2,7 +2,12 @@ using RecursiveAI.OneEcma.Diagnostics;
 
 namespace RecursiveAI.OneEcma.Tests;
 
+/// <summary>Runs alone: the default policy reads process-wide managed memory, which tests running in parallel would move.</summary>
+[CollectionDefinition(nameof(ManagedMemorySensitive), DisableParallelization = true)]
+public sealed class ManagedMemorySensitive;
+
 /// <summary>The host's policy for weak-reference collection points: when it asks for one, what dies, and that a replay reaches the same points.</summary>
+[Collection(nameof(ManagedMemorySensitive))]
 public class WeakCollectionPolicyTests
 {
     private static CancellationToken Ct => TestContext.Current.CancellationToken;
