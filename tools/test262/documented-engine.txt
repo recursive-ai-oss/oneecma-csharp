@@ -218,7 +218,6 @@ built-ins/Iterator/proto-from-ctor-realm.js | needs Reflect, which is not implem
 
 # u17 collections-proxy
 # Each of these fails only because a built-in owned by another area is not present yet; none is a Map, Set, Weak*, Reflect or Proxy defect.
-built-ins/Map/valid-keys.js | needs Int32Array (TypedArrays, later)
 built-ins/Set/prototype/add/preserves-insertion-order.js | needs Array.prototype.shift (Array area)
 built-ins/Set/prototype/forEach/iterates-in-insertion-order.js | needs Array.prototype.shift (Array area)
 built-ins/Set/prototype/forEach/iterates-in-iterable-entry-order.js | needs Array.prototype.shift (Array area)
@@ -226,7 +225,6 @@ built-ins/Set/prototype/forEach/iterates-values-added-after-foreach-begins.js | 
 built-ins/Set/prototype/forEach/iterates-values-deleted-then-readded.js | needs Array.prototype.shift (Array area)
 built-ins/Set/prototype/forEach/iterates-values-not-deleted.js | needs Array.prototype.shift (Array area)
 built-ins/Set/prototype/forEach/iterates-values-revisits-after-delete-re-add.js | needs Array.prototype.shift (Array area)
-built-ins/Set/valid-values.js | needs Int32Array (TypedArrays, later)
 built-ins/Reflect/construct/newtarget-is-not-constructor-throws.js | needs Date (Date, later)
 built-ins/Reflect/construct/target-is-not-constructor-throws.js | needs Date (Date, later)
 built-ins/Proxy/defineProperty/trap-is-null-target-is-proxy.js | needs RegExp literals (RegExp area)
@@ -236,3 +234,152 @@ built-ins/Proxy/getOwnPropertyDescriptor/trap-is-undefined-target-is-proxy.js | 
 built-ins/Proxy/has/trap-is-missing-target-is-proxy.js | needs RegExp literals (RegExp area)
 built-ins/Proxy/isExtensible/trap-is-missing-target-is-proxy.js | needs RegExp literals (RegExp area)
 built-ins/Proxy/set/trap-is-missing-target-is-proxy.js | needs RegExp literals (RegExp area)
+
+# binary-data
+# ArrayBuffer, SharedArrayBuffer, TypedArrays, Uint8Array base64/hex, DataView and Atomics. Every entry is a test that needs something outside this area or a host feature the engine does not have; none is a binary-data defect.
+built-ins/Atomics/add/non-views.js | needs Date (Date area)
+built-ins/Atomics/and/non-views.js | needs Date (Date area)
+built-ins/Atomics/compareExchange/non-views.js | needs Date (Date area)
+built-ins/Atomics/exchange/non-views.js | needs Date (Date area)
+built-ins/Atomics/load/non-shared-bufferdata.js | needs Array.prototype.splice (Array area)
+built-ins/Atomics/load/non-views.js | needs Date (Date area)
+built-ins/Atomics/notify/bigint/notify-all-on-loc.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/notify/count-defaults-to-infinity-missing.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/notify/count-defaults-to-infinity-undefined.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/notify/negative-count.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/notify/non-views.js | needs Date (Date area)
+built-ins/Atomics/notify/notify-all-on-loc.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/notify/notify-all.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/notify/notify-in-order-one-time.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/notify/notify-in-order.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/notify/notify-nan.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/notify/notify-one.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/notify/notify-renotify-noop.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/notify/notify-two.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/notify/notify-with-no-agents-waiting.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/notify/notify-with-no-matching-agents-waiting.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/notify/notify-zero.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/notify/undefined-index-defaults-to-zero.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/or/non-views.js | needs Date (Date area)
+built-ins/Atomics/store/non-views.js | needs Date (Date area)
+built-ins/Atomics/sub/non-views.js | needs Date (Date area)
+built-ins/Atomics/wait/bigint/false-for-timeout-agent.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/bigint/nan-for-timeout.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/bigint/negative-timeout-agent.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/bigint/no-spurious-wakeup-no-operation.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/bigint/no-spurious-wakeup-on-add.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/bigint/no-spurious-wakeup-on-and.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/bigint/no-spurious-wakeup-on-compareExchange.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/bigint/no-spurious-wakeup-on-exchange.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/bigint/no-spurious-wakeup-on-or.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/bigint/no-spurious-wakeup-on-store.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/bigint/no-spurious-wakeup-on-sub.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/bigint/no-spurious-wakeup-on-xor.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/bigint/value-not-equal.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/bigint/waiterlist-block-indexedposition-wake.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/bigint/waiterlist-order-of-operations-is-fifo.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/bigint/was-woken-before-timeout.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/false-for-timeout-agent.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/good-views.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/nan-for-timeout.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/negative-timeout-agent.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/no-spurious-wakeup-no-operation.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/no-spurious-wakeup-on-add.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/no-spurious-wakeup-on-and.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/no-spurious-wakeup-on-compareExchange.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/no-spurious-wakeup-on-exchange.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/no-spurious-wakeup-on-or.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/no-spurious-wakeup-on-store.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/no-spurious-wakeup-on-sub.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/no-spurious-wakeup-on-xor.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/null-for-timeout-agent.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/object-for-timeout-agent.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/poisoned-object-for-timeout-throws-agent.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/symbol-for-index-throws-agent.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/symbol-for-timeout-throws-agent.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/symbol-for-value-throws-agent.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/true-for-timeout-agent.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/undefined-for-timeout.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/undefined-index-defaults-to-zero.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/value-not-equal.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/wait-index-value-not-equal.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/waiterlist-block-indexedposition-wake.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/waiterlist-order-of-operations-is-fifo.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/wait/was-woken-before-timeout.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/bigint/false-for-timeout-agent.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/bigint/good-views.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/bigint/nan-for-timeout-agent.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/bigint/negative-timeout-agent.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/bigint/no-spurious-wakeup-no-operation.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/bigint/no-spurious-wakeup-on-add.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/bigint/no-spurious-wakeup-on-and.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/bigint/no-spurious-wakeup-on-compareExchange.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/bigint/no-spurious-wakeup-on-exchange.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/bigint/no-spurious-wakeup-on-or.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/bigint/no-spurious-wakeup-on-store.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/bigint/no-spurious-wakeup-on-sub.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/bigint/no-spurious-wakeup-on-xor.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/bigint/null-for-timeout-agent.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/bigint/object-for-timeout-agent.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/bigint/poisoned-object-for-timeout-throws-agent.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/bigint/symbol-for-index-throws-agent.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/bigint/symbol-for-timeout-throws-agent.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/bigint/symbol-for-value-throws-agent.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/bigint/true-for-timeout-agent.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/bigint/true-for-timeout.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/bigint/undefined-for-timeout-agent.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/bigint/undefined-index-defaults-to-zero-agent.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/bigint/value-not-equal-agent.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/bigint/waiterlist-block-indexedposition-wake.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/bigint/was-woken-before-timeout.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/false-for-timeout-agent.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/good-views.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/nan-for-timeout-agent.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/negative-timeout-agent.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/no-spurious-wakeup-no-operation.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/no-spurious-wakeup-on-add.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/no-spurious-wakeup-on-and.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/no-spurious-wakeup-on-compareExchange.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/no-spurious-wakeup-on-exchange.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/no-spurious-wakeup-on-or.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/no-spurious-wakeup-on-store.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/no-spurious-wakeup-on-sub.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/no-spurious-wakeup-on-xor.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/null-for-timeout-agent.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/object-for-timeout-agent.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/poisoned-object-for-timeout-throws-agent.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/returns-result-object-value-is-promise-resolves-to-timed-out.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/symbol-for-index-throws-agent.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/symbol-for-timeout-throws-agent.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/symbol-for-value-throws-agent.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/true-for-timeout-agent.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/true-for-timeout.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/undefined-for-timeout-agent.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/undefined-index-defaults-to-zero-agent.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/value-not-equal-agent.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/waiterlist-block-indexedposition-wake.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/waitAsync/was-woken-before-timeout.js | host-limited: uses $262.agent (several agents), and the engine runs one agent
+built-ins/Atomics/xor/non-views.js | needs Date (Date area)
+built-ins/DataView/prototype/byteLength/detached-buffer.js | the pinned test262 follows a change after the 17th edition (an out-of-bounds view reports 0); ECMA-262 17th edition and Node throw TypeError
+built-ins/DataView/prototype/byteLength/resizable-array-buffer-auto.js | the pinned test262 follows a change after the 17th edition (an out-of-bounds view reports 0); ECMA-262 17th edition and Node throw TypeError
+built-ins/DataView/prototype/byteLength/resizable-array-buffer-fixed.js | the pinned test262 follows a change after the 17th edition (an out-of-bounds view reports 0); ECMA-262 17th edition and Node throw TypeError
+built-ins/DataView/prototype/byteOffset/detached-buffer.js | the pinned test262 follows a change after the 17th edition (an out-of-bounds view reports 0); ECMA-262 17th edition and Node throw TypeError
+built-ins/DataView/prototype/byteOffset/resizable-array-buffer-auto.js | the pinned test262 follows a change after the 17th edition (an out-of-bounds view reports 0); ECMA-262 17th edition and Node throw TypeError
+built-ins/DataView/prototype/byteOffset/resizable-array-buffer-fixed.js | the pinned test262 follows a change after the 17th edition (an out-of-bounds view reports 0); ECMA-262 17th edition and Node throw TypeError
+built-ins/TypedArray/prototype/at/returns-undefined-for-holes-in-sparse-arrays.js | needs String.prototype.startsWith (String area)
+built-ins/TypedArray/prototype/copyWithin/coerced-values-end-detached-prototype.js | needs Array.prototype.fill (Array area)
+built-ins/TypedArray/prototype/copyWithin/coerced-values-end-detached.js | needs Array.prototype.fill (Array area)
+built-ins/TypedArray/prototype/copyWithin/coerced-values-start-detached.js | needs Array.prototype.fill (Array area)
+built-ins/TypedArray/prototype/every/BigInt/returns-true-if-every-cb-returns-true.js | needs Array.prototype.unshift (Array area)
+built-ins/TypedArray/prototype/every/returns-true-if-every-cb-returns-true.js | needs Array.prototype.unshift (Array area)
+built-ins/TypedArray/prototype/find/BigInt/predicate-is-not-callable-throws.js | needs RegExp literals (RegExp area)
+built-ins/TypedArray/prototype/find/predicate-is-not-callable-throws.js | needs RegExp literals (RegExp area)
+built-ins/TypedArray/prototype/findIndex/BigInt/predicate-is-not-callable-throws.js | needs RegExp literals (RegExp area)
+built-ins/TypedArray/prototype/findIndex/predicate-is-not-callable-throws.js | needs RegExp literals (RegExp area)
+built-ins/TypedArray/prototype/findLast/BigInt/predicate-is-not-callable-throws.js | needs RegExp literals (RegExp area)
+built-ins/TypedArray/prototype/findLast/predicate-is-not-callable-throws.js | needs RegExp literals (RegExp area)
+built-ins/TypedArray/prototype/findLastIndex/BigInt/predicate-is-not-callable-throws.js | needs RegExp literals (RegExp area)
+built-ins/TypedArray/prototype/findLastIndex/predicate-is-not-callable-throws.js | needs RegExp literals (RegExp area)
+built-ins/TypedArray/prototype/sort/BigInt/comparefn-nonfunction-call-throws.js | needs RegExp literals (RegExp area)
+built-ins/TypedArray/prototype/sort/comparefn-nonfunction-call-throws.js | needs RegExp literals (RegExp area)
+built-ins/TypedArray/prototype/toSorted/comparefn-not-a-function.js | needs RegExp literals (RegExp area)
