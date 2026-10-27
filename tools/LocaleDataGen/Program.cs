@@ -38,7 +38,7 @@ internal sealed class Generator(string json, string common, string ucd, string o
     private static readonly string[] Locales = ["und", "en", "en-001", "en-GB", "es", "es-419", "es-US", "fr", "de", "pt"];
 
     // Collation tailoring languages (CLDR common/collation/<lang>.xml).
-    private static readonly string[] CollationLanguages = ["en", "es", "fr", "de", "pt"];
+    private static readonly string[] CollationLanguages = ["root", "en", "es", "fr", "de", "pt"];
 
     // (package, file, path inside main.<locale>, destination key)
     private static readonly (string Pkg, string File, string[] Path, string Dest)[] LocaleSources =
@@ -106,6 +106,7 @@ internal sealed class Generator(string json, string common, string ucd, string o
         Emit("plurals.bin", Plurals.Write(Path.Combine(core, "plurals.json"), Path.Combine(core, "ordinals.json")));
         Emit("collation.bin", Collation.Write(Path.Combine(common, "uca", "allkeys_CLDR.txt"), ucd));
         Emit("breaks.bin", Breaks.Write(ucd));
+        Emit("normalization.bin", Normalization.Write(ucd));
     }
 
     // Informational: what each top-level section costs when stored on its own (shared strings counted in full).
@@ -298,6 +299,13 @@ internal sealed class Generator(string json, string common, string ucd, string o
                 }
 
                 string type = (string?)c.Attribute("type") ?? "standard";
+
+                // Of the root file only the search rules are kept; eor, emoji and the Han tailorings are not supported collations.
+                if (lang == "root" && type != "search")
+                {
+                    continue;
+                }
+
                 string? rules = c.Element("cr")?.Value;
                 if (rules is null)
                 {

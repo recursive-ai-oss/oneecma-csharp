@@ -81,6 +81,8 @@ The embedded locale, collation and text-segmentation tables are generated from t
     dealings in these Data Files or Software without prior written
     authorization of the copyright holder.
 
+The Unicode conformance files the tests read (`NormalizationTest.txt`, `GraphemeBreakTest.txt`, `WordBreakTest.txt`, `SentenceBreakTest.txt`, and the `CollationTest_CLDR_*.txt` files of the CLDR common archive) are Unicode data files under the same licence. They are fetched by `tools/locale-data/fetch.sh` for the tests and are not part of the repository or of any package.
+
 ## tc39/source-map-tests (fetched, not vendored)
 
 `SourceMapSpecTests` runs the ECMA-426 conformance data of tc39/source-map-tests, fetched at the commit pinned in `tools/source-map-tests/pin.txt` (`fae1fa49815813088c433e8486e330e8d953a444`). The data is not part of this repository or of any package. Its licence, from that commit (`LICENSE.md`):

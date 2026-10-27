@@ -9,6 +9,7 @@ namespace RecursiveAI.OneEcma.LocaleDataGen;
 /// byte mode, varint origin; varint run count and per run: varint gap, varint length-1, byte class;
 /// varint single-code-point entry count and per entry: varint code point delta, byte CE count, CEs;
 /// varint contraction count and per entry: byte key length, varint code points, byte CE count, CEs.
+/// After the contractions: varint count of decimal digit zeros, then varint code point deltas.
 /// A CE is varint primary, varint secondary, byte tertiary (bit 7 set when the element is variable).
 /// </summary>
 internal static class Collation
@@ -101,7 +102,41 @@ internal static class Collation
             WriteCes(file, ces);
         }
 
+        WriteDecimalDigits(file, ucd);
         return file.ToArray();
+    }
+
+    // Numeric collation needs the value of every decimal digit (general category Nd). They come in runs of ten
+    // starting at the zero, so only the zeros are stored: varint count, then varint code point deltas.
+    private static void WriteDecimalDigits(List<byte> file, string ucd)
+    {
+        var zeros = new List<int>();
+        foreach (var (first, last, fields) in Ucd.Read(Path.Combine(ucd, "DerivedGeneralCategory.txt")))
+        {
+            if (fields[0] != "Nd")
+            {
+                continue;
+            }
+
+            if ((last - first + 1) % 10 != 0)
+            {
+                throw new InvalidOperationException($"Nd range {first:X}..{last:X} is not a multiple of ten");
+            }
+
+            for (int cp = first; cp <= last; cp += 10)
+            {
+                zeros.Add(cp);
+            }
+        }
+
+        zeros.Sort();
+        Bin.Varint(file, (uint)zeros.Count);
+        int prev = 0;
+        foreach (int z in zeros)
+        {
+            Bin.Varint(file, (uint)(z - prev));
+            prev = z;
+        }
     }
 
     private static void WriteCes(List<byte> file, List<(int P, int S, int T, bool Var)> ces)
