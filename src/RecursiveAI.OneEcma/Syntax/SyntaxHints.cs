@@ -16,14 +16,34 @@ internal static partial class SyntaxHints
     {
         foreach (Diagnostic d in diagnostics)
         {
-            if (d.Severity != Severity.Error || d.PrimaryLabel.Length > 0)
+            if (d.Severity != Severity.Error)
             {
                 continue;
             }
 
-            Diagnostic? moved = TryHint(d);
-            _ = moved;
+            // These explain constructs the parser already labelled, so they run whatever the parser said.
+            switch (d.Code)
+            {
+                case "missing-paren-after-args":
+                    HintMissingParen(d);
+                    continue;
+                case "redeclaration":
+                    HintRedeclaration(d);
+                    continue;
+                case "missing-catch-or-finally":
+                    HintTryWithoutCatch(d);
+                    continue;
+            }
+
+            if (d.PrimaryLabel.Length > 0)
+            {
+                continue;
+            }
+
+            TryHint(d);
         }
+
+        NoteFollowingErrors(diagnostics);
     }
 
     private static string LineText(Diagnostic d, int offset) => d.Source.GetLineText(d.Source.GetPosition(offset).Line).ToString();
@@ -39,27 +59,31 @@ internal static partial class SyntaxHints
                 HintEndOfInput(d);
                 return d;
             case "illegal-return":
-                d.PrimaryLabel = "`return` is only allowed inside a function";
+                HintIllegalReturn(d);
                 return d;
             case "await-outside-async":
                 d.PrimaryLabel = "`await` is only allowed in async functions and modules";
                 d.Help.Add("wrap the code in `async function main() { ... }` and call it, or run it as a module");
+                d.Notes.Add(NotRepaired + "wrapping changes the scope of every declaration");
+                AddFix(d, "run the code inside an async function", new TextEdit(0, 0, "(async () => {\n"), new TextEdit(d.Source.Text.Length, 0, "\n})();"));
                 return d;
             case "import-outside-module":
                 d.PrimaryLabel = "`import` declarations need module mode";
                 d.Help.Add("run the code as a module, or use the host-provided functions instead of importing");
+                d.Notes.Add(NotRepaired + "module mode changes strictness and `this`");
                 return d;
             case "missing-initializer" when d.Headline.Contains("const", StringComparison.Ordinal):
-                d.PrimaryLabel = "`const` needs a value here";
+                HintConstWithoutValue(d);
+                return d;
+            case "invalid-assignment-target":
+                HintLiteralAssignTarget(d);
                 return d;
             case "unterminated-template":
-                d.PrimaryLabel = "this template literal is never closed";
-                return d;
-            case "missing-catch-or-finally":
-                d.PrimaryLabel = "the `try` block ends here with no `catch` or `finally`";
-                d.Help.Add("add `catch (err) { ... }` after the block");
-                return d;
-            case "redeclaration":
+                if (!HintFenceAtEnd(d))
+                {
+                    d.PrimaryLabel = "this template literal is never closed";
+                }
+
                 return d;
             default:
                 return null;
@@ -154,6 +178,24 @@ internal static partial class SyntaxHints
         int col = s - lineStart;
         string before = col <= line.Length ? line[..col] : line;
 
+        if (d.Code == "invalid-token" && s < text.Length)
+        {
+            if (text[s] is '"' or '\'')
+            {
+                return HintUnterminatedString(d, text, s);
+            }
+
+            if (text[s] == '\\' && HintBackslash(d, text, s) is { } hinted)
+            {
+                return hinted;
+            }
+        }
+
+        if (d.Code == "unexpected-token" && d.Headline.StartsWith("Unexpected identifier", StringComparison.Ordinal) && HintTemplateBacktick(d))
+        {
+            return d;
+        }
+
         // Typographic quotes used as delimiters.
         if (s < text.Length && text[s] is '\u201C' or '\u2018')
         {
@@ -184,6 +226,12 @@ internal static partial class SyntaxHints
                 d.Help.Add(body.Length > 0
                     ? "write `function " + name + args.Groups[1].Value + " { " + body.TrimEnd(';') + "; }`"
                     : "write `function " + name + args.Groups[1].Value + " { ... }`");
+                d.Notes.Add(NotRepaired + "the body needs braces and the colon form has no JavaScript equivalent");
+                if (body.Length > 0)
+                {
+                    int bodyEnd = LineEndOffset(src, text.IndexOf(body, s, StringComparison.Ordinal));
+                    AddFix(d, "write the function in JavaScript", new TextEdit(lineStart + m.Groups[1].Index, bodyEnd - (lineStart + m.Groups[1].Index), "function " + name + args.Groups[1].Value + " { " + body.TrimEnd(';') + "; }"));
+                }
             }
 
             return d;
@@ -234,9 +282,16 @@ internal static partial class SyntaxHints
                 string n = m.Groups[2].Value;
                 string loop = "for (let " + v + " = 0; " + v + " < " + n + "; " + v + "++)";
                 int at = lineStart + m.Index;
-                Relocate(d, new Span(at, at + m.Length), "Python loop syntax; JavaScript writes `" + loop + "`");
+                Relocate(d, new Span(at, at + m.Length - 1), "Python loop syntax; JavaScript writes `" + loop + "`");
                 string body = NextLine(src, s);
                 d.Help.Add("write `" + loop + (body.Length > 0 ? " { " + body.TrimEnd(';') + "; }" : " { ... }") + "`");
+                d.Notes.Add(NotRepaired + "no mechanical rewrite keeps the meaning");
+                if (body.Length > 0)
+                {
+                    int bodyEnd = LineEndOffset(src, text.IndexOf(body, s, StringComparison.Ordinal));
+                    AddFix(d, "write the loop in JavaScript", new TextEdit(at, bodyEnd - at, loop + " { " + body.TrimEnd(';') + "; }"));
+                }
+
                 return d;
             }
         }
@@ -271,10 +326,7 @@ internal static partial class SyntaxHints
         // A stray closing bracket.
         if (d.Headline is "Unexpected token ')'" or "Unexpected token ']'" or "Unexpected token '}'")
         {
-            char c = d.Headline[18];
-            d.PrimaryLabel = "this `" + c + "` closes nothing";
-            d.Help.Add("remove the extra `" + c + "`");
-            return d;
+            return HintStrayCloser(d, d.Headline[18]);
         }
 
         // `,` between class members.

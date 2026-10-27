@@ -12,6 +12,12 @@ public sealed class RenderOptions
 
     /// <summary>Source lines longer than this many display columns are cut to a window around the first label, so a minified file does not flood a report. Default 140.</summary>
     public int MaxLineWidth { get; set; } = 140;
+
+    /// <summary>
+    /// The note under every repair block. The default says the repaired source parses; a host that goes on to run the
+    /// repaired source and has seen it finish may say so here.
+    /// </summary>
+    public string RepairOutcome { get; set; } = "the repaired source parses and is returned with this report";
 }
 
 /// <summary>
@@ -76,6 +82,60 @@ public static class DiagnosticRenderer
         return sb.ToString();
     }
 
+    /// <summary>Renders one applied repair: <c>repair[Rxxx]: title</c>, the first edited place in the original source, and a note.</summary>
+    /// <param name="repair">The repair.</param>
+    /// <param name="options">Rendering options; <see langword="null"/> means plain text with defaults.</param>
+    /// <returns>The block, ending with a newline.</returns>
+    public static string RenderRepair(AppliedRepair repair, RenderOptions? options = null)
+    {
+        ArgumentNullException.ThrowIfNull(repair);
+        var sb = new StringBuilder();
+        AppendRepair(sb, repair, options ?? new RenderOptions());
+        return sb.ToString();
+    }
+
+    /// <summary>
+    /// Renders a repair result as the repairs applied first, then the diagnostics that remain (for a result that was
+    /// not repaired these are the original errors with their suggested fixes).
+    /// </summary>
+    /// <param name="result">The result of <see cref="Syntax.SyntaxRepair.Repair(string, Syntax.ParseOptions?, Syntax.RepairOptions?, CancellationToken)"/>.</param>
+    /// <param name="options">Rendering options; <see langword="null"/> means plain text with defaults.</param>
+    /// <returns>The report, or an empty string when the source was fine and nothing was reported.</returns>
+    public static string RenderRepairResult(RepairResult result, RenderOptions? options = null)
+    {
+        ArgumentNullException.ThrowIfNull(result);
+        options ??= new RenderOptions();
+        var sb = new StringBuilder();
+        foreach (AppliedRepair r in result.Repairs)
+        {
+            if (sb.Length > 0)
+            {
+                sb.Append('\n');
+            }
+
+            AppendRepair(sb, r, options);
+        }
+
+        if (result.Diagnostics.Count > 0)
+        {
+            if (sb.Length > 0)
+            {
+                sb.Append('\n');
+            }
+
+            sb.Append(RenderAll(result.Diagnostics, options));
+        }
+
+        return sb.ToString();
+    }
+
+    private static void AppendRepair(StringBuilder sb, AppliedRepair r, RenderOptions o)
+    {
+        sb.Append(Paint(o, Green, "repair[" + r.Id + "]")).Append(Paint(o, Bold, ": " + r.Title)).Append('\n');
+        var labels = new List<Label> { new Label(r.Span, r.Label, true) };
+        AppendBody(sb, o, r.Source, labels, [], [o.RepairOutcome]);
+    }
+
     private static void Append(StringBuilder sb, Diagnostic d, RenderOptions o)
     {
         string level = d.Severity == Severity.Error ? "error" : "warning";
@@ -87,8 +147,12 @@ public static class DiagnosticRenderer
             new Label(d.PrimarySpan, d.PrimaryLabel, true),
         };
         labels.AddRange(d.SecondaryLabels);
+        AppendBody(sb, o, d.Source, labels, d.Help, d.Notes);
+    }
 
-        SourceText src = d.Source;
+    /// <summary>Everything under the headline: the location, the labelled source lines, then help and notes. The first label is the primary one.</summary>
+    private static void AppendBody(StringBuilder sb, RenderOptions o, SourceText src, List<Label> labels, List<string> help, List<string> notes)
+    {
         var lineLabels = new SortedDictionary<int, List<(Label Lbl, int StartCol, int EndCol)>>();
         foreach (Label l in labels)
         {
@@ -115,7 +179,7 @@ public static class DiagnosticRenderer
         var shown = new List<int>(lineLabels.Keys);
         int width = shown[^1].ToString(NumberFormatInfo.InvariantInfo).Length;
         string pad = new(' ', width);
-        LinePosition loc = d.Position;
+        LinePosition loc = src.GetPosition(labels[0].Span.Start);
         sb.Append(pad).Append(Paint(o, Blue, "-->")).Append(' ').Append(src.Name).Append(':')
           .Append(loc.Line.ToString(NumberFormatInfo.InvariantInfo)).Append(':')
           .Append(loc.Column.ToString(NumberFormatInfo.InvariantInfo)).Append('\n');
@@ -141,15 +205,15 @@ public static class DiagnosticRenderer
             prev = line;
         }
 
-        if (d.Help.Count + d.Notes.Count > 0)
+        if (help.Count + notes.Count > 0)
         {
             sb.Append(pad).Append(' ').Append(bar).Append('\n');
-            foreach (string h in d.Help)
+            foreach (string h in help)
             {
                 sb.Append(pad).Append(' ').Append(Paint(o, Blue, "=")).Append(' ').Append(Paint(o, Green, "help")).Append(": ").Append(h).Append('\n');
             }
 
-            foreach (string n in d.Notes)
+            foreach (string n in notes)
             {
                 sb.Append(pad).Append(' ').Append(Paint(o, Blue, "=")).Append(' ').Append(Paint(o, Bold, "note")).Append(": ").Append(n).Append('\n');
             }

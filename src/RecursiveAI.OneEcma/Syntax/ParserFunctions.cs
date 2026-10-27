@@ -679,6 +679,40 @@ internal sealed partial class Parser
         return new BlockStatement(start, end, body, null);
     }
 
+    /// <summary>
+    /// After an error inside a parameter list (a type annotation, a stray token), skips to the next <c>,</c> or the closing
+    /// <c>)</c> on bracket structure so the remaining parameters and the body parse normally.
+    /// </summary>
+    private void SkipToParameterBoundary(Diagnostic? d)
+    {
+        int from = _tok.Start;
+        int depth = 0;
+        while (_tok.Type is not (TokenType.EndOfInput or TokenType.Template or TokenType.Invalid or TokenType.Semicolon))
+        {
+            TokenType t = _tok.Type;
+            if (depth == 0 && (t is TokenType.Comma or TokenType.RParen || t == TokenType.LBrace))
+            {
+                break;
+            }
+
+            if (t is TokenType.LParen or TokenType.LBracket or TokenType.LBrace)
+            {
+                depth++;
+            }
+            else if (t is TokenType.RParen or TokenType.RBracket or TokenType.RBrace)
+            {
+                depth--;
+            }
+
+            Advance();
+        }
+
+        if (_tok.Start > from)
+        {
+            NoteSkipped(d, from, _prevEnd);
+        }
+    }
+
     private void ParseFormalParameters(List<Node> paramsList, ref bool simple)
     {
         while (!Is(TokenType.RParen) && !Is(TokenType.EndOfInput))
@@ -732,6 +766,8 @@ internal sealed partial class Parser
                     {
                         break;
                     }
+
+                    SkipToParameterBoundary(d);
                 }
             }
         }
@@ -1008,6 +1044,7 @@ internal sealed partial class Parser
             {
                 Diagnostic? d = Unexpected();
                 NoteInserted(d, _prevEnd, ",");
+                LabelMissingComma(d, props[^1], "property");
                 if (_tok.Start == before || _tok.Type is TokenType.Semicolon or TokenType.RParen or TokenType.RBracket)
                 {
                     break;
@@ -1306,6 +1343,7 @@ internal sealed partial class Parser
             {
                 Diagnostic? d = Unexpected();
                 NoteInserted(d, _prevEnd, ",");
+                LabelMissingComma(d, props[^1], "property");
                 if (_tok.Start == before || _tok.Type is TokenType.Semicolon or TokenType.RParen or TokenType.RBracket)
                 {
                     break;
