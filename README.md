@@ -220,10 +220,12 @@ Pass rates on the [test262](https://github.com/tc39/test262) suite pinned in `to
 
 | Directory | Pass | Documented failures | Unexpected failures |
 |---|---:|---:|---:|
-| `language` | 22,969 | 35 | 0 |
-| `built-ins` | 18,336 | 147 | 0 |
+| `language` | 22,973 | 31 | 0 |
+| `built-ins` | 18,337 | 146 | 0 |
 | `annexB` | 1,057 | 3 | 0 |
 | `intl402` (six locales) | 1,104 | 17 | 0 |
+
+Speed against Jint, including lodash, preact and a React server render checked byte for byte against Node, is in [docs/benchmarks.md](docs/benchmarks.md).
 
 `err.message` and `err.stack` are compared with Node on a differential corpus ([docs/stack-traces.md](docs/stack-traces.md)). Tests that need features of a later edition (Temporal and others) are skipped with a reason in `tools/test262/scope.txt`.
 
