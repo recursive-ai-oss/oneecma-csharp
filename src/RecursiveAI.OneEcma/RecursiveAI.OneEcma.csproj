@@ -4,7 +4,7 @@
     <AssemblyName>$(PackagePrefix).OneEcma</AssemblyName>
     <RootNamespace>$(PackagePrefix).OneEcma</RootNamespace>
     <PackageId>$(PackagePrefix).OneEcma</PackageId>
-    <Description>An ECMAScript interpreter for .NET whose product is its error reports.</Description>
+    <Description>An interpreter for .NET implementing ECMA-262 / ECMAScript®, whose product is its error reports. Not affiliated with or endorsed by Ecma International; ECMAScript® is a registered trademark of Ecma International.</Description>
     <IsAotCompatible>true</IsAotCompatible>
     <IsTrimmable>true</IsTrimmable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

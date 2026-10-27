@@ -1,8 +1,8 @@
 # OneEcma
 
-**An ECMAScript interpreter for .NET whose product is its error reports.** When a script fails, OneEcma says what went wrong, where the failing value came from and how to fix it, in a compact report that fits an LLM's context. `err.message` and `err.stack` stay exactly what V8 prints, so code that parses them keeps working. Pure C# on `net10.0` with no dependency beyond the .NET base class library; NativeAOT- and trim-compatible; every script is treated as hostile and runs under limits.
+**An interpreter for .NET implementing ECMA-262 / ECMAScript®, whose product is its error reports.** When a script fails, OneEcma says what went wrong, where the failing value came from and how to fix it, in a compact report that fits an LLM's context. `err.message` and `err.stack` stay exactly what V8 prints, so code that parses them keeps working. Pure C# on `net10.0` with no dependency beyond the .NET base class library; NativeAOT- and trim-compatible; every script is treated as hostile and runs under limits.
 
-The package name `RecursiveAI.OneEcma` is provisional. The prefix lives in one property, `PackagePrefix` in `Directory.Build.props`.
+OneEcma is not affiliated with or endorsed by Ecma International. ECMAScript® is a registered trademark of Ecma International.
 
 ## A failing script and its report
 
