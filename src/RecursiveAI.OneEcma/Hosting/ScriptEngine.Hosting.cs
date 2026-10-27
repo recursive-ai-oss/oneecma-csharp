@@ -80,6 +80,7 @@ public sealed partial class ScriptEngine
             return value;
         }
 
+        NoteAwaited(p);
         p.IsHandled = true;
         Pump(() => p.State != 0, true, cancellationToken);
         return Settled(p);
@@ -96,6 +97,7 @@ public sealed partial class ScriptEngine
             return value;
         }
 
+        NoteAwaited(p);
         p.IsHandled = true;
         await PumpAsync(() => p.State != 0, cancellationToken).ConfigureAwait(false);
         return Settled(p);
@@ -128,7 +130,15 @@ public sealed partial class ScriptEngine
         if (p.State == 2)
         {
             JsValue reason = p.Result;
-            return Guard<JsValue>(() => throw new JsException(reason), default);
+            try
+            {
+                return Guard<JsValue>(() => throw new JsException(reason), default);
+            }
+            catch (JsException e)
+            {
+                ExplainRejection(e, p);
+                throw;
+            }
         }
 
         throw Guard<JsException>(() => Errors.Make("Error", "The promise never settles: no job is queued and no host operation is running"), default);

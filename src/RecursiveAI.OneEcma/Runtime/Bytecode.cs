@@ -204,6 +204,9 @@ internal sealed class FunctionCode
     internal bool IsGenerator;
     internal FunctionKind Kind;
     internal int NumLocals;
+
+    /// <summary>True for the function made from an async function body evaluated by the host: it is the top level of the code, so a report shows it as <c>&lt;top-level&gt;</c>.</summary>
+    internal bool IsBody;
     internal int StackSize;
     internal SourceText Source = null!;
     internal int SrcStart;
@@ -307,7 +310,7 @@ internal sealed class Frame
         int at = State == FrameState.Awaiting || State == FrameState.SuspendedYield ? Pc - 1 : Pc;
         int pc = Math.Clamp(at, 0, Math.Max(0, Code.SpanStart.Length - 1));
         var span = Code.SpanStart.Length == 0 ? new Span(0, 0) : new Span(Code.SpanStart[pc], Code.SpanEnd[pc]);
-        bool top = Code.Kind is FunctionKind.Script or FunctionKind.Module;
+        bool top = Code.Kind is FunctionKind.Script or FunctionKind.Module || Code.IsBody;
         JsValue receiver = Code.Kind == FunctionKind.Arrow ? CallReceiver : This;
         string? type = null;
         if (!top && !IsConstruct && Func is not null && !receiver.IsNullish && !receiver.IsTdz && !(receiver.Ref is JsObject g && ReferenceEquals(g, Realm.Global)))

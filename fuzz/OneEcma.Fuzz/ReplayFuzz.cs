@@ -9,6 +9,9 @@ namespace RecursiveAI.OneEcma.Fuzz;
 /// random numbers and two global functions, then the log is replayed with full tracing in a fresh engine. The completion value, the
 /// exception report (text and JSON) or the limit must be identical, and the replay must not diverge from the log. A difference, an
 /// exception that is not a script error, or a hang is a finding.
+/// Half of the mutants run as the body of an async function (<c>EvaluateAsyncBody</c>), with a host function that returns tasks that are
+/// complete, faulted, cancelled, throw at once or finish on another thread, and the host waits for the body's promise; the outcome is
+/// what the wait produced, and the replay's wait on the same promise must produce the same.
 /// usage: replay &lt;seconds&gt; &lt;outdir&gt; [seed] [seeddir...]; replay-file &lt;path&gt; checks one input.
 /// </summary>
 internal static class ReplayFuzz
@@ -47,7 +50,65 @@ internal static class ReplayFuzz
         return "value: " + engine.ToDisplayString(value);
     }
 
+    private static JsValue TaskFor(ScriptEngine engine, ReadOnlySpan<JsValue> a)
+    {
+        int kind = a.Length > 0 && a[0].IsNumber ? (int)a[0].AsNumber & 7 : 0;
+        JsRealm realm = engine.MainRealm;
+        static JsValue Obj(JsRealm r, int n)
+        {
+            JsObject o = r.NewObject();
+            r.DefineData(o, "id", JsValue.FromNumber(n));
+            r.DefineData(o, "items", JsValue.FromObject(r.NewArray([JsValue.FromNumber(1), JsValue.FromNumber(2)])));
+            return JsValue.FromObject(o);
+        }
+
+        return kind switch
+        {
+            0 or 1 => JsMarshal.FromTask(realm, "hostTask", () => Task.FromResult(kind), Obj),
+            2 => JsMarshal.FromTask(realm, "hostTask", () => Task.FromException<int>(new InvalidOperationException("faulted")), Obj),
+            3 => JsMarshal.FromTask(realm, "hostTask", () => Task.FromCanceled<int>(new CancellationToken(true)), Obj),
+            4 => JsMarshal.FromTask<int>(realm, "hostTask", () => throw new InvalidOperationException("threw at once"), Obj),
+            5 => JsMarshal.FromTask(realm, "hostTask", () => Task.CompletedTask),
+            _ => JsMarshal.FromTask(realm, "hostTask", async () =>
+            {
+                await Task.Yield();
+                return kind;
+            }, Obj),
+        };
+    }
+
+    private static string BodyOutcome(ScriptEngine engine, Func<JsValue> run)
+    {
+        try
+        {
+            return Outcome(engine, run(), null, null);
+        }
+        catch (JsException e)
+        {
+            return Outcome(engine, default, e, null);
+        }
+        catch (JsLimitException e)
+        {
+            return Outcome(engine, default, null, e);
+        }
+    }
+
     internal static string? Check(string source)
+    {
+        // The mode depends on the text only, so a finding replays the same way: text valid only as a body runs as a body,
+        // text valid either way runs as a body half of the time.
+        bool scriptOk = !RecursiveAI.OneEcma.Syntax.JsParser.Parse(source).HasErrors;
+        bool bodyOk = ScriptEngine.CheckAsyncBody(source).Count == 0;
+        int h = 17;
+        foreach (char c in source)
+        {
+            h = unchecked(h * 31 + c);
+        }
+
+        return CheckMode(source, bodyOk && (!scriptOk || (h & 1) == 1));
+    }
+
+    internal static string? CheckMode(string source, bool body)
     {
         EngineLimits limits = NewLimits();
         var engine = new ScriptEngine(new ScriptEngineOptions { Host = new ClockHost(), Limits = limits, InstallTest262Host = true, ThrowOnUnhandledRejection = false });
@@ -62,11 +123,24 @@ internal static class ReplayFuzz
             return JsValue.FromObject(o);
         });
 
+        engine.DefineGlobalFunction("hostTask", 1, (_, a) => TaskFor(engine, a));
+
         string original;
         try
         {
-            JsValue v = engine.Evaluate(source, "fuzz.js");
-            original = Outcome(engine, v, null, null);
+            if (body)
+            {
+                original = BodyOutcome(engine, () =>
+                {
+                    JsValue p = engine.EvaluateAsyncBody(source, "fuzz.js");
+                    return engine.Await(p);
+                });
+            }
+            else
+            {
+                JsValue v = engine.Evaluate(source, "fuzz.js");
+                original = Outcome(engine, v, null, null);
+            }
         }
         catch (JsException e)
         {
@@ -99,7 +173,16 @@ internal static class ReplayFuzz
                 return "replay diverged: " + r.Divergence;
             }
 
-            string replayed = Outcome(r.Engine, r.Value, r.Exception, r.Limit);
+            string replayed;
+            if (body && r.Exception is null && r.Limit is null && r.Engine.EntryPromise(0) is { } promise)
+            {
+                replayed = BodyOutcome(r.Engine, () => r.Engine.Await(JsValue.FromObject(promise)));
+            }
+            else
+            {
+                replayed = Outcome(r.Engine, r.Value, r.Exception, r.Limit);
+            }
+
             Interlocked.Increment(ref _compared);
             if (original.StartsWith("throw", StringComparison.Ordinal))
             {
@@ -137,6 +220,10 @@ internal static class ReplayFuzz
             "const t = Date.now(); const r = Math.random(); ({ t, r, n: hostNum(2) }).missing.x;",
             "async function g() { const a = await Promise.resolve(hostObj()); return a.idd.toString(); } g();",
             "let s = 0; for (let i = 0; i < 50; i++) { s += hostNum(i); } s.foo();",
+            "const a = await hostTask(0);\nconst b = await hostTask(7);\nreturn a.itms.length + b.id;",
+            "try { await hostTask(2); } catch (e) { return e.message; }\ntry { await hostTask(3); } catch (e) { return e.message; }\nawait hostTask(4);",
+            "async function f(n) { const o = await hostTask(n); return o.items.map(x => x * o.idd); }\nreturn await Promise.all([f(0), f(6), f(1)]);",
+            "const r = await Promise.allSettled([hostTask(0), hostTask(2), hostTask(5), hostTask(6)]);\nreturn r.map(x => x.status).join() + r[0].value.missing.deep;",
         };
         foreach (string d in seedDirs)
         {

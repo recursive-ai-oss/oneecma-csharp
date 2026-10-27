@@ -181,8 +181,11 @@ internal static class HostCalls
     {
         long previous = rec.CurrentCall;
         bool previousTask = rec.TaskStarted;
+        List<Action>? previousDeferred = rec.Deferred;
+        var deferred = new List<Action>();
         rec.CurrentCall = rec.NextCallId++;
         rec.TaskStarted = false;
+        rec.Deferred = deferred;
         try
         {
             JsValue result = fn(t, a);
@@ -203,6 +206,11 @@ internal static class HostCalls
         {
             rec.CurrentCall = previous;
             rec.TaskStarted = previousTask;
+            rec.Deferred = previousDeferred;
+            foreach (Action write in deferred)
+            {
+                rec.Emit(write);
+            }
         }
     }
 
@@ -227,6 +235,7 @@ internal static class HostCalls
         {
             PromiseObject p = Promises.NewPromise(Agent.Current.Realm);
             rec.PendingTasks[taskId] = p;
+            rec.PendingSites[taskId] = (member, Agent.Current.CaptureFrames(10));
             rec.SettleReady();
             return JsValue.FromObject(p);
         }

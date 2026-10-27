@@ -183,6 +183,8 @@ internal enum LogTag : byte
     Weak = 13,
     EntryEnd = 14,
     DefineFn = 15,
+    AsyncBody = 16,
+    Await = 17,
 }
 
 /// <summary>Reads events back from a log.</summary>
@@ -291,9 +293,10 @@ internal sealed class LogReader
         LogTag t = Tag();
         switch (t)
         {
-            case LogTag.Eval: Str(); Str(); break;
+            case LogTag.Eval: case LogTag.AsyncBody: Str(); Str(); break;
             case LogTag.Module: Str(); break;
             case LogTag.Jobs: break;
+            case LogTag.Await: Varint(); break;
             case LogTag.Clock: if (Next() == 0) { Clock(); } else { Double(); } break;
             case LogTag.Mono: Double(); break;
             case LogTag.Random: Double(); break;

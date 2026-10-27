@@ -66,8 +66,41 @@ internal sealed partial class Parser
     private bool _inPrologue;
     private bool _topLevel;
 
+    /// <summary>
+    /// ECMA-262 15.8 AsyncFunctionBody as a goal: the statements are parsed in the scope of an anonymous async function with no parameters
+    /// that sits in an otherwise empty global scope, so free names resolve to the global object and nothing declared leaks out.
+    /// </summary>
+    private Program ParseAsyncBodyProgram()
+    {
+        _strict = _opt.Strict;
+        var outer = new FnState { CanReturn = false };
+        _fn = outer;
+        Scope top = PushScope(ScopeKind.Global, 0);
+        var fn = new FnState { Parent = outer, IsAsync = true, CanReturn = true, AllowNewTarget = true };
+        _fn = fn;
+        Scope scope = PushScope(ScopeKind.Function, 0);
+        Advance();
+        var body = new List<Node>();
+        _topLevel = false;
+        ParseStatementsWithPrologue(body, TokenType.EndOfInput);
+        bool strictNow = _strict;
+        scope.IsStrict = strictNow;
+        PopScope();
+        _fn = outer;
+        _asyncBody = new FunctionNode(0, _s.Length, null, [], new BlockStatement(0, _s.Length, body, null), true, false, false, FunctionFlavor.Normal, strictNow, true, scope, fn.UsesArguments, fn.UsesThis, fn.HasDirectEval);
+        top.IsStrict = false;
+        PopScope();
+        ResolvePrivateNamesAtEnd();
+        return new Program(0, _s.Length, body, false, strictNow, top);
+    }
+
     private Program ParseProgram()
     {
+        if (_opt.Goal == ParseGoal.AsyncFunctionBody)
+        {
+            return ParseAsyncBodyProgram();
+        }
+
         _strict = _module || _opt.Strict;
         _fn = new FnState
         {
