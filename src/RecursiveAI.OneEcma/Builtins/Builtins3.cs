@@ -436,7 +436,16 @@ internal static partial class Builtins
         JsObject h = r.NewObject();
         r.Global.DefineDirect("$262", JsValue.FromObject(h), PropFlags.Hidden);
         Realm.Value(h, "global", JsValue.FromObject(r.Global));
-        r.Method(h, "gc", 0, (t, a, nt) => default);
+        r.Method(h, "gc", 0, (t, a, nt) =>
+        {
+            r.Agent.Weak.Collect(r.Agent);
+            return default;
+        });
+        r.Method(h, "clearKeptObjects", 0, (t, a, nt) =>
+        {
+            r.Agent.Weak.ClearKept();
+            return default;
+        });
         r.Method(h, "createRealm", 0, (t, a, nt) =>
         {
             Realm nr = Realm.Create(r.Agent);

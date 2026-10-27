@@ -180,6 +180,11 @@ public class IntlTest262Tests
                 "arr" => string.Join(",", expect.GetProperty("v").EnumerateArray().Select(x => x.GetString())),
                 _ => "?",
             };
+            if (svc == "dtf" && actual is not null)
+            {
+                (actual, expected) = (Spaces(actual), Spaces(expected));
+            }
+
             return actual == expected || (actual is null && expected == "undefined") ? null : $"expected \"{expected}\" got \"{actual}\"";
         }
         catch (IntlException e) when (tExpect == "err")
@@ -191,6 +196,29 @@ public class IntlTest262Tests
 
     private static DecimalNumber Arg(JsonElement args, int i) =>
         args.ValueKind != JsonValueKind.Array || args.GetArrayLength() <= i ? DecimalNumber.NaN : IntlCorpus.Value(args[i].GetString()!);
+
+    private static readonly BclTimeZoneSource Zones = new();
+
+    // The reference's format() prints U+0020 where its formatToParts keeps the narrow no-break space of the CLDR patterns, and the
+    // expected strings were recorded from format(); the two spellings are compared as equal.
+    private static string Spaces(string s) => s.Replace('\u202f', ' ');
+
+    // GetNumberOption (ECMA-402 9.2.?): ToNumber, a RangeError outside the range, floor.
+    private static int? NumberOption(JsonElement o, string name, int min, int max)
+    {
+        if (!o.TryGetProperty(name, out JsonElement v))
+        {
+            return null;
+        }
+
+        double d = v.ValueKind == JsonValueKind.Number ? v.GetDouble() : double.TryParse(v.GetString(), NumberStyles.Float, NumberFormatInfo.InvariantInfo, out double parsed) ? parsed : double.NaN;
+        if (double.IsNaN(d) || d < min || d > max)
+        {
+            throw IntlException.Range($"{name} value is out of range.");
+        }
+
+        return (int)Math.Floor(d);
+    }
 
     private static string? Evaluate(string svc, string method, JsonElement c, string[] req, out bool unsupportedShape)
     {
@@ -333,6 +361,145 @@ public class IntlTest262Tests
                         break;
                     case "resolvedOptions":
                         return c.GetProperty("prop").GetString() switch { "locale" => n.Locale, "style" => n.Style, "type" => n.Type, "fallback" => n.Fallback, "languageDisplay" => n.LanguageDisplay, _ => null };
+                }
+
+                break;
+            }
+
+            case "dtf":
+            {
+                // The option layer converts fractionalSecondDigits like GetNumberOption (ECMA-402 9.2.? with range 1 to 3).
+                DateTimeFormatOptions dopt = IntlDateTimeDifferentialTests.Options(o) with { FractionalSecondDigits = NumberOption(o, "fractionalSecondDigits", 1, 3) };
+                DateTimeFormatService f = DateTimeFormatService.Create(locales, dopt, "en-US", "UTC", Zones);
+                double Time(int i) => args.ValueKind == JsonValueKind.Array && args.GetArrayLength() > i && args[i].ValueKind == JsonValueKind.String && args[i].GetString() is { Length: > 2 } t && t[1] == ':' && t[0] != 's' && double.TryParse(t[2..], NumberStyles.Float, NumberFormatInfo.InvariantInfo, out double ms) ? ms : double.NaN;
+                // formatRange(undefined, y) is a TypeError (ECMA-402 11.3.? step 4); a missing argument reaches the service as undefined.
+                void RequireDates()
+                {
+                    if (args.ValueKind != JsonValueKind.Array || args.GetArrayLength() < 2)
+                    {
+                        throw IntlException.Type("startDate and endDate are required");
+                    }
+                }
+
+                switch (method)
+                {
+                    case "ctor":
+                        return null;
+                    case "format":
+                        return Spaces(f.Format(Time(0)));
+                    case "formatRange":
+                        RequireDates();
+                        return Spaces(f.FormatRange(Time(0), Time(1)));
+                    case "formatToParts":
+                    case "formatRangeToParts":
+                    {
+                        if (method == "formatRangeToParts")
+                        {
+                            RequireDates();
+                        }
+
+                        List<DateTimePart> parts = method == "formatToParts" ? f.FormatToParts(Time(0)) : f.FormatRangeToParts(Time(0), Time(1));
+                        DateTimePart part = parts[c.GetProperty("part").GetInt32()];
+                        return c.GetProperty("prop").GetString() switch { "type" => part.Type, "value" => part.Value, "source" => part.Source, _ => null };
+                    }
+
+                    case "resolvedOptions":
+                        return c.GetProperty("prop").GetString() switch
+                        {
+                            "locale" => f.Locale,
+                            "calendar" => DateTimeFormatService.Calendar,
+                            "numberingSystem" => DateTimeFormatService.NumberingSystem,
+                            "timeZone" => f.TimeZone,
+                            "hourCycle" => f.HourCycle,
+                            "weekday" => f.Weekday,
+                            "era" => f.Era,
+                            "year" => f.Year,
+                            "month" => f.Month,
+                            "day" => f.Day,
+                            "dayPeriod" => f.DayPeriod,
+                            "hour" => f.Hour,
+                            "minute" => f.Minute,
+                            "second" => f.Second,
+                            "fractionalSecondDigits" => f.FractionalSecondDigits is { } n ? Inv(n) : null,
+                            "timeZoneName" => f.TimeZoneName,
+                            "dateStyle" => f.DateStyle,
+                            "timeStyle" => f.TimeStyle,
+                            _ => null,
+                        };
+                }
+
+                break;
+            }
+
+            case "df":
+            {
+                DurationFormatService f = DurationFormatService.Create(locales, IntlDateTimeDifferentialTests.DurationOptions(o) with { FractionalDigits = NumberOption(o, "fractionalDigits", 0, 9) }, "en-US");
+                DurationRecord? Duration()
+                {
+                    if (args.ValueKind != JsonValueKind.Array || args.GetArrayLength() == 0)
+                    {
+                        return null;
+                    }
+
+                    // ToDurationRecord (13.5.3): a string is a RangeError, any other non-object a TypeError.
+                    if (args[0].ValueKind == JsonValueKind.String)
+                    {
+                        throw args[0].GetString()!.StartsWith("s:", StringComparison.Ordinal) ? IntlException.Range("Invalid duration") : IntlException.Type("Invalid duration");
+                    }
+
+                    if (args[0].ValueKind != JsonValueKind.Object || !args[0].TryGetProperty("o", out JsonElement fields))
+                    {
+                        throw IntlException.Type("Invalid duration");
+                    }
+
+                    var values = new double?[10];
+                    foreach (JsonProperty p in fields.EnumerateObject())
+                    {
+                        int i = Array.IndexOf(DurationRecord.UnitNames, p.Name);
+                        string text = p.Value.GetString()![2..];
+                        if (i >= 0)
+                        {
+                            values[i] = double.TryParse(text, NumberStyles.Float, NumberFormatInfo.InvariantInfo, out double d) ? d : double.NaN;
+                        }
+                    }
+
+                    return DurationRecord.Create(values);
+                }
+
+                switch (method)
+                {
+                    case "ctor":
+                        return null;
+                    case "format":
+                        return Duration() is { } d1 ? f.Format(d1) : null;
+                    case "formatToParts":
+                        if (Duration() is { } d2)
+                        {
+                            DurationPart part = f.FormatToParts(d2)[c.GetProperty("part").GetInt32()];
+                            return c.GetProperty("prop").GetString() switch { "type" => part.Type, "value" => part.Value, "unit" => part.Unit, _ => null };
+                        }
+
+                        break;
+                    case "resolvedOptions":
+                    {
+                        string prop = c.GetProperty("prop").GetString()!;
+                        switch (prop)
+                        {
+                            case "locale": return f.Locale;
+                            case "numberingSystem": return f.NumberingSystem;
+                            case "style": return f.Style;
+                            case "fractionalDigits": return f.FractionalDigits is { } fd ? Inv(fd) : null;
+                        }
+
+                        bool display = prop.EndsWith("Display", StringComparison.Ordinal);
+                        int unit = Array.IndexOf(DurationRecord.UnitNames, display ? prop[..^7] : prop);
+                        if (unit >= 0)
+                        {
+                            return display ? f.Unit(unit).Display : f.Unit(unit).Style;
+                        }
+
+                        break;
+                    }
                 }
 
                 break;

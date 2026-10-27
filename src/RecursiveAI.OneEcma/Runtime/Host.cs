@@ -43,4 +43,22 @@ public interface IJsHost
 
     /// <summary>Adds host properties to <c>import.meta</c> of the module with the given Id.</summary>
     void InitializeImportMeta(string moduleId, JsObject meta);
+
+    /// <summary>
+    /// Called at a weak-reference collection point (<c>$262.gc()</c> in the conformance host) with the ids of the
+    /// WeakRef and FinalizationRegistry targets that were found unreachable and are now dead, ascending. Recording hosts
+    /// log it. The default does nothing.
+    /// </summary>
+    /// <param name="ids">Creation-order ids of the dead weak targets.</param>
+    void WeakTargetsCollected(IReadOnlyList<long> ids)
+    {
+    }
+
+    /// <summary>
+    /// Replay hook for <see cref="WeakTargetsCollected"/>: when a replaying host returns a list, the engine does not run
+    /// the garbage collector at a collection point and treats exactly those ids as dead, so a recorded run reproduces.
+    /// Returns null (the default) to let the collector decide.
+    /// </summary>
+    /// <returns>The recorded ids, or null.</returns>
+    IReadOnlyList<long>? ReplayWeakCollection() => null;
 }
