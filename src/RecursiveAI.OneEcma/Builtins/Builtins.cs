@@ -25,6 +25,7 @@ internal static partial class Builtins
         SetupGenerators(r);
         SetupGlobals(r);
         SetupMathJson(r);
+        SetupCoreExtras(r);
         SetupHost(r);
     }
 
