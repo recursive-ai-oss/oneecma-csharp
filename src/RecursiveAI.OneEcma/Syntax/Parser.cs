@@ -491,6 +491,10 @@ internal sealed partial class Parser
                 {
                     Redeclared(name, span, existing);
                 }
+                else if (existing.Kind == BindingKind.Parameter)
+                {
+                    existing.AlsoVar = true;
+                }
 
                 return;
             }
@@ -538,6 +542,10 @@ internal sealed partial class Parser
             else if (existing.Kind == BindingKind.Var)
             {
                 existing.Kind = BindingKind.Function;
+            }
+            else if (existing.Kind == BindingKind.Parameter)
+            {
+                existing.AlsoVar = true;
             }
 
             if (existing.Kind == BindingKind.Function)

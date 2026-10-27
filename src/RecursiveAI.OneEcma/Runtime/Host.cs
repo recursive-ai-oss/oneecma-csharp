@@ -1,0 +1,46 @@
+namespace RecursiveAI.OneEcma;
+
+/// <summary>A module the host resolved: a stable identity (used as the cache key and as the file name in reports) and its source text.</summary>
+/// <param name="Id">The resolved identity. Two specifiers resolving to the same Id share one module record.</param>
+/// <param name="Source">The module source text.</param>
+public sealed record HostModule(string Id, string Source);
+
+/// <summary>
+/// The only way the engine reaches the outside world. Everything nondeterministic or environmental crosses this
+/// interface, so a recording host can log every value and a replaying host can feed them back.
+/// </summary>
+public interface IJsHost
+{
+    /// <summary>Milliseconds since the Unix epoch (Date.now, new Date()).</summary>
+    double CurrentTimeMs();
+
+    /// <summary>A monotonic clock in milliseconds, used for the wall-clock limit and performance.now.</summary>
+    double MonotonicMs();
+
+    /// <summary>A value in [0, 1) for Math.random.</summary>
+    double NextRandom();
+
+    /// <summary>The BCP 47 tag used when a locale is not given.</summary>
+    string DefaultLocale { get; }
+
+    /// <summary>The IANA time zone id used for local time.</summary>
+    string TimeZoneId { get; }
+
+    /// <summary>
+    /// Resolves a module specifier. <paramref name="referrerId"/> is the Id of the importing module, or null for
+    /// <c>import()</c> from a script. Returns null when the module does not exist.
+    /// </summary>
+    HostModule? ResolveModule(string specifier, string? referrerId, IReadOnlyDictionary<string, string> attributes);
+
+    /// <summary>Receives text printed by the host-provided <c>print</c> function.</summary>
+    void Print(string text);
+
+    /// <summary>Called whenever a promise job is queued, in order; recording hosts log it.</summary>
+    void JobEnqueued();
+
+    /// <summary>Called when a promise is rejected with no handler (<paramref name="handled"/> false) and when a handler is added later (true).</summary>
+    void PromiseRejectionTracker(JsObject promise, bool handled);
+
+    /// <summary>Adds host properties to <c>import.meta</c> of the module with the given Id.</summary>
+    void InitializeImportMeta(string moduleId, JsObject meta);
+}

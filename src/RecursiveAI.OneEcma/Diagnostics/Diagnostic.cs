@@ -132,6 +132,9 @@ public sealed class Diagnostic
     /// </summary>
     public SourceMapping? Mapping { get; internal set; }
 
+    /// <summary>Script frames at the failure, innermost first; empty for syntax errors.</summary>
+    public IReadOnlyList<StackFrameInfo> Stack { get; internal set; } = [];
+
     /// <summary>Where the parser noticed the problem; a hint may later move <see cref="PrimarySpan"/> to the construct that is actually wrong, this stays.</summary>
     internal int ParseOffset { get; }
 

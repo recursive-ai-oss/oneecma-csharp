@@ -160,6 +160,22 @@ public static class DiagnosticRenderer
         };
         labels.AddRange(d.SecondaryLabels);
         AppendBody(sb, o, d.Source, labels, d.Help, d.Notes);
+        if (d.Stack.Count > 0)
+        {
+            sb.Append("  = stack: ");
+            for (int i = 0; i < d.Stack.Count; i++)
+            {
+                StackFrameInfo fr = d.Stack[i];
+                if (i > 0)
+                {
+                    sb.Append(" ← ");
+                }
+
+                sb.Append(fr.IsAsync ? "async " : "").Append(fr.Function.Length == 0 ? "<anonymous>" : fr.Function).Append(" (").Append(fr.Source.Name).Append(':').Append(fr.Position.Line).Append(')');
+            }
+
+            sb.Append('\n');
+        }
     }
 
     /// <summary>Everything under the headline: the location, the labelled source lines, then help and notes. The first label is the primary one.</summary>
