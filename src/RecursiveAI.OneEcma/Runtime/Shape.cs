@@ -57,7 +57,16 @@ internal sealed class Shape
         Proto = parent is null ? proto : parent.Proto;
         Count = parent is null ? 0 : parent.Count + 1;
         IsDictionary = dict;
+        DigitKeys = (parent?.DigitKeys ?? 0) + (parent is not null && StartsWithDigit(key) ? 1 : 0);
     }
+
+    private static bool StartsWithDigit(PropertyKey key) => key.Ref is string s && s.Length > 0 && s[0] is >= '0' and <= '9';
+
+    /// <summary>
+    /// How many live keys begin with a decimal digit. Zero means no integer-like key can exist, which lets array built-ins decide
+    /// in O(1) that a prototype cannot intercept an index instead of listing its keys on every call.
+    /// </summary>
+    internal int DigitKeys { get; private set; }
 
     private struct DictEntry
     {
@@ -155,6 +164,11 @@ internal sealed class Shape
             _entries.Add(new DictEntry { Key = key, Flags = flags });
             Count++;
             _live++;
+            if (StartsWithDigit(key))
+            {
+                DigitKeys++;
+            }
+
             return this;
         }
 
@@ -257,6 +271,7 @@ internal sealed class Shape
 
         d.Count = d._entries.Count;
         d._live = d.Count;
+        d.DigitKeys = DigitKeys;
         return d;
     }
 
@@ -274,6 +289,10 @@ internal sealed class Shape
         _entries[slot] = e;
         _dictIndex!.Remove(e.Key);
         _live--;
+        if (StartsWithDigit(e.Key))
+        {
+            DigitKeys--;
+        }
     }
 
     internal bool NeedsCompaction => IsDictionary && _entries!.Count > 16 && _live * 2 < _entries.Count;

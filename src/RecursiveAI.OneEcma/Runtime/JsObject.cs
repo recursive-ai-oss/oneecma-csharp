@@ -72,6 +72,14 @@ public class JsObject
     internal bool Extensible = true;
     internal Shape? ChildRoot;
 
+    /// <summary>True while an own property is still deferred (see <see cref="ScriptFunction"/>). Anything that changes or lists own properties calls <see cref="Realize"/> first.</summary>
+    internal bool Lazy;
+
+    /// <summary>Creates the deferred own properties, so the object is an ordinary one again.</summary>
+    internal virtual void Realize()
+    {
+    }
+
     /// <summary>Set by exotic subclasses that override <see cref="Get(PropertyKey, JsValue)"/> (Proxy, module namespaces, typed arrays).</summary>
     internal bool OverridesGet;
 
@@ -82,6 +90,13 @@ public class JsObject
     {
         Shape = shape;
         Slots = shape.Count == 0 ? [] : new JsValue[Math.Max(shape.Count, 4)];
+    }
+
+    /// <summary>Creates an object whose slot array is exactly as long as the shape needs; for objects that rarely gain properties.</summary>
+    internal JsObject(Shape shape, bool exactSlots)
+    {
+        Shape = shape;
+        Slots = shape.Count == 0 ? [] : new JsValue[exactSlots ? shape.Count : Math.Max(shape.Count, 4)];
     }
 
     internal JsObject(JsObject? proto)
@@ -337,6 +352,11 @@ public class JsObject
     /// <summary>Adds a property known to be absent.</summary>
     internal void AddProperty(PropertyKey key, JsValue value, PropFlags flags)
     {
+        if (Lazy)
+        {
+            Realize();
+        }
+
         int slot = Shape.Count;
         Shape = Shape.Add(key, flags);
         if (slot >= Slots.Length)
@@ -350,6 +370,11 @@ public class JsObject
     /// <summary>Overwrites an existing own property with the (complete) descriptor, changing attributes if needed.</summary>
     internal void ReplaceProperty(PropertyKey key, in PropertyDescriptor d)
     {
+        if (Lazy)
+        {
+            Realize();
+        }
+
         int slot = Shape.Lookup(key, out PropFlags old);
         PropFlags f = d.ToFlags();
         if (f != old)
@@ -368,6 +393,11 @@ public class JsObject
     /// <summary>Creates or overwrites an own data property without any checks (used while building built-ins).</summary>
     internal void DefineDirect(PropertyKey key, JsValue value, PropFlags flags = PropFlags.Default)
     {
+        if (Lazy)
+        {
+            Realize();
+        }
+
         int slot = Shape.Lookup(key, out PropFlags old);
         if (slot < 0)
         {
@@ -390,6 +420,11 @@ public class JsObject
 
     internal void DefineAccessorDirect(PropertyKey key, JsObject? getter, JsObject? setter, PropFlags flags)
     {
+        if (Lazy)
+        {
+            Realize();
+        }
+
         int slot = Shape.Lookup(key, out PropFlags old);
         flags = (flags & ~PropFlags.Writable) | PropFlags.Accessor;
         var pair = new JsValue(new AccessorPair(getter, setter), 0);
@@ -576,6 +611,11 @@ public class JsObject
 
     internal void RemoveSlot(int slot)
     {
+        if (Lazy)
+        {
+            Realize();
+        }
+
         if (!Shape.IsDictionary)
         {
             Shape = Shape.ToDictionary();

@@ -20,6 +20,22 @@ internal static class Program
             return;
         }
 
+        if (args.Length == 3 && args[0] == "loop")
+        {
+            // One kernel, many fresh engines: a steady workload for an external sampling profiler.
+            // A name that is a file path runs that script instead, and the mean time per run is printed.
+            string source = File.Exists(args[1]) ? File.ReadAllText(args[1]) : BenchScripts.All.First(x => x.Name == args[1]).Source;
+            var clock = System.Diagnostics.Stopwatch.StartNew();
+            int count = int.Parse(args[2], System.Globalization.CultureInfo.InvariantCulture);
+            for (int i = 0; i < count; i++)
+            {
+                new ScriptEngine().Evaluate(source);
+            }
+
+            Console.WriteLine((clock.Elapsed.TotalMilliseconds / count).ToString("F2", System.Globalization.CultureInfo.InvariantCulture) + " ms/run");
+            return;
+        }
+
         if (args.Length >= 1 && args[0] == "longrun")
         {
             LongRun(args.Length > 1 ? int.Parse(args[1], System.Globalization.CultureInfo.InvariantCulture) : 12);

@@ -674,6 +674,39 @@ internal static partial class Vm
         return obj.Get(key, receiver);
     }
 
+    /// <summary>
+    /// GetValue on a string primitive (ECMA-262 6.2.5.5 with ToObject, 10.4.3.5): <c>length</c> is answered without flattening a rope,
+    /// and a data method found on <c>String.prototype</c> is cached per site against that prototype's shape.
+    /// </summary>
+    private static JsValue GetStringProp(Realm realm, JsValue str, string name, PropCache c)
+    {
+        if (name == "length")
+        {
+            return Ops.Num(str.Ref is string s ? s.Length : ((Rope)str.Ref!).Length);
+        }
+
+        JsObject sp = realm.StringPrototype;
+        if (ReferenceEquals(c.Holder, sp) && ReferenceEquals(c.HolderShape, sp.Shape))
+        {
+            return sp.Slots[c.Slot];
+        }
+
+        if (!sp.Shape.IsDictionary && !(name.Length > 0 && name[0] is >= '0' and <= '9'))
+        {
+            int slot = sp.Shape.Lookup(new PropertyKey(name), out PropFlags fl);
+            if (slot >= 0 && (fl & PropFlags.Accessor) == 0)
+            {
+                c.Shape = null;
+                c.Holder = sp;
+                c.HolderShape = sp.Shape;
+                c.Slot = slot;
+                return sp.Slots[slot];
+            }
+        }
+
+        return Ops.GetV(str, new PropertyKey(name));
+    }
+
     private static void SetPropSlow(JsObject obj, string name, JsValue v, PropCache c, bool strict)
     {
         var key = new PropertyKey(name);
@@ -1190,7 +1223,8 @@ internal static partial class Vm
         Realm r = f.Realm;
         JsObject proto = code.IsGenerator ? (code.IsAsync ? r.AsyncGeneratorFunctionPrototype : r.GeneratorFunctionPrototype) : code.IsAsync ? r.AsyncFunctionPrototype : r.FunctionPrototype;
         bool hasProto = code.IsGenerator || (code.Kind == FunctionKind.Normal && !code.IsAsync);
-        var fn = new ScriptFunction(r, code, f.Env, proto, hasProto);
+        // Only a plain function gets the deferred prototype; generators fill the slot at once below.
+        var fn = new ScriptFunction(r, code, f.Env, proto, hasProto, lazyPrototype: hasProto && !code.IsGenerator);
         if (code.Kind == FunctionKind.Arrow)
         {
             // The arrow reads this, new.target and super through the frame, so neither may be reused while it lives.
@@ -1203,12 +1237,6 @@ internal static partial class Vm
         if (code.IsGenerator)
         {
             fn.Slots[2] = JsValue.FromObject(new JsObject(code.IsAsync ? r.AsyncGeneratorPrototype : r.GeneratorPrototype));
-        }
-        else if (hasProto)
-        {
-            var p = new JsObject(r.ObjectPrototype);
-            p.AddProperty("constructor", JsValue.FromObject(fn), PropFlags.Hidden);
-            fn.Slots[2] = JsValue.FromObject(p);
         }
 
         return fn;

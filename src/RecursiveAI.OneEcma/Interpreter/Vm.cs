@@ -613,6 +613,10 @@ internal static partial class Vm
 
                                     st[sp - 1] = GetPropSlow(obj, o, fc.Names[ins.A], c);
                                 }
+                                else if (o.Ref is string or Rope)
+                                {
+                                    st[sp - 1] = GetStringProp(ag.Realm, o, fc.Names[ins.A], fc.Caches[ins.B]);
+                                }
                                 else
                                 {
                                     st[sp - 1] = Ops.GetV(o, new PropertyKey(fc.Names[ins.A]));
@@ -636,6 +640,10 @@ internal static partial class Vm
                                     {
                                         fnv = GetPropSlow(obj, o, fc.Names[ins.A], c);
                                     }
+                                }
+                                else if (o.Ref is string or Rope)
+                                {
+                                    fnv = GetStringProp(ag.Realm, o, fc.Names[ins.A], fc.Caches[ins.B]);
                                 }
                                 else
                                 {
