@@ -15,6 +15,7 @@ internal static class RepairRulebook
     {
         var all = new List<RepairCandidate>();
         ExtraCloser(c, all);
+        UnclosedBeforeSemicolon(c, all);
         TruncatedBrackets(c, all);
         SmartQuotes(c, all);
         MissingComma(c, all);
@@ -50,6 +51,22 @@ internal static class RepairRulebook
 
         all.Add(new RepairCandidate("R001", "removed an extra closing delimiter", "removed", new Span(t.Start, t.End), [new TextEdit(t.Start, t.End - t.Start, "")]));
 
+        // Several unmatched closers in a row (`)))`, `}}}`) are removed together: taking out one leaves the parser stopped at the next, which
+        // would look like no progress. Each length is a candidate, so only the count that makes the source parse is plausible.
+        var run = new List<Token> { t };
+        for (int j = c.FirstIndex + 1; j < c.Tokens.Count && j < c.Match.Length && run.Count < 8; j++)
+        {
+            Token n = c.Tokens[j];
+            if (n.Type is not (TokenType.RParen or TokenType.RBracket or TokenType.RBrace) || c.Match[j] >= 0)
+            {
+                break;
+            }
+
+            run.Add(n);
+            all.Add(new RepairCandidate("R001", "removed " + run.Count.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + " extra closing delimiters", "removed", new Span(t.Start, t.End),
+                run.ConvertAll(x => new TextEdit(x.Start, x.End - x.Start, ""))));
+        }
+
         // Rival fixes: a missing opener instead of a surplus closer. Wrapping a whole expression statement in
         // parentheses means the same thing, so only the readings that would change the program count.
         string opener = t.Type switch { TokenType.RParen => "(", TokenType.RBracket => "[", _ => "{" };
@@ -81,6 +98,50 @@ internal static class RepairRulebook
         {
             all.Add(new RepairCandidate("R001", "", "", new Span(at, at), [new TextEdit(at, 0, opener)], alternative: true));
         }
+    }
+
+    // ---- R012: `)` or `]` missing right before a `;` at the end of a line -----------------------------
+
+    private static void UnclosedBeforeSemicolon(RepairContext c, List<RepairCandidate> all)
+    {
+        // The parser notices the problem at the last argument or at the `;` itself.
+        int i = c.At(c.FirstIndex).Type == TokenType.Semicolon ? c.FirstIndex : c.FirstIndex + 1;
+        Token semi = c.At(i);
+        if (semi.Type != TokenType.Semicolon || i == 0)
+        {
+            return;
+        }
+
+        // Only a `;` that ends its line: text after it could be more arguments or another statement, and then where the closer goes is a guess.
+        int line = c.Source.GetPosition(semi.Start).Line;
+        ReadOnlySpan<char> after = c.Text.AsSpan(semi.End, c.Source.GetLineStart(line) + c.Source.GetLineText(line).Length - semi.End).Trim();
+        if (!after.IsEmpty && !after.StartsWith("//", StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        // Every group opened on this line and still open at the `;` gets its closer, innermost first. A `for (` header legitimately holds `;`.
+        var closers = new StringBuilder();
+        for (int open = c.Enclosing(i); open >= 0; open = c.Enclosing(open))
+        {
+            Token o = c.Tokens[open];
+            if (o.Type is not (TokenType.LParen or TokenType.LBracket) || c.Source.GetPosition(o.Start).Line != line || (open > 0 && o.Type == TokenType.LParen && c.Tokens[open - 1].Type == TokenType.For))
+            {
+                break;
+            }
+
+            closers.Append(o.Type == TokenType.LParen ? ')' : ']');
+        }
+
+        if (closers.Length == 0)
+        {
+            return;
+        }
+
+        // A group left open by an enclosing brace on an earlier line is not this rule's business.
+        Token prev = c.Tokens[i - 1];
+        all.Add(new RepairCandidate("R012", "closed " + (closers.Length == 1 ? "a group" : closers.Length.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + " groups") + " before the `;`",
+            "inserted `" + closers + "` before this", new Span(semi.Start, semi.End), [new TextEdit(prev.End, 0, closers.ToString())]));
     }
 
     private static int StatementStart(RepairContext c, int i)
@@ -381,6 +442,19 @@ internal static class RepairRulebook
         }
 
         Token prev = c.Tokens[i - 1];
+
+        // `const name: Type = value`: the parser stops at the name (a `const` needs an initializer), one token before the colon.
+        if (t.Type == TokenType.Identifier && (prev.Type is TokenType.Const or TokenType.Var || (prev.Type == TokenType.Identifier && prev.Text == "let"))
+            && c.At(i + 1).Type is TokenType.Colon && !c.At(i + 1).NewlineBefore)
+        {
+            int typeEnd = TypeEnd(c, i + 2);
+            if (typeEnd > i + 2)
+            {
+                all.Add(new RepairCandidate("R007", title, "removed", new Span(c.At(i + 1).Start, c.At(i + 1).End), [new TextEdit(t.End, c.Tokens[typeEnd - 1].End - t.End, "")]));
+            }
+
+            return;
+        }
 
         // `name: Type`, `name?: Type`, `): Type`
         bool optionalMark = t.Type == TokenType.Question && c.At(i + 1).Type == TokenType.Colon && prev.Type == TokenType.Identifier;

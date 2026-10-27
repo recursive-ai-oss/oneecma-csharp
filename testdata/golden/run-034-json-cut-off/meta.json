@@ -1,0 +1,16 @@
+{
+  "id": "run-034-json-cut-off",
+  "category": "rt:json-parse",
+  "kind": "runtime",
+  "repair": null,
+  "node": {
+    "name": "SyntaxError",
+    "message": "Expected ',' or ']' after array element in JSON at position 17 (line 1 column 18)",
+    "line": 1,
+    "column": 20,
+    "stack_head": [
+      "at JSON.parse (<anonymous>)",
+      "at case.js:1:20"
+    ]
+  }
+}

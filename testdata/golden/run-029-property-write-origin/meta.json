@@ -1,0 +1,15 @@
+{
+  "id": "run-029-property-write-origin",
+  "category": "rt:property-of-undefined",
+  "kind": "runtime",
+  "repair": null,
+  "node": {
+    "name": "TypeError",
+    "message": "Cannot read properties of undefined (reading 'length')",
+    "line": 4,
+    "column": 24,
+    "stack_head": [
+      "at case.js:4:24"
+    ]
+  }
+}

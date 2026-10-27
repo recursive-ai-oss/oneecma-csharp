@@ -1,0 +1,15 @@
+{
+  "id": "run-032-global-typo",
+  "category": "rt:not-defined",
+  "kind": "runtime",
+  "repair": null,
+  "node": {
+    "name": "ReferenceError",
+    "message": "conosle is not defined",
+    "line": 2,
+    "column": 1,
+    "stack_head": [
+      "at case.js:2:1"
+    ]
+  }
+}

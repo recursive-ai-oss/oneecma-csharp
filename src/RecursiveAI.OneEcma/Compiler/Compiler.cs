@@ -167,7 +167,7 @@ internal sealed partial class Compiler
         f.SpanS.Add(f.CurS);
         f.SpanE.Add(f.CurE);
         f.PosL.Add(f.CurP >= 0 ? f.CurP : f.CurS);
-        if (f.ValS >= 0 && op is Op.InitSlot or Op.StoreSlot or Op.StoreSlotChecked or Op.InitGlobalLexical or Op.StoreGlobal or Op.DefineField)
+        if (f.ValS >= 0 && op is Op.InitSlot or Op.StoreSlot or Op.StoreSlotChecked or Op.InitGlobalLexical or Op.StoreGlobal or Op.DefineField or Op.SetProp or Op.SetElem)
         {
             // Where the stored value was written, so a traced replay can say where a binding or property got its value.
             (f.ValSpans ??= new())[f.Ops.Count - 1] = (f.ValS, f.ValE);

@@ -194,6 +194,25 @@ public class Test262RunnerTests
         }
     }
 
+    [Fact]
+    public void ReportListsStaleDocumentedPathsInTextAndJson()
+    {
+        var report = new Report(
+        [
+            new RecursiveAI.OneEcma.Test262.TestResult("language/a/one.js", TestStatus.Pass),
+            new RecursiveAI.OneEcma.Test262.TestResult("language/b/stale-two.js", TestStatus.Pass, StaleDocumented: true),
+            new RecursiveAI.OneEcma.Test262.TestResult("built-ins/c/stale-one.js", TestStatus.Pass, StaleDocumented: true),
+        ]);
+        Assert.Equal(["language/b/stale-two.js", "built-ins/c/stale-one.js"], report.StalePaths);
+        string text = report.ToText("engine", 1);
+        Assert.Contains("documented failures that now pass: 2", text, StringComparison.Ordinal);
+        Assert.True(text.IndexOf("stale: built-ins/c/stale-one.js", StringComparison.Ordinal) < text.IndexOf("stale: language/b/stale-two.js", StringComparison.Ordinal));
+        using var stream = new MemoryStream();
+        report.WriteJson(stream, "engine", "sha", false);
+        using var doc = System.Text.Json.JsonDocument.Parse(stream.ToArray());
+        Assert.Equal(["built-ins/c/stale-one.js", "language/b/stale-two.js"], doc.RootElement.GetProperty("staleDocumentedPaths").EnumerateArray().Select(e => e.GetString()).Order(StringComparer.Ordinal));
+    }
+
     private static SourceMode[] Modes(TestPreparer prep, string source) =>
         prep.Prepare("t.js", "t.js", source, TestMetadata.Parse(source), false).Select(r => r.Mode).ToArray();
 }
