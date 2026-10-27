@@ -63,12 +63,7 @@ internal static class RegExpHook
 
     internal static JsValue Create(Realm r, string pattern, string flags)
     {
-        if (Factory is null)
-        {
-            throw Errors.Syntax("RegExp objects are not available in this build");
-        }
-
-        return Factory(r, pattern, flags);
+        return Factory is null ? RegExpBuiltins.CreateLiteral(r, pattern, flags) : Factory(r, pattern, flags);
     }
 }
 
@@ -457,7 +452,7 @@ internal static partial class Builtins
             return nr.Global.Get("$262");
         });
         r.Method(h, "evalScript", 1, (t, a, nt) => ScriptRunner.RunScript(r, Ops.ToStr(A(a, 0)), "<evalScript>"));
-        r.Method(h, "detachArrayBuffer", 1, (t, a, nt) => throw Errors.Type("detachArrayBuffer is not available in this build"));
+        r.Method(h, "detachArrayBuffer", 1, (t, a, nt) => BinaryData.HostDetach(A(a, 0)));
         var agent = r.NewObject();
         Realm.Value(h, "agent", JsValue.FromObject(agent));
         var dda = new HtmlDdaObject(r.ObjectPrototype);

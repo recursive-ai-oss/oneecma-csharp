@@ -79,4 +79,10 @@ public interface IJsHost
     /// </summary>
     /// <returns>The recorded ids, or null.</returns>
     IReadOnlyList<long>? ReplayWeakCollection() => null;
+
+    /// <summary>
+    /// Whether <c>Atomics.wait</c> may suspend the running agent ([[CanBlock]], ECMA-262 9.7). The engine has one agent, so a
+    /// permitted wait can only time out, at once and without sleeping. The default is true.
+    /// </summary>
+    bool CanBlock => true;
 }
