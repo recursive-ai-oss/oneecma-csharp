@@ -1,0 +1,5 @@
+error[Error]: KeyNotFoundException: No order with id 99
+ --> case.js:2:10
+2 |   return api.getOrder(id);
+  |          ^^^^^^^^^^^^
+  = stack: Shop.OrderApi.GetOrder (Domain.cs:38) ← load (case.js:2) ← <top-level> (case.js:5)

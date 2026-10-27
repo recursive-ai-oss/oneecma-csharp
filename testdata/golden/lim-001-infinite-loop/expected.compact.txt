@@ -1,0 +1,4 @@
+error[Limit]: Execution exceeded the step limit of 200000000 steps
+ --> case.js:2:1
+2 | while (true) {
+  | ^^^^^^^^^^^^^^

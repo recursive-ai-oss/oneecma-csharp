@@ -76,6 +76,20 @@
   "run-035-reduce-empty-filtered",
   "lim-001-infinite-loop",
   "lim-002-catastrophic-regex",
-  "map-001-syntax-error-in-generated-code"
+  "map-001-syntax-error-in-generated-code",
+  "syn-040-long-line-missing-paren",
+  "syn-041-long-line-opener-far-from-error",
+  "run-036-long-line-two-windows",
+  "run-037-long-line-wide-underline",
+  "run-038-minified-secondary-on-earlier-line",
+  "run-039-method-on-wrapper-content",
+  "run-040-wrapper-data-for-items",
+  "run-041-invalid-date-argument-to-format",
+  "run-042-invalid-date-through-parameter",
+  "run-043-bigint-mix-call-operand",
+  "run-044-pad-to-huge-width",
+  "run-045-upstream-missing-property-through-calls",
+  "run-046-find-after-filter-kept-nothing",
+  "run-047-function-returns-nothing"
  ]
 }

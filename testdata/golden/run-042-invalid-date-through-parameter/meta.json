@@ -1,0 +1,16 @@
+{
+  "id": "run-042-invalid-date-through-parameter",
+  "category": "rt:range",
+  "kind": "runtime",
+  "repair": null,
+  "node": {
+    "name": "RangeError",
+    "message": "Invalid time value",
+    "line": 4,
+    "column": 12,
+    "stack_head": [
+      "  return d.toISOString().slice(0, 10);",
+      "           ^"
+    ]
+  }
+}

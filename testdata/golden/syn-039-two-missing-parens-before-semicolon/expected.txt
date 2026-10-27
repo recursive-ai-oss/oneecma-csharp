@@ -6,4 +6,4 @@ error[SyntaxError]: missing ) after argument list
   |                    ^^ expected `,` or `)` before this `;`
   |
   = help: add `)` before `;`: `double(21);`
-  = note: not repaired automatically: `)` could also belong after a later argument
+  = note: repair is off by default; with it on, R012 closes it before the `;` that ends the line, though `)` could also belong after a later argument

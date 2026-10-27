@@ -1,0 +1,10 @@
+error[TypeError]: Cannot read properties of undefined (reading 'map')
+ --> case.js:2:15
+  |
+1 | const r = { data: [1, 2, 3], total: 3 };
+  |           ----------------------------- `r` comes from here: { data, total }
+2 | console.log(r.items.map(x => x * 2));
+  |               ^^^^^ `r.items` is undefined
+  |
+  = help: did you mean `r.data`? (Array, 3 items)
+  = stack: <top-level> (case.js:2)

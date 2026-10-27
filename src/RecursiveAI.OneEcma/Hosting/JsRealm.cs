@@ -430,8 +430,7 @@ public sealed class JsRealm
     public JsValue Call(JsValue function, JsValue thisValue, params ReadOnlySpan<JsValue> args)
     {
         JsValue[] copy = args.ToArray();
-        Engine.NoteNotReplayable("JsRealm.Call was used, and its function argument is not part of the log");
-        return Run(() => Ops.Call(function, thisValue, copy));
+        return Engine.CallFromHost(_realm, function, thisValue, copy, default);
     }
 
     /// <summary>Calls a constructor with <c>new</c>.</summary>

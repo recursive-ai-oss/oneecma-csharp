@@ -56,6 +56,199 @@ internal sealed class Recorder
 
     internal string? Divergence;
 
+    // ---- callbacks into script -------------------------------------------------------------------------
+
+    private const int MaxKnown = 1024;
+    private const int MaxChildren = 64;
+
+    /// <summary>
+    /// Objects (functions included) that script handed to a host function, numbered in the order they were first seen. A callback
+    /// event names its function and any object argument by this number; a recording and its replay number them identically because
+    /// both register at the entry of every host function.
+    /// </summary>
+    internal readonly List<JsObject> Known = [];
+
+    private readonly Dictionary<JsObject, int> _knownIds = new(ReferenceEqualityComparer.Instance);
+
+    /// <summary>True while a host function body runs and no callback is running: the only place a nested callback event can be written.</summary>
+    internal bool InHostFn;
+
+    /// <summary>The error the latest callback of the current host call threw (a recording), so a host call that ends by rethrowing it can say so.</summary>
+    internal JsException? LastCallbackError;
+
+    /// <summary>Results of the callbacks a replayed host call already ran, handed to the live host function when its result had to be recomputed.</summary>
+    internal Queue<(JsValue Value, JsException? Thrown)>? Queued;
+
+    internal bool TryGetKnown(JsValue v, out int id)
+    {
+        id = -1;
+        return v.IsObject && _knownIds.TryGetValue((JsObject)v.Ref!, out id);
+    }
+
+    /// <summary>Numbers the objects a host function receives: its arguments and, one level down, the members of plain objects and arrays.</summary>
+    internal void RegisterKnown(JsValue thisValue, ReadOnlySpan<JsValue> args)
+    {
+        Register(thisValue, 0);
+        foreach (JsValue a in args)
+        {
+            Register(a, 0);
+        }
+    }
+
+    private void Register(JsValue v, int depth)
+    {
+        if (!v.IsObject || Known.Count >= MaxKnown)
+        {
+            return;
+        }
+
+        var o = (JsObject)v.Ref!;
+        if (!_knownIds.TryAdd(o, Known.Count))
+        {
+            return;
+        }
+
+        Known.Add(o);
+        if (depth > 0 || !(o.GetType() == typeof(JsObject) || o.GetType() == typeof(JsArray)))
+        {
+            return;
+        }
+
+        var keys = new List<PropertyKey>();
+        o.OwnKeys(keys);
+        if (keys.Count > MaxChildren)
+        {
+            return;
+        }
+
+        foreach (PropertyKey k in keys)
+        {
+            if (!k.IsSymbol && o.GetOwnProperty(k, out PropertyDescriptor d) && !d.IsAccessor)
+            {
+                Register(d.Value, 1);
+            }
+        }
+    }
+
+    /// <summary>Whether a callback with this function, receiver and arguments can be written to the log; says why not otherwise.</summary>
+    internal bool CanDescribeCallback(JsValue function, JsValue thisValue, ReadOnlySpan<JsValue> args, out string reason)
+    {
+        reason = string.Empty;
+        if (!TryGetKnown(function, out _))
+        {
+            reason = "a function was called from .NET that script never passed to a host function, so the log cannot name it";
+            return false;
+        }
+
+        if (!Describable(thisValue))
+        {
+            reason = "a callback was called with a receiver that is not data";
+            return false;
+        }
+
+        foreach (JsValue a in args)
+        {
+            if (!Describable(a))
+            {
+                reason = "a callback was called with an argument that is neither data nor an object script passed to a host function";
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private bool Describable(JsValue v) => TryGetKnown(v, out _) || ValueCodec.CanEncode(v);
+
+    internal void WriteCallback(JsValue function, JsValue thisValue, ReadOnlySpan<JsValue> args)
+    {
+        TryGetKnown(function, out int id);
+        Log.Tag(LogTag.Callback);
+        Log.Varint((ulong)id);
+        WriteCallbackValue(thisValue);
+        Log.Varint((ulong)args.Length);
+        foreach (JsValue a in args)
+        {
+            WriteCallbackValue(a);
+        }
+    }
+
+    private void WriteCallbackValue(JsValue v)
+    {
+        if (TryGetKnown(v, out int id))
+        {
+            Log.Byte(1);
+            Log.Varint((ulong)id);
+        }
+        else
+        {
+            Log.Byte(0);
+            ValueCodec.Encode(Log, v);
+        }
+    }
+
+    internal void WriteCallbackEnd(bool threw)
+    {
+        Log.Tag(LogTag.CallbackEnd);
+        Log.Byte((byte)(threw ? 1 : 0));
+    }
+
+    /// <summary>Reads a Callback event (the tag already consumed) and runs it in the replay; returns its result or the error it threw.</summary>
+    internal (JsValue Value, JsException? Thrown) RunRecordedCallback(Realm realm, bool nested = true)
+    {
+        LogReader r = Reader!;
+        int id = checked((int)r.Varint());
+        if (id >= Known.Count)
+        {
+            throw Diverged("a function the script passed to a host function", LogTag.Callback);
+        }
+
+        JsValue thisValue = ReadCallbackValue(r, realm);
+        int n = checked((int)r.Varint());
+        var args = new JsValue[n];
+        for (int i = 0; i < n; i++)
+        {
+            args[i] = ReadCallbackValue(r, realm);
+        }
+
+        JsValue value = default;
+        JsException? thrown = null;
+        try
+        {
+            value = Ops.Call(JsValue.FromObject(Known[id]), thisValue, args);
+        }
+        catch (JsException je)
+        {
+            thrown = je;
+        }
+
+        if (!nested)
+        {
+            // An entry call of its own: its outcome is the EntryEnd event, which the caller checks.
+            return (value, thrown);
+        }
+
+        LogReader end = Expect(LogTag.CallbackEnd);
+        if ((end.Next() == 1) != (thrown is not null))
+        {
+            Divergence ??= "a callback " + (thrown is null ? "returned where the recorded run threw" : "threw where the recorded run returned");
+            throw new ReplayDivergedException(Divergence);
+        }
+
+        return (value, thrown);
+    }
+
+    private JsValue ReadCallbackValue(LogReader r, Realm realm)
+    {
+        if (r.Next() == 0)
+        {
+            return ValueCodec.Decode(r, realm);
+        }
+
+        int id = checked((int)r.Varint());
+        return id < Known.Count ? JsValue.FromObject(Known[id]) : throw Diverged("an object the script passed to a host function", LogTag.Callback);
+    }
+
     internal Exception Diverged(string expected, LogTag actual)
     {
         Divergence ??= "the replay asked for " + expected + " but the log has " + actual;
@@ -103,14 +296,19 @@ internal sealed class Recorder
         }
     }
 
-    internal void WriteHostThrow(string member, JsValue thrown)
+    internal void WriteHostThrow(string member, JsException thrown)
     {
         Log.Tag(LogTag.HostCall);
         Log.Str(member);
-        if (ValueCodec.CanEncode(thrown))
+        if (ReferenceEquals(thrown, LastCallbackError))
+        {
+            // The host let the error of one of its callbacks escape: replay throws the error the callback threw, not a copy of it.
+            Log.Byte(5);
+        }
+        else if (ValueCodec.CanEncode(thrown.Value))
         {
             Log.Byte(2);
-            ValueCodec.Encode(Log, thrown);
+            ValueCodec.Encode(Log, thrown.Value);
         }
         else
         {
@@ -208,7 +406,7 @@ internal sealed class Recorder
     }
 
     /// <summary>Reads the outcome of a host call or task settlement and applies it: returns the value, throws the recorded error, or reports an opaque result.</summary>
-    internal static JsValue ReadOutcome(LogReader r, string member, Realm realm, out bool opaque, out long taskId, IReadOnlyList<StackFrameInfo>? scriptFrames = null)
+    internal static JsValue ReadOutcome(LogReader r, string member, Realm realm, out bool opaque, out long taskId, IReadOnlyList<StackFrameInfo>? scriptFrames = null, JsException? callbackError = null)
     {
         opaque = false;
         taskId = -1;
@@ -241,6 +439,8 @@ internal sealed class Recorder
             case 4:
                 taskId = (long)r.Varint();
                 return default;
+            case 5:
+                throw callbackError is not null ? callbackError : new FormatException("The record log says a callback error escaped, but the replay ran no callback that threw.");
             default:
                 throw new FormatException("Bad host call outcome in the record log.");
         }

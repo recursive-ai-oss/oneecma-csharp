@@ -9,14 +9,15 @@ namespace RecursiveAI.OneEcma.Cli;
 internal static class Program
 {
     private const string UsageText =
-        "usage: oneecma run [--module] [--locals] <file>\n" +
-        "       oneecma check [--module] [--format text|json] [--source-map <map>] [--repair [--out <path>]] <file>\n" +
+        "usage: oneecma run [--module] [--locals] [--compact] <file>\n" +
+        "       oneecma check [--module] [--compact] [--format text|json] [--source-map <map>] [--repair [--out <path>]] <file>\n" +
         "       oneecma repl      (multi-line input, top-level await, .exit)\n";
 
     private static int Check(ScriptEngine engine, string[] args)
     {
         bool module = false;
         bool repair = false;
+        bool compact = false;
         bool json = false;
         string? outPath = null;
         string? mapPath = null;
@@ -27,6 +28,9 @@ internal static class Program
             {
                 case "--module":
                     module = true;
+                    break;
+                case "--compact":
+                    compact = true;
                     break;
                 case "--repair":
                     repair = true;
@@ -65,7 +69,7 @@ internal static class Program
         string source = File.ReadAllText(path);
         var options = new ParseOptions { Goal = module ? ParseGoal.Module : ParseGoal.Script, FileName = path };
         bool ansi = !Console.IsErrorRedirected && Environment.GetEnvironmentVariable("NO_COLOR") is null;
-        var render = new RenderOptions { Ansi = ansi };
+        var render = new RenderOptions { Ansi = ansi, Compact = compact };
 
         IReadOnlyList<Diagnostic> diagnostics;
         IReadOnlyList<AppliedRepair> repairs = [];
@@ -159,6 +163,7 @@ internal static class Program
     {
         bool module = false;
         bool locals = false;
+        bool compact = false;
         string? path = null;
         for (int i = 1; i < args.Length; i++)
         {
@@ -169,6 +174,9 @@ internal static class Program
                     break;
                 case "--locals":
                     locals = true;
+                    break;
+                case "--compact":
+                    compact = true;
                     break;
                 default:
                     if (path is not null || args[i].StartsWith("--", StringComparison.Ordinal))
@@ -187,7 +195,7 @@ internal static class Program
         }
 
         bool ansi = !Console.IsErrorRedirected && Environment.GetEnvironmentVariable("NO_COLOR") is null;
-        var render = new RenderOptions { Ansi = ansi, ShowLocals = locals };
+        var render = new RenderOptions { Ansi = ansi, ShowLocals = locals, Compact = compact };
         engine.DefineGlobalFunction("print", 1, (_, a) =>
         {
             var parts = new string[a.Length];

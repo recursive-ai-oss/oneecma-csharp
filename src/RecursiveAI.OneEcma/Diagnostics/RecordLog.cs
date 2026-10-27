@@ -185,6 +185,8 @@ internal enum LogTag : byte
     DefineFn = 15,
     AsyncBody = 16,
     Await = 17,
+    Callback = 18,
+    CallbackEnd = 19,
 }
 
 /// <summary>Reads events back from a log.</summary>
@@ -297,6 +299,16 @@ internal sealed class LogReader
             case LogTag.Module: Str(); break;
             case LogTag.Jobs: break;
             case LogTag.Await: Varint(); break;
+            case LogTag.Callback:
+                Varint();
+                SkipCallbackValue();
+                for (ulong n = Varint(); n > 0; n--)
+                {
+                    SkipCallbackValue();
+                }
+
+                break;
+            case LogTag.CallbackEnd: Next(); break;
             case LogTag.Clock: if (Next() == 0) { Clock(); } else { Double(); } break;
             case LogTag.Mono: Double(); break;
             case LogTag.Random: Double(); break;
@@ -325,6 +337,18 @@ internal sealed class LogReader
         }
     }
 
+    private void SkipCallbackValue()
+    {
+        if (Next() == 0)
+        {
+            ValueCodec.Skip(this);
+        }
+        else
+        {
+            Varint();
+        }
+    }
+
     private void SkipOutcome()
     {
         switch (Next())
@@ -341,6 +365,7 @@ internal sealed class LogReader
             case 2: ValueCodec.Skip(this); break;
             case 3: break;
             case 4: Varint(); break;
+            case 5: break;
             default: throw new FormatException("Bad host call outcome in the record log.");
         }
     }

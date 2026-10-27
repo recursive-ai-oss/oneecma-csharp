@@ -1,0 +1,16 @@
+{
+  "id": "run-046-find-after-filter-kept-nothing",
+  "category": "rt:undefined-property",
+  "kind": "runtime",
+  "repair": null,
+  "node": {
+    "name": "TypeError",
+    "message": "Cannot read properties of undefined (reading 'id')",
+    "line": 10,
+    "column": 19,
+    "stack_head": [
+      "console.log(first.id);",
+      "                  ^"
+    ]
+  }
+}

@@ -260,8 +260,7 @@ public sealed partial class ScriptEngine
     public JsValue Call(JsValue function, JsValue thisValue, ReadOnlySpan<JsValue> args = default, CancellationToken cancellationToken = default)
     {
         JsValue[] copy = args.ToArray();
-        NoteNotReplayable("ScriptEngine.Call was used, and its function argument is not part of the log");
-        return Guard(() => Ops.Call(function, thisValue, copy), cancellationToken);
+        return CallFromHost(null, function, thisValue, copy, cancellationToken);
     }
 
     /// <summary>Reads a property of an object (a property get, so getters run).</summary>

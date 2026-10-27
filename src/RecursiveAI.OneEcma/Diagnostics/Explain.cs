@@ -616,6 +616,10 @@ internal static partial class Explain
         {
             Destructure(d, frame, trace, headline, expr, primary);
         }
+        else if (headline == "Invalid string length")
+        {
+            StringLength(d, frame, trace, expr, primary);
+        }
         else if (headline == "Invalid time value")
         {
             InvalidDate(d, frame, trace, expr, primary);
@@ -803,6 +807,11 @@ internal static partial class Explain
             AddOrigin(d, p.Root, ev.RootOrigin, ev.Root, p.Keys.Count == 0);
         }
 
+        if (ExplainUndefinedOrigin(d, trace, full, ev.Value, member, setting, primary, advise: true))
+        {
+            return;
+        }
+
         if (p.Keys.Count > 0 && ev.OwnerObject is { } owner && ev.LastKey is { } wantedKey && frame.ScopeRealm is { } realm)
         {
             var cands = new List<(string, JsValue)>();
@@ -819,6 +828,18 @@ internal static partial class Explain
             {
                 Suggest(d, Pretty(p, p.Keys.Count - 1) + "." + b.Name, Short(b.Value));
                 return;
+            }
+
+            // No name is close, but exactly one member holds something that has the method being called (`r.items.map` where
+            // `r` is `{ data: [...] }`): the value was probably kept under another name.
+            if (!setting && member.Length > 0)
+            {
+                var holders = cands.Where(c => !c.Item2.IsNullish && c.Item2.Ref is not JsFunction && HasMethod(c.Item2, member, realm)).ToList();
+                if (holders.Count == 1)
+                {
+                    Suggest(d, Pretty(p, p.Keys.Count - 1) + "." + holders[0].Item1, Short(holders[0].Item2));
+                    return;
+                }
             }
         }
 
@@ -850,6 +871,7 @@ internal static partial class Explain
 
             d.PrimaryLabel = "`" + p.Root + "` is " + TypeWord(ev.Value) + ", not a function";
             AddOrigin(d, p.Root, ev.RootOrigin, ev.Root, false);
+            ExplainUndefinedOrigin(d, trace, p.Root, ev.Value, string.Empty, false, d.PrimarySpan, advise: false);
             var near = VisibleBindings(frame, realm).Where(b => b.Value.Ref is JsFunction && b.Name != p.Root);
             if (Closest(p.Root, near, null, realm) is { } fb)
             {
@@ -906,7 +928,7 @@ internal static partial class Explain
             // A property that holds the thing being called (items.map for result.map)?
             foreach (string k in OwnKeys(owner))
             {
-                if (TryData(owner, k, out JsValue kv, out _) && kv.Ref is JsObject && kv.Ref is not JsFunction && HasMethod(kv, member, realm))
+                if (TryData(owner, k, out JsValue kv, out _) && !kv.IsNullish && kv.Ref is not JsFunction && HasMethod(kv, member, realm))
                 {
                     Suggest(d, ownerText + "." + k + "." + member, Short(kv));
                     return;

@@ -1,0 +1,4 @@
+repair[R004]: replaced typographic quotes with straight quotes
+ --> case.js:1:13
+1 | console.log(“hello”);
+  |             ^^^^^^^ replaced

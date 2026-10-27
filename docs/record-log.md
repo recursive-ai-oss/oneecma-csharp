@@ -22,14 +22,22 @@ A record log holds everything a run took from outside the engine, in order, so t
 | `DefineFn` (15) | `DefineGlobalFunction` | name, length |
 | `AsyncBody` (16) | `ScriptEngine.EvaluateAsyncBody` (outermost call) | source, file name |
 | `Await` (17) | `ScriptEngine.Await(Async)` on the promise an earlier entry call returned | index of that entry call (the first is 0) |
+| `Callback` (18) | .NET code calls a script function (`JsRealm.Call`, `ScriptEngine.Call`, the callbacks of `[JsExport]` methods) | function number, receiver, argument count, arguments (see below) |
+| `CallbackEnd` (19) | the callback written as `Callback` inside a host function returned or threw | byte: 0 returned, 1 threw |
 
-Outcome byte of `HostCall` and `Settle`: 0 value, 1 .NET exception (type name, full type name, message, frame count, then function, file, line per frame), 2 thrown script value, 3 opaque (the result is not data: a function, a host object), 4 task started (call id; `HostCall` only).
+Outcome byte of `HostCall` and `Settle`: 0 value, 1 .NET exception (type name, full type name, message, frame count, then function, file, line per frame), 2 thrown script value, 3 opaque (the result is not data: a function, a host object), 4 task started (call id; `HostCall` only), 5 the error thrown by a callback of this call escaped the host function unchanged (no payload; `HostCall` only).
+
+### Callbacks into script
+
+Objects and functions that script hands to a host function are numbered in the order they are first seen: at the entry of every host function the engine numbers its receiver and arguments, and one level below, the members of plain objects and arrays (at most 1024 objects, at most 64 members looked at per object). A recording and its replay number them the same way, so a callback names its function by that number. The receiver and each argument of a callback are written as a kind byte, then either 0 and the value as data (as for host results), or 1 and an object number, so a callback that changes an object script passed in changes that same object in the replay.
+
+A callback made while a host function runs is written as `Callback`, whatever happens inside the callback, and `CallbackEnd`, before the `HostCall` event of the host function. Replay does not run the host function: it reads the `Callback` events that come first, runs each one, and then reads the host call's outcome. If the outcome was opaque the host function runs live and is handed the results of those callbacks instead of calling script again. A callback made when no script is running (an event handler fired by the host, the continuation of an async host method after an `await`) is an entry call of its own: `Callback`, the events of its run, and `EntryEnd`; it counts in the entry numbering used by `Await` and `StopAfterEntry`.
 
 Values are copied by structure: undefined, null, booleans, numbers (double), strings (UTF-8), BigInts (decimal text), arrays (length, then index and value of each element, so holes survive) and plain objects (key and value pairs in property order). An object met twice is written once and referred to by its creation index, so cycles and sharing survive. Anything else makes the result opaque; replay then calls the live host function, which must be defined (in `ScriptEngineOptions.Configure`).
 
 ## Encoding
 
-Header: the four bytes `OERL`, then the version byte. Events follow back to back: one tag byte, then the payload. Integers are LEB128 varints (zigzag for signed), doubles are 8 bytes little-endian, strings are a varint (byte count shifted left by one, low bit set when the string holds a lone surrogate) and UTF-8, or WTF-8 (each lone surrogate as its own three bytes) when the low bit is set. A reader refuses another version, unknown tags (tags 16 and 17 were added without a version change, so a reader from before them refuses logs that use them), truncation and values nested deeper than 64 levels with `FormatException`.
+Header: the four bytes `OERL`, then the version byte. Events follow back to back: one tag byte, then the payload. Integers are LEB128 varints (zigzag for signed), doubles are 8 bytes little-endian, strings are a varint (byte count shifted left by one, low bit set when the string holds a lone surrogate) and UTF-8, or WTF-8 (each lone surrogate as its own three bytes) when the low bit is set. A reader refuses another version, unknown tags (tags 16 to 19 and outcome 5 were added without a version change, so a reader from before them refuses logs that use them), truncation and values nested deeper than 64 levels with `FormatException`.
 
 ## Replay
 
@@ -41,7 +49,7 @@ A task started by a host function (`JsMarshal.FromTask`) becomes a pending promi
 
 ## Not replayable
 
-The log is marked not replayable (`RecordLog.IsReplayable`, `NotReplayableReason`) when the run used `ScriptEngine.Call`, `JsRealm.Call`, `JsRealm.Construct`, `SetProperty`, a second realm, a host task that settled with a non-data value or another promise, or when the log outgrew `MaxBytes` (default 8 MiB). A host that builds objects the script uses (data, `[JsExport]` installs) must do it in `Configure` so a replay rebuilds the same world.
+The log is marked not replayable (`RecordLog.IsReplayable`, `NotReplayableReason`) when the run called a script function from .NET that script never passed to a host function (it has no number), or with a receiver or argument that is neither data nor such an object, or from a place where no replay could re-enter (script code that is not a host function, for example a validating wrapper made by the JSON-Schema helper), or used `JsRealm.Construct`, `SetProperty`, a second realm, a host task that settled with a non-data value or another promise, or when the log outgrew `MaxBytes` (default 8 MiB). A host that builds objects the script uses (data, `[JsExport]` installs) must do it in `Configure` so a replay rebuilds the same world.
 
 ## Size
 

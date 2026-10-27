@@ -1,0 +1,11 @@
+error[TypeError]: Cannot read properties of undefined (reading 'id')
+  --> case.js:10:13
+   |
+ 9 | const first = open.find((t) => t.id > 0);
+   |               -------------------------- undefined starts here: `open.find((t) => t.id > 0)` matched nothing
+10 | console.log(first.id);
+   |             ^^^^^ `first` is undefined
+   |
+   = help: if it can be missing, guard it: `first?.id`
+   = note: `open` came from `tasks.filter((t) => t.status === "open")` which kept 0 of 5 items
+   = stack: <top-level> (case.js:10)
