@@ -1150,7 +1150,7 @@ internal sealed class BindingEmitter
             switch (m)
             {
                 case IMethodSymbol { MethodKind: MethodKind.Ordinary } method:
-                    if (SkippedMethods.Contains(method.Name))
+                    if (SkippedMethods.Contains(method.Name) || (method.Name == "ToString" && method.Parameters.Length == 0 && Classifier.FindAttribute(method, Classifier.ExportAttr) is null))
                     {
                         break;
                     }

@@ -6,6 +6,7 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/OneEcma.Tests/OneEcma.Tests.csproj" />
+    <Project Path="tests/OneEcma.Generators.Tests/OneEcma.Generators.Tests.csproj" />
     <Project Path="tests/OneEcma.AotSmoke/OneEcma.AotSmoke.csproj" />
   </Folder>
   <Folder Name="/samples/">
