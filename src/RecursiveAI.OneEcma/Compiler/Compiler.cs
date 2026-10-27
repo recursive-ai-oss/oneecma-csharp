@@ -132,6 +132,19 @@ internal sealed partial class Compiler
         return c.RunScript(program);
     }
 
+    /// <summary>
+    /// Compiles the result of parsing with <see cref="Syntax.ParseGoal.AsyncFunctionBody"/> as a script whose value is the async function
+    /// that runs the body; the caller calls it.
+    /// </summary>
+    internal static FunctionCode CompileAsyncBody(Syntax.ParseResult parsed)
+    {
+        Syntax.FunctionNode fn = parsed.AsyncBody ?? throw new InvalidOperationException("The parse result is not an async function body.");
+        Syntax.Program p = parsed.Program;
+        var wrapper = new Syntax.Program(p.Start, p.End, [new Syntax.ExpressionStatement(fn.Start, fn.End, fn, null)], false, false, p.Scope);
+        var c = new Compiler(parsed.Source, false);
+        return c.RunScript(wrapper);
+    }
+
     /// <summary>Compiles eval code; <paramref name="direct"/> is true for a direct eval call.</summary>
     internal static FunctionCode CompileEval(Syntax.Program program, SourceText source, bool direct)
     {

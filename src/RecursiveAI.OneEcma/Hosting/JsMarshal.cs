@@ -892,6 +892,38 @@ public static class JsMarshal
         Task task;
         SynchronizationContext? previous = SynchronizationContext.Current;
         SynchronizationContext.SetSynchronizationContext(engine.HostContext);
+
+        // The settlement of a task that is already done when it reaches us happens inside the host call, before the call's own
+        // log entry is written. The log must read "call, then settlement", as a replay consumes it, so such entries wait for the call.
+        void Log(bool inCall, Action write)
+        {
+            if (rec is null)
+            {
+                return;
+            }
+
+            if (inCall)
+            {
+                rec.Emit(write);
+            }
+            else
+            {
+                write();
+            }
+        }
+
+        void LogFailure(bool inCall, Exception e)
+        {
+            if (e is JsException)
+            {
+                Log(inCall, () => rec!.LogSettlement(callId, promise));
+            }
+            else
+            {
+                Log(inCall, () => rec!.WriteDotNet("task", member, e, callId));
+            }
+        }
+
         try
         {
             task = start();
@@ -899,6 +931,7 @@ public static class JsMarshal
         catch (Exception e) when (e is not (JsLimitException or OperationCanceledException))
         {
             promise.Reject(e is JsException je ? je.Value : HostErrors.FromException(e, member, callSite).Value);
+            LogFailure(true, e);
             return promise.Value;
         }
         finally
@@ -906,42 +939,32 @@ public static class JsMarshal
             SynchronizationContext.SetSynchronizationContext(previous);
         }
 
-        void Settle()
+        void Settle(bool inCall)
         {
             if (task.IsCompletedSuccessfully)
             {
                 try
                 {
                     succeed(task, promise);
-                    rec?.LogSettlement(callId, promise);
                 }
                 catch (JsException je)
                 {
                     promise.Reject(je.Value);
-                    rec?.LogSettlement(callId, promise);
                 }
+
+                Log(inCall, () => rec!.LogSettlement(callId, promise));
             }
             else
             {
                 Exception e = task.Exception is { InnerExceptions.Count: > 0 } agg ? agg.InnerExceptions[0] : new TaskCanceledException(task);
                 promise.Reject(e is JsException je ? je.Value : HostErrors.FromException(e, member, callSite).Value);
-                if (rec is not null)
-                {
-                    if (e is JsException)
-                    {
-                        rec.LogSettlement(callId, promise);
-                    }
-                    else
-                    {
-                        rec.WriteDotNet("task", member, e, callId);
-                    }
-                }
+                LogFailure(inCall, e);
             }
         }
 
         if (task.IsCompleted)
         {
-            Settle();
+            Settle(true);
         }
         else
         {
@@ -949,7 +972,7 @@ public static class JsMarshal
             _ = task.ContinueWith(_ => engine.Post(() =>
             {
                 engine.EndHostOperation();
-                Settle();
+                Settle(false);
             }), CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
         }
 
