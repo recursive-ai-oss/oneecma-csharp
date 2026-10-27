@@ -16,7 +16,6 @@ built-ins/Array/fromAsync/mapfn-result-awaited-once-per-iteration.js | needs Reg
 built-ins/Array/fromAsync/this-constructor-operations.js | needs Proxy, which is not implemented yet
 built-ins/Array/is-a-constructor.js | needs Reflect.construct, which is not implemented yet
 built-ins/Array/isArray/15.4.3.2-1-10.js | needs RegExp, which is not implemented yet
-built-ins/Array/isArray/15.4.3.2-1-9.js | needs Date, which is not implemented yet
 built-ins/Array/isArray/proxy-revoked.js | needs Proxy, which is not implemented yet
 built-ins/Array/isArray/proxy.js | needs Proxy, which is not implemented yet
 built-ins/Array/length/define-own-prop-length-coercion-order-set.js | needs Reflect, which is not implemented yet
@@ -44,11 +43,8 @@ built-ins/Array/prototype/copyWithin/return-abrupt-from-has-start.js | needs Pro
 built-ins/Array/prototype/entries/resizable-buffer-grow-mid-iteration.js | needs TypedArray and ArrayBuffer, which are not implemented yet
 built-ins/Array/prototype/entries/resizable-buffer-shrink-mid-iteration.js | needs TypedArray and ArrayBuffer, which are not implemented yet
 built-ins/Array/prototype/entries/resizable-buffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/every/15.4.4.16-1-11.js | needs Date, which is not implemented yet
 built-ins/Array/prototype/every/15.4.4.16-1-12.js | needs RegExp, which is not implemented yet
-built-ins/Array/prototype/every/15.4.4.16-5-15.js | needs Date, which is not implemented yet
 built-ins/Array/prototype/every/15.4.4.16-5-16.js | needs RegExp, which is not implemented yet
-built-ins/Array/prototype/every/15.4.4.16-7-c-iii-21.js | needs Date, which is not implemented yet
 built-ins/Array/prototype/every/15.4.4.16-7-c-iii-22.js | needs RegExp, which is not implemented yet
 built-ins/Array/prototype/every/callbackfn-resize-arraybuffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
 built-ins/Array/prototype/every/resizable-buffer-grow-mid-iteration.js | needs TypedArray and ArrayBuffer, which are not implemented yet
@@ -56,11 +52,8 @@ built-ins/Array/prototype/every/resizable-buffer-shrink-mid-iteration.js | needs
 built-ins/Array/prototype/every/resizable-buffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
 built-ins/Array/prototype/fill/resizable-buffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
 built-ins/Array/prototype/fill/typed-array-resize.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/filter/15.4.4.20-1-11.js | needs Date, which is not implemented yet
 built-ins/Array/prototype/filter/15.4.4.20-1-12.js | needs RegExp, which is not implemented yet
-built-ins/Array/prototype/filter/15.4.4.20-5-15.js | needs Date, which is not implemented yet
 built-ins/Array/prototype/filter/15.4.4.20-5-16.js | needs RegExp, which is not implemented yet
-built-ins/Array/prototype/filter/15.4.4.20-9-c-iii-22.js | needs Date, which is not implemented yet
 built-ins/Array/prototype/filter/15.4.4.20-9-c-iii-23.js | needs RegExp, which is not implemented yet
 built-ins/Array/prototype/filter/callbackfn-resize-arraybuffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
 built-ins/Array/prototype/filter/create-proxy.js | needs Proxy, which is not implemented yet
@@ -92,9 +85,7 @@ built-ins/Array/prototype/flat/proxy-access-count.js | needs Proxy, which is not
 built-ins/Array/prototype/flatMap/array-like-objects-nested.js | needs TypedArray and ArrayBuffer, which are not implemented yet
 built-ins/Array/prototype/flatMap/array-like-objects-typedarrays.js | needs TypedArray and ArrayBuffer, which are not implemented yet
 built-ins/Array/prototype/flatMap/proxy-access-count.js | needs Proxy, which is not implemented yet
-built-ins/Array/prototype/forEach/15.4.4.18-1-11.js | needs Date, which is not implemented yet
 built-ins/Array/prototype/forEach/15.4.4.18-1-12.js | needs RegExp, which is not implemented yet
-built-ins/Array/prototype/forEach/15.4.4.18-5-15.js | needs Date, which is not implemented yet
 built-ins/Array/prototype/forEach/15.4.4.18-5-16.js | needs RegExp, which is not implemented yet
 built-ins/Array/prototype/forEach/callbackfn-resize-arraybuffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
 built-ins/Array/prototype/forEach/resizable-buffer-grow-mid-iteration.js | needs TypedArray and ArrayBuffer, which are not implemented yet
@@ -104,7 +95,6 @@ built-ins/Array/prototype/includes/coerced-searchelement-fromindex-resize.js | n
 built-ins/Array/prototype/includes/get-prop.js | needs Proxy, which is not implemented yet
 built-ins/Array/prototype/includes/resizable-buffer-special-float-values.js | needs TypedArray and ArrayBuffer, which are not implemented yet
 built-ins/Array/prototype/includes/resizable-buffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/indexOf/15.4.4.14-1-11.js | needs Date, which is not implemented yet
 built-ins/Array/prototype/indexOf/15.4.4.14-1-12.js | needs RegExp, which is not implemented yet
 built-ins/Array/prototype/indexOf/calls-only-has-on-prototype-after-length-zeroed.js | needs Proxy, which is not implemented yet
 built-ins/Array/prototype/indexOf/coerced-searchelement-fromindex-grow.js | needs TypedArray and ArrayBuffer, which are not implemented yet
@@ -117,16 +107,13 @@ built-ins/Array/prototype/join/resizable-buffer.js | needs TypedArray and ArrayB
 built-ins/Array/prototype/keys/resizable-buffer-grow-mid-iteration.js | needs TypedArray and ArrayBuffer, which are not implemented yet
 built-ins/Array/prototype/keys/resizable-buffer-shrink-mid-iteration.js | needs TypedArray and ArrayBuffer, which are not implemented yet
 built-ins/Array/prototype/keys/resizable-buffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/lastIndexOf/15.4.4.15-1-11.js | needs Date, which is not implemented yet
 built-ins/Array/prototype/lastIndexOf/15.4.4.15-1-12.js | needs RegExp, which is not implemented yet
 built-ins/Array/prototype/lastIndexOf/15.4.4.15-5-21.js | needs RegExp, which is not implemented yet
 built-ins/Array/prototype/lastIndexOf/calls-only-has-on-prototype-after-length-zeroed.js | needs Proxy, which is not implemented yet
 built-ins/Array/prototype/lastIndexOf/coerced-position-grow.js | needs TypedArray and ArrayBuffer, which are not implemented yet
 built-ins/Array/prototype/lastIndexOf/coerced-position-shrink.js | needs TypedArray and ArrayBuffer, which are not implemented yet
 built-ins/Array/prototype/lastIndexOf/resizable-buffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/map/15.4.4.19-1-11.js | needs Date, which is not implemented yet
 built-ins/Array/prototype/map/15.4.4.19-1-12.js | needs RegExp, which is not implemented yet
-built-ins/Array/prototype/map/15.4.4.19-5-15.js | needs Date, which is not implemented yet
 built-ins/Array/prototype/map/15.4.4.19-5-16.js | needs RegExp, which is not implemented yet
 built-ins/Array/prototype/map/callbackfn-resize-arraybuffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
 built-ins/Array/prototype/map/create-proxy.js | needs Proxy, which is not implemented yet
@@ -135,17 +122,13 @@ built-ins/Array/prototype/map/create-species-undef-invalid-len.js | needs Proxy,
 built-ins/Array/prototype/map/resizable-buffer-grow-mid-iteration.js | needs TypedArray and ArrayBuffer, which are not implemented yet
 built-ins/Array/prototype/map/resizable-buffer-shrink-mid-iteration.js | needs TypedArray and ArrayBuffer, which are not implemented yet
 built-ins/Array/prototype/map/resizable-buffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/reduce/15.4.4.21-1-11.js | needs Date, which is not implemented yet
 built-ins/Array/prototype/reduce/15.4.4.21-1-12.js | needs RegExp, which is not implemented yet
-built-ins/Array/prototype/reduce/15.4.4.21-9-c-ii-31.js | needs Date, which is not implemented yet
 built-ins/Array/prototype/reduce/15.4.4.21-9-c-ii-32.js | needs RegExp, which is not implemented yet
 built-ins/Array/prototype/reduce/callbackfn-resize-arraybuffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
 built-ins/Array/prototype/reduce/resizable-buffer-grow-mid-iteration.js | needs TypedArray and ArrayBuffer, which are not implemented yet
 built-ins/Array/prototype/reduce/resizable-buffer-shrink-mid-iteration.js | needs TypedArray and ArrayBuffer, which are not implemented yet
 built-ins/Array/prototype/reduce/resizable-buffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/reduceRight/15.4.4.22-1-11.js | needs Date, which is not implemented yet
 built-ins/Array/prototype/reduceRight/15.4.4.22-1-12.js | needs RegExp, which is not implemented yet
-built-ins/Array/prototype/reduceRight/15.4.4.22-9-c-ii-31.js | needs Date, which is not implemented yet
 built-ins/Array/prototype/reduceRight/15.4.4.22-9-c-ii-32.js | needs RegExp, which is not implemented yet
 built-ins/Array/prototype/reduceRight/callbackfn-resize-arraybuffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
 built-ins/Array/prototype/reduceRight/resizable-buffer-grow-mid-iteration.js | needs TypedArray and ArrayBuffer, which are not implemented yet
@@ -160,11 +143,8 @@ built-ins/Array/prototype/slice/create-proxy.js | needs Proxy, which is not impl
 built-ins/Array/prototype/slice/create-revoked-proxy.js | needs Proxy, which is not implemented yet
 built-ins/Array/prototype/slice/length-exceeding-integer-limit-proxied-array.js | needs Proxy, which is not implemented yet
 built-ins/Array/prototype/slice/resizable-buffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
-built-ins/Array/prototype/some/15.4.4.17-1-11.js | needs Date, which is not implemented yet
 built-ins/Array/prototype/some/15.4.4.17-1-12.js | needs RegExp, which is not implemented yet
-built-ins/Array/prototype/some/15.4.4.17-5-15.js | needs Date, which is not implemented yet
 built-ins/Array/prototype/some/15.4.4.17-5-16.js | needs RegExp, which is not implemented yet
-built-ins/Array/prototype/some/15.4.4.17-7-c-iii-21.js | needs Date, which is not implemented yet
 built-ins/Array/prototype/some/15.4.4.17-7-c-iii-22.js | needs RegExp, which is not implemented yet
 built-ins/Array/prototype/some/callbackfn-resize-arraybuffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
 built-ins/Array/prototype/some/resizable-buffer-grow-mid-iteration.js | needs TypedArray and ArrayBuffer, which are not implemented yet
@@ -215,8 +195,6 @@ built-ins/Set/prototype/forEach/iterates-values-deleted-then-readded.js | needs 
 built-ins/Set/prototype/forEach/iterates-values-not-deleted.js | needs Array.prototype.shift (Array area)
 built-ins/Set/prototype/forEach/iterates-values-revisits-after-delete-re-add.js | needs Array.prototype.shift (Array area)
 built-ins/Set/valid-values.js | needs Int32Array (TypedArrays, later)
-built-ins/Reflect/construct/newtarget-is-not-constructor-throws.js | needs Date (Date, later)
-built-ins/Reflect/construct/target-is-not-constructor-throws.js | needs Date (Date, later)
 built-ins/Proxy/defineProperty/trap-is-null-target-is-proxy.js | needs RegExp literals (RegExp area)
 built-ins/Proxy/deleteProperty/trap-is-null-target-is-proxy.js | needs RegExp literals (RegExp area)
 built-ins/Proxy/get/trap-is-missing-target-is-proxy.js | needs RegExp literals (RegExp area)
@@ -224,3 +202,9 @@ built-ins/Proxy/getOwnPropertyDescriptor/trap-is-undefined-target-is-proxy.js | 
 built-ins/Proxy/has/trap-is-missing-target-is-proxy.js | needs RegExp literals (RegExp area)
 built-ins/Proxy/isExtensible/trap-is-missing-target-is-proxy.js | needs RegExp literals (RegExp area)
 built-ins/Proxy/set/trap-is-missing-target-is-proxy.js | needs RegExp literals (RegExp area)
+
+# date: Date and Annex B Date methods. The format tests read the result with a RegExp literal; the strings themselves match the reference output (testdata/date).
+built-ins/Date/prototype/toDateString/format.js | needs RegExp literals (RegExp area)
+built-ins/Date/prototype/toString/format.js | needs RegExp literals (RegExp area)
+built-ins/Date/prototype/toTimeString/format.js | needs RegExp literals (RegExp area)
+built-ins/Date/prototype/toUTCString/format.js | needs RegExp literals (RegExp area)
