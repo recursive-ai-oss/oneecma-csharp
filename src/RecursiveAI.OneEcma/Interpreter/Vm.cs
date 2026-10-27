@@ -1297,6 +1297,9 @@ internal static partial class Vm
                                 JsValue rv = st[--sp];
                                 if (f.IsConstruct)
                                 {
+                                    // 10.2.2 [[Construct]] steps 10-13 run after the body has finished, so a try block around the
+                                    // return statement cannot catch the TypeError or ReferenceError raised here.
+                                    f.Handlers?.Clear();
                                     rv = ConstructResult(f, rv);
                                 }
 
