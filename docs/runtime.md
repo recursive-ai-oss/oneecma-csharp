@@ -2,7 +2,7 @@
 
 This is the contract for code under `Builtins/`. You can write a built-in area (a constructor, its prototype and its static functions) from this page and the spec alone, without reading the VM. Everything here is `internal` to `RecursiveAI.OneEcma` unless marked public.
 
-**Frozen** means: do not change the shape of it. Additions that old code ignores are fine. A change that breaks a caller needs the owner of the core to agree first.
+**Frozen** means: do not change the shape of it. Additions that old code ignores are fine. A change that breaks a caller needs the maintainers of the core to agree first.
 
 | Frozen | Not frozen |
 |---|---|
@@ -52,6 +52,18 @@ Inside `Ops` (static, in `Runtime/Ops.cs`) you find the abstract operations by t
 Helpers on `JsObject` that are the spec's abstract operations: `CreateDataProperty`, `CreateDataPropertyOrThrow`, `DefinePropertyOrThrow`, `HasOwnProperty`, `SetOrThrow(key, v)`. For building a built-in's own properties use the *direct* definers, which skip the checks because the object is fresh: `DefineDirect(key, value, flags)` and `DefineAccessorDirect(key, getter, setter, flags)`.
 
 To make an exotic object, subclass `JsObject` (or `JsArray` for array-likes that store elements densely), pass the prototype to the base constructor, override the internal methods your spec section lists, and set `ClassName`. Internal slots are plain C# fields on your subclass: an `IsMyThing(this)` check is `thisValue.Ref is MyThing`. Do not use shape slots for internal state.
+
+Large objects are cheap to build one property at a time: a `Shape` indexes its keys only after it has been looked up several times, so a built-in prototype with dozens of `DefineDirect` calls does not index every intermediate shape. Code that holds a `Frame` or an `Env` past the call that created it must mark it (`Frame.Escaped`, `Env.MarkCaptured`), because finished frames and uncaptured environments are reused; see `executor.md`.
+
+### Deferred own properties
+
+An ordinary function's own `prototype` object (ECMA-262 10.2.5 MakeConstructor) is created the first time anything can observe it, because most closures never use it. `ScriptFunction` created with `lazyPrototype: true` has the shape from `Realm.FunctionShape(proto, 3)`: `length`, `name`, then `prototype` flagged as an accessor with an empty slot, and `JsObject.Lazy` is set. The flag marks the slot as not a data property, so no cached or direct slot read ever uses it. The function overrides `GetOwnProperty` and `TryGetOwn` (for the key `prototype`) and `DefineOwnProperty`, `Delete`, `OwnKeys`, `SetPrototypeOf` and `PreventExtensions` (always) to call `Realize()`, which creates the object, switches to the ordinary shape (`FunctionShape(proto, 1)`) and clears `Lazy`. The non-virtual storage primitives on `JsObject` (`AddProperty`, `ReplaceProperty`, `DefineDirect`, `DefineAccessorDirect`, `RemoveSlot`) realize first, so a property added to a function still comes after `prototype`. A new virtual that exposes or changes an object's own keys must do the same if it can be reached on a `Lazy` object; code that only reads `length` and `name` through the shape needs nothing.
+
+`Shape.DigitKeys` counts the keys that start with a decimal digit (kept in step by `Add` and `Remove`, also in dictionary mode). `ArrayAlgo.ChainIndexFree` uses it, so `push` and similar fast paths decide in constant time per prototype whether an index key could be intercepted.
+
+### Strings built by concatenation
+
+`a + b` of two strings whose joined length is 24 or more makes a `Rope` node and charges 48 bytes. The characters are charged when the rope is first observed (`AsString`, `Rope.Flatten`), which copies once from the end of the result, following the left spine without a stack and keeping a small stack only for right children that are themselves ropes; flattening never recurses on the host stack. A flattened node keeps its string and drops its children. `length` on a string primitive and a `String.prototype` method lookup (`GetStringProp` in the VM) do not flatten. A value that a host function receives is always a flat `string`. While a limit report is being described, memory charges are recorded but do not raise a second limit (describing a frame previews its string locals, which flattens ropes).
 
 ## Native functions
 
@@ -110,9 +122,33 @@ The VM runs JS-to-JS calls on an explicit frame stack, so JS recursion does not 
 
 ## The host
 
-`IJsHost` (public, frozen) is the only way out. A built-in that needs the time, randomness, the locale, the zone, a module or output asks `Agent.Current.Host`: `CurrentTimeMs()` (Date), `MonotonicMs()` (limits, `performance.now`), `NextRandom()` (`Math.random`), `DefaultLocale`, `TimeZoneId`, `ResolveModule`, `Print`, `JobEnqueued`, `PromiseRejectionTracker`, `InitializeImportMeta`. Never call `DateTime.Now`, `Stopwatch`, `Random` or the environment yourself; `HostDefaults.cs` is the one file that may. Anything new that is nondeterministic becomes a new `IJsHost` member with a default in `DefaultHost` (additive, so existing hosts keep compiling) and a line here.
+`IJsHost` (public, frozen) is the only way out. A built-in that needs the time, randomness, the locale, the zone, a module or output asks `Agent.Current.Host`: `CurrentTimeMs()` (Date), `MonotonicMs()` (limits, `performance.now`), `NextRandom()` (`Math.random`), `DefaultLocale`, `TimeZoneId`, `ResolveModule`, `Print`, `JobEnqueued`, `PromiseRejectionTracker`, `InitializeImportMeta`, `WantsWeakCollection`. Never call `DateTime.Now`, `Stopwatch`, `Random` or the environment yourself; `HostDefaults.cs` is the one file that may. Anything new that is nondeterministic becomes a new `IJsHost` member with a default in `DefaultHost` (additive, so existing hosts keep compiling) and a line here.
 
 Promise jobs go through `Agent.EnqueueJob(Action)`; never run a reaction synchronously. `WeakRef` and `FinalizationRegistry` observations are scheduled by the engine through the job queue, never by GC timing.
+
+### Wording that names an object or a value
+
+Every row below was recorded from Node v24 (`testdata/errors/cases.txt`, ids `iter-*` and `fnstr-*`) and is compared with the engine on each test run.
+
+- **Object label** (`Ops.ObjectLabel`), used by `Cannot delete property 'k' of L`, `Cannot set property k of L which has only a getter` and, inside quotes, `Cannot assign to read only property 'k' of object 'L'`:
+  a function is its `Function.prototype.toString` text (and the message says `function '...'` instead of `object '...'`); an Error is `Name: message`; an array, String/Number/Boolean/Symbol/BigInt wrapper, Date, RegExp or typed array is `[object Class]`; anything else is `#<C>` where C is the name of the constructor function found by reading `constructor` along the prototype chain without running script (a script function's own declared name wins over a redefined `name`), or `[object Object]` when there is none (null prototype, `constructor` not a function). A Proxy is `#<Object>`.
+- **Store to a string primitive** (strict): `length` and indices below the length give `Cannot assign to read only property 'k' of string 's'`; any other key gives `Cannot create property 'k' on string 's'`.
+- **`Object.defineProperty` on a non-extensible object** adding a new key: `Cannot define property k, object is not extensible`; any other refusal: `Cannot redefine property: k`.
+- **Value kind** (`Ops.KindText`): `undefined`, `object null`, `symbol`, `bigint`, `function`, `object`, `string "s"`, `number 5`, `boolean true`. Used by `X is not iterable (cannot read property Symbol(Symbol.iterator))` from built-ins, `yield*`, array-pattern parameters and assignment patterns, and by `X is not a function` when `GetMethod` finds a non-callable (`Symbol.toPrimitive`, `Symbol.hasInstance`, `Symbol.asyncIterator`).
+- **Source text** in `X is not iterable` for `for-of`, spread and declaration initializers: an identifier, member chain, `null`, `true`/`false`, a number, a regular expression literal, `{}` (`{(intermediate value)}` with properties), `this`. A declaration whose initializer is any other expression, and every nested or assignment pattern, uses the value kind instead. A nullish spread argument in a call reads `X is not iterable (cannot read property undefined)` (`null` for null); a non-iterable non-nullish one reads `Spread syntax requires ...iterable[Symbol.iterator] to be a function`.
+- **`Array.from`** with a `Symbol.iterator` that is neither nullish nor callable: `%Array%.from requires that the property of the first argument, items[Symbol.iterator], when exists, be a function`.
+- **`Function.prototype.toString`**: script functions give their source; native functions `function name() { [native code] }` with the name they were created with (a later `name` redefinition is not shown; getters read `get size`, symbol-named ones `[Symbol.replace]`); bound functions, Proxies with a callable target and the revoker give `function () { [native code] }`; a Proxy with a non-callable target throws TypeError. The `at` frame of a call on a Proxy receiver names the type `Proxy`.
+
+### Weak-reference collection points
+
+Every `WeakRef` and `FinalizationRegistry` target is held strongly until a collection point; only there do unreachable targets die. Two things create one:
+
+- A script calling `$262.gc()` (the conformance host).
+- The host, through `IJsHost.WantsWeakCollection()`. The engine asks it once per job-queue drain (`Agent.RunJobs`, which ends every `Evaluate`, `EvaluateModule` and `RunJobs` entry call), after the last job and the idle hook, and only if a weak target has ever been created. On true it runs a collection point, then drains any cleanup jobs that queued. The interface default is false, so a custom host that does nothing keeps the old behaviour.
+
+`DefaultHost` (so the CLI too) answers true once `GC.GetTotalMemory(false)` has risen by `WeakCollectionGrowthBytes` (protected virtual, default 8 MiB) above the lowest level seen at an earlier question; after a yes it measures again from the next level. A long run that creates weak targets therefore releases them as memory grows and holds them while it does not allocate. The figure is the host's, so it lives in `HostDefaults.cs`.
+
+Replay: the question is not logged. A yes is followed by the usual `Weak` event (written by the collection point itself, with the dead ids), and nothing but the tag of the next entry call follows a drain, so a replaying host answers yes exactly when the next event is `Weak`. The log format is unchanged (version 1).
 
 `EngineLimits` (public, frozen): `Fuel` (default 4e9 steps), `MaxAllocatedBytes` (2 GiB), `WallClockMs` (none), `MaxCallDepth` (10,000, catchable RangeError), `MaxNativeDepth` (120, uncatchable), `MaxStringLength`. A new limit is a new property with a default.
 

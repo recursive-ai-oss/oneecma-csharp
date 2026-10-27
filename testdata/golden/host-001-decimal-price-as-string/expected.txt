@@ -6,4 +6,4 @@ error[TypeError]: Shop.OrderApi.AddOrder: argument 'order.lineItems[1].price' mu
   |
   = help: convert the string first: Number("7.25")
   = note: host function: Shop.OrderApi.AddOrder(Order order)
-  = stack: Shop.OrderApi.AddOrder [.NET] ← <anonymous> (case.js:6)
+  = stack: Shop.OrderApi.AddOrder [.NET] ← <top-level> (case.js:6)

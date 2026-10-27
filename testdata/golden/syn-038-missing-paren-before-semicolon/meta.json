@@ -1,0 +1,13 @@
+{
+  "id": "syn-038-missing-paren-before-semicolon",
+  "category": "syn:missing-closing-delimiter",
+  "kind": "syntax",
+  "repair": "R012",
+  "node": {
+    "name": "SyntaxError",
+    "message": "missing ) after argument list",
+    "line": 2,
+    "column": 23
+  },
+  "repaired_runs_clean": true
+}

@@ -1,0 +1,10 @@
+error[TypeError]: queue.lenght is not a function
+ --> case.js:2:14
+  |
+1 | const queue = [3, 1, 2];
+  |               --------- `queue` comes from here: Array (3 items)
+2 | const size = queue.lenght();
+  |              ^^^^^^^^^^^^ `queue` is an Array, so it has no `lenght`
+  |
+  = help: did you mean `queue.length`? (number; it is a property, so read it without `()`)
+  = stack: <top-level> (case.js:2)

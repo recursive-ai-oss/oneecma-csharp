@@ -4,7 +4,7 @@ error[TypeError]: handlers.onDone is not a function
 1 | const handlers = {};
   |                  -- `handlers` comes from here: {}
 2 | handlers.onDone();
-  | ^^^^^^^^^^^^^^^ `handlers` has no property `onDone`
+  | ^^^^^^^^^^^^^^^ `handlers` is an Object, so it has no `onDone`
   |
   = help: `handlers` has no own properties; define `onDone` before calling it
   = stack: <top-level> (case.js:2)

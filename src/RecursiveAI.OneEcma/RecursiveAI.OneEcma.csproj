@@ -14,6 +14,7 @@
   <ItemGroup>
     <InternalsVisibleTo Include="OneEcma.Tests" />
     <InternalsVisibleTo Include="OneEcma.AotSmoke" />
+    <InternalsVisibleTo Include="OneEcma.Fuzz" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Intl/Data/Generated/*.bin" LogicalName="oneecma-data/%(Filename)%(Extension)" />
@@ -23,5 +24,6 @@
     <None Include="../../README.md" Pack="true" PackagePath="/" />
     <None Include="../../LICENSE-MIT" Pack="true" PackagePath="/" />
     <None Include="../../LICENSE-APACHE" Pack="true" PackagePath="/" />
+    <None Include="../../THIRD-PARTY-NOTICES.md" Pack="true" PackagePath="/" />
   </ItemGroup>
 </Project>

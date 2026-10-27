@@ -1,11 +1,11 @@
 error[TypeError]: Cannot read properties of null (reading 'toUpperCase')
- --> case.js:3:13
+ --> case.js:3:19
   |
 1 | const rows = [{ id: 1, tag: null }];
   |                        --------- `tag` is set to null here
 2 | const first = rows[0];
 3 | console.log(first.tag.toUpperCase());
-  |             ^^^^^^^^^ `first.tag` is null
+  |                   ^^^ `first.tag` is null
   |
-  = help: guard it: `first.tag?.toUpperCase()`
+  = help: guard it: `first.tag?.toUpperCase`
   = stack: <top-level> (case.js:3)

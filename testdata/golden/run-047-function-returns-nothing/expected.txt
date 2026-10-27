@@ -1,0 +1,10 @@
+error[TypeError]: Cannot read properties of undefined (reading 'name')
+ --> case.js:9:13
+  |
+8 | const row = pick([{ id: 1, name: "a" }], 2);
+  |             ------------------------------- undefined starts here: `pick([{ id: 1, name: "a" }], 2)` returned without a value
+9 | console.log(row.name);
+  |             ^^^ `row` is undefined
+  |
+  = help: `pick` returns undefined on this path; make it return the value, or if it can be missing, guard it: `row?.name`
+  = stack: <top-level> (case.js:9)

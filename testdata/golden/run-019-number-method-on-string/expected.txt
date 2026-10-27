@@ -2,9 +2,9 @@ error[TypeError]: price.toFixed is not a function
  --> case.js:2:13
   |
 1 | const price = "3.5";
-  |               ----- `price` comes from here: a string
+  |               ----- `price` comes from here: "3.5"
 2 | console.log(price.toFixed(1));
   |             ^^^^^^^^^^^^^ `price` is a string, so it has no `toFixed`
   |
-  = help: convert it first: `Number(price).toFixed(1)`
+  = help: convert it first: `Number(price).toFixed`
   = stack: <top-level> (case.js:2)

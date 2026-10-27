@@ -24,6 +24,36 @@ public sealed class ScriptEngineOptions
     /// </summary>
     public bool ThrowOnUnhandledRejection { get; set; } = true;
 
+    /// <summary>
+    /// When true, a call in tail position of strict code reuses the caller's frame (the proper tail calls ECMA-262 requires), so the
+    /// caller no longer appears in <c>err.stack</c> or in reports. Default false, which keeps every frame, as V8 does.
+    /// </summary>
+    public bool ProperTailCalls { get; set; }
+
+    /// <summary>
+    /// Receives the record of the run: every clock reading, random number, host call result, module and entry call, in order
+    /// (<see cref="RecordLog"/>). Default null: the engine keeps a log of its own, which <see cref="ScriptEngine.RecordLog"/> returns.
+    /// </summary>
+    public RecordLog? Log { get; set; }
+
+    /// <summary>
+    /// When true (the default), an uncaught script error is explained by replaying the run from its log with full tracing, which adds
+    /// where values came from, "did you mean" suggestions and frame locals to <c>JsException.Report</c>. The normal run pays only for the log.
+    /// The replay needs the same host functions: define them in <see cref="Configure"/> (or with <see cref="ScriptEngine.DefineGlobalFunction"/>,
+    /// which the log remembers); when the replay cannot reproduce the failure the plain report is kept.
+    /// </summary>
+    public bool ExplainErrors { get; set; } = true;
+
+    /// <summary>
+    /// Called with the new engine after its realm exists, and again with the engine of a replay. Put the host setup that script
+    /// depends on here (objects, functions, <c>[JsExport]</c> installs) so a replay rebuilds the same world.
+    /// </summary>
+    public Action<ScriptEngine>? Configure { get; set; }
+
+    internal Recorder? ReplayRecorder { get; set; }
+
+    internal bool TraceReplay { get; set; }
+
     /// <summary>When true the global object gets the test-harness additions <c>print</c> and <c>$262</c>. Default false.</summary>
     public bool InstallTest262Host { get; set; }
 }
@@ -41,6 +71,11 @@ public sealed partial class ScriptEngine
     private readonly Agent _agent;
     private readonly bool _throwOnUnhandled;
     private readonly Realm _realm;
+    private readonly ScriptEngineOptions? _options;
+    private readonly Recorder _recorder;
+
+    /// <summary>The record of this engine's run so far (see <see cref="ScriptEngineOptions.Log"/>).</summary>
+    public RecordLog RecordLog => _recorder.Log;
 
     /// <summary>Creates an engine with the default host and limits.</summary>
     public ScriptEngine()
@@ -52,7 +87,14 @@ public sealed partial class ScriptEngine
     /// <param name="options">Host, limits and switches; <see langword="null"/> means all defaults.</param>
     public ScriptEngine(ScriptEngineOptions? options)
     {
-        _agent = new Agent(options?.Host ?? new DefaultHost(), options?.Limits ?? new EngineLimits()) { InstallTest262Host = options?.InstallTest262Host ?? false };
+        _options = options;
+        _recorder = options?.ReplayRecorder ?? new Recorder(options?.Log ?? new RecordLog(), null);
+        _agent = new Agent(new LoggedHost(options?.Host ?? new DefaultHost(), _recorder), options?.Limits ?? new EngineLimits()) { InstallTest262Host = options?.InstallTest262Host ?? false, ProperTailCalls = options?.ProperTailCalls ?? false, Recorder = _recorder };
+        if (options?.TraceReplay == true)
+        {
+            _agent.Trace = new TraceState();
+        }
+
         _throwOnUnhandled = options?.ThrowOnUnhandledRejection ?? true;
         Agent? old = Agent.Enter(_agent);
         try
@@ -64,6 +106,8 @@ public sealed partial class ScriptEngine
         {
             Agent.Leave(old);
         }
+
+        options?.Configure?.Invoke(this);
     }
 
     /// <summary>The global object of the engine's realm.</summary>
@@ -78,7 +122,10 @@ public sealed partial class ScriptEngine
     /// <exception cref="JsException">The script has a syntax error or threw; <see cref="JsException.Report"/> explains it.</exception>
     /// <exception cref="JsLimitException">A resource limit ended the run.</exception>
     public JsValue Evaluate(string source, string fileName = "<anonymous>", CancellationToken cancellationToken = default)
-        => EvaluateIn(_realm, source, fileName, cancellationToken);
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        return Entry(LogTag.Eval, source, fileName, () => EvaluateIn(_realm, source, fileName, cancellationToken));
+    }
 
     internal JsValue EvaluateIn(Realm realm, string source, string fileName, CancellationToken cancellationToken)
     {
@@ -99,6 +146,53 @@ public sealed partial class ScriptEngine
         }, cancellationToken, realm);
     }
 
+    /// <summary>
+    /// Runs <paramref name="source"/> as the body of an anonymous async function (ECMA-262 <c>AsyncFunctionBody</c>, as <c>new AsyncFunction(body)</c> parses it)
+    /// and returns the promise it completes, after draining the job queue. <c>await</c> and <c>return</c> work at the top level, the value
+    /// of <c>return</c> fulfils the promise, and a thrown error rejects it. Line and column numbers in reports and in <c>err.stack</c> are those of
+    /// <paramref name="source"/> itself, with no wrapper and no source map.
+    /// </summary>
+    /// <remarks>
+    /// Every declaration (<c>let</c>, <c>const</c>, <c>var</c>, <c>function</c>, <c>class</c>) is local to the call, so two calls never collide and nothing is added
+    /// to the global object. Free names resolve against the global object, <c>this</c> is the global object, and the body is sloppy unless it begins with
+    /// <c>"use strict"</c>. The call is recorded and replayed like <see cref="Evaluate"/>, so an uncaught rejection is explained the same way.
+    /// With <see cref="ScriptEngineOptions.ThrowOnUnhandledRejection"/> (the default), a rejection nobody handled by the time the queue is empty is
+    /// thrown as a <see cref="JsException"/> instead of being returned. The returned promise is still pending when the body waits on a host task that has
+    /// not finished; the host settles it by calling <see cref="RunJobs"/> as host work completes. Use <see cref="CheckAsyncBody"/> to find every syntax error without running.
+    /// </remarks>
+    /// <param name="source">The body text.</param>
+    /// <param name="fileName">The name reports and <c>err.stack</c> use for the code.</param>
+    /// <param name="cancellationToken">Cancels the run; the call then throws <see cref="OperationCanceledException"/>.</param>
+    /// <returns>The promise for the body's completion (fulfilled with the <c>return</c> value, or undefined).</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="fileName"/> is <see langword="null"/>.</exception>
+    /// <exception cref="JsException">The body has a syntax error, or threw or rejected without being handled; <see cref="JsException.Report"/> explains it.</exception>
+    /// <exception cref="JsLimitException">A resource limit ended the run.</exception>
+    public JsValue EvaluateAsyncBody(string source, string fileName = "<anonymous>", CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(fileName);
+        return Entry(LogTag.AsyncBody, source, fileName, () => Guard(() =>
+        {
+            ParseResult pr = JsParser.Parse(source, new ParseOptions { Goal = ParseGoal.AsyncFunctionBody, FileName = fileName });
+            if (pr.HasErrors)
+            {
+                throw SyntaxFailure(pr.Diagnostics[0]);
+            }
+
+            FunctionCode code = Compiler.CompileAsyncBody(pr);
+            var frame = new Frame(code, _realm) { Env = null, This = JsValue.FromObject(_realm.Global) };
+            JsValue fn = Vm.RunEntry(_agent, frame);
+            if (fn.Ref is ScriptFunction sf)
+            {
+                sf.Code.IsBody = true;
+            }
+
+            JsValue promise = Ops.Call(fn, JsValue.FromObject(_realm.Global), []);
+            DrainJobs();
+            return promise;
+        }, cancellationToken));
+    }
+
     /// <summary>Loads, links and evaluates the module the host resolves for <paramref name="specifier"/>, then drains the job queue.</summary>
     /// <param name="specifier">The module specifier, resolved through <see cref="IJsHost.ResolveModule"/> with no referrer.</param>
     /// <param name="cancellationToken">Cancels the run.</param>
@@ -109,7 +203,7 @@ public sealed partial class ScriptEngine
     public JsValue EvaluateModule(string specifier, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(specifier);
-        return Guard(() =>
+        return Entry(LogTag.Module, specifier, null, () => Guard(() =>
         {
             HostModule hm = _agent.Host.ResolveModule(specifier, null, new Dictionary<string, string>())
                 ?? throw Errors.Make("Error", "Cannot find module '" + specifier + "'");
@@ -129,18 +223,18 @@ public sealed partial class ScriptEngine
             }
 
             return JsValue.FromObject(ModuleLoader.GetNamespace(m));
-        }, cancellationToken);
+        }, cancellationToken));
     }
 
     /// <summary>Runs queued promise jobs until the queue is empty.</summary>
     /// <param name="cancellationToken">Cancels the run.</param>
     /// <exception cref="JsException">A job threw outside any promise.</exception>
     /// <exception cref="JsLimitException">A resource limit ended the run.</exception>
-    public void RunJobs(CancellationToken cancellationToken = default) => Guard(() =>
+    public void RunJobs(CancellationToken cancellationToken = default) => Entry(LogTag.Jobs, null, null, () => Guard(() =>
     {
         DrainJobs();
         return default(JsValue);
-    }, cancellationToken);
+    }, cancellationToken));
 
     private void DrainJobs()
     {
@@ -166,7 +260,7 @@ public sealed partial class ScriptEngine
     public JsValue Call(JsValue function, JsValue thisValue, ReadOnlySpan<JsValue> args = default, CancellationToken cancellationToken = default)
     {
         JsValue[] copy = args.ToArray();
-        return Guard(() => Ops.Call(function, thisValue, copy), cancellationToken);
+        return CallFromHost(null, function, thisValue, copy, cancellationToken);
     }
 
     /// <summary>Reads a property of an object (a property get, so getters run).</summary>
@@ -190,6 +284,7 @@ public sealed partial class ScriptEngine
     {
         ArgumentNullException.ThrowIfNull(target);
         ArgumentNullException.ThrowIfNull(name);
+        NoteNotReplayable("ScriptEngine.SetProperty was used");
         Guard(() =>
         {
             target.Set(name, value, JsValue.FromObject(target));
@@ -205,6 +300,23 @@ public sealed partial class ScriptEngine
     {
         ArgumentNullException.ThrowIfNull(name);
         ArgumentNullException.ThrowIfNull(function);
+        if (_recorder.Replaying)
+        {
+            // The replay rebuilds this function from the log; skip its record, and any call of it is answered from the log.
+            if (_recorder.Reader!.Peek == LogTag.DefineFn && _recorder.Reader.PeekStringAfterTag() == name)
+            {
+                _recorder.Reader.Tag();
+                _recorder.Reader.Str();
+                _recorder.Reader.Varint();
+            }
+        }
+        else
+        {
+            _recorder.Log.Tag(LogTag.DefineFn);
+            _recorder.Log.Str(name);
+            _recorder.Log.Varint((ulong)Math.Max(0, length));
+        }
+
         var f = _realm.Fn(name, length, HostCalls.Wrap(function, name));
         _realm.Global.DefineDirect(name, JsValue.FromObject(f), PropFlags.Hidden);
     }
@@ -244,6 +356,7 @@ public sealed partial class ScriptEngine
         Agent? old = Agent.Enter(_agent);
         _agent.SetCancellation(token);
         _agent.Frame = null;
+        _agent.CurrentNative = null;
         _agent.CallDepth = 0;
         _agent.NativeDepth = 0;
         _agent.Realm = realm ?? _realm;
@@ -311,5 +424,40 @@ public sealed partial class ScriptEngine
     {
         ArgumentNullException.ThrowIfNull(source);
         return SyntaxRepair.Repair(source, options, repair, cancellationToken);
+    }
+
+    /// <summary>
+    /// Parses <paramref name="source"/> as the body of an async function, as <see cref="EvaluateAsyncBody"/> would, without running it, and returns
+    /// every syntax and early error (empty when the body is valid). Positions are those of <paramref name="source"/>.
+    /// </summary>
+    /// <param name="source">The body text.</param>
+    /// <param name="fileName">The name reports use.</param>
+    /// <param name="cancellationToken">Cancels the parse.</param>
+    /// <returns>The diagnostics, in source order of discovery.</returns>
+    /// <exception cref="ArgumentNullException">An argument is <see langword="null"/>.</exception>
+    /// <exception cref="OperationCanceledException">Cancelled.</exception>
+    public static IReadOnlyList<Diagnostic> CheckAsyncBody(string source, string fileName = "<anonymous>", CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(fileName);
+        return JsParser.Parse(source, new ParseOptions { Goal = ParseGoal.AsyncFunctionBody, FileName = fileName }, cancellationToken).Diagnostics;
+    }
+
+    /// <summary>
+    /// Like <see cref="CheckAsyncBody"/>, but when the body does not parse it tries the syntax-only repairs of the repair table (see
+    /// <see cref="CheckAndRepair"/>). The repaired source is the one to pass to <see cref="EvaluateAsyncBody"/>.
+    /// </summary>
+    /// <param name="source">The body text.</param>
+    /// <param name="fileName">The name reports use.</param>
+    /// <param name="repair">Repair limits; <see langword="null"/> means the defaults.</param>
+    /// <param name="cancellationToken">Cancels the repair.</param>
+    /// <returns>The repaired source, the repairs applied and the diagnostics that remain.</returns>
+    /// <exception cref="ArgumentNullException">An argument is <see langword="null"/>.</exception>
+    /// <exception cref="OperationCanceledException">Cancelled.</exception>
+    public static RepairResult CheckAndRepairAsyncBody(string source, string fileName = "<anonymous>", RepairOptions? repair = null, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(fileName);
+        return SyntaxRepair.Repair(source, new ParseOptions { Goal = ParseGoal.AsyncFunctionBody, FileName = fileName }, repair, cancellationToken);
     }
 }

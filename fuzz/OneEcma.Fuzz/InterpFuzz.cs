@@ -72,8 +72,19 @@ internal static class InterpFuzz
     {
         try
         {
-            _ = d.ToString();
             _ = DiagnosticJson.Render([d]);
+            foreach (int width in (ReadOnlySpan<int>)[40, 140])
+            {
+                foreach (bool compact in (ReadOnlySpan<bool>)[false, true])
+                {
+                    // The renderer falls back instead of throwing, so a fallback is the finding.
+                    if (DiagnosticRenderer.Render(d, new RenderOptions { MaxLineWidth = width, Compact = compact }).Contains(DiagnosticRenderer.FallbackNote, StringComparison.Ordinal))
+                    {
+                        return "rendering the report fell back (width " + width + ", compact " + compact + ")";
+                    }
+                }
+            }
+
             return null;
         }
         catch (Exception e)
@@ -192,7 +203,7 @@ internal static class InterpFuzz
         return findings == 0 ? 0 : 1;
     }
 
-    private static string Mutate(string s, Random rng)
+    internal static string Mutate(string s, Random rng)
     {
         var sb = new StringBuilder(s);
         int edits = 1 + rng.Next(4);

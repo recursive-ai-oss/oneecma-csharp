@@ -612,6 +612,7 @@ internal static partial class Vm
         if (map is not null)
         {
             a.MapEnv = f.Env;
+            f.Env?.MarkCaptured();
             a.Map = new int[n];
             for (int i = 0; i < n; i++)
             {
@@ -671,6 +672,39 @@ internal static partial class Vm
         }
 
         return obj.Get(key, receiver);
+    }
+
+    /// <summary>
+    /// GetValue on a string primitive (ECMA-262 6.2.5.5 with ToObject, 10.4.3.5): <c>length</c> is answered without flattening a rope,
+    /// and a data method found on <c>String.prototype</c> is cached per site against that prototype's shape.
+    /// </summary>
+    private static JsValue GetStringProp(Realm realm, JsValue str, string name, PropCache c)
+    {
+        if (name == "length")
+        {
+            return Ops.Num(str.Ref is string s ? s.Length : ((Rope)str.Ref!).Length);
+        }
+
+        JsObject sp = realm.StringPrototype;
+        if (ReferenceEquals(c.Holder, sp) && ReferenceEquals(c.HolderShape, sp.Shape))
+        {
+            return sp.Slots[c.Slot];
+        }
+
+        if (!sp.Shape.IsDictionary && !(name.Length > 0 && name[0] is >= '0' and <= '9'))
+        {
+            int slot = sp.Shape.Lookup(new PropertyKey(name), out PropFlags fl);
+            if (slot >= 0 && (fl & PropFlags.Accessor) == 0)
+            {
+                c.Shape = null;
+                c.Holder = sp;
+                c.HolderShape = sp.Shape;
+                c.Slot = slot;
+                return sp.Slots[slot];
+            }
+        }
+
+        return Ops.GetV(str, new PropertyKey(name));
     }
 
     private static void SetPropSlow(JsObject obj, string name, JsValue v, PropCache c, bool strict)
@@ -826,7 +860,7 @@ internal static partial class Vm
         bool ok = obj.Delete(key);
         if (!ok && strict)
         {
-            throw obj is ProxyObject ? ProxyObject.Falsish("deleteProperty", Ops.KeyText(key)) : Errors.Type("Cannot delete property '" + Ops.KeyText(key) + "' of " + Ops.DisplayValue(JsValue.FromObject(obj)));
+            throw obj is ProxyObject ? ProxyObject.Falsish("deleteProperty", Ops.KeyText(key)) : Errors.Type("Cannot delete property '" + Ops.KeyText(key) + "' of " + Ops.ObjectLabel(obj));
         }
 
         return ok;
@@ -866,7 +900,7 @@ internal static partial class Vm
 
         if (!p.Set(key, v, thisV) && strict)
         {
-            throw Errors.Type("Cannot assign to read only property '" + Ops.KeyText(key) + "' of object");
+            throw Errors.Type(Ops.SetFailureMessage(p, key));
         }
     }
 
@@ -917,9 +951,21 @@ internal static partial class Vm
 
     // ---- literals and classes ----------------------------------------------------------------------------
 
-    private static void SpreadInto(JsArray target, JsValue iterable)
+    private static void SpreadInto(JsArray target, JsValue iterable, bool inCall, string text)
     {
-        IteratorRecord rec = Ops.GetIterator(iterable);
+        JsValue m = iterable.IsNullish ? default : Ops.GetV(iterable, new PropertyKey(WellKnown.Iterator));
+        if (!Ops.IsCallable(m))
+        {
+            if (inCall && iterable.IsNullish)
+            {
+                // V8 words a nullish spread argument of a call as a failed property read.
+                throw Errors.Type(text + " is not iterable (cannot read property " + (iterable.IsNull ? "null" : "undefined") + ")");
+            }
+
+            throw Errors.Type(inCall ? "Spread syntax requires ...iterable[Symbol.iterator] to be a function" : text + " is not iterable");
+        }
+
+        IteratorRecord rec = Ops.GetIteratorFromMethod(iterable, m);
         Agent ag = Agent.Current;
         while (Ops.IteratorStepValue(rec, out JsValue v))
         {
@@ -1177,10 +1223,14 @@ internal static partial class Vm
         Realm r = f.Realm;
         JsObject proto = code.IsGenerator ? (code.IsAsync ? r.AsyncGeneratorFunctionPrototype : r.GeneratorFunctionPrototype) : code.IsAsync ? r.AsyncFunctionPrototype : r.FunctionPrototype;
         bool hasProto = code.IsGenerator || (code.Kind == FunctionKind.Normal && !code.IsAsync);
-        var fn = new ScriptFunction(r, code, f.Env, proto, hasProto);
+        // Only a plain function gets the deferred prototype; generators fill the slot at once below.
+        var fn = new ScriptFunction(r, code, f.Env, proto, hasProto, lazyPrototype: hasProto && !code.IsGenerator);
         if (code.Kind == FunctionKind.Arrow)
         {
+            // The arrow reads this, new.target and super through the frame, so neither may be reused while it lives.
             fn.OuterFrame = f;
+            f.Escaped = true;
+            f.ThisFrame.Escaped = true;
         }
 
         fn.Module = f.Func?.Module ?? f.Owner as ModuleRecord;
@@ -1188,22 +1238,22 @@ internal static partial class Vm
         {
             fn.Slots[2] = JsValue.FromObject(new JsObject(code.IsAsync ? r.AsyncGeneratorPrototype : r.GeneratorPrototype));
         }
-        else if (hasProto)
-        {
-            var p = new JsObject(r.ObjectPrototype);
-            p.AddProperty("constructor", JsValue.FromObject(fn), PropFlags.Hidden);
-            fn.Slots[2] = JsValue.FromObject(p);
-        }
 
         return fn;
     }
 
+    // The text names the expression in the source (V8 prints it); a parameter pattern has none, so V8 names the value instead.
     private static string IterErrorText(JsValue v, string text) =>
-        v.IsNullish ? Ops.DisplayValue(v) + " is not iterable (cannot read property Symbol(Symbol.iterator))" : text + " is not iterable";
+        text == "\u0002" ? Ops.KindText(v) + " is not iterable (cannot read property Symbol(Symbol.iterator))" : text + " is not iterable";
 
     private static string DestructureError(JsValue v, string? firstKey, string text)
     {
         string what = v.IsNull ? "null" : "undefined";
+        if (text == "\u0001" && firstKey is not null)
+        {
+            return "Cannot read properties of " + what + " (reading '" + firstKey + "')";
+        }
+
         return firstKey is null
             ? "Cannot destructure '" + text + "' as it is " + what + "."
             : "Cannot destructure property '" + firstKey + "' of '" + text + "' as it is " + what + ".";
@@ -1237,7 +1287,7 @@ internal static partial class Vm
             AllowSuperCall = (flags & 8) != 0 || f.Code.AllowsSuperCall,
             InClassFieldInitializer = (flags & 16) != 0 || f.Code.InFieldInit,
             PrivateNames = names,
-            FileName = "<eval>",
+            FileName = f.EvalOrigin(),
         };
         ParseResult pr = JsParser.Parse(src, opts);
         if (pr.HasErrors)

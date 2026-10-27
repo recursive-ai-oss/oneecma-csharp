@@ -2,9 +2,10 @@ error[RangeError]: Invalid time value
  --> case.js:2:13
   |
 1 | const when = new Date("not a date");
-  |              ---------------------- `when` comes from here: "not a date" cannot be parsed
+  |              ---------------------- `when` is made here from the text "not a date"
 2 | console.log(when.toISOString());
-  |             ^^^^^^^^^^^^^^^^ `when` is an Invalid Date
+  |             ^^^^^^^^^^^^^^^^ `when` is an Invalid Date, so `toISOString` throws
   |
-  = help: check `Number.isNaN(when.getTime())` before formatting
+  = help: `new Date(text)` only reliably reads ISO 8601 text such as `2024-01-31` or `2024-01-31T10:00:00Z`
+  = help: check it before formatting: `if (Number.isNaN(when.getTime())) { ... }`
   = stack: <top-level> (case.js:2)

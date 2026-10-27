@@ -7,6 +7,9 @@ internal sealed class PromiseObject : JsObject
     internal List<Reaction>? Reactions;
     internal bool IsHandled;
 
+    /// <summary>The async function suspended on this promise, for stitching async stack traces.</summary>
+    internal Frame? AwaitedBy;
+
     internal PromiseObject(JsObject proto)
         : base(proto)
     {

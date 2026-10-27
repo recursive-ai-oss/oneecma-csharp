@@ -7,11 +7,20 @@ namespace RecursiveAI.OneEcma.Test262;
 public sealed class Report
 {
     private readonly SortedDictionary<string, Counts> _dirs = new(StringComparer.Ordinal);
+    private readonly List<string> _stale = [];
+
+    /// <summary>Paths of tests that passed although the documented-failures file lists them; the entries to prune.</summary>
+    public IReadOnlyList<string> StalePaths => _stale;
 
     public Report(IEnumerable<TestResult> results)
     {
         foreach (TestResult r in results)
         {
+            if (r.StaleDocumented)
+            {
+                _stale.Add(r.RelativePath);
+            }
+
             Add("", r);
             string[] parts = r.RelativePath.Split('/');
             string key = "";
@@ -70,6 +79,10 @@ public sealed class Report
         if (t.Stale > 0)
         {
             sb.AppendLine($"documented failures that now pass: {t.Stale}");
+            foreach (string path in _stale.Order(StringComparer.Ordinal))
+            {
+                sb.Append("  stale: ").AppendLine(path);
+            }
         }
 
         return sb.ToString();
@@ -98,6 +111,13 @@ public sealed class Report
             w.WriteNumber("staleDocumented", c.Stale);
             w.WriteString("passRate", c.RateText);
             w.WriteEndObject();
+        }
+
+        w.WriteEndArray();
+        w.WriteStartArray("staleDocumentedPaths");
+        foreach (string path in _stale.Order(StringComparer.Ordinal))
+        {
+            w.WriteStringValue(path);
         }
 
         w.WriteEndArray();

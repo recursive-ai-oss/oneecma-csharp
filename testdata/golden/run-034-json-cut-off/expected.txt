@@ -1,0 +1,8 @@
+error[SyntaxError]: Expected ',' or ']' after array element in JSON at position 17 (line 1 column 18)
+ --> case.js:1:44
+  |
+1 | const reply = JSON.parse('{"rows": [1, 2, 3');
+  |                                            ^ the text ends here, but JSON needs more
+  |
+  = help: the text is cut off; check for a missing closing `}`, `]` or `"`
+  = stack: <top-level> (case.js:1)

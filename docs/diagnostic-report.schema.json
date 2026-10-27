@@ -154,7 +154,7 @@
           }
         },
         "stack": {
-          "description": "Reserved for runtime reports: frames innermost first. Absent when there are none.",
+          "description": "Runtime reports: frames innermost first (stitched async frames have async true). Absent when there are none; locals only on a traced report.",
           "type": "array",
           "items": {
             "type": "object",
@@ -176,7 +176,7 @@
           }
         },
         "provenance": {
-          "description": "Reserved for runtime reports: where the failing value came from, nearest step first. Absent when unknown.",
+          "description": "Runtime reports: where the failing value came from, nearest step first. Absent when unknown.",
           "type": "array",
           "items": {
             "type": "object",
@@ -188,7 +188,7 @@
           }
         },
         "didYouMean": {
-          "description": "Reserved for runtime reports: candidates drawn from what the object or scope actually holds, best first. Absent when there are none.",
+          "description": "Runtime reports: candidates drawn from what the object or scope actually holds, best first. Absent when there are none.",
           "type": "array",
           "items": {
             "type": "object",
@@ -196,7 +196,7 @@
           }
         },
         "asyncStack": {
-          "description": "Reserved for runtime reports: stack segments stitched across await and promise reactions. Absent when the error did not cross one.",
+          "description": "Reserved, not written: stack segments stitched across await and promise reactions. Absent when the error did not cross one.",
           "type": "array",
           "items": { "type": "array", "items": { "type": "object" } }
         }

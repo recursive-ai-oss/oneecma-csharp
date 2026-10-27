@@ -91,6 +91,12 @@ internal sealed partial class Compiler
         internal List<Instr> Ops = new(64);
         internal List<int> SpanS = new(64);
         internal List<int> SpanE = new(64);
+        internal List<int> PosL = new(64);
+        internal int CurP = -1;
+        internal int ValS = -1;
+        internal int ValE;
+        internal Dictionary<int, (int, int)>? ValSpans;
+        internal int StmtStart = -1;
         internal List<JsValue> Consts = [];
         internal Dictionary<object, int> ConstIndex = new();
         internal List<string> Names = [];
@@ -126,6 +132,19 @@ internal sealed partial class Compiler
         return c.RunScript(program);
     }
 
+    /// <summary>
+    /// Compiles the result of parsing with <see cref="Syntax.ParseGoal.AsyncFunctionBody"/> as a script whose value is the async function
+    /// that runs the body; the caller calls it.
+    /// </summary>
+    internal static FunctionCode CompileAsyncBody(Syntax.ParseResult parsed)
+    {
+        Syntax.FunctionNode fn = parsed.AsyncBody ?? throw new InvalidOperationException("The parse result is not an async function body.");
+        Syntax.Program p = parsed.Program;
+        var wrapper = new Syntax.Program(p.Start, p.End, [new Syntax.ExpressionStatement(fn.Start, fn.End, fn, null)], false, false, p.Scope);
+        var c = new Compiler(parsed.Source, false);
+        return c.RunScript(wrapper);
+    }
+
     /// <summary>Compiles eval code; <paramref name="direct"/> is true for a direct eval call.</summary>
     internal static FunctionCode CompileEval(Syntax.Program program, SourceText source, bool direct)
     {
@@ -147,6 +166,12 @@ internal sealed partial class Compiler
         f.Ops.Add(new Instr { Op = op, A = a, B = b });
         f.SpanS.Add(f.CurS);
         f.SpanE.Add(f.CurE);
+        f.PosL.Add(f.CurP >= 0 ? f.CurP : f.CurS);
+        if (f.ValS >= 0 && op is Op.InitSlot or Op.StoreSlot or Op.StoreSlotChecked or Op.InitGlobalLexical or Op.StoreGlobal or Op.DefineField or Op.SetProp or Op.SetElem)
+        {
+            // Where the stored value was written, so a traced replay can say where a binding or property got its value.
+            (f.ValSpans ??= new())[f.Ops.Count - 1] = (f.ValS, f.ValE);
+        }
         AdjustDepth(op, a, b);
         return f.Ops.Count - 1;
     }
@@ -292,12 +317,50 @@ internal sealed partial class Compiler
     {
         _f.CurS = n.Start;
         _f.CurE = n.End;
+        _f.CurP = -1;
     }
 
     private void SetSpan(int s, int e)
     {
         _f.CurS = s;
         _f.CurE = e;
+        _f.CurP = -1;
+    }
+
+    /// <summary>
+    /// The offset of the operator that follows an operand ending at <paramref name="from"/>: stack traces point at the operator of a
+    /// binary operation or an assignment, not at its first operand.
+    /// </summary>
+    private int OperatorPos(int from)
+    {
+        string t = _source.Text;
+        int i = from;
+        while (i < t.Length)
+        {
+            char c = t[i];
+            if (c is ' ' or '\t' or '\r' or '\n' or ')' or '\u00A0' or '\u2028' or '\u2029')
+            {
+                i++;
+            }
+            else if (c == '/' && i + 1 < t.Length && t[i + 1] == '/')
+            {
+                while (i < t.Length && t[i] is not ('\n' or '\r'))
+                {
+                    i++;
+                }
+            }
+            else if (c == '/' && i + 1 < t.Length && t[i + 1] == '*')
+            {
+                int end = t.IndexOf("*/", i + 2, StringComparison.Ordinal);
+                i = end < 0 ? t.Length : end + 2;
+            }
+            else
+            {
+                return i;
+            }
+        }
+
+        return from;
     }
 
     private void PushNumber(double d)
@@ -482,13 +545,50 @@ internal sealed partial class Compiler
 
     private bool _unknownParent;
 
+    /// <summary>
+    /// Marks the first instruction of the sequences listed in <see cref="Fusion"/>. Nothing is removed or moved: the untraced dispatch
+    /// loop may run a marked sequence in one step when its operands are numbers, and otherwise (and in every traced run) executes
+    /// the instructions one by one, so behaviour, positions and jump targets are exactly those of the unmarked code.
+    /// </summary>
+    private static Instr[] Fuse(Instr[] ops)
+    {
+        for (int i = 0; i + 3 < ops.Length; i++)
+        {
+            if (ops[i].Op != Op.LoadSlot)
+            {
+                continue;
+            }
+
+            Instr a = ops[i];
+            Instr b = ops[i + 1];
+            Instr c = ops[i + 2];
+            Instr d = ops[i + 3];
+            if (b.Op == Op.PushInt && c.Op is Op.Lt or Op.Le or Op.Gt or Op.Ge && d.Op == Op.JmpIfFalse)
+            {
+                ops[i].Fused = Fusion.CompareSlotInt;
+            }
+            else if (b.Op == Op.ToNumeric && c.Op == Op.Inc && d.Op == Op.StoreSlot && d.A == a.A && d.B == a.B)
+            {
+                ops[i].Fused = Fusion.IncrementSlot;
+            }
+            else if (b.Op == Op.PushInt && c.Op == Op.Add && d.Op == Op.StoreSlot && d.A == a.A && d.B == a.B)
+            {
+                ops[i].Fused = Fusion.AddIntToSlot;
+            }
+        }
+
+        return ops;
+    }
+
     private FunctionCode Finish(FnState f, string name, int length, int srcStart, int srcEnd)
     {
         var code = new FunctionCode
         {
-            Ops = [.. f.Ops],
+            Ops = Fuse([.. f.Ops]),
             SpanStart = [.. f.SpanS],
             SpanEnd = [.. f.SpanE],
+            Pos = [.. f.PosL],
+            ValueSpans = f.ValSpans,
             Consts = [.. f.Consts],
             Names = [.. f.Names],
             Functions = [.. f.Funcs],

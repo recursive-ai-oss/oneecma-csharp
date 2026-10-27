@@ -49,6 +49,9 @@ internal sealed class JsonParser
 
     internal string Source => _s;
 
+    /// <summary>Where the parser was when it last stopped; after a failed parse, the offset of the offending character (the length for unexpected end).</summary>
+    internal int Position => _pos;
+
     private static JsException Error(string message) => Errors.Syntax(message);
 
     private static JsException UnexpectedEnd() => Error("Unexpected end of JSON input");

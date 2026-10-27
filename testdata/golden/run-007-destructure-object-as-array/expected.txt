@@ -4,7 +4,7 @@ error[TypeError]: point is not iterable
 1 | const point = { x: 1, y: 2 };
   |               -------------- `point` comes from here: { x, y }
 2 | const [x, y] = point;
-  |                ^^^^^ `point` is an Object, which cannot be unpacked with `[...]`
+  |                ^^^^^ `point` is an Object, which cannot be unpacked or looped over
   |
-  = help: use object destructuring: `const { x, y } = point;`
+  = help: use `Object.keys(point)`, `Object.entries(point)` or object destructuring `{ ... } = point`
   = stack: <top-level> (case.js:2)

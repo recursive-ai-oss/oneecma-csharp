@@ -2,7 +2,9 @@ error[RangeError]: Invalid string length
  --> case.js:1:13
   |
 1 | const big = "x".repeat(2 ** 30);
-  |             ^^^^^^^^^^^^^^^^^^^ the result would be longer than the maximum string length
+  |             ^^^^^^^^^^ `"x".repeat` would build a string of 1073741824 characters, past the limit of 536870888
+  |                        ------- the count is 1073741824
   |
-  = help: build the text in smaller pieces, or keep it as an array of lines
+  = help: repeat it at most 536870888 times (`"x".repeat(n)` with `n` up to that), and in practice far less
+  = help: if the count comes from data, check it first: `Math.min(count, 1000)`
   = stack: <top-level> (case.js:1)

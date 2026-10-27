@@ -1,0 +1,13 @@
+{
+  "id": "syn-036-ts-variable-annotation",
+  "category": "syn:typescript-annotation",
+  "kind": "syntax",
+  "repair": "R007",
+  "node": {
+    "name": "SyntaxError",
+    "message": "Missing initializer in const declaration",
+    "line": 1,
+    "column": 7
+  },
+  "repaired_runs_clean": true
+}

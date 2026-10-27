@@ -5,4 +5,4 @@ error[Error]: KeyNotFoundException: No order with id 99
   |          ^^^^^^^^^^^^
   |
   = note: thrown by .NET code: System.Collections.Generic.KeyNotFoundException in Shop.OrderApi.GetOrder
-  = stack: Shop.OrderApi.GetOrder (Domain.cs:38) ← load (case.js:2) ← <anonymous> (case.js:5)
+  = stack: Shop.OrderApi.GetOrder (Domain.cs:38) ← load (case.js:2) ← <top-level> (case.js:5)

@@ -394,7 +394,7 @@ internal static class IteratorHelpers
 
         if (ReferenceEquals(o, home))
         {
-            throw Errors.Type("Cannot assign to read only property '" + Ops.KeyText(p) + "' of object '" + Ops.ObjectLabel(o) + "'");
+            throw Errors.Type(Ops.ReadOnlyMessage(o, p));
         }
 
         if (!o.GetOwnProperty(p, out _))

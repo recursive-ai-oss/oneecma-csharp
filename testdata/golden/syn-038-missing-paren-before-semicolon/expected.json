@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "format": "oneecma.report",
+  "summary": {
+    "errors": 1,
+    "warnings": 0,
+    "repairs": 0
+  },
+  "diagnostics": [
+    {
+      "kind": "SyntaxError",
+      "code": "missing-paren-after-args",
+      "severity": "error",
+      "headline": "missing ) after argument list",
+      "source": {
+        "name": "case.js",
+        "length": 84
+      },
+      "span": {
+        "start": 59,
+        "end": 61,
+        "line": 2,
+        "column": 23,
+        "endLine": 2,
+        "endColumn": 25
+      },
+      "label": "expected `,` or `)` before this `;`",
+      "secondary": [
+        {
+          "span": {
+            "start": 52,
+            "end": 59,
+            "line": 2,
+            "column": 16,
+            "endLine": 2,
+            "endColumn": 23
+          },
+          "message": "the argument list opened here is never closed"
+        }
+      ],
+      "notes": [
+        "repair is off by default; with it on, R012 closes it before the `;` that ends the line, though `)` could also belong after a later argument"
+      ],
+      "help": [
+        "add `)` before `;`: `double(21);`"
+      ],
+      "fixes": [
+        {
+          "description": "add the missing `)`",
+          "edits": [
+            {
+              "start": 61,
+              "length": 0,
+              "line": 2,
+              "column": 25,
+              "text": ")"
+            }
+          ]
+        }
+      ],
+      "recovery": [
+        {
+          "action": "insertedToken",
+          "span": {
+            "start": 61,
+            "end": 61,
+            "line": 2,
+            "column": 25,
+            "endLine": 2,
+            "endColumn": 25
+          },
+          "text": ")"
+        }
+      ]
+    }
+  ]
+}

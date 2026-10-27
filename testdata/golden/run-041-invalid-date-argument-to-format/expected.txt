@@ -1,0 +1,12 @@
+error[RangeError]: Invalid time value
+ --> case.js:3:24
+  |
+1 | const when = new Date("2024-13-45");
+  |              ---------------------- `when` is made here from the text "2024-13-45"
+2 | const fmt = new Intl.DateTimeFormat("en-US");
+3 | console.log(fmt.format(when));
+  |                        ^^^^ `when` is an Invalid Date, so `fmt.format` cannot format it
+  |
+  = help: month 13 does not exist; in `YYYY-MM-DD` the month is 01 to 12
+  = help: check it before passing it on: `if (Number.isNaN(when.getTime())) { ... }`
+  = stack: <top-level> (case.js:3)

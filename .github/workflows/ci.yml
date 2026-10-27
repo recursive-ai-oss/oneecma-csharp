@@ -60,3 +60,11 @@ jobs:
           ext=""
           if [ "${{ matrix.rid }}" = "win-x64" ]; then ext=".exe"; fi
           ./out/cli/oneecma$ext --version
+
+      # Packages are checked once; the matrix rows above prove the platforms.
+      - name: Pack
+        if: matrix.rid == 'linux-x64'
+        run: |
+          dotnet pack src/RecursiveAI.OneEcma -c Release -o out/pkg
+          dotnet pack src/RecursiveAI.OneEcma.Generators -c Release -o out/pkg
+          dotnet pack src/OneEcma.Cli -c Release -o out/pkg

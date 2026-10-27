@@ -400,7 +400,10 @@ internal sealed partial class Parser
             if (op is not null)
             {
                 Advance();
-                Expression arg = ParseUnary(new CoverErrors());
+                // An operand is not a cover grammar: `typeof {a = 1}` is an error, not a pattern.
+                var operandErrors = new CoverErrors();
+                Expression arg = ParseUnary(operandErrors);
+                CheckExpressionErrors(operandErrors);
                 if (op == UnaryOp.Delete)
                 {
                     CheckDelete(arg);
@@ -413,7 +416,10 @@ internal sealed partial class Parser
             {
                 bool inc = Is(TokenType.PlusPlus);
                 Advance();
-                Expression arg = ParseUnary(new CoverErrors());
+                // An operand is not a cover grammar: `typeof {a = 1}` is an error, not a pattern.
+                var operandErrors = new CoverErrors();
+                Expression arg = ParseUnary(operandErrors);
+                CheckExpressionErrors(operandErrors);
                 CheckSimpleTarget(arg, Messages.InvalidPrefixTarget, arg.Start, arg.End);
                 return new UpdateExpression(start, arg.End, inc, true, arg);
             }
@@ -451,7 +457,10 @@ internal sealed partial class Parser
         }
 
         Advance();
-        Expression arg = ParseUnary(new CoverErrors());
+        // An operand is not a cover grammar: `typeof {a = 1}` is an error, not a pattern.
+        var operandErrors = new CoverErrors();
+        Expression arg = ParseUnary(operandErrors);
+        CheckExpressionErrors(operandErrors);
         return new AwaitExpression(start, arg.End, arg);
     }
 
@@ -831,7 +840,9 @@ internal sealed partial class Parser
         }
         else
         {
-            callee = ParsePrimary(new CoverErrors());
+            var calleeErrors = new CoverErrors();
+            callee = ParsePrimary(calleeErrors);
+            CheckExpressionErrors(calleeErrors);
         }
 
         callee = ParseSubscripts(callee, calleeStart, noCalls: true);

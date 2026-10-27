@@ -37,8 +37,11 @@ internal sealed partial class Compiler
         EnsureStack();
         int ss = _f.CurS;
         int se = _f.CurE;
+        int savedStmt = _f.StmtStart;
+        _f.StmtStart = s.Start;
         SetSpan(s);
         StmtCore(s, labels);
+        _f.StmtStart = savedStmt;
         SetSpan(ss, se);
     }
 
@@ -344,12 +347,16 @@ internal sealed partial class Compiler
                 if (d.Id is Identifier id)
                 {
                     ExprNamed(d.Init, id.Name);
+                    _f.ValS = d.Init.Start;
+                    _f.ValE = d.Init.End;
                     StoreIdent(id.Name);
+                    _f.ValS = -1;
                 }
                 else
                 {
                     Expr(d.Init);
                     DestructureText = SourceSlice(d.Init);
+                    _iterText = IterTextFor(d.Init);
                     _destructureSpan = (d.Init.Start, d.Init.End);
                     BindTarget(d.Id, BindMode.Assign);
                 }
@@ -365,14 +372,18 @@ internal sealed partial class Compiler
                     else
                     {
                         ExprNamed(d.Init, id.Name);
+                        _f.ValS = d.Init.Start;
+                        _f.ValE = d.Init.End;
                     }
 
                     InitIdent(id.Name);
+                    _f.ValS = -1;
                 }
                 else
                 {
                     Expr(d.Init!);
                     DestructureText = SourceSlice(d.Init!);
+                    _iterText = IterTextFor(d.Init!);
                     _destructureSpan = (d.Init!.Start, d.Init.End);
                     BindTarget(d.Id, BindMode.Init);
                 }
@@ -384,6 +395,11 @@ internal sealed partial class Compiler
 
     /// <summary>Where the value being destructured came from, so a failing pattern points at the source expression.</summary>
     private (int Start, int End)? _destructureSpan;
+
+    /// <summary>V8 prints the initializer in "x is not iterable" when it is a name or a literal; any other expression is named by the value's type.</summary>
+    private static string IterTextFor(Node init) => init is Identifier or NullLiteral or BooleanLiteral or NumberLiteral or ThisExpression or RegExpLiteral or ObjectLiteral
+        ? CalleeText(init)
+        : "\u0002";
 
     private string SourceSlice(Node n)
     {

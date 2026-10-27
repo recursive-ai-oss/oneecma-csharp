@@ -1,0 +1,16 @@
+{
+  "id": "run-035-reduce-empty-filtered",
+  "category": "rt:reduce-empty",
+  "kind": "runtime",
+  "repair": null,
+  "node": {
+    "name": "TypeError",
+    "message": "Reduce of empty array with no initial value",
+    "line": 3,
+    "column": 20,
+    "stack_head": [
+      "at Array.reduce (<anonymous>)",
+      "at case.js:3:20"
+    ]
+  }
+}

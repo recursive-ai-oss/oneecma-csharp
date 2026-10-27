@@ -133,11 +133,14 @@ to a flat basic-block form, which is a bytecode compiler plus the interpreter fo
 
 - Lean run: spans only. Bytecode keeps the pc-to-span table (two ints per instruction); the closure tree keeps start and
   end on each node.
-- Traced run (bytecode): `Run<TTrace>` with `TTrace : struct, ITracer`; `After(fn, pc, op, stack, base, a)` is called
-  once per instruction. `NoTrace` is empty and inlined away; `RecordingTrace` records `(span, value)` for every
-  value-producing instruction (test: the value behind the span `o.a` is `1,2`). Provenance chains, frame locals and
-  did-you-mean are built from this stream and from the live `Fr` records and register stack, which remain intact after an
-  unwind until overwritten; the report is built at the throw point, before the handler search discards anything.
+- Traced run (bytecode): `Run<TTrace>` with `TTrace : struct, ITracer`; `OnOp(frame, instruction, pc, stack, sp)` is called
+  before every instruction. `NoTrace` is empty and inlined away. `RecordingTrace` acts on the stores only (`InitSlot`,
+  `StoreSlot`, `StoreSlotChecked`, `InitGlobalLexical`, `StoreGlobal`, `DefineField`): the compiler keeps a side table
+  (`FunctionCode.ValueSpans`, instruction index to the span of the value written) and the tracer records, per binding
+  (environment and slot, or global name) and per object-literal property, the span the value was written from; an object
+  that is stored again keeps the chain of earlier places (cap 8). The explainer (`Diagnostics/Explain.cs`) reads that
+  state and the live environments of the failing frames (captured on `StackFrameInfo` while the error is created) to build
+  labels, "did you mean" and locals. It reads data properties only and never runs script.
 - The traced run is a replay: the record log supplies clock, randomness and host results, so the same instructions run in
   the same order. Because both instantiations come from one source, they cannot drift apart.
 - Closure tree: a decorating node factory for the second tree; fused nodes need to be disabled in it (see the table).
@@ -222,6 +225,127 @@ Front-end acceptance of 100,000-link chains on a 256 KB thread: binary operators
 - The closure tree has pooled frames, fused register/constant nodes and inline caches; the bytecode has inline caches,
   fused compare-and-jump and window-passed arguments. Neither is tuned to the end.
 
+
+## Call frames and scope environments are reused
+
+The engine (not the study above) reuses the objects a plain call allocates, because a recursive kernel otherwise allocates
+about 500 bytes per call (a `Frame`, its stack array, the scope `Env` and its slot array).
+
+- **Frames.** When a function returns normally, `Op.Return` hands the finished `Frame` to `Frame.Recycle`, which puts it on a
+  free list kept on its `FunctionCode` (up to 64 per function, so recursion to that depth allocates nothing). `PrepareFrame`
+  takes from that list through `Frame.Obtain`. The stack array is cleared on release, so a reused frame starts with every
+  local `undefined` exactly like a new one.
+- **Environments.** `PushScope` takes an `Env` from a free list on its `ScopeInfo` (`Env.Obtain`); on return, `Env.Release`
+  puts back the environments the call created, from the innermost outwards, stopping at the first one that was captured.
+- **What is never reused.**
+  - generator, async and module frames (they are suspended and resumed);
+  - entry frames (script, eval, calls from native code);
+  - eval frames, which run in their caller's environment and so do not own it;
+  - a frame whose `Escaped` flag is set: creating an arrow function stores its defining frame (the arrow reads `this`,
+    `new.target` and `super` through it), so the frame and its `this` frame are marked;
+  - an `Env` whose `Captured` flag is set: the constructor of `ScriptFunction` and the creation of a mapped `arguments` object
+    mark the environment and every ancestor. Holding an environment holds its parents, so the invariant is "an ancestor of a
+    captured environment is captured".
+  - frames that leave by an exception, and the frame of a tail call (its arguments still sit in the old frame's stack): they are
+    simply left to the collector.
+- **Traced runs** (`RecordingTrace`) never recycle, because the explainer keeps environments and frames alive for the report.
+- Anything new that stores a `Frame` or an `Env` beyond the call must set `Escaped` / call `MarkCaptured`.
+
+Measured effect on `fib(25)` (about 243,000 calls): allocation 139 MB to 0.3 MB per run (what remains is realm setup), and 42 ms to 27 ms.
+
+BenchmarkDotNet 0.15.8, .NET 10.0.13, Jint 4.17.0, AMD Ryzen 9 7950X3D (16 cores, 32 threads), machine
+load average 4 to 12 from other jobs (so the times are indicative; the closures, loops and qsort rows were run again, twice each
+way, to get past noise). Each run builds a fresh engine, so setup, parse and compile are inside the number. "Before" is the
+same bench project on the commit before this change.
+
+| row | before ms | before alloc | after ms | after alloc | Jint ms | Jint alloc |
+|---|---:|---:|---:|---:|---:|---:|
+| fib25 | 42.1 | 139,216 KB | 27.5 | 307 KB | 31.4 to 38.2 | 42 KB |
+| loops | 93.8 (re-run 87.2, 85.2) | 757 KB | 85.8 (re-run 87.2, 107.8 noisy) | 298 KB | 63.8 to 68.9 | 91,551 KB |
+| props | 57.6 | 768 KB | 58.6 | 308 KB | 57.6 to 60.3 | 42,752 KB |
+| closures | 91.9 (re-run 92.1, 97.3) | 153,546 KB | 111.9 noisy (re-run 78.2, 76.5) | 5,310 KB | 39.9 | 5,412 KB |
+| strings | 6.41 | 4,504 KB | 6.15 | 4,044 KB | 3.14 | 4,568 KB |
+| vectors | 102.6 | 247,661 KB | 65.2 | 28,452 KB | 91.9 to 100.4 | 69,873 KB |
+| calc | 128.8 | 312,418 KB | 88.6 | 800 KB | 117.9 to 120.2 | 7,120 KB |
+| qsort | 93.6 (re-run 105.0, 94.9) | 23,159 KB | 122.1 noisy (re-run 93.2, 92.1) | 2,396 KB | 117 to 152 | 28,579 KB |
+| throws | 12.3 | 28,894 KB | 9.8 | 23,357 KB | 33.9 to 36.3 | 14,630 KB |
+| startup | 0.315 | 742 KB | 0.116 | 282 KB | 0.002 | 10 KB |
+
+No row is slower beyond its measured error; the rows that look slower in one run (closures, qsort, loops) have error bars of
+20 to 50 ms there and are faster or equal when repeated.
+
+## Strings, closures and one-step loop sequences
+
+The `strings` and `closures` kernels sat at about 2x Jint after frame reuse. What cost the time, in the order it was found:
+
+- **`Array.prototype.push` listed the keys of every prototype on each call.** The dense fast path asks whether an index key anywhere on
+  the prototype chain could intercept the new element; it answered by collecting the keys of `Array.prototype` and
+  `Object.prototype` (about 60) per push. `Shape.DigitKeys` now counts keys that start with a digit, kept up to date as keys are
+  added and removed, so the answer is a field read per prototype. 300,000 pushes: 101 ms to 37 ms.
+- **Function objects built their `prototype` object eagerly.** It is now created on first use (see "Deferred own properties" in
+  `runtime.md`); a closure that is only called costs a function object and an exactly sized three-slot array. Creating 300,000 closures:
+  57 ms to 42 ms. Built-in functions also get exactly sized slot arrays (realm creation allocates 15 KB less).
+- **Rope flattening** fills the result from the end and follows the left spine without a stack; `String.prototype` method lookups on a
+  string primitive are cached per site, and `length` does not flatten a rope; `string + number` skips `ToPrimitive`.
+- **Loop sequences.** Variables live in scope environments, so a counting loop spent most of its time in `LoadSlot`/`PushInt`/`Lt`/
+  `JmpIfFalse`-style instruction chains. The compiler marks the first instruction of three sequences (`Instr.Fused`): a slot compared
+  with an integer constant and a branch, `a++` as a statement, and `a += n` as a statement. The untraced dispatch loop runs a marked
+  sequence in one step when the slot holds a number and otherwise executes the instructions one by one; the instructions after the
+  first are unchanged and remain jump targets, so positions, handlers and behaviour are the same and a traced run never looks at the
+  mark. An empty 1,000,000-iteration loop: 50 ms to 13 ms.
+
+One defect turned up by the replay fuzzer is fixed in `Agent`: describing a memory limit lists frame locals, previewing a rope local
+flattens it, and flattening is charged to the budget that had just run out, which raised the limit again inside its own description
+until the host stack was gone. Charges made while a limit is being described are recorded but do not raise.
+
+Measured in one locked job on the benchmark machine (AMD Ryzen 9 7950X3D, 32 threads; load average 8 to 11 from other projects'
+unlocked jobs before, during and after; .NET 10.0.402, Jint 4.17.0, BenchmarkDotNet 0.15.8, same bench project and command for
+both trees). Each tree ran twice, interleaved; the "before" tree is the commit before this change. Times are means in ms, and
+the two runs of a tree agreed within 3% except where noted.
+
+| row | before ms | after ms | Jint ms | after / Jint | alloc before to after, KB |
+|---|---:|---:|---:|---:|---|
+| fib25 | 28.6 | 24.7 | 33.7 | 0.73 | 313 to 297 |
+| loops | 85.1 | 53.7 | 65.8 | 0.82 | 303 to 287 |
+| props | 59.1 | 49.0 | 58.9 | 0.83 | 313 to 298 |
+| closures | 80.2 | 42.5 | 40.5 | 1.05 | 5,315 to 5,268 |
+| strings | 6.78 | 3.81 | 3.24 | 1.18 | 4,050 to 3,010 |
+| vectors | 67.1 | 63.4 | 94.8 | 0.67 | 28,457 to 28,442 |
+| calc | 88.7 | 84.5 | 120.1 | 0.70 | 806 to 790 |
+| qsort | 94.5 | 79.2 | 114.2 | 0.69 | 2,402 to 2,387 |
+| throws | 10.8 | 9.4 | 34.4 | 0.27 | 23,362 to 23,347 |
+| startup (realm) | 0.111 | 0.107 | 0.002 | 60 | 287 to 272 |
+
+No row is slower. Startup time is unchanged within noise; only its allocation moved. An earlier locked run of the tree before
+the loop-sequence change gave closures 48.5 and 50.5 ms and strings 5.3 ms, so the first three changes account for most of the
+closures row and the loop sequences for most of the strings row.
+
+## Realm creation
+
+A new realm defines roughly 1,500 built-in functions. Two costs dominated it and are fixed in `Shape`:
+
+- A shape with more than 8 keys built a key index (a dictionary) the first time it was looked up. Defining a built-in
+  prototype adds keys one at a time and checks each shape once, so every intermediate shape built an index (quadratic work and
+  allocation). A large shape now walks its key chain for its first four lookups and builds the index only when it is looked up
+  repeatedly.
+- Every shape allocated a transition dictionary for its successors. Most shapes have exactly one, so the first successor is kept in a
+  field and the dictionary is created for a second.
+
+Realm creation went from about 210 us and 737 KB to about 84 us and 276 KB (timing loop of 2,000 engines in one process). Making
+intrinsics lazy was considered and not done: the remaining cost is spread over all areas, and a lazy global would need a check on
+every global and slot read to stay unobservable.
+
+## Long-lived process
+
+`dotnet run -c Release --project bench/OneEcma.Benchmarks -- longrun [rounds]` runs every kernel in sequence in one process, with a
+fresh engine per run and then with one engine reused, and prints a column per kernel per round. Run in this form, in forward
+and reverse kernel order, with tiered PGO on and off, and with each kernel alone, times were flat after the first (JIT) round and
+equal to the isolated runs, so there is no slowdown that grows with process age. A 24-round run on the benchmark machine stayed
+within about 4% from round 1 to round 23 for every kernel, with a Jint control column in the same process that moved with the
+machine (a short step of 10 to 15% in all columns during an earlier run coincided with other jobs on the machine). The commit
+before this change behaved the same way when run in these forms, and so did the earlier engine core, so an earlier report of
+later kernels being slower in one process was a measurement artefact. The record log is bounded (8 MiB), and a reused
+engine's log grew by 3 to 26 KB per kernel run with no change in time.
 
 ## Open points for the engine core
 

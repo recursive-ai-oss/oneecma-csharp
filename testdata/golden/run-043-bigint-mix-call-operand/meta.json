@@ -1,0 +1,16 @@
+{
+  "id": "run-043-bigint-mix-call-operand",
+  "category": "rt:bigint-mix",
+  "kind": "runtime",
+  "repair": null,
+  "node": {
+    "name": "TypeError",
+    "message": "Cannot mix BigInt and other types, use explicit conversions",
+    "line": 4,
+    "column": 27,
+    "stack_head": [
+      "const t = fee * BigInt(2) + cost(items[0]);",
+      "                          ^"
+    ]
+  }
+}

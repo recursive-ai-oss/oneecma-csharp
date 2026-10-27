@@ -12,6 +12,21 @@ public enum Severity
     Warning,
 }
 
+/// <summary>A binding of a frame with a short preview of its value at the time of the failure.</summary>
+/// <param name="Name">The binding name.</param>
+/// <param name="Value">A short rendering of the value (an object shows its keys), at most 60 characters.</param>
+public sealed record LocalInfo(string Name, string Value);
+
+/// <summary>One step of where a failing value came from.</summary>
+/// <param name="Span">The expression that produced the value, in the diagnostic's source.</param>
+/// <param name="Description">What happened there, such as <c>`order` comes from here: { id, lineItems, total }</c>.</param>
+public sealed record ProvenanceStep(Span Span, string Description);
+
+/// <summary>A candidate the author may have meant, drawn from what the object or scope actually holds.</summary>
+/// <param name="Name">The member or binding path, such as <c>order.lineItems</c>.</param>
+/// <param name="Description">What it holds, such as <c>Array, 3 items</c>.</param>
+public sealed record DidYouMean(string Name, string Description);
+
 /// <summary>A labelled range of source. The primary label marks where the problem is; secondary labels give context.</summary>
 /// <param name="Span">The labelled range.</param>
 /// <param name="Message">Short text shown beside the underline; may be empty.</param>
@@ -122,6 +137,12 @@ public sealed class Diagnostic
 
     /// <summary>Proposed source changes; none is applied automatically by the parser.</summary>
     public List<SuggestedFix> Fixes { get; } = [];
+
+    /// <summary>Where the failing value came from, nearest step first; filled by an explained runtime report, empty otherwise.</summary>
+    public List<ProvenanceStep> Provenance { get; } = [];
+
+    /// <summary>Candidates for what was meant, best first; filled by an explained runtime report, empty otherwise.</summary>
+    public List<DidYouMean> Suggestions { get; } = [];
 
     /// <summary>What the parser assumed or skipped to continue after this error.</summary>
     public List<RecoveryAction> Recovery { get; } = [];

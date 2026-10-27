@@ -6,6 +6,9 @@ public sealed partial class ScriptEngine
 {
     private JsRealm? _mainRealm;
     private readonly ConcurrentQueue<Action> _inbox = new();
+
+    /// <summary>True while a host continuation from the inbox runs and no script it called is on the stack.</summary>
+    private bool _inHostContinuation;
     private readonly object _gate = new();
     private TaskCompletionSource? _waiter;
     private HostSynchronizationContext? _hostContext;
@@ -18,6 +21,7 @@ public sealed partial class ScriptEngine
     /// <returns>The new realm.</returns>
     public JsRealm CreateRealm()
     {
+        NoteNotReplayable("a second realm was created");
         Realm r = Guard(() => Realm.Create(_agent), default);
         return new JsRealm(this, r);
     }
@@ -79,6 +83,7 @@ public sealed partial class ScriptEngine
             return value;
         }
 
+        NoteAwaited(p);
         p.IsHandled = true;
         Pump(() => p.State != 0, true, cancellationToken);
         return Settled(p);
@@ -95,6 +100,7 @@ public sealed partial class ScriptEngine
             return value;
         }
 
+        NoteAwaited(p);
         p.IsHandled = true;
         await PumpAsync(() => p.State != 0, cancellationToken).ConfigureAwait(false);
         return Settled(p);
@@ -127,7 +133,15 @@ public sealed partial class ScriptEngine
         if (p.State == 2)
         {
             JsValue reason = p.Result;
-            return Guard<JsValue>(() => throw new JsException(reason), default);
+            try
+            {
+                return Guard<JsValue>(() => throw new JsException(reason), default);
+            }
+            catch (JsException e)
+            {
+                ExplainRejection(e, p);
+                throw;
+            }
         }
 
         throw Guard<JsException>(() => Errors.Make("Error", "The promise never settles: no job is queued and no host operation is running"), default);
@@ -137,9 +151,21 @@ public sealed partial class ScriptEngine
     {
         while (_inbox.TryDequeue(out Action? a))
         {
+            // Host code resumed on the engine's thread (a continuation of an async host method): no script is running, so a
+            // callback it makes is an entry call of its own in the record log.
             Guard(() =>
             {
-                a();
+                bool before = _inHostContinuation;
+                _inHostContinuation = true;
+                try
+                {
+                    a();
+                }
+                finally
+                {
+                    _inHostContinuation = before;
+                }
+
                 return 0;
             }, token);
         }

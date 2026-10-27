@@ -1,0 +1,11 @@
+error[TypeError]: Reduce of empty array with no initial value
+ --> case.js:3:13
+  |
+2 | const unpaid = orders.filter((o) => o.paid);
+  |                ---------------------------- `unpaid` comes from here: Array (0 items)
+3 | const sum = unpaid.reduce((acc, o) => acc + o.total);
+  |             ^^^^^^^^^^^^^ `unpaid` is empty, so `reduce` has no first value to start from
+  |
+  = help: pass an initial value as the second argument: `unpaid.reduce((acc, o) => acc + o.total, 0)`
+  = help: or handle the empty case first: `if (unpaid.length === 0) { ... }`
+  = stack: <top-level> (case.js:3)

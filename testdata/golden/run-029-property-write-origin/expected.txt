@@ -1,0 +1,10 @@
+error[TypeError]: Cannot read properties of undefined (reading 'length')
+ --> case.js:4:18
+  |
+3 | cart.items = saved;
+  | ------------------ `items` is set to undefined here
+4 | console.log(cart.items.length);
+  |                  ^^^^^ `cart.items` is undefined
+  |
+  = help: guard it: `cart.items?.length`
+  = stack: <top-level> (case.js:4)

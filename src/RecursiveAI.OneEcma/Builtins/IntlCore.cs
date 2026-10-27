@@ -100,6 +100,50 @@ internal static partial class IntlJs
         }
     }
 
+    /// <summary>
+    /// The services that String.prototype.localeCompare, Number.prototype.toLocaleString and the Date toLocale methods build, kept per realm
+    /// under the resolved locale list and options. Building a service reads CLDR data and compiles patterns, which dominates a call that formats
+    /// one value; a service only reads its options afterwards, so reusing it cannot be observed. The cache holds at most
+    /// <see cref="ServiceCacheLimit"/> entries and is emptied when it fills, so a script cannot grow it without bound.
+    /// </summary>
+    private sealed class ServiceCache
+    {
+        internal readonly Dictionary<(string Kind, string Locales, string Context, object Options), object> Map = [];
+    }
+
+    private const int ServiceCacheLimit = 64;
+
+    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<Realm, ServiceCache> ServiceCaches = new();
+
+    /// <summary>The number of services cached for a realm (tests check that equal calls share one and that the cache stays bounded).</summary>
+    internal static int CachedServiceCount(Realm realm) => ServiceCaches.TryGetValue(realm, out ServiceCache? c) ? c.Map.Count : 0;
+
+    /// <summary>Returns the service cached for this realm under the key, building it with <paramref name="create"/> on a miss.</summary>
+    private static T Cached<T>(bool shared, string kind, List<string> requested, string context, object options, Func<T> create)
+        where T : class
+    {
+        if (!shared)
+        {
+            return create();
+        }
+
+        ServiceCache cache = ServiceCaches.GetValue(Agent.Current.Realm, static _ => new ServiceCache());
+        var key = (kind, string.Join('\u0001', requested), context, options);
+        if (cache.Map.TryGetValue(key, out object? hit))
+        {
+            return (T)hit;
+        }
+
+        T made = create();
+        if (cache.Map.Count >= ServiceCacheLimit)
+        {
+            cache.Map.Clear();
+        }
+
+        cache.Map[key] = made;
+        return made;
+    }
+
     internal static void Svc(Action f)
     {
         try
@@ -119,15 +163,7 @@ internal static partial class IntlJs
         t.Ref is JsIntl o && o.Kind == kind ? o : throw Incompat(kind is "Segments" ? "%Segments.prototype%." + method : "Intl." + kind + ".prototype." + method, t);
 
     /// <summary>How V8 names a value that is not iterable: its type, then the value for primitives.</summary>
-    internal static string KindText(JsValue v) => v.Ref switch
-    {
-        null => "undefined",
-        JsSymbol => "symbol",
-        JsObject o => o.IsCallable ? "function" : "object",
-        _ when v.IsNull => "object null",
-        _ when v.IsString => "string \"" + v.AsString + "\"",
-        _ => v.TypeOf + " " + Ops.DisplayValue(v),
-    };
+    internal static string KindText(JsValue v) => Ops.KindText(v);
 
     // ---- locale lists and the default locale ---------------------------------------------------------------
 

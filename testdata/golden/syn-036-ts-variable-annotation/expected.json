@@ -1,0 +1,76 @@
+{
+  "version": 1,
+  "format": "oneecma.report",
+  "summary": {
+    "errors": 2,
+    "warnings": 0,
+    "repairs": 0
+  },
+  "diagnostics": [
+    {
+      "kind": "SyntaxError",
+      "code": "missing-initializer",
+      "severity": "error",
+      "headline": "Missing initializer in const declaration",
+      "source": {
+        "name": "case.js",
+        "length": 69
+      },
+      "span": {
+        "start": 6,
+        "end": 11,
+        "line": 1,
+        "column": 7,
+        "endLine": 1,
+        "endColumn": 12
+      },
+      "label": "`const` needs a value here",
+      "secondary": [],
+      "notes": [
+        "a second error follows: both are reported from one parse"
+      ],
+      "help": [
+        "write `const names = <value>;`, or use `let names;` if it is assigned later"
+      ],
+      "fixes": [],
+      "recovery": []
+    },
+    {
+      "kind": "SyntaxError",
+      "code": "unexpected-token",
+      "severity": "error",
+      "headline": "Unexpected token ':'",
+      "source": {
+        "name": "case.js",
+        "length": 69
+      },
+      "span": {
+        "start": 11,
+        "end": 12,
+        "line": 1,
+        "column": 12,
+        "endLine": 1,
+        "endColumn": 13
+      },
+      "label": "",
+      "secondary": [],
+      "notes": [],
+      "help": [],
+      "fixes": [],
+      "recovery": [
+        {
+          "action": "insertedToken",
+          "span": {
+            "start": 11,
+            "end": 11,
+            "line": 1,
+            "column": 12,
+            "endLine": 1,
+            "endColumn": 12
+          },
+          "text": ";"
+        }
+      ]
+    }
+  ]
+}

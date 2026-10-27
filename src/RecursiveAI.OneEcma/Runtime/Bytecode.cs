@@ -59,10 +59,31 @@ internal enum Op : byte
 internal struct Instr
 {
     internal Op Op;
+
+    /// <summary>
+    /// Set on the first instruction of a short sequence that the untraced run may execute in one step (see <see cref="Fusion"/>). The
+    /// instructions after it are unchanged and still reachable by a jump, so ignoring this field is always correct.
+    /// </summary>
+    internal Fusion Fused;
     internal int A;
     internal int B;
 
     public override readonly string ToString() => Op + " " + A + " " + B;
+}
+
+/// <summary>Instruction sequences the dispatch loop can run as one step when the operands are numbers.</summary>
+internal enum Fusion : byte
+{
+    None,
+
+    /// <summary><c>LoadSlot a; PushInt n; Lt|Le|Gt|Ge; JmpIfFalse t</c>: a loop condition against a constant.</summary>
+    CompareSlotInt,
+
+    /// <summary><c>LoadSlot a; ToNumeric; Inc; StoreSlot a</c>: <c>a++</c> as a statement.</summary>
+    IncrementSlot,
+
+    /// <summary><c>LoadSlot a; PushInt n; Add; StoreSlot a</c>: <c>a += n</c> as a statement.</summary>
+    AddIntToSlot,
 }
 
 /// <summary>One live binding table: names and kinds of a runtime scope, shared by all its instances.</summary>
@@ -77,6 +98,10 @@ internal sealed class ScopeInfo
     internal bool IsParamScope;
     internal bool IsStrict;
     private Dictionary<string, int>? _index;
+
+    internal const int MaxFree = 32;
+    internal Env[]? FreeEnvs;
+    internal int FreeCount;
 
     internal const byte KVar = 0;
     internal const byte KLet = 1;
@@ -110,11 +135,58 @@ internal sealed class Cell
 /// <summary>A runtime environment record: declarative slots, or an object environment for <c>with</c>.</summary>
 internal sealed class Env
 {
-    internal readonly Env? Parent;
+    internal Env? Parent;
     internal readonly JsValue[] Slots;
     internal readonly ScopeInfo? Info;
     internal readonly JsObject? WithObject;
     internal Dictionary<string, Cell>? Extra;
+
+    /// <summary>
+    /// Set once something that outlives the call (a closure, a mapped arguments object) holds this environment. It is set on every
+    /// ancestor too, because holding an environment holds its chain. Only environments never captured are reused after the call.
+    /// </summary>
+    internal bool Captured;
+
+    internal void MarkCaptured()
+    {
+        for (Env? e = this; e is not null && !e.Captured; e = e.Parent)
+        {
+            e.Captured = true;
+        }
+    }
+
+    /// <summary>A fresh environment for <paramref name="info"/>, taken from the scope's free list when one is there.</summary>
+    internal static Env Obtain(Env? parent, ScopeInfo info)
+    {
+        if (info.FreeCount > 0)
+        {
+            Env e = info.FreeEnvs![--info.FreeCount];
+            e.Parent = parent;
+            Array.Copy(info.Template, e.Slots, e.Slots.Length);
+            return e;
+        }
+
+        return new Env(parent, info);
+    }
+
+    /// <summary>Puts the environments a finished call created, innermost first, on their scopes' free lists, stopping at the first one a closure holds.</summary>
+    internal static void Release(Env? e)
+    {
+        while (e is not null && !e.Captured && e.Info is { } info)
+        {
+            Env? parent = e.Parent;
+            if (info.FreeCount < ScopeInfo.MaxFree)
+            {
+                e.Extra = null;
+                Array.Clear(e.Slots);
+                e.Parent = null;
+                info.FreeEnvs ??= new Env[ScopeInfo.MaxFree];
+                info.FreeEnvs[info.FreeCount++] = e;
+            }
+
+            e = parent;
+        }
+    }
 
     internal Env(Env? parent, ScopeInfo info)
     {
@@ -178,7 +250,13 @@ internal sealed class FunctionCode
 {
     internal Instr[] Ops = [];
     internal int[] SpanStart = [];
+
+    /// <summary>The offset a stack trace reports for each instruction (V8's position: a property name, an operator, a callee).</summary>
+    internal int[] Pos = [];
     internal int[] SpanEnd = [];
+
+    /// <summary>For a store into a binding or an object-literal property: the span of the value written (instruction index to start and end).</summary>
+    internal Dictionary<int, (int Start, int End)>? ValueSpans;
     internal JsValue[] Consts = [];
     internal string[] Names = [];
     internal FunctionCode[] Functions = [];
@@ -186,12 +264,21 @@ internal sealed class FunctionCode
     internal object[] Tables = [];
     internal PropCache[] Caches = [];
     internal string Name = "";
+
+    /// <summary>For an anonymous function assigned to a member (<c>o.handler = function () {}</c>), the target's text, which stack traces show as V8 does; null otherwise.</summary>
+    internal string? InferredName;
+
+    /// <summary>The name stack traces show instead of <see cref="Name"/> (<c>eval</c> for code made by <c>new Function</c>).</summary>
+    internal string? StackName;
     internal int Length;
     internal bool Strict;
     internal bool IsAsync;
     internal bool IsGenerator;
     internal FunctionKind Kind;
     internal int NumLocals;
+
+    /// <summary>True for the function made from an async function body evaluated by the host: it is the top level of the code, so a report shows it as <c>&lt;top-level&gt;</c>.</summary>
+    internal bool IsBody;
     internal int StackSize;
     internal SourceText Source = null!;
     internal int SrcStart;
@@ -206,6 +293,10 @@ internal sealed class FunctionCode
     internal bool InFieldInit;
 
     internal bool IsArrow => Kind == FunctionKind.Arrow;
+
+    /// <summary>Finished plain-call frames of this code, ready for the next call; see <see cref="Frame.Recycle"/>.</summary>
+    internal Frame[]? FreeFrames;
+    internal int FreeCount;
 
     internal string SourceText => Source.Text.Substring(SrcStart, SrcEnd - SrcStart);
 }
@@ -266,6 +357,9 @@ internal sealed class Frame
     internal ResumeMode StarMode;
     internal bool RawYield;
 
+    /// <summary>Set once something outside the call chain can reach this frame (an arrow function keeps its defining frame for <c>this</c>), which forbids reuse.</summary>
+    internal bool Escaped;
+
     internal Frame(FunctionCode code, Realm realm)
     {
         Code = code;
@@ -276,10 +370,218 @@ internal sealed class Frame
         ThisFrame = this;
     }
 
-    internal StackFrameInfo ToInfo()
+    private const int MaxFreePerCode = 64;
+
+    /// <summary>
+    /// Returns a finished frame to its code's free list. Only a frame of a plain function that returned normally and that nothing
+    /// else references qualifies: generator, async and module frames are suspended and resumed, and an arrow function created in
+    /// the frame holds it, so those are never reused.
+    /// </summary>
+    internal static void Recycle(Frame f)
     {
-        int pc = Math.Clamp(Pc, 0, Math.Max(0, Code.SpanStart.Length - 1));
+        FunctionCode c = f.Code;
+        // Eval code runs in its caller's environment, which it does not own, so its frame must never release it.
+        if (f.Escaped || c.IsAsync || c.IsGenerator || f.IsEntry || c.Kind is FunctionKind.Eval or FunctionKind.Script or FunctionKind.Module || c.FreeCount >= MaxFreePerCode)
+        {
+            return;
+        }
+
+        Env.Release(f.Env);
+        Array.Clear(f.Stack);
+        f.Handlers?.Clear();
+        f.Func = null;
+        f.Caller = null;
+        f.Env = null;
+        f.This = default;
+        f.NewTarget = null;
+        f.ArgArr = null;
+        f.Owner = null;
+        f.Sent = default;
+        f.Completion = default;
+        f.NativeCaller = null;
+        f.NativeCallerThis = default;
+        f.CallReceiver = default;
+        f.ThisFrame = f;
+        c.FreeFrames ??= new Frame[MaxFreePerCode];
+        c.FreeFrames[c.FreeCount++] = f;
+    }
+
+    /// <summary>A frame for <paramref name="code"/>: a recycled one when available, else a new one.</summary>
+    internal static Frame Obtain(FunctionCode code, Realm realm)
+    {
+        if (code.FreeCount > 0)
+        {
+            Frame f = code.FreeFrames![--code.FreeCount];
+            f.Realm = realm;
+            f.Sp = f.Base;
+            f.Pc = 0;
+            f.State = FrameState.Running;
+            f.Mode = ResumeMode.Next;
+            f.IsConstruct = false;
+            f.NativeCallerNew = false;
+            f.AwaitedInStar = false;
+            f.RawYield = false;
+            f.ArgOff = 0;
+            f.ArgCount = 0;
+            return f;
+        }
+
+        return new Frame(code, realm);
+    }
+
+    /// <summary>The built-in function that called into this frame (an entry frame), with its receiver, so traces show it between the two script frames.</summary>
+    internal NativeFunction? NativeCaller;
+
+    /// <summary>For an arrow function, the receiver of the call (an arrow ignores it, but a trace shows it as V8 does).</summary>
+    internal JsValue CallReceiver;
+
+    internal JsValue NativeCallerThis;
+
+    internal bool NativeCallerNew;
+
+    internal static readonly SourceText NativeSource = new(string.Empty, "<anonymous>");
+
+    /// <summary>Describes this activation for a stack trace. A suspended frame (an <c>await</c> in progress) reports the await; <paramref name="async"/> marks it as one stitched behind the running frames.</summary>
+    internal StackFrameInfo ToInfo(bool async = false)
+    {
+        // A frame that is not running has already advanced past the instruction that suspended it.
+        int at = State == FrameState.Awaiting || State == FrameState.SuspendedYield ? Pc - 1 : Pc;
+        int pc = Math.Clamp(at, 0, Math.Max(0, Code.SpanStart.Length - 1));
         var span = Code.SpanStart.Length == 0 ? new Span(0, 0) : new Span(Code.SpanStart[pc], Code.SpanEnd[pc]);
-        return new StackFrameInfo(Code.Kind is FunctionKind.Script or FunctionKind.Module or FunctionKind.Eval ? "" : Code.Name, Code.Source, span, Code.IsAsync, IsConstruct);
+        bool top = Code.Kind is FunctionKind.Script or FunctionKind.Module || Code.IsBody;
+        JsValue receiver = Code.Kind == FunctionKind.Arrow ? CallReceiver : This;
+        string? type = null;
+        if (!top && !IsConstruct && Func is not null && !receiver.IsNullish && !receiver.IsTdz && !(receiver.Ref is JsObject g && ReferenceEquals(g, Realm.Global)))
+        {
+            type = TypeNameOf(receiver);
+        }
+
+        string name = top ? "" : Code.StackName ?? (Code.Kind == FunctionKind.Eval ? "eval" : Code.Name);
+        if (name.Length == 0 && Func is not null)
+        {
+            // Computed keys and symbol-keyed methods get their name when the function is created, not when it is compiled.
+            int ns = Func.Shape.Lookup("name", out PropFlags nf);
+            if (ns >= 0 && (nf & PropFlags.Accessor) == 0 && Func.Slots[ns].IsString)
+            {
+                name = Func.Slots[ns].AsString;
+            }
+        }
+
+        if (name.Length == 0 && Code.InferredName is { } inferred)
+        {
+            name = inferred;
+            type = null;
+        }
+
+        bool tracing = Agent.CurrentOrNull?.Trace is not null;
+        return new StackFrameInfo(name, Code.Source, span, async, IsConstruct)
+        {
+            Pos = Code.Pos.Length > pc ? Code.Pos[pc] : -1,
+            TypeName = type,
+            IsTopLevel = top,
+            Locals = tracing ? Diagnostics.Explain.LocalsOf(this) : null,
+            ScopeEnv = tracing ? Env : null,
+            ScopeRealm = tracing ? Realm : null,
+        };
+    }
+
+    /// <summary>The file name of code made by <c>eval</c> or <c>new Function</c> from this frame: V8 shows where it was created, as <c>eval at f (file:1:2), &lt;anonymous&gt;</c>.</summary>
+    internal string EvalOrigin()
+    {
+        StackFrameInfo i = ToInfo();
+        LinePosition p = i.Position;
+        string fn = i.Function.Length == 0 ? "<anonymous>" : i.Function;
+        return "eval at " + fn + " (" + i.Source.Name + ":" + p.Line.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + ":"
+            + p.Column.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "), <anonymous>";
+    }
+
+    /// <summary>The receiver's class name as V8 prints it in <c>at Type.method</c>: the constructor's name, found without running any script.</summary>
+    internal static string TypeNameOf(JsValue v)
+    {
+        if (v.IsString)
+        {
+            return "String";
+        }
+
+        if (v.IsNumber)
+        {
+            return "Number";
+        }
+
+        if (v.IsBoolean)
+        {
+            return "Boolean";
+        }
+
+        if (v.IsSymbol)
+        {
+            return "Symbol";
+        }
+
+        if (v.IsBigInt)
+        {
+            return "BigInt";
+        }
+
+        if (v.Ref is ProxyObject)
+        {
+            return "Proxy";
+        }
+
+        if (v.Ref is ScriptFunction { IsClassConstructor: true } cf)
+        {
+            return cf.Code.Name;
+        }
+
+        if (v.Ref is NativeFunction nf && nf.Slots[1].IsString && nf.IsConstructor)
+        {
+            return nf.Slots[1].AsString;
+        }
+
+        if (v.Ref is JsFunction)
+        {
+            return "Function";
+        }
+
+        if (v.Ref is JsGenerator gen)
+        {
+            return gen.Frame.Code.Name.Length > 0 ? gen.Frame.Code.Name : "Generator";
+        }
+
+        if (v.Ref is JsAsyncGenerator)
+        {
+            return "AsyncGenerator";
+        }
+
+        for (JsObject? q = v.Ref as JsObject; q is not null; q = q.Proto)
+        {
+            int s = q.Shape.Lookup("constructor", out PropFlags f);
+            if (s >= 0 && (f & PropFlags.Accessor) == 0 && q.Slots[s].Ref is JsFunction c)
+            {
+                int ns = c.Shape.Lookup("name", out PropFlags nf2);
+                if (ns >= 0 && (nf2 & PropFlags.Accessor) == 0 && c.Slots[ns].IsString && c.Slots[ns].AsString.Length > 0)
+                {
+                    string ctorName = c.Slots[ns].AsString;
+                    return ctorName == "Object" ? TagOrObject(v) : ctorName;
+                }
+            }
+        }
+
+        return TagOrObject(v);
+    }
+
+    // An ordinary object is "Object" to V8, except the namespace-like built-ins (JSON, Reflect, Math) that carry a tag.
+    private static string TagOrObject(JsValue v)
+    {
+        for (JsObject? q = v.Ref as JsObject; q is not null; q = q.Proto)
+        {
+            int ts = q.Shape.Lookup(new PropertyKey(WellKnown.ToStringTag), out PropFlags tf);
+            if (ts >= 0)
+            {
+                return (tf & PropFlags.Accessor) == 0 && q.Slots[ts].IsString ? q.Slots[ts].AsString : "Object";
+            }
+        }
+
+        return "Object";
     }
 }

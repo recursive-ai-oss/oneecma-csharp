@@ -1,0 +1,6 @@
+error[TypeError]: Shop.OrderApi.AddOrder: argument 'order.lineItems[1].price' must be a finite number (System.Decimal), got string "7.25"
+ --> case.js:6:1
+6 | api.addOrder({ id: 3, lineItems: lines });
+  | ^^^^^^^^^^^^ `order.lineItems[1].price` is string "7.25", expected a finite number (System.Decimal)
+  = help: convert the string first: Number("7.25")
+  = stack: Shop.OrderApi.AddOrder [.NET] ← <top-level> (case.js:6)

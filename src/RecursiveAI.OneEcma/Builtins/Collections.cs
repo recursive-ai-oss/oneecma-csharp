@@ -209,28 +209,14 @@ internal static partial class Builtins
     private static string ValueText(JsValue v) => v.IsString ? v.AsString : Ops.DisplayValue(v);
 
     /// <summary>How V8 names a value in "x is not iterable" and "x is not a function" from built-ins: the type, then the value for primitives.</summary>
-    private static string KindText(JsValue v) => v.Ref switch
-    {
-        null => "undefined",
-        JsSymbol => "symbol",
-        JsObject o => o.IsCallable ? "function" : "object",
-        _ when v.IsNull => "object null",
-        _ when v.IsString => "string \"" + v.AsString + "\"",
-        _ => v.TypeOf + " " + Ops.DisplayValue(v),
-    };
+    private static string KindText(JsValue v) => Ops.KindText(v);
 
     private static JsException NotFunction(JsValue v) => Errors.Type(KindText(v) + " is not a function");
 
     /// <summary>GetIterator (7.4.3) with V8's wording for a value without Symbol.iterator.</summary>
     private static IteratorRecord GetIteratorFor(JsValue iterable)
     {
-        JsValue m = Ops.GetMethod(iterable, new PropertyKey(WellKnown.Iterator));
-        if (m.IsUndefined)
-        {
-            throw Errors.Type(KindText(iterable) + " is not iterable (cannot read property Symbol(Symbol.iterator))");
-        }
-
-        return Ops.GetIteratorFromMethod(iterable, m);
+        return Ops.GetIterator(iterable);
     }
 
     /// <summary>

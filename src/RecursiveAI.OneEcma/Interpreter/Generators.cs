@@ -245,6 +245,7 @@ internal static class Generators
             return;
         }
 
+        p.AwaitedBy = f;
         Promises.ThenNative(p, val => ResumeFrame(f, ResumeMode.Next, val), err => ResumeFrame(f, ResumeMode.Throw, err));
     }
 

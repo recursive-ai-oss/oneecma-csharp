@@ -1,0 +1,10 @@
+error[TypeError]: title.toUppercase is not a function
+ --> case.js:2:15
+  |
+1 | const title = 'quarterly report';
+  |               ------------------ `title` comes from here: "quarterly report"
+2 | const shout = title.toUppercase();
+  |               ^^^^^^^^^^^^^^^^^ `title` is a string, so it has no `toUppercase`
+  |
+  = help: did you mean `title.toUpperCase`? (function)
+  = stack: <top-level> (case.js:2)

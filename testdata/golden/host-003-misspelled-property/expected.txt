@@ -7,4 +7,4 @@ error[TypeError]: Shop.OrderApi.AddOrder: argument 'order' has no property 'line
   = help: did you mean 'lineItems'?
   = help: it accepts: id, lineItems, status, note
   = note: host function: Shop.OrderApi.AddOrder(Order order)
-  = stack: Shop.OrderApi.AddOrder [.NET] ← <anonymous> (case.js:2)
+  = stack: Shop.OrderApi.AddOrder [.NET] ← <top-level> (case.js:2)

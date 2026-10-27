@@ -182,14 +182,52 @@ catch (JsException e) when (e.InnerException is InvalidOperationException)
 {
 }
 
+// An async function body: top-level await and return with positions from the text itself, then a rejection after the awaited host task.
+JsValue bodyPromise = hostEngine.EvaluateAsyncBody(
+    "const planned = scheduler.plan({ name: 'b', cost: 4, mode: 'slow' });\nconst n = await scheduler.runAsync(job => job.cost, planned);\nreturn n + '|' + planned.cost;", "body.js");
+string bodyText = hostEngine.ToDisplayString(await hostEngine.AwaitAsync(bodyPromise));
+if (bodyText.Split('|') is not [var first, var second] || !int.TryParse(first, out _) || !int.TryParse(second, out _))
+{
+    Console.Error.WriteLine("smoke: async body gave " + bodyText);
+    return 1;
+}
+
 try
 {
-    runner.Evaluate("const o = {};\no.missing.x;", "smoke.js");
+    JsValue failing = hostEngine.EvaluateAsyncBody("const n = await scheduler.runAsync(job => job.cost, scheduler.plan({ name: 'b', cost: 4 }));\nreturn n.items.length;", "body.js");
+    await hostEngine.AwaitAsync(failing);
+    Console.Error.WriteLine("smoke: expected the async body to fail");
+    return 1;
+}
+catch (JsException e) when (e.Report is { Kind: "TypeError" } r && r.Position.Line == 2 && r.ToString().Contains("explanation unavailable", StringComparison.Ordinal))
+{
+}
+catch (JsException e)
+{
+    Console.Error.WriteLine("smoke: unexpected report for the failing async body\n" + e.Report);
+    return 1;
+}
+
+// An explained runtime report: the traced replay says where the value came from and what the object holds.
+try
+{
+    runner.Evaluate("const order = { id: 1, lineItems: [1, 2] };\nconst total = order.items.reduce((a, b) => a + b);", "smoke.js");
     Console.Error.WriteLine("smoke: expected a JsException");
     return 1;
 }
-catch (JsException e) when (e.Report is { Kind: "TypeError" } r && r.Position.Line == 2)
+catch (JsException e) when (e.Report is { Kind: "TypeError" } r)
 {
+    string text = r.ToString();
+    if (r.Position.Line != 2 || r.Provenance.Count != 1 || !text.Contains("`order` comes from here: { id, lineItems }", StringComparison.Ordinal)
+        || !text.Contains("`order.items` is undefined", StringComparison.Ordinal)
+        || !text.Contains("did you mean `order.lineItems`? (Array, 2 items)", StringComparison.Ordinal)
+        || r.Stack[0].Locals is not { Count: > 0 })
+    {
+        Console.Error.WriteLine("smoke: unexpected explained report\n" + text);
+        return 1;
+    }
+
+    Console.Out.WriteLine(text);
     Console.Out.WriteLine("aot-smoke ok " + ScriptEngine.Version);
     return 0;
 }

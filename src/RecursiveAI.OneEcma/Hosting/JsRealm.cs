@@ -144,7 +144,7 @@ public sealed class JsRealm
     /// <exception cref="JsException">The script has a syntax error or threw.</exception>
     /// <exception cref="JsLimitException">A resource limit ended the run.</exception>
     public JsValue Evaluate(string source, string fileName = "<anonymous>", CancellationToken cancellationToken = default)
-        => Engine.EvaluateIn(_realm, source, fileName, cancellationToken);
+        => Engine.EvaluateFrom(_realm, source, fileName, cancellationToken);
 
     // ---- creating values ------------------------------------------------------------------------
 
@@ -430,7 +430,7 @@ public sealed class JsRealm
     public JsValue Call(JsValue function, JsValue thisValue, params ReadOnlySpan<JsValue> args)
     {
         JsValue[] copy = args.ToArray();
-        return Run(() => Ops.Call(function, thisValue, copy));
+        return Engine.CallFromHost(_realm, function, thisValue, copy, default);
     }
 
     /// <summary>Calls a constructor with <c>new</c>.</summary>
@@ -440,6 +440,7 @@ public sealed class JsRealm
     public JsValue Construct(JsValue constructor, params ReadOnlySpan<JsValue> args)
     {
         JsValue[] copy = args.ToArray();
+        Engine.NoteNotReplayable("JsRealm.Construct was used, and its constructor argument is not part of the log");
         return Run(() => constructor.Ref is JsObject c && c.IsConstructor
             ? JsValue.FromObject(Ops.Construct(c, copy))
             : throw Errors.Type(Ops.DisplayValue(constructor) + " is not a constructor"));

@@ -41,9 +41,13 @@ internal sealed class Shape
 
     private Dictionary<PropertyKey, int>? _map;
     private Dictionary<(PropertyKey, byte), Shape>? _transitions;
+
+    // Most shapes have one successor, so the first one is kept inline and the dictionary is only built for a second.
+    private Shape? _firstNext;
     private List<DictEntry>? _entries;
     private Dictionary<PropertyKey, int>? _dictIndex;
     private int _live;
+    private byte _lookups;
 
     internal Shape(Shape? parent, PropertyKey key, PropFlags flags, JsObject? proto, bool dict)
     {
@@ -53,7 +57,16 @@ internal sealed class Shape
         Proto = parent is null ? proto : parent.Proto;
         Count = parent is null ? 0 : parent.Count + 1;
         IsDictionary = dict;
+        DigitKeys = (parent?.DigitKeys ?? 0) + (parent is not null && StartsWithDigit(key) ? 1 : 0);
     }
+
+    private static bool StartsWithDigit(PropertyKey key) => key.Ref is string s && s.Length > 0 && s[0] is >= '0' and <= '9';
+
+    /// <summary>
+    /// How many live keys begin with a decimal digit. Zero means no integer-like key can exist, which lets array built-ins decide
+    /// in O(1) that a prototype cannot intercept an index instead of listing its keys on every call.
+    /// </summary>
+    internal int DigitKeys { get; private set; }
 
     private struct DictEntry
     {
@@ -93,7 +106,9 @@ internal sealed class Shape
             return -1;
         }
 
-        if (Count <= 8)
+        // A large shape builds its key index only once it is looked up repeatedly. Built-in objects add dozens of keys one at a
+        // time and look each shape up once, so indexing every intermediate shape costs far more than the walk it saves.
+        if (Count <= 8 || (_map is null && _lookups++ < 4))
         {
             for (Shape? s = this; s is not null && s.Parent is not null; s = s.Parent)
             {
@@ -149,6 +164,11 @@ internal sealed class Shape
             _entries.Add(new DictEntry { Key = key, Flags = flags });
             Count++;
             _live++;
+            if (StartsWithDigit(key))
+            {
+                DigitKeys++;
+            }
+
             return this;
         }
 
@@ -157,8 +177,22 @@ internal sealed class Shape
             return ToDictionary().Add(key, flags);
         }
 
-        _transitions ??= new Dictionary<(PropertyKey, byte), Shape>();
-        if (_transitions.TryGetValue((key, (byte)flags), out Shape? next))
+        Shape? next;
+        if (_transitions is null)
+        {
+            if (_firstNext is null)
+            {
+                return _firstNext = new Shape(this, key, flags, null, false);
+            }
+
+            if (_firstNext.Flags == flags && _firstNext.Key.Equals(key))
+            {
+                return _firstNext;
+            }
+
+            _transitions = new Dictionary<(PropertyKey, byte), Shape> { [(_firstNext.Key, (byte)_firstNext.Flags)] = _firstNext };
+        }
+        else if (_transitions.TryGetValue((key, (byte)flags), out next))
         {
             return next;
         }
@@ -237,6 +271,7 @@ internal sealed class Shape
 
         d.Count = d._entries.Count;
         d._live = d.Count;
+        d.DigitKeys = DigitKeys;
         return d;
     }
 
@@ -254,6 +289,10 @@ internal sealed class Shape
         _entries[slot] = e;
         _dictIndex!.Remove(e.Key);
         _live--;
+        if (StartsWithDigit(e.Key))
+        {
+            DigitKeys--;
+        }
     }
 
     internal bool NeedsCompaction => IsDictionary && _entries!.Count > 16 && _live * 2 < _entries.Count;

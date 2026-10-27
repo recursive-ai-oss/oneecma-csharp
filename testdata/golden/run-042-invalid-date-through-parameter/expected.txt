@@ -1,0 +1,15 @@
+error[RangeError]: Invalid time value
+ --> case.js:4:10
+  |
+2 | const when = new Date(raw);
+  |              ------------- `when` is made here from `raw`, which is "yesterday"
+3 | function label(d) {
+4 |   return d.toISOString().slice(0, 10);
+  |          ^^^^^^^^^^^^^ `d` is an Invalid Date, so `toISOString` throws
+...
+7 |   return label(when) + row;
+  |                ---- `when` is passed to `label` here
+  |
+  = help: `new Date(text)` only reliably reads ISO 8601 text such as `2024-01-31` or `2024-01-31T10:00:00Z`
+  = help: check it before formatting: `if (Number.isNaN(d.getTime())) { ... }`
+  = stack: label (case.js:4) ← render (case.js:7) ← <top-level> (case.js:9)

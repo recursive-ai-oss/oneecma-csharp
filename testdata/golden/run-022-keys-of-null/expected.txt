@@ -6,5 +6,4 @@ error[TypeError]: Cannot convert undefined or null to object
 2 | console.log(Object.keys(config));
   |                         ^^^^^^ `config` is null
   |
-  = help: use a default: `Object.keys(config ?? {})`
   = stack: <top-level> (case.js:2)

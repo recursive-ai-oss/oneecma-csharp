@@ -7,13 +7,13 @@ namespace RecursiveAI.OneEcma;
 /// <summary>Hooks the interpreter calls around every operation; the lean run uses the empty implementation, so the call vanishes.</summary>
 internal interface ITracer
 {
-    void OnOp(Frame frame, int pc);
+    void OnOp(Frame frame, Instr ins, int pc, JsValue[] st, int sp);
 }
 
 internal struct NoTrace : ITracer
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly void OnOp(Frame frame, int pc)
+    public readonly void OnOp(Frame frame, Instr ins, int pc, JsValue[] st, int sp)
     {
     }
 }
@@ -40,6 +40,9 @@ internal static partial class Vm
         Frame? savedFrame = ag.Frame;
         int savedDepth = ag.CallDepth;
         Realm savedRealm = ag.Realm;
+        NativeFunction? savedNative = ag.CurrentNative;
+        JsValue savedNativeThis = ag.CurrentNativeThis;
+        bool savedNativeNew = ag.CurrentNativeNew;
         ag.NativeDepth++;
         try
         {
@@ -47,10 +50,17 @@ internal static partial class Vm
             Frame f = PrepareFrame(ag, fn, thisValue, arr, 0, arr.Length, newTarget);
             f.IsEntry = true;
             f.Caller = savedFrame;
+            f.NativeCaller = savedNative;
+            f.NativeCallerThis = savedNativeThis;
+            f.NativeCallerNew = savedNativeNew;
+            ag.CurrentNative = null;
             return Run(ag, f);
         }
         finally
         {
+            ag.CurrentNative = savedNative;
+            ag.CurrentNativeThis = savedNativeThis;
+            ag.CurrentNativeNew = savedNativeNew;
             ag.NativeDepth--;
             ag.Frame = savedFrame;
             ag.CallDepth = savedDepth;
@@ -69,15 +79,25 @@ internal static partial class Vm
         Frame? savedFrame = ag.Frame;
         int savedDepth = ag.CallDepth;
         Realm savedRealm = ag.Realm;
+        NativeFunction? savedNative = ag.CurrentNative;
+        JsValue savedNativeThis = ag.CurrentNativeThis;
+        bool savedNativeNew = ag.CurrentNativeNew;
         ag.NativeDepth++;
         try
         {
             f.IsEntry = true;
             f.Caller = savedFrame;
+            f.NativeCaller = savedNative;
+            f.NativeCallerThis = savedNativeThis;
+            f.NativeCallerNew = savedNativeNew;
+            ag.CurrentNative = null;
             return Run(ag, f);
         }
         finally
         {
+            ag.CurrentNative = savedNative;
+            ag.CurrentNativeThis = savedNativeThis;
+            ag.CurrentNativeNew = savedNativeNew;
             ag.NativeDepth--;
             ag.Frame = savedFrame;
             ag.CallDepth = savedDepth;
@@ -94,20 +114,19 @@ internal static partial class Vm
             throw Errors.Type("Class constructor " + code.Name + " cannot be invoked without 'new'");
         }
 
-        var f = new Frame(code, fn.Realm)
-        {
-            Func = fn,
-            Env = fn.Env,
-            NewTarget = newTarget,
-            ArgArr = args,
-            ArgOff = off,
-            ArgCount = argc,
-            IsConstruct = newTarget is not null,
-        };
+        var f = Frame.Obtain(code, fn.Realm);
+        f.Func = fn;
+        f.Env = fn.Env;
+        f.NewTarget = newTarget;
+        f.ArgArr = args;
+        f.ArgOff = off;
+        f.ArgCount = argc;
+        f.IsConstruct = newTarget is not null;
         if (code.Kind == FunctionKind.Arrow)
         {
             f.ThisFrame = fn.OuterFrame!.ThisFrame;
             f.This = default;
+            f.CallReceiver = thisValue;
         }
         else if (newTarget is not null)
         {
@@ -181,7 +200,7 @@ internal static partial class Vm
 
     // ---- the dispatch loop ----------------------------------------------------------------------
 
-    internal static JsValue Run(Agent ag, Frame entry) => Run<NoTrace>(ag, entry);
+    internal static JsValue Run(Agent ag, Frame entry) => ag.Trace is null ? Run<NoTrace>(ag, entry) : Run<RecordingTrace>(ag, entry);
 
     private static JsException TypeErr(string m) => Errors.Type(m);
 
@@ -283,7 +302,49 @@ internal static partial class Vm
                     Instr ins = code[pc];
                     f.Pc = pc;
                     pc++;
-                    tracer.OnOp(f, pc - 1);
+                    tracer.OnOp(f, ins, pc - 1, st, sp);
+                    if (typeof(TTrace) == typeof(NoTrace) && ins.Fused != Fusion.None)
+                    {
+                        // A marked sequence over a number binding runs in one step; anything else falls through to the first
+                        // instruction's own case and the rest run one by one. A traced run never takes this path.
+                        Env fe = f.Env!;
+                        for (int h = ins.A; h > 0; h--)
+                        {
+                            fe = fe.Parent!;
+                        }
+
+                        ref JsValue fv = ref fe.Slots[ins.B];
+                        if (fv.IsNumber)
+                        {
+                            switch (ins.Fused)
+                            {
+                                case Fusion.CompareSlotInt:
+                                    {
+                                        double x = fv.Num;
+                                        double y = code[pc].A;
+                                        bool r = code[pc + 1].Op switch
+                                        {
+                                            Op.Lt => x < y,
+                                            Op.Le => x <= y,
+                                            Op.Gt => x > y,
+                                            _ => x >= y,
+                                        };
+                                        pc = r ? pc + 3 : code[pc + 2].A;
+                                        continue;
+                                    }
+
+                                case Fusion.IncrementSlot:
+                                    fv = JsValue.FromNumber(fv.Num + 1);
+                                    pc += 3;
+                                    continue;
+                                case Fusion.AddIntToSlot:
+                                    fv = JsValue.FromNumber(fv.Num + code[pc].A);
+                                    pc += 3;
+                                    continue;
+                            }
+                        }
+                    }
+
                     switch (ins.Op)
                     {
                         case Op.Nop:
@@ -522,7 +583,7 @@ internal static partial class Vm
                             DeclareEvalVars(f, (GlobalDeclsView)fc.Tables[ins.A]);
                             break;
                         case Op.PushScope:
-                            f.Env = new Env(f.Env, fc.Scopes[ins.A]);
+                            f.Env = Env.Obtain(f.Env, fc.Scopes[ins.A]);
                             break;
                         case Op.PopScope:
                             f.Env = f.Env!.Parent;
@@ -594,6 +655,10 @@ internal static partial class Vm
 
                                     st[sp - 1] = GetPropSlow(obj, o, fc.Names[ins.A], c);
                                 }
+                                else if (o.Ref is string or Rope)
+                                {
+                                    st[sp - 1] = GetStringProp(ag.Realm, o, fc.Names[ins.A], fc.Caches[ins.B]);
+                                }
                                 else
                                 {
                                     st[sp - 1] = Ops.GetV(o, new PropertyKey(fc.Names[ins.A]));
@@ -617,6 +682,10 @@ internal static partial class Vm
                                     {
                                         fnv = GetPropSlow(obj, o, fc.Names[ins.A], c);
                                     }
+                                }
+                                else if (o.Ref is string or Rope)
+                                {
+                                    fnv = GetStringProp(ag.Realm, o, fc.Names[ins.A], fc.Caches[ins.B]);
                                 }
                                 else
                                 {
@@ -823,7 +892,7 @@ internal static partial class Vm
                         case Op.ArraySpread:
                             {
                                 JsValue it = st[--sp];
-                                SpreadInto((JsArray)st[sp - 1].Ref!, it);
+                                SpreadInto((JsArray)st[sp - 1].Ref!, it, ins.A == 1, fc.Names[ins.B]);
                                 break;
                             }
 
@@ -1319,6 +1388,7 @@ internal static partial class Vm
                                     return rv;
                                 }
 
+                                Frame done = f;
                                 f = f.Caller!;
                                 ag.Frame = f;
                                 ag.Realm = f.Realm;
@@ -1328,6 +1398,11 @@ internal static partial class Vm
                                 code = f.Code.Ops;
                                 fc = f.Code;
                                 st[sp++] = rv;
+                                if (typeof(TTrace) == typeof(NoTrace))
+                                {
+                                    Frame.Recycle(done);
+                                }
+
                                 break;
                             }
 
@@ -1873,7 +1948,12 @@ internal static partial class Vm
                                 if (f.IsEntry)
                                 {
                                     ag.Frame = f.Caller;
-                                    return default;
+
+                                    // Native code that called an async function (Array.prototype.map, a host call, ScriptEngine) gets its promise at the
+                                    // first suspension, as a call from script does. When the job queue resumes the frame the value is ignored.
+                                    return f.Owner is PromiseObject own && f.Code.IsAsync && !f.Code.IsGenerator && f.Code.Kind != FunctionKind.Module
+                                        ? JsValue.FromObject(own)
+                                        : default;
                                 }
 
                                 // First suspension of an async function called from script: hand the promise to the caller.
@@ -1905,6 +1985,7 @@ internal static partial class Vm
             }
             catch (JsException ex)
             {
+                ag.CurrentNative = null;
                 thrown = ex.Value;
                 hasThrown = true;
             }

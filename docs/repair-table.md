@@ -1,8 +1,10 @@
-# Auto-repair table (v1)
+# Auto-repair table (v2)
+
+Changes since v1: R012 added (rank 7; every later rank moves down one), R001 also removes a run of adjacent unmatched closers, R007 also erases the annotation of a `const`/`let`/`var` declaration whose first error is the missing initializer, and the machine-readable file is `repair-table.v2.json`.
 
 Auto-repair is off by default and syntax-only. It runs only on source that fails to parse. A fix is applied only when it is the single plausible one and the repaired source parses; any fix that could change meaning is reported as a suggestion instead. Applied repairs are listed first in the report and the repaired source is returned.
 
-**Ranking.** Entries are ranked by how often code written by LLMs makes each mistake. Entries marked `observed` have been seen in such code; entries marked `prior` have not been seen yet and are kept because they are cheap, unambiguous and commonly expected. Priors rank below observed entries and are revisited when evidence arrives. The machine-readable form is `testdata/repair-table.v1.json`; the test cases are under `testdata/golden/`.
+**Ranking.** Entries are ranked by how often code written by LLMs makes each mistake. Entries marked `observed` have been seen in such code; entries marked `prior` have not been seen yet and are kept because they are cheap, unambiguous and commonly expected. Priors rank below observed entries and are revisited when evidence arrives. The machine-readable form is `testdata/repair-table.v2.json`; the test cases are under `testdata/golden/`.
 
 ## How a repair runs
 
@@ -14,7 +16,7 @@ Entry point: `SyntaxRepair.Repair(source, parseOptions, repairOptions, ct)` (als
 4. Repeat, to `MaxRepairs` (default 16) repairs and `MaxParses` (default 400) trial parses. Hitting either ends the search with a `repair-limit` warning.
 5. All or nothing: if the final text still has an error, nothing is returned repaired; the result carries the original diagnostics with their suggestions. If the text parses, the result lists the repairs in the order applied (offsets in the original source) and the repaired source.
 
-A repair is one rule application. Rules that fix a recurring mistake at once (R007 on a signature, R009, R010, R011) make all their edits in one repair; the report block points at the first. Block layout:
+A repair is one rule application. Rules that fix a recurring mistake at once (R001 on a run of closers, R007 on a signature, R009, R010, R011) make all their edits in one repair; the report block points at the first. Block layout:
 
 ```
 repair[R001]: removed an extra closing delimiter
@@ -37,23 +39,24 @@ Suggest-only entries are ordinary diagnostics: the explanation as `help:`, the r
 | 1 | S-BACKTICK | backtick inside a template literal (for example in a comment inside a CSS or HTML template) | suggest | observed | `syn-027-backtick-in-template` |
 | 2 | S-AWAIT | top-level `await` in a script | suggest | observed | `syn-017-top-level-await` |
 | 3 | S-REDECL | redeclared `let`/`const`/`class` at top level (often across repeated evaluations in one global scope) | suggest | observed | `syn-022-redeclared-const` |
-| 4 | R001 | extra closing delimiter `)` `]` `}` after a complete expression or statement | apply | observed | `syn-001-extra-close-paren`, `syn-002-extra-close-bracket` |
+| 4 | R001 | extra closing delimiter `)` `]` `}` after a complete expression or statement, alone or as a run (`)))`, `}}}`) | apply | observed | `syn-001-extra-close-paren`, `syn-002-extra-close-bracket`, `syn-037-doubled-extra-closer` |
 | 5 | S-CLOSE | missing `)` / `]` / `}` in the middle of the source | suggest | observed | `syn-003-missing-close-paren` |
-| 6 | R007 | TypeScript type syntax in JavaScript: parameter/variable annotations, `as T`, `interface`/`type` declarations | apply | observed | `syn-019-ts-parameter-types`, `syn-020-ts-as-cast`, `syn-021-ts-interface` |
-| 7 | R002 | closing brackets missing at the very end of the input (truncated output) | apply | prior | `syn-004-unclosed-brace-at-end` |
-| 8 | R003 | markdown code fence lines around the program | apply | prior | `syn-034-closing-fence-only`, `syn-007-fenced-block-runs-as-templates` |
-| 9 | R004 | typographic quotes used as string delimiters | apply | prior | `syn-008-smart-double-quotes`, `syn-009-smart-single-quotes` |
-| 10 | R005 | missing comma between elements, properties or arguments on separate lines | apply | prior | `syn-010-missing-comma-object`, `syn-011-missing-comma-array`, `syn-012-missing-comma-arguments` |
-| 11 | R006 | Python keyword or operator in place of the JavaScript one: `elif`, `and`, `or` | apply | prior | `syn-013-python-elif`, `syn-016-python-and-or` |
-| 12 | R008 | comma between class members | apply | prior | `syn-026-comma-between-methods` |
-| 13 | R009 | backslash before a quote outside a string (JSON-escaped code pasted raw) | apply | prior | `syn-028-escaped-quotes` |
-| 14 | R010 | HTML entities in code: `&amp;`, `&lt;`, `&gt;`, `&quot;` | apply | prior | `syn-030-html-entities` |
-| 15 | R011 | literal backslash-n between statements | apply | prior | `syn-029-literal-backslash-n` |
-| 16 | S-RETURN | top-level `return` | suggest | prior | `syn-018-top-level-return` |
-| 17 | S-STRING | unterminated string, or a literal line break inside a string | suggest | prior | `syn-005-unclosed-string`, `syn-006-newline-in-string` |
-| 18 | S-PY | other Python-isms: `def`, `for x in range()`, f-strings, `None/True/False` | suggest | prior | `syn-014-python-def`, `syn-015-python-fstring`, `syn-032-python-for-in-range`, `run-006-python-true` |
-| 19 | S-MODULE | `import`/`export` in a script | suggest | prior | `syn-023-import-in-script` |
-| 20 | S-TRY | `try` without `catch`/`finally` | suggest | prior | `syn-031-try-without-catch` |
+| 6 | R007 | TypeScript type syntax in JavaScript: parameter/variable annotations, `as T`, `interface`/`type` declarations | apply | observed | `syn-019-ts-parameter-types`, `syn-020-ts-as-cast`, `syn-021-ts-interface`, `syn-036-ts-variable-annotation` |
+| 7 | R012 | `)` or `]` missing right before a `;` that ends the line (`foo(1;`) | apply | observed | `syn-038-missing-paren-before-semicolon`, `syn-039-two-missing-parens-before-semicolon` |
+| 8 | R002 | closing brackets missing at the very end of the input (truncated output) | apply | prior | `syn-004-unclosed-brace-at-end` |
+| 9 | R003 | markdown code fence lines around the program | apply | prior | `syn-034-closing-fence-only`, `syn-007-fenced-block-runs-as-templates` |
+| 10 | R004 | typographic quotes used as string delimiters | apply | prior | `syn-008-smart-double-quotes`, `syn-009-smart-single-quotes` |
+| 11 | R005 | missing comma between elements, properties or arguments on separate lines | apply | prior | `syn-010-missing-comma-object`, `syn-011-missing-comma-array`, `syn-012-missing-comma-arguments` |
+| 12 | R006 | Python keyword or operator in place of the JavaScript one: `elif`, `and`, `or` | apply | prior | `syn-013-python-elif`, `syn-016-python-and-or` |
+| 13 | R008 | comma between class members | apply | prior | `syn-026-comma-between-methods` |
+| 14 | R009 | backslash before a quote outside a string (JSON-escaped code pasted raw) | apply | prior | `syn-028-escaped-quotes` |
+| 15 | R010 | HTML entities in code: `&amp;`, `&lt;`, `&gt;`, `&quot;` | apply | prior | `syn-030-html-entities` |
+| 16 | R011 | literal backslash-n between statements | apply | prior | `syn-029-literal-backslash-n` |
+| 17 | S-RETURN | top-level `return` | suggest | prior | `syn-018-top-level-return` |
+| 18 | S-STRING | unterminated string, or a literal line break inside a string | suggest | prior | `syn-005-unclosed-string`, `syn-006-newline-in-string` |
+| 19 | S-PY | other Python-isms: `def`, `for x in range()`, f-strings, `None/True/False` | suggest | prior | `syn-014-python-def`, `syn-015-python-fstring`, `syn-032-python-for-in-range`, `run-006-python-true` |
+| 20 | S-MODULE | `import`/`export` in a script | suggest | prior | `syn-023-import-in-script` |
+| 21 | S-TRY | `try` without `catch`/`finally` | suggest | prior | `syn-031-try-without-catch` |
 
 ## Rules and guards
 
@@ -80,9 +83,9 @@ Suggest-only entries are ordinary diagnostics: the explanation as `help:`, the r
 
 ### R001 (apply)
 
-- Mistake: extra closing delimiter `)` `]` `}` after a complete expression or statement.
-- Rule: delete the one closing token the parser reports as unexpected.
-- Guard: apply only if (a) the token is a closer with no matching opener, (b) deleting it parses and the first error moves past it, and (c) no rival reading parses: inserting the matching opener at the start of the statement (for `)` only when the wrapping would change the meaning, since parenthesising a whole expression statement means the same thing; for `]` always) or, for `}`, where a body without braces could begin (after `)`, `else`, `=>`, `do`, `try`, `finally`); otherwise suggest
+- Mistake: extra closing delimiter `)` `]` `}` after a complete expression or statement, alone or as a run of several (`)))`, `}}}`).
+- Rule: delete the one closing token the parser reports as unexpected; when several unmatched closers follow it directly, delete the run in one repair (`console.log(1)));` -> `console.log(1);`).
+- Guard: apply only if (a) the token is a closer with no matching opener, (b) deleting it parses and the first error moves past it, and (c) no rival reading parses: inserting the matching opener at the start of the statement (for `)` only when the wrapping would change the meaning, since parenthesising a whole expression statement means the same thing; for `]` always) or, for `}`, where a body without braces could begin (after `)`, `else`, `=>`, `do`, `try`, `finally`); otherwise suggest. For a run, each length is tried and only the length that makes the source parse is plausible; the opener rival is checked for the first closer only, so a run of `]` still falls back to a suggestion
 - Example: `console.log(items.length));` -> `console.log(items.length);`
 - Observation: extra closing delimiters are the one syntax mistake seen repeatedly; only some are fixed by deleting the reported token.
 
@@ -100,6 +103,14 @@ Suggest-only entries are ordinary diagnostics: the explanation as `help:`, the r
 - Guard: only for the erasable subset (no enum, valueful namespace, parameter properties, decorators); apply only if the erased source parses; the annotations of one parameter list and its return type are one repair, and a chain `x as A as B` is one repair; code that is meant to be TypeScript is out of scope
 - Example: `function add(a: number, b: number) {` -> `function add(a, b) {`
 - Observation: type annotations appear in code meant for a plain JavaScript host.
+
+### R012 (apply)
+
+- Mistake: `)` or `]` missing right before a `;` that ends the line (`foo(1;`).
+- Rule: insert the closers of every group opened on that line and still open at the `;`, innermost first, directly after the last token before the `;`.
+- Guard: apply only if the `;` is the last thing on its line (a trailing comment is fine), every group to close was opened on that same line and is a `(` or `[` that is not a `for (` header, and the result parses. Text after the `;` on the line, or an opener on an earlier line, means the closer position is a guess; the mistake then stays a suggestion (S-CLOSE).
+- Example: `const result = double(21;` -> `const result = double(21);`; `console.log(double(21;` -> `console.log(double(21));`
+- Observation: the narrow, unambiguous case of the observed missing `)` in the middle of a call.
 
 ### R002 (apply)
 

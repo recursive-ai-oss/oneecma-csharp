@@ -36,6 +36,7 @@ internal sealed partial class Parser
     private Scope _scope = null!;
     private FnState _fn = null!;
     private RegExpLiteralValidator? _regExpValidator;
+    private FunctionNode? _asyncBody;
 
     internal Parser(SourceText source, ParseOptions options, CancellationToken ct)
     {
@@ -61,7 +62,7 @@ internal sealed partial class Parser
         }
 
         SyntaxHints.Apply(_diags);
-        return new ParseResult(program, _src, _diags);
+        return new ParseResult(program, _src, _diags, _asyncBody);
     }
 
     // ---- tokens ----------------------------------------------------------------------------

@@ -12,7 +12,7 @@ internal abstract class JsFunction : JsObject
     internal Realm Realm;
 
     protected JsFunction(Shape shape, Realm realm)
-        : base(shape)
+        : base(shape, true)
     {
         Realm = realm;
     }
@@ -28,11 +28,15 @@ internal sealed class NativeFunction : JsFunction
     private readonly NativeFn _fn;
     private readonly bool _ctor;
 
+    /// <summary>The name the function was created with; Function.prototype.toString shows it even after the "name" property is redefined.</summary>
+    internal readonly string InitialName;
+
     internal NativeFunction(Realm realm, string name, int length, NativeFn fn, bool isConstructor = false, JsObject? proto = null)
         : base(realm.FunctionShape(proto ?? realm.FunctionPrototype, 0), realm)
     {
         _fn = fn;
         _ctor = isConstructor;
+        InitialName = name;
         Slots[0] = JsValue.FromNumber(length);
         Slots[1] = JsValue.FromString(name);
     }
@@ -42,31 +46,56 @@ internal sealed class NativeFunction : JsFunction
     internal override JsValue Call(JsValue thisValue, ReadOnlySpan<JsValue> args)
     {
         Agent a = Agent.Current;
+        NativeFunction? prev = a.CurrentNative;
+        JsValue prevThis = a.CurrentNativeThis;
+        bool prevNew = a.CurrentNativeNew;
+        a.CurrentNative = this;
+        a.CurrentNativeThis = thisValue;
+        a.CurrentNativeNew = false;
+        JsValue result;
         if (ReferenceEquals(a.Realm, Realm))
         {
-            return _fn(thisValue, args, null);
+            result = _fn(thisValue, args, null);
+        }
+        else
+        {
+            Realm saved = a.Realm;
+            a.Realm = Realm;
+            try
+            {
+                result = _fn(thisValue, args, null);
+            }
+            finally
+            {
+                a.Realm = saved;
+            }
         }
 
-        Realm saved = a.Realm;
-        a.Realm = Realm;
-        try
-        {
-            return _fn(thisValue, args, null);
-        }
-        finally
-        {
-            a.Realm = saved;
-        }
+        // Not restored when _fn throws: the interpreter clears it where it catches, and entry points reset it.
+        a.CurrentNative = prev;
+        a.CurrentNativeThis = prevThis;
+        a.CurrentNativeNew = prevNew;
+        return result;
     }
 
     internal override JsValue Construct(ReadOnlySpan<JsValue> args, JsObject newTarget)
     {
         Agent a = Agent.Current;
         Realm saved = a.Realm;
+        NativeFunction? prev = a.CurrentNative;
+        JsValue prevThis = a.CurrentNativeThis;
+        bool prevNew = a.CurrentNativeNew;
+        a.CurrentNative = this;
+        a.CurrentNativeThis = default;
+        a.CurrentNativeNew = true;
         a.Realm = Realm;
         try
         {
-            return _fn(default, args, newTarget);
+            JsValue result = _fn(default, args, newTarget);
+            a.CurrentNative = prev;
+            a.CurrentNativeThis = prevThis;
+            a.CurrentNativeNew = prevNew;
+            return result;
         }
         finally
         {
@@ -89,11 +118,13 @@ internal sealed class ScriptFunction : JsFunction
     internal string ModuleId = "";
     internal ModuleRecord? Module;
 
-    internal ScriptFunction(Realm realm, FunctionCode code, Env? env, JsObject proto, bool withPrototype, bool readOnlyPrototype = false)
-        : base(realm.FunctionShape(proto, withPrototype ? (readOnlyPrototype ? 2 : 1) : 0), realm)
+    internal ScriptFunction(Realm realm, FunctionCode code, Env? env, JsObject proto, bool withPrototype, bool readOnlyPrototype = false, bool lazyPrototype = false)
+        : base(realm.FunctionShape(proto, withPrototype ? (lazyPrototype ? 3 : readOnlyPrototype ? 2 : 1) : 0), realm)
     {
+        Lazy = withPrototype && lazyPrototype;
         Code = code;
         Env = env;
+        env?.MarkCaptured();
         Slots[0] = JsValue.FromNumber(code.Length);
         Slots[1] = JsValue.FromString(code.Name);
     }
@@ -104,6 +135,78 @@ internal sealed class ScriptFunction : JsFunction
         FunctionKind.ClassConstructor or FunctionKind.DerivedConstructor => true,
         _ => false,
     };
+
+    // ---- the deferred "prototype" property ------------------------------------------------------
+    // OrdinaryFunctionCreate and MakeConstructor (ECMA-262 10.2.3, 10.2.5) give every ordinary function an own "prototype" holding
+    // a fresh object whose "constructor" points back. Most closures never touch it, so the object is created the first time anything
+    // can observe it: a lookup or definition of that key, listing or deleting own keys, adding another property (it keeps its place
+    // after "length" and "name"), changing the prototype or extensibility. Until then the slot is an accessor-flagged placeholder.
+
+    private static bool IsPrototypeKey(PropertyKey key) => key.Ref is string s && s == "prototype";
+
+    internal override void Realize()
+    {
+        if (!Lazy)
+        {
+            return;
+        }
+
+        Lazy = false;
+        var p = new JsObject(Realm.ObjectPrototype);
+        p.AddProperty("constructor", JsValue.FromObject(this), PropFlags.Hidden);
+        Shape = Realm.FunctionShape(Shape.Proto!, 1);
+        Slots[2] = JsValue.FromObject(p);
+    }
+
+    internal override bool GetOwnProperty(PropertyKey key, out PropertyDescriptor desc)
+    {
+        if (Lazy && IsPrototypeKey(key))
+        {
+            Realize();
+        }
+
+        return base.GetOwnProperty(key, out desc);
+    }
+
+    internal override bool TryGetOwn(PropertyKey key, JsValue receiver, out JsValue value)
+    {
+        if (Lazy && IsPrototypeKey(key))
+        {
+            Realize();
+        }
+
+        return base.TryGetOwn(key, receiver, out value);
+    }
+
+    internal override bool DefineOwnProperty(PropertyKey key, in PropertyDescriptor desc)
+    {
+        Realize();
+        return base.DefineOwnProperty(key, desc);
+    }
+
+    internal override bool Delete(PropertyKey key)
+    {
+        Realize();
+        return base.Delete(key);
+    }
+
+    internal override void OwnKeys(List<PropertyKey> keys)
+    {
+        Realize();
+        base.OwnKeys(keys);
+    }
+
+    internal override bool SetPrototypeOf(JsObject? p)
+    {
+        Realize();
+        return base.SetPrototypeOf(p);
+    }
+
+    internal override bool PreventExtensions()
+    {
+        Realize();
+        return base.PreventExtensions();
+    }
 
     internal override JsValue Call(JsValue thisValue, ReadOnlySpan<JsValue> args) => Vm.CallFunction(this, thisValue, args, null);
 
@@ -170,9 +273,65 @@ internal sealed class JsError : JsObject
 {
     internal List<StackFrameInfo>? Frames;
 
+    /// <summary>True until <c>stack</c> is first read: V8 formats the header ("Name: message") then, so a name or message set after construction shows.</summary>
+    internal bool StackPending;
+
     internal JsError(JsObject? proto)
         : base(proto)
     {
+        OverridesGet = true;
+    }
+
+    private static bool IsStack(PropertyKey key) => key.String == "stack";
+
+    private void FormatStackNow()
+    {
+        StackPending = false;
+        int s = Shape.Lookup("stack", out PropFlags f);
+        if (s >= 0 && (f & PropFlags.Accessor) == 0 && Frames is not null)
+        {
+            Slots[s] = JsValue.FromString(Errors.FormatStack(Errors.Header(this), Frames));
+        }
+    }
+
+    internal override JsValue Get(PropertyKey key, JsValue receiver)
+    {
+        if (StackPending && IsStack(key))
+        {
+            FormatStackNow();
+        }
+
+        return base.Get(key, receiver);
+    }
+
+    internal override bool GetOwnProperty(PropertyKey key, out PropertyDescriptor desc)
+    {
+        if (StackPending && IsStack(key))
+        {
+            FormatStackNow();
+        }
+
+        return base.GetOwnProperty(key, out desc);
+    }
+
+    internal override bool Set(PropertyKey key, JsValue value, JsValue receiver)
+    {
+        if (StackPending && IsStack(key))
+        {
+            StackPending = false;
+        }
+
+        return base.Set(key, value, receiver);
+    }
+
+    internal override bool DefineOwnProperty(PropertyKey key, in PropertyDescriptor desc)
+    {
+        if (StackPending && IsStack(key))
+        {
+            StackPending = false;
+        }
+
+        return base.DefineOwnProperty(key, desc);
     }
 
     internal override string ClassName => "Error";

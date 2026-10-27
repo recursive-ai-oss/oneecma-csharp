@@ -449,7 +449,9 @@ internal static partial class SyntaxHints
 
         if (d.Help.Count > 0 && d.Help[0].StartsWith("add `)` before", StringComparison.Ordinal))
         {
-            d.Notes.Add(NotRepaired + "`)` could also belong after a later argument");
+            d.Notes.Add(ClosesBeforeLineEndingSemicolon(d)
+                ? "repair is off by default; with it on, R012 closes it before the `;` that ends the line, though `)` could also belong after a later argument"
+                : NotRepaired + "`)` could also belong after a later argument");
         }
 
         foreach (RecoveryAction r in d.Recovery)
@@ -460,6 +462,43 @@ internal static partial class SyntaxHints
                 break;
             }
         }
+    }
+
+    /// <summary>
+    /// True when the error is the one repair R012 handles: the argument list was opened on the same line as the `;` that ends the
+    /// line, so the closer can only go right before the `;`. Mirrors that rule's guard; the repair itself also checks that the result parses.
+    /// </summary>
+    private static bool ClosesBeforeLineEndingSemicolon(Diagnostic d)
+    {
+        string text = d.Source.Text;
+        // The parser points at the last argument or at the `;` itself.
+        int semi = d.PrimarySpan.End - 1;
+        if (semi >= 0 && semi < text.Length && text[semi] != ';')
+        {
+            semi = d.PrimarySpan.End;
+            while (semi < text.Length && (text[semi] == ' ' || text[semi] == '	'))
+            {
+                semi++;
+            }
+        }
+
+        if (semi < 0 || semi >= text.Length || text[semi] != ';' || d.SecondaryLabels.Count == 0)
+        {
+            return false;
+        }
+
+        int line = d.Source.GetPosition(semi).Line;
+        foreach (Label l in d.SecondaryLabels)
+        {
+            if (d.Source.GetPosition(l.Span.Start).Line != line)
+            {
+                return false;
+            }
+        }
+
+        int lineEnd = d.Source.GetLineStart(line) + d.Source.GetLineText(line).Length;
+        ReadOnlySpan<char> after = text.AsSpan(semi + 1, Math.Max(0, lineEnd - semi - 1)).Trim();
+        return after.IsEmpty || after.StartsWith("//", StringComparison.Ordinal);
     }
 
     /// <summary>When several errors were found, the first one says so, so a reader does not stop after it.</summary>

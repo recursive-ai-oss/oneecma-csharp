@@ -69,6 +69,61 @@ internal static class Errors
         return new JsException(JsValue.FromObject(r.NewError(kind, message)));
     }
 
+    /// <summary>The first line of <c>stack</c>: the error's name and message joined as <c>Error.prototype.toString</c> does, read without running script.</summary>
+    internal static string Header(JsObject e)
+    {
+        string name = "Error";
+        for (JsObject? q = e; q is not null; q = q.Proto)
+        {
+            int ns = q.Shape.Lookup("name", out PropFlags nf);
+            if (ns >= 0)
+            {
+                if ((nf & PropFlags.Accessor) == 0 && !q.Slots[ns].IsUndefined)
+                {
+                    name = q.Slots[ns].IsString ? q.Slots[ns].AsString : Ops.DebugString(q.Slots[ns]);
+                }
+
+                break;
+            }
+        }
+
+        string message = string.Empty;
+        int ms = e.Shape.Lookup("message", out PropFlags mf);
+        if (ms >= 0 && (mf & PropFlags.Accessor) == 0 && !e.Slots[ms].IsUndefined)
+        {
+            message = e.Slots[ms].IsString ? e.Slots[ms].AsString : Ops.DebugString(e.Slots[ms]);
+        }
+
+        return name.Length == 0 ? message : message.Length == 0 ? name : name + ": " + message;
+    }
+
+    /// <summary>
+    /// The name part of a V8 stack line: <c>new Name</c> for a construct call, <c>Type.name</c> for a method call (unless the name
+    /// already starts with the type, or is an accessor or symbol-keyed name), <c>async </c> in front for a stitched async frame.
+    /// </summary>
+    internal static string FrameName(StackFrameInfo f)
+    {
+        string name = f.Function;
+        if (f.IsConstruct)
+        {
+            name = "new " + (name.Length == 0 ? "<anonymous>" : name);
+        }
+        else if (f.TypeName is { } type)
+        {
+            if (name.Length == 0)
+            {
+                name = type + ".<anonymous>";
+            }
+            else if (!name.StartsWith(type, StringComparison.Ordinal) && !name.StartsWith("get ", StringComparison.Ordinal)
+                && !name.StartsWith("set ", StringComparison.Ordinal) && name[0] != '[')
+            {
+                name = type + "." + name;
+            }
+        }
+
+        return f.IsAsync && name.Length > 0 ? "async " + name : name;
+    }
+
     /// <summary>Formats the V8 <c>stack</c> text: header line then "    at ..." frames.</summary>
     internal static string FormatStack(string header, IReadOnlyList<StackFrameInfo> frames)
     {
@@ -77,18 +132,10 @@ internal static class Errors
         {
             sb.Append("\n    at ");
             Text.LinePosition p = f.Position;
-            string loc = f.Source.Name + ":" + p.Line.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + ":" + p.Column.ToString(System.Globalization.NumberFormatInfo.InvariantInfo);
-            string name = f.Function;
-            if (f.IsConstruct)
-            {
-                name = "new " + (name.Length == 0 ? "<anonymous>" : name);
-            }
-
-            if (f.IsAsync && name.Length > 0)
-            {
-                name = "async " + name;
-            }
-
+            string loc = f.IsNative
+                ? "<anonymous>"
+                : f.Source.Name + ":" + p.Line.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + ":" + p.Column.ToString(System.Globalization.NumberFormatInfo.InvariantInfo);
+            string name = FrameName(f);
             if (name.Length == 0)
             {
                 sb.Append(loc);

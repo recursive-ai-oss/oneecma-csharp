@@ -11,7 +11,7 @@ returned by a host method resumes script on that thread when the engine is pumpe
 
 | Type | Role |
 |---|---|
-| `ScriptEngine` | One agent: realm, job queue, limits. `Evaluate`, `EvaluateAsync`, `EvaluateModule`, `RunJobs`, `RunUntilIdle(Async)`, `Await(Async)`, `Call`, `GetProperty`, `SetProperty`, `DefineGlobalFunction`, `CreateRealm`, `MainRealm`, `Install`. |
+| `ScriptEngine` | One agent: realm, job queue, limits. `Evaluate`, `EvaluateAsync`, `EvaluateAsyncBody`, `CheckAsyncBody`, `CheckAndRepairAsyncBody`, `EvaluateModule`, `RunJobs`, `RunUntilIdle(Async)`, `Await(Async)`, `Call`, `GetProperty`, `SetProperty`, `DefineGlobalFunction`, `CreateRealm`, `MainRealm`, `Install`. |
 | `JsRealm` | A global object with its own built-ins. Creates and inspects values, defines properties, calls functions, makes promises, wraps .NET objects. `engine.MainRealm`, `engine.CreateRealm()`. |
 | `JsValue` | 16-byte struct: undefined, null, boolean, number, string, symbol, BigInt, object. `FromNumber/FromString/FromBoolean/FromBigInt/FromObject/FromSymbol`, `IsX` tests, `AsNumber/AsString/AsBoolean/AsBigInt/AsSymbol/AsObject`. |
 | `JsObject` | Any object, opaque; use `JsRealm` to read and write it. `JsHostObject` is the object that stands for a .NET object (`Target`). |
@@ -78,6 +78,43 @@ JsValue w = await engine.EvaluateAsync("(async () => 1 + 1)()");  // also waits 
   routes its `await` continuations back to the engine's thread, so the callbacks it makes into script are safe; they run when the
   engine is pumped. The host that calls `Evaluate` (not `EvaluateAsync`) must pump with `RunUntilIdle`/`Await`.
 - Unhandled rejections end a run with the rejection's `JsException` unless `ScriptEngineOptions.ThrowOnUnhandledRejection` is false.
+- A host task may be complete when it reaches the engine (`Task.FromResult`, a cached task, an `async` method with a synchronous fast path), faulted
+  or cancelled, or throw before it returns a task. All of them become a promise that is settled (fulfilled or rejected with the .NET exception as
+  a script `Error`) before the call returns, and all of them record and replay exactly like a task that finishes later.
+- When the engine explains a failure it replays the recorded run. If that is not possible the plain report stays and gains a note,
+  `= note: explanation unavailable: <reason>`: the run cannot be replayed (with the reason from `RecordLog.NotReplayableReason`), the replay
+  diverged from the recorded run (with what differed), the replay did not fail the same way, or the rejected promise was not the result
+  of an entry call. The error and its headline are never replaced.
+
+## Running code as an async function body
+
+Hosts that run code written by someone else (an LLM, a user) usually want `await` and `return` at the top level, a fresh scope per call, and
+positions that point into the text they were given. `ScriptEngine.EvaluateAsyncBody` does that without a wrapper:
+
+```csharp
+JsValue p = engine.EvaluateAsyncBody("const o = await api.getOrder(id);\nreturn o.items.length;", "checkout.js");
+JsValue n = await engine.AwaitAsync(p);           // throws JsException with the explained report if the body failed
+```
+
+- **Goal.** The text is parsed with the goal of an `AsyncFunctionBody` (`ParseGoal.AsyncFunctionBody`), the one `new AsyncFunction(body)` uses
+  (ECMA-262 15.8), as the body of an anonymous `async` function with no parameters. `await` and `return` are valid at the top level; `yield`,
+  `super` and `import`/`export` are not; `new.target` is allowed and is undefined. Sloppy unless the text starts with `"use strict"`.
+- **Scope.** Every `let`, `const`, `var`, function and class declaration belongs to the call and disappears with it, so two calls never collide
+  and the global object gains nothing (an assignment to an undeclared name still creates a global in sloppy code, as anywhere).
+  Free names resolve against the global object and the host's globals; `this` is the global object, in strict bodies too.
+- **Positions.** The source is not wrapped or shifted: line and column in reports, `err.stack` and `Diagnostic` spans are those of the text
+  passed in, so no source map is needed. The body's frame reads `<top-level>` in reports and has no function name in `err.stack`
+  (`at checkout.js:2:10`); a frame stitched across an `await` reads `async <top-level>`.
+- **Result.** Returns the promise of the body's completion: fulfilled with the `return` value (undefined when none), rejected with a thrown
+  error. The call drains the job queue first, so a body that never waits on a host task has already settled. A body waiting on a host task
+  returns a pending promise; wait with `Await`/`AwaitAsync`, or pump with `RunUntilIdle(Async)`. With the default
+  `ThrowOnUnhandledRejection`, a body that rejected without anyone handling it makes `EvaluateAsyncBody` (or the pump that ran the failing
+  continuation) throw `JsException`; a host that awaits the promise it was given gets the same exception from `Await`.
+- **Syntax errors.** `EvaluateAsyncBody` throws `JsException` (a `SyntaxError` report) for the first error. `ScriptEngine.CheckAsyncBody(source, fileName)`
+  returns every syntax and early error without running, and `CheckAndRepairAsyncBody` applies the syntax-only repair table with the same
+  goal and returns the repaired source to pass to `EvaluateAsyncBody`.
+- **Record and replay.** The call is an entry call of the log (`AsyncBody`), and `Await`/`AwaitAsync` on its promise is logged, so a failure is
+  explained like any other: provenance of the failing value, did-you-mean, locals and the async stack, across any host task that was awaited.
 
 ## Modules
 

@@ -14,6 +14,18 @@ public sealed class RenderOptions
     public int MaxLineWidth { get; set; } = 140;
 
     /// <summary>
+    /// Render the compact style for readers whose context is limited (for example language models): the headline, the location,
+    /// the primary source line and the lines of any other labels, the single most useful <c>help:</c>, and a stack line only when
+    /// there is more than one frame. Blank gutter lines, <c>...</c> separators, context lines, further helps and notes (except
+    /// an unavailable explanation) and locals are dropped, and source lines are cut to about 100 columns around the labels.
+    /// Default false (the full report).
+    /// </summary>
+    public bool Compact { get; set; }
+
+    /// <summary>Add one <c>= locals:</c> line per frame that has them (only reports explained by a traced replay carry locals). Default false.</summary>
+    public bool ShowLocals { get; set; }
+
+    /// <summary>
     /// The note under every repair block. The default says the repaired source parses; a host that goes on to run the
     /// repaired source and has seen it finish may say so here.
     /// </summary>
@@ -59,7 +71,7 @@ public static class DiagnosticRenderer
         bool allSyntax = true;
         for (int i = 0; i < diagnostics.Count; i++)
         {
-            if (i > 0)
+            if (i > 0 && !options.Compact)
             {
                 sb.Append('\n');
             }
@@ -74,7 +86,11 @@ public static class DiagnosticRenderer
 
         if (errors > 1)
         {
-            sb.Append('\n');
+            if (!options.Compact)
+            {
+                sb.Append('\n');
+            }
+
             string text = "aborting due to " + errors.ToString(NumberFormatInfo.InvariantInfo) + (allSyntax ? " syntax errors" : " errors");
             sb.Append(Paint(options, Red, "error")).Append(Paint(options, Bold, ": " + text)).Append('\n');
         }
@@ -120,7 +136,7 @@ public static class DiagnosticRenderer
         var sb = new StringBuilder();
         foreach (AppliedRepair r in repairs)
         {
-            if (sb.Length > 0)
+            if (sb.Length > 0 && !options.Compact)
             {
                 sb.Append('\n');
             }
@@ -130,7 +146,7 @@ public static class DiagnosticRenderer
 
         if (diagnostics.Count > 0)
         {
-            if (sb.Length > 0)
+            if (sb.Length > 0 && !options.Compact)
             {
                 sb.Append('\n');
             }
@@ -141,14 +157,62 @@ public static class DiagnosticRenderer
         return sb.ToString();
     }
 
+    /// <summary>The text that replaces a section whose rendering failed; tests look for it so a renderer bug is never silent.</summary>
+    internal const string FallbackNote = "the source excerpt could not be rendered";
+
     private static void AppendRepair(StringBuilder sb, AppliedRepair r, RenderOptions o)
+    {
+        int start = sb.Length;
+        try
+        {
+            AppendRepairUnguarded(sb, r, o);
+        }
+        catch (Exception e) when (e is not OperationCanceledException)
+        {
+            // A report must never take the host down: keep the title and say what went wrong.
+            sb.Length = start;
+            sb.Append(Paint(o, Green, "repair[" + r.Id + "]")).Append(Paint(o, Bold, ": " + r.Title)).Append('\n');
+            sb.Append(" = note: ").Append(FallbackNote).Append(" (").Append(e.GetType().Name).Append(")\n");
+        }
+    }
+
+    private static void AppendRepairUnguarded(StringBuilder sb, AppliedRepair r, RenderOptions o)
     {
         sb.Append(Paint(o, Green, "repair[" + r.Id + "]")).Append(Paint(o, Bold, ": " + r.Title)).Append('\n');
         var labels = new List<Label> { new Label(r.Span, r.Label, true) };
-        AppendBody(sb, o, r.Source, labels, [], [o.RepairOutcome]);
+        AppendBody(sb, o, r.Source, labels, [], o.Compact ? [] : [o.RepairOutcome]);
     }
 
     private static void Append(StringBuilder sb, Diagnostic d, RenderOptions o)
+    {
+        int start = sb.Length;
+        try
+        {
+            AppendUnguarded(sb, d, o);
+        }
+        catch (Exception e) when (e is not OperationCanceledException)
+        {
+            // A report must never take the host down: fall back to the headline, the location when it can be computed, and a note.
+            sb.Length = start;
+            string level = d.Severity == Severity.Error ? "error" : "warning";
+            sb.Append(Paint(o, d.Severity == Severity.Error ? Red : "\u001b[1;33m", level + "[" + d.Kind + "]"))
+              .Append(Paint(o, Bold, ": " + d.Headline)).Append('\n');
+            try
+            {
+                LinePosition p = d.Source.GetPosition(d.PrimarySpan.Start);
+                sb.Append(" --> ").Append(d.Source.Name).Append(':').Append(p.Line.ToString(NumberFormatInfo.InvariantInfo)).Append(':')
+                  .Append(p.Column.ToString(NumberFormatInfo.InvariantInfo)).Append('\n');
+            }
+            catch (Exception inner) when (inner is not OperationCanceledException)
+            {
+                // No location to give.
+            }
+
+            sb.Append(" = note: ").Append(FallbackNote).Append(" (").Append(e.GetType().Name).Append(")\n");
+        }
+    }
+
+    private static void AppendUnguarded(StringBuilder sb, Diagnostic d, RenderOptions o)
     {
         string level = d.Severity == Severity.Error ? "error" : "warning";
         sb.Append(Paint(o, d.Severity == Severity.Error ? Red : "\u001b[1;33m", level + "[" + d.Kind + "]"))
@@ -159,10 +223,10 @@ public static class DiagnosticRenderer
             new Label(d.PrimarySpan, d.PrimaryLabel, true),
         };
         labels.AddRange(d.SecondaryLabels);
-        AppendBody(sb, o, d.Source, labels, d.Help, d.Notes);
-        if (d.Stack.Count > 0)
+        int gutter = AppendBody(sb, o, d.Source, labels, d.Help, d.Notes, d.Stack.Count > 0);
+        if (d.Stack.Count > (o.Compact ? 1 : 0))
         {
-            sb.Append("  = stack: ");
+            sb.Append(new string(' ', gutter)).Append(" = stack: ");
             for (int i = 0; i < d.Stack.Count; i++)
             {
                 StackFrameInfo fr = d.Stack[i];
@@ -171,21 +235,48 @@ public static class DiagnosticRenderer
                     sb.Append(" ← ");
                 }
 
+                // Identical frames in a row (recursion) collapse to one with a count.
+                int run = 1;
+                while (i + run < d.Stack.Count && SameFrame(fr, d.Stack[i + run]))
+                {
+                    run++;
+                }
+
                 if (fr.IsHost)
                 {
                     sb.Append(fr.Function).Append(fr.HostLine > 0 ? " (" + fr.Source.Name + ":" + fr.HostLine.ToString(NumberFormatInfo.InvariantInfo) + ")" : " [.NET]");
                     continue;
                 }
 
-                sb.Append(fr.IsAsync ? "async " : "").Append(fr.Function.Length == 0 ? "<anonymous>" : fr.Function).Append(" (").Append(fr.Source.Name).Append(':').Append(fr.Position.Line).Append(')');
+                sb.Append(fr.IsAsync ? "async " : "").Append(fr.IsTopLevel ? "<top-level>" : fr.Function.Length == 0 ? "<anonymous>" : fr.Function).Append(" (").Append(fr.Source.Name).Append(':').Append(fr.Position.Line).Append(')');
+                if (run > 1)
+                {
+                    sb.Append(" ×").Append(run.ToString(NumberFormatInfo.InvariantInfo));
+                    i += run - 1;
+                }
             }
 
             sb.Append('\n');
+            if (o.ShowLocals && !o.Compact)
+            {
+                foreach (StackFrameInfo fr in d.Stack)
+                {
+                    if (fr.Locals is { Count: > 0 } locals)
+                    {
+                        sb.Append(new string(' ', gutter)).Append(" = locals in ").Append(fr.IsTopLevel ? "<top-level>" : fr.Function.Length == 0 ? "<anonymous>" : fr.Function).Append(": ")
+                          .AppendJoin(", ", locals.Select(l => l.Name + " = " + l.Value)).Append('\n');
+                    }
+                }
+            }
         }
     }
 
+    private static bool SameFrame(StackFrameInfo a, StackFrameInfo b) =>
+        !a.IsHost && !b.IsHost && a.Function == b.Function && a.IsAsync == b.IsAsync && a.IsTopLevel == b.IsTopLevel
+        && ReferenceEquals(a.Source, b.Source) && a.Position.Line == b.Position.Line;
+
     /// <summary>Everything under the headline: the location, the labelled source lines, then help and notes. The first label is the primary one.</summary>
-    private static void AppendBody(StringBuilder sb, RenderOptions o, SourceText src, List<Label> labels, List<string> help, List<string> notes)
+    private static int AppendBody(StringBuilder sb, RenderOptions o, SourceText src, List<Label> labels, List<string> help, List<string> notes, bool stackFollows = false)
     {
         var lineLabels = new SortedDictionary<int, List<(Label Lbl, int StartCol, int EndCol)>>();
         foreach (Label l in labels)
@@ -218,12 +309,15 @@ public static class DiagnosticRenderer
           .Append(loc.Line.ToString(NumberFormatInfo.InvariantInfo)).Append(':')
           .Append(loc.Column.ToString(NumberFormatInfo.InvariantInfo)).Append('\n');
         string bar = Paint(o, Blue, "|");
-        sb.Append(pad).Append(' ').Append(bar).Append('\n');
+        if (!o.Compact)
+        {
+            sb.Append(pad).Append(' ').Append(bar).Append('\n');
+        }
 
         int prev = -1;
         foreach (int line in shown)
         {
-            if (prev >= 0 && line - prev >= 2)
+            if (prev >= 0 && line - prev >= 2 && !o.Compact)
             {
                 if (line - prev == 2)
                 {
@@ -239,7 +333,37 @@ public static class DiagnosticRenderer
             prev = line;
         }
 
-        if (help.Count + notes.Count > 0)
+        if (o.Compact)
+        {
+            // The did-you-mean when there is one, else the first help; notes only when the explanation could not be produced.
+            string? best = null;
+            foreach (string h in help)
+            {
+                if (h.StartsWith("did you mean", StringComparison.Ordinal))
+                {
+                    best = h;
+                    break;
+                }
+            }
+
+            best ??= help.Count > 0 ? help[0] : null;
+            if (best is not null)
+            {
+                sb.Append(pad).Append(' ').Append(Paint(o, Blue, "=")).Append(' ').Append(Paint(o, Green, "help")).Append(": ").Append(best).Append('\n');
+            }
+
+            foreach (string n in notes)
+            {
+                if (n.StartsWith("explanation unavailable", StringComparison.Ordinal))
+                {
+                    sb.Append(pad).Append(' ').Append(Paint(o, Blue, "=")).Append(' ').Append(Paint(o, Bold, "note")).Append(": ").Append(n).Append('\n');
+                }
+            }
+
+            return width;
+        }
+
+        if (help.Count + notes.Count > 0 || stackFollows)
         {
             sb.Append(pad).Append(' ').Append(bar).Append('\n');
             foreach (string h in help)
@@ -252,6 +376,8 @@ public static class DiagnosticRenderer
                 sb.Append(pad).Append(' ').Append(Paint(o, Blue, "=")).Append(' ').Append(Paint(o, Bold, "note")).Append(": ").Append(n).Append('\n');
             }
         }
+
+        return width;
     }
 
     private static void AppendSourceLine(
@@ -287,63 +413,112 @@ public static class DiagnosticRenderer
 
         map[text.Length] = col;
 
-        int view = 0;
-        int viewEnd = col;
-        bool cutLeft = false;
-        bool cutRight = false;
-        if (col > o.MaxLineWidth)
-        {
-            int anchor = labels is { Count: > 0 } ? map[Math.Min(labels[0].StartCol, text.Length)] : 0;
-            view = Math.Max(0, anchor - (o.MaxLineWidth / 3));
-            viewEnd = Math.Min(col, view + o.MaxLineWidth);
-            cutLeft = view > 0;
-            cutRight = viewEnd < col;
-        }
-
         string display = shownText.ToString();
-        string visible = RenderWindow(display, view, viewEnd);
         string number = line.ToString(NumberFormatInfo.InvariantInfo).PadLeft(width);
-        sb.Append(Paint(o, Blue, number)).Append(' ').Append(Paint(o, Blue, "|")).Append(' ')
-          .Append(cutLeft ? "…" : "").Append(visible).Append(cutRight ? "…" : "").Append('\n');
 
-        if (labels is null)
+        // The display columns each label covers on this line.
+        var spans = new List<(Label Lbl, int S, int E)>();
+        if (labels is not null)
         {
-            return;
+            foreach (var (label, startCol, endCol) in labels.OrderBy(l => l.StartCol).ThenBy(l => l.Lbl.IsPrimary ? 1 : 0))
+            {
+                int s = map[Math.Min(startCol, text.Length)];
+                int e = map[Math.Min(Math.Max(endCol, startCol + 1), text.Length)];
+                if (endCol > text.Length)
+                {
+                    e = map[text.Length] + (endCol - text.Length);
+                }
+
+                if (startCol >= text.Length)
+                {
+                    s = map[text.Length] + (startCol - text.Length);
+                    e = s + 1;
+                }
+
+                spans.Add((label, s, Math.Max(e, s + 1)));
+            }
         }
 
-        int shift = cutLeft ? 1 : 0;
-        foreach (var (label, startCol, endCol) in labels.OrderBy(l => l.StartCol).ThenBy(l => l.Lbl.IsPrimary ? 1 : 0))
+        // A line that fits is shown whole. A longer one is shown through windows: labels that fit together in one window
+        // share it, and labels too far apart get a window each (the line is printed again under the same number), so every
+        // underline sits under the text it labels. A single span wider than a window is cut at the window edge and says so.
+        int limit = Math.Max(o.Compact ? Math.Min(o.MaxLineWidth, 100) : o.MaxLineWidth, 20);
+        var groups = new List<List<(Label Lbl, int S, int E)>>();
+        if (col <= limit || spans.Count == 0)
         {
-            int s = map[Math.Min(startCol, text.Length)];
-            int e = map[Math.Min(Math.Max(endCol, startCol + 1), text.Length)];
-            if (endCol > text.Length)
+            groups.Add(spans);
+        }
+        else
+        {
+            int lo = 0;
+            int hi = 0;
+            foreach (var sp in spans)
             {
-                e = map[text.Length] + (endCol - text.Length);
+                if (groups.Count > 0 && Math.Max(hi, sp.E) - lo <= limit - 8)
+                {
+                    groups[^1].Add(sp);
+                    hi = Math.Max(hi, sp.E);
+                }
+                else
+                {
+                    groups.Add([sp]);
+                    lo = sp.S;
+                    hi = sp.E;
+                }
+            }
+        }
+
+        foreach (var group in groups)
+        {
+            int view = 0;
+            int viewEnd = col;
+            if (col > limit)
+            {
+                // A line shown only as context has no labels: show its start.
+                int gLo = group.Count > 0 ? group.Min(g => g.S) : 0;
+                int gHi = group.Count > 0 ? group.Max(g => g.E) : 0;
+                int pad = Math.Min(gLo, Math.Min(24, Math.Max(8, (limit - (gHi - gLo)) / 2)));
+                view = Math.Max(0, gLo - pad);
+                viewEnd = Math.Min(col, view + limit);
+                view = Math.Max(0, viewEnd - limit);
             }
 
-            if (startCol >= text.Length)
-            {
-                s = map[text.Length] + (startCol - text.Length);
-                e = s + 1;
-            }
+            bool cutLeft = view > 0;
+            bool cutRight = viewEnd < col;
+            string visible = RenderWindow(display, view, viewEnd);
+            sb.Append(Paint(o, Blue, number)).Append(' ').Append(Paint(o, Blue, "|")).Append(' ')
+              .Append(cutLeft ? "…" : "").Append(visible).Append(cutRight ? "…" : "").Append('\n');
 
-            if (e <= s)
+            int shift = cutLeft ? 1 : 0;
+            foreach (var (label, s0, e0) in group)
             {
-                e = s + 1;
-            }
+                int s = Math.Max(s0, view);
+                int e = cutRight ? Math.Min(e0, viewEnd) : e0;
+                bool cut = cutRight && e0 > viewEnd;
+                e = Math.Max(e, s + 1);
+                char ch = label.IsPrimary ? '^' : '-';
+                string mark = new(ch, Math.Max(1, e - s));
+                if (cut)
+                {
+                    mark = mark[..^1] + "…";
+                }
 
-            s = Math.Max(s, view);
-            e = Math.Min(Math.Max(e, s + 1), viewEnd + 1);
-            string mark = new(label.IsPrimary ? '^' : '-', Math.Max(1, e - s));
-            sb.Append(new string(' ', width + 1)).Append(Paint(o, Blue, "|")).Append(' ')
-              .Append(' ', (s - view) + shift)
-              .Append(Paint(o, label.IsPrimary ? Red : Blue, mark));
-            if (label.Message.Length > 0)
-            {
-                sb.Append(' ').Append(Paint(o, label.IsPrimary ? Red : Blue, label.Message));
-            }
+                sb.Append(new string(' ', width + 1)).Append(Paint(o, Blue, "|")).Append(' ')
+                  .Append(' ', (s - view) + shift)
+                  .Append(Paint(o, label.IsPrimary ? Red : Blue, mark));
+                string message = label.Message;
+                if (cut)
+                {
+                    message = message.Length > 0 ? message + " (underline cut at the window edge)" : "(underline cut at the window edge)";
+                }
 
-            sb.Append('\n');
+                if (message.Length > 0)
+                {
+                    sb.Append(' ').Append(Paint(o, label.IsPrimary ? Red : Blue, message));
+                }
+
+                sb.Append('\n');
+            }
         }
     }
 

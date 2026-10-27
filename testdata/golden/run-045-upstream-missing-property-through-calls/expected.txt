@@ -1,0 +1,11 @@
+error[TypeError]: Cannot read properties of undefined (reading 'reduce')
+ --> case.js:8:10
+  |
+4 |   return resp.items;
+  |          ---------- undefined starts here: `resp` has no `items`
+...
+8 |   return lines.reduce((n, l) => n + l.qty, 0);
+  |          ^^^^^ `lines` is undefined
+  |
+  = help: did you mean `resp.data.items`? (Array, 2 items)
+  = stack: summarize (case.js:8) ← report (case.js:13) ← <top-level> (case.js:16)

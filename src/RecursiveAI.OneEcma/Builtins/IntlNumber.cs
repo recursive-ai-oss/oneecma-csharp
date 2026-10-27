@@ -67,7 +67,7 @@ internal static partial class IntlJs
         });
     }
 
-    private static CollatorState CreateCollator(List<string> requested, JsValue optionsArg)
+    private static CollatorState CreateCollator(List<string> requested, JsValue optionsArg, bool shared = false)
     {
         var o = new Opts(CoerceOptions(optionsArg), "Collator");
         string usage = o.Str("usage", "sort", "search") ?? "sort";
@@ -105,7 +105,7 @@ internal static partial class IntlJs
             CaseFirst = kf switch { "upper" => CaseFirst.Upper, "lower" => CaseFirst.Lower, _ => CaseFirst.Off },
             IgnorePunctuation = ignorePunctuation,
         }.WithSensitivity(sensitivity);
-        TextCollator collator = TextCollator.Create(rl.DataLocale, options);
+        TextCollator collator = Cached(shared, "collator", [rl.DataLocale], string.Empty, options, () => TextCollator.Create(rl.DataLocale, options));
         return new CollatorState(collator, rl.Locale, usage, sensitivity, ignorePunctuation, co.Length == 0 ? "default" : co, kn, kf);
     }
 
@@ -227,7 +227,7 @@ internal static partial class IntlJs
         };
     }
 
-    private static NumberFormatService CreateNumberFormat(List<string> requested, JsValue optionsArg)
+    private static NumberFormatService CreateNumberFormat(List<string> requested, JsValue optionsArg, bool shared = false)
     {
         var o = new Opts(CoerceOptions(optionsArg), "NumberFormat");
         string? matcher = o.Str("localeMatcher", "lookup", "best fit");
@@ -317,7 +317,8 @@ internal static partial class IntlJs
             SignDisplay = signDisplay,
             Digits = digits,
         };
-        return Svc(() => NumberFormatService.Create(requested, options, DefaultLocale()));
+        string defaultLocale = DefaultLocale();
+        return Cached(shared, "number", requested, defaultLocale, options, () => Svc(() => NumberFormatService.Create(requested, options, defaultLocale)));
     }
 
     /// <summary>Adds the digit-option rows of a resolvedOptions table (Table 28 / 32 order: integer, fraction, significant digits).</summary>

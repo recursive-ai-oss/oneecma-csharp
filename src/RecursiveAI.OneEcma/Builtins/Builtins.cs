@@ -591,16 +591,9 @@ internal static partial class Builtins
         });
         r.Method(proto, "toString", 0, (t, a, nt) =>
         {
-            if (t.Ref is ScriptFunction sf)
-            {
-                return Ops.Str(sf.Code.SourceText);
-            }
-
             if (t.Ref is JsObject o && o.IsCallable)
             {
-                string name = o.GetOwnProperty("name", out PropertyDescriptor d) && d.Value.IsString ? d.Value.AsString : string.Empty;
-                // A bound function has no name of its own that fits the NativeFunction grammar.
-                return Ops.Str(o is BoundFunction ? "function () { [native code] }" : "function " + name + "() { [native code] }");
+                return Ops.Str(Ops.FunctionText(o));
             }
 
             throw Errors.Type("Function.prototype.toString requires that 'this' be a Function");
@@ -644,7 +637,7 @@ internal static partial class Builtins
             }
         }
 
-        Syntax.ParseResult pr = Syntax.JsParser.Parse("(" + src + ")", new Syntax.ParseOptions { FileName = "<anonymous>" });
+        Syntax.ParseResult pr = Syntax.JsParser.Parse("(" + src + ")", new Syntax.ParseOptions { FileName = r.Agent.Frame?.EvalOrigin() ?? "<anonymous>" });
         if (pr.HasErrors)
         {
             throw Errors.Syntax(pr.Diagnostics[0].Headline);
@@ -656,6 +649,7 @@ internal static partial class Builtins
         if (fv.Ref is ScriptFunction sf)
         {
             // The text of a dynamic function is the CreateDynamicFunction source, without the wrapping parentheses.
+            sf.Code.StackName = "eval";
             sf.Code.SrcStart = 1;
             sf.Code.SrcEnd = 1 + src.Length;
             if (newTarget is not null && !ReferenceEquals(newTarget, r.Intrinsics.GetValueOrDefault("%" + (kind == "function" ? "Function" : kind) + "%")))
@@ -714,7 +708,7 @@ internal static partial class Builtins
             JsObject newTarget = nt ?? (JsObject)r.Intrinsics["%AggregateError%"];
             JsObject p = Ops.GetPrototypeFromConstructor(newTarget, rr => rr.ErrorPrototypes["AggregateError"]);
             var e = new JsError(p);
-            InitErrorWithOptions(r, e, A(a, 1), A(a, 2));
+            InitErrorWithOptions(r, e, A(a, 1), A(a, 2), nt);
             List<JsValue> errs = Ops.IterableToList(A(a, 0), Ops.GetMethod(A(a, 0), new PropertyKey(WellKnown.Iterator)).IsUndefined ? throw Errors.Type(Ops.DisplayValue(A(a, 0)) + " is not iterable") : Ops.GetMethod(A(a, 0), new PropertyKey(WellKnown.Iterator)));
             e.DefineDirect("errors", JsValue.FromObject(Ops.CreateArray(errs)), PropFlags.Hidden);
             return JsValue.FromObject(e);
@@ -727,10 +721,10 @@ internal static partial class Builtins
         Realm.Value(ap, "message", Ops.Str(string.Empty));
     }
 
-    private static void InitErrorWithOptions(Realm r, JsError e, JsValue message, JsValue options)
+    private static void InitErrorWithOptions(Realm r, JsError e, JsValue message, JsValue options, JsObject? skipUntil)
     {
         string? msg = message.IsUndefined ? null : Ops.ToStr(message);
-        r.InitError(e, msg);
+        r.InitError(e, msg, skipUntil);
         if (options.Ref is JsObject oo && oo.HasProperty("cause"))
         {
             e.DefineDirect("cause", oo.Get("cause"), PropFlags.Hidden);
@@ -745,7 +739,7 @@ internal static partial class Builtins
             JsObject newTarget = nt ?? f;
             JsObject p = Ops.GetPrototypeFromConstructor(newTarget, rr => rr.ErrorPrototypes[name]);
             var e = new JsError(p);
-            InitErrorWithOptions(r, e, A(a, 0), A(a, 1));
+            InitErrorWithOptions(r, e, A(a, 0), A(a, 1), nt);
             return JsValue.FromObject(e);
         }, proto, ctorProto);
         return f;

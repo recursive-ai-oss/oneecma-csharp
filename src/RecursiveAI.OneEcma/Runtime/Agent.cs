@@ -78,8 +78,29 @@ public sealed record StackFrameInfo(string Function, SourceText Source, Span Spa
     /// <summary>The 1-based line of a .NET frame, or 0 when the runtime has no line information.</summary>
     public int HostLine { get; init; }
 
-    /// <summary>The 1-based line and column of the span start.</summary>
-    public LinePosition Position => Source.GetPosition(Span.Start);
+    /// <summary>The offset a stack trace reports for this frame (V8 points at a property name, an operator or a callee, not at the start of the expression); -1 when the span start is used.</summary>
+    public int Pos { get; init; } = -1;
+
+    /// <summary>The receiver's type name for a method call (the <c>Array</c> of <c>Array.map</c>), or null for a plain call.</summary>
+    public string? TypeName { get; init; }
+
+    /// <summary>True for a built-in function between script frames, shown as <c>at Array.map (&lt;anonymous&gt;)</c>.</summary>
+    public bool IsNative { get; init; }
+
+    /// <summary>True for the top-level code of a script, module or eval, which a report shows as <c>&lt;top-level&gt;</c>.</summary>
+    public bool IsTopLevel { get; init; }
+
+    /// <summary>The bindings visible in this frame's function (or script) scope with a short preview of each value, present only in a report built by a traced replay; capped (see the JSON documentation).</summary>
+    public IReadOnlyList<LocalInfo>? Locals { get; init; }
+
+    /// <summary>The scope the frame was executing in, kept for the explainer of a traced replay.</summary>
+    internal Env? ScopeEnv { get; init; }
+
+    /// <summary>The realm of the frame.</summary>
+    internal Realm? ScopeRealm { get; init; }
+
+    /// <summary>The 1-based line and column V8 reports: <see cref="Pos"/> when known, else the span start.</summary>
+    public LinePosition Position => Source.GetPosition(Pos >= 0 ? Pos : Span.Start);
 }
 
 /// <summary>
@@ -104,7 +125,7 @@ internal sealed class Agent
         _fuelTotal = limits.Fuel;
         if (limits.WallClockMs > 0)
         {
-            _deadline = host.MonotonicMs() + limits.WallClockMs;
+            _deadline = (host is LoggedHost lh0 ? lh0.Inner.MonotonicMs() : host.MonotonicMs()) + limits.WallClockMs;
         }
 
         Fuel = 0;
@@ -126,8 +147,27 @@ internal sealed class Agent
 
     internal Frame? Frame;
 
+    /// <summary>Records (or replays) everything the run takes from the host; null only inside a replay-free internal engine.</summary>
+    internal Recorder? Recorder;
+
+    /// <summary>The traced-replay state, or null for a normal run.</summary>
+    internal TraceState? Trace;
+
+    // Limit polling reads the real clock without logging it: how often it is read depends on fuel, not on the script.
+    internal double PollClock() => Host is LoggedHost lh ? lh.Inner.MonotonicMs() : Host.MonotonicMs();
+
+    /// <summary>The built-in function whose body is running (null while script runs), with its receiver and whether it was called with <c>new</c>; stack traces show it as a frame.</summary>
+    internal NativeFunction? CurrentNative;
+
+    internal JsValue CurrentNativeThis;
+
+    internal bool CurrentNativeNew;
+
     /// <summary>When set, new realms get the test-harness globals (<c>print</c>, <c>$262</c>).</summary>
     internal bool InstallTest262Host;
+
+    /// <summary>Whether calls in tail position of strict code reuse the frame (<see cref="ScriptEngineOptions.ProperTailCalls"/>).</summary>
+    internal bool ProperTailCalls;
 
     internal int CallDepth;
 
@@ -189,7 +229,7 @@ internal sealed class Agent
             throw Limit(LimitKind.Cancelled, "Execution was cancelled");
         }
 
-        if (_deadline > 0 && Host.MonotonicMs() > _deadline)
+        if (_deadline > 0 && PollClock() > _deadline)
         {
             throw Limit(LimitKind.WallClock, "Execution exceeded the wall-clock limit of " + Limits.WallClockMs.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + " ms");
         }
@@ -208,24 +248,100 @@ internal sealed class Agent
     internal void Alloc(long bytes)
     {
         _allocated += bytes;
-        if (_allocated > Limits.MaxAllocatedBytes)
+        if (_allocated > Limits.MaxAllocatedBytes && _describingLimit == 0)
         {
             throw Limit(LimitKind.Memory, "Execution exceeded the allocation limit of " + Limits.MaxAllocatedBytes.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + " bytes");
         }
     }
 
-    internal JsLimitException Limit(LimitKind kind, string message) => new(kind, message, CaptureFrames(20));
+    // Describing a limit lists frame locals, and previewing a string local can flatten a rope, which is charged here. Without this the
+    // charge would raise the same limit again from inside its own description, without end.
+    private int _describingLimit;
+
+    internal JsLimitException Limit(LimitKind kind, string message)
+    {
+        _describingLimit++;
+        try
+        {
+            return new(kind, message, CaptureFrames(20));
+        }
+        finally
+        {
+            _describingLimit--;
+        }
+    }
 
     /// <summary>Walks the frame chain, innermost first.</summary>
-    internal List<StackFrameInfo> CaptureFrames(int max)
+    internal List<StackFrameInfo> CaptureFrames(int max, JsObject? skipUntil = null)
     {
+        int room = skipUntil is null ? max : max + 16;
+        int cut = -1;
         var list = new List<StackFrameInfo>();
-        for (Frame? f = Frame; f is not null && list.Count < max; f = f.Caller)
+        if (CurrentNative is { } top && !(CurrentNativeNew && HiddenConstructors.Contains(top.Slots[1].IsString ? top.Slots[1].AsString : string.Empty)) && NativeInfo(top, CurrentNativeThis, CurrentNativeNew) is { } topInfo)
+        {
+            list.Add(topInfo);
+        }
+
+        Frame? last = null;
+        for (Frame? f = Frame; f is not null && list.Count < room; f = f.Caller)
         {
             list.Add(f.ToInfo());
+            if (skipUntil is not null && ReferenceEquals(f.Func, skipUntil))
+            {
+                cut = list.Count - 1;
+            }
+
+            last = f;
+            if (f.NativeCaller is { } n && list.Count < room && NativeInfo(n, f.NativeCallerThis, f.NativeCallerNew) is { } ni)
+            {
+                list.Add(ni);
+            }
+        }
+
+        // Async stack: the awaiting async functions behind the bottom frame, as V8 shows them ("at async main").
+        if (last is { Owner: PromiseObject p } && last.Code.IsAsync)
+        {
+            int guard = 0;
+            while (p.AwaitedBy is { State: FrameState.Awaiting } y && list.Count < room && guard++ < 1000)
+            {
+                list.Add(y.ToInfo(async: true));
+                if (y.Owner is not PromiseObject next)
+                {
+                    break;
+                }
+
+                p = next;
+            }
+        }
+
+        if (cut >= 0)
+        {
+            list.RemoveRange(0, cut + 1);
+        }
+
+        if (list.Count > max)
+        {
+            list.RemoveRange(max, list.Count - max);
         }
 
         return list;
+    }
+
+    // V8 leaves these constructors out of the trace of the error they raise or create.
+    private static readonly HashSet<string> HiddenConstructors =
+    [
+        "Error", "TypeError", "RangeError", "SyntaxError", "ReferenceError", "EvalError", "URIError", "AggregateError", "Array", "Proxy",
+    ];
+
+    private static StackFrameInfo? NativeInfo(NativeFunction fn, JsValue thisValue, bool isNew)
+    {
+        string name = fn.Slots[1].IsString ? fn.Slots[1].AsString : string.Empty;
+        if (name.Length == 0)
+        {
+            return null!;
+        }
+
+        return new StackFrameInfo(name, Frame.NativeSource, new Span(0, 0), false, isNew) { IsNative = true, TypeName = isNew || thisValue.IsNullish ? null : Frame.TypeNameOf(thisValue) };
     }
 
     internal void EnqueueJob(Action job)
@@ -239,7 +355,7 @@ internal sealed class Agent
     {
         // ClearKeptObjects (9.10.3): the synchronous run that led here has ended, and so has each job below.
         Weak.ClearKept();
-        do
+        while (true)
         {
             while (Jobs.Count > 0)
             {
@@ -248,7 +364,24 @@ internal sealed class Agent
                 job();
                 Weak.ClearKept();
             }
+
+            if (IdleHook is not null && IdleHook())
+            {
+                continue;
+            }
+
+            // A host-defined collection point at the end of the macrotask (9.10.4.1 note): without one a script that only
+            // allocates WeakRef targets in a long run would pin them all. Collecting can queue cleanup jobs, which run next.
+            if (Weak.HasTargets && Host.WantsWeakCollection())
+            {
+                Weak.Collect(this);
+                if (Jobs.Count > 0)
+                {
+                    continue;
+                }
+            }
+
+            break;
         }
-        while (IdleHook is not null && IdleHook());
     }
 }

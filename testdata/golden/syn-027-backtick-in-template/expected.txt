@@ -2,7 +2,7 @@ error[SyntaxError]: Unexpected identifier 'auto'
  --> case.js:2:15
   |
 1 | const css = `
-  |             ------ the template literal starts here
+  |             - the template literal starts here
 2 |   /* use the `auto` track here */
   |               ^^^^ the template literal ended at the backtick before this word
   |

@@ -1,0 +1,7 @@
+repair[R001]: removed 2 extra closing delimiters
+ --> case.js:2:32
+  |
+2 | console.log(Math.max(...items))));
+  |                                ^ removed
+  |
+  = note: the repaired source ran to completion and is returned with this report

@@ -6,4 +6,4 @@ error[TypeError]: Shop.OrderApi.GetOrder: argument 'id' must be an integer (Syst
   |
   = help: round it first: Math.round(value)
   = note: host function: Shop.OrderApi.GetOrder(int id)
-  = stack: Shop.OrderApi.GetOrder [.NET] ← <anonymous> (case.js:2)
+  = stack: Shop.OrderApi.GetOrder [.NET] ← <top-level> (case.js:2)
