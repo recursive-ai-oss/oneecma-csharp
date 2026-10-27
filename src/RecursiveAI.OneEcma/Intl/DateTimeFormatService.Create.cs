@@ -47,26 +47,37 @@ internal sealed partial class DateTimeFormatService
             "nu" => ["latn"],
             _ => ["", "h11", "h12", "h23", "h24"],
         }, defaultLocale);
+        string localeTag = r.Locale;
+        if (options.Hour12 is not null)
+        {
+            // An hour12 option overrides the hc keyword of the locale, which then does not show in the resolved locale.
+            localeTag = LocaleResolver.Resolve(locales, ["ca", "nu"], optionKeys, (_, key) => key == "ca" ? ["gregory"] : ["latn"], defaultLocale).Locale;
+        }
 
         var svc = new DateTimeFormatService(zones)
         {
-            Locale = r.Locale,
+            Locale = localeTag,
             _dataLocale = r.DataLocale,
             _data = CldrData.GetLocale(r.DataLocale),
         };
         string? hcKey = r.Keys.TryGetValue("hc", out string? h) && h.Length > 0 ? h : null;
 
-        string tz = defaultTimeZone;
-        if (options.TimeZone is { } tzOption)
+        // The resolved time zone keeps the spelling of the identifier asked for (a link name stays a link name); offsets and names
+        // are looked up under the canonical identifier.
+        string zoneInput = options.TimeZone ?? defaultTimeZone;
+        string? identifier = TimeZoneData.Identify(zoneInput);
+        if (identifier is null)
         {
-            tz = TimeZoneData.Canonicalize(tzOption) ?? throw IntlException.Range($"Invalid time zone specified: {tzOption}");
-        }
-        else
-        {
-            tz = TimeZoneData.Canonicalize(defaultTimeZone) ?? "UTC";
+            if (options.TimeZone is not null)
+            {
+                throw IntlException.Range($"Invalid time zone specified: {zoneInput}");
+            }
+
+            identifier = "UTC";
         }
 
-        svc.TimeZone = tz;
+        svc.TimeZone = identifier;
+        svc._zoneKey = TimeZoneData.Canonicalize(identifier) ?? "UTC";
 
         Check("weekday", options.Weekday, "narrow", "short", "long");
         Check("era", options.Era, "narrow", "short", "long");

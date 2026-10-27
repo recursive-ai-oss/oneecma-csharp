@@ -52,6 +52,7 @@ internal sealed partial class DateTimeFormatService
     private string? _datePart, _timePart, _glue, _skeleton;
     private char _hourLetter = 'H';
     private Func<bool, bool, bool, DateTimeFormatService>? _widen;
+    private string _zoneKey = "UTC";
 
     private DateTimeFormatService(ITimeZoneSource zones) => _zones = zones;
 
@@ -137,13 +138,13 @@ internal sealed partial class DateTimeFormatService
     internal LocalFields Fields(double t)
     {
         TimeZoneOffset off;
-        if (TimeZoneData.IsOffsetId(TimeZone))
+        if (TimeZoneData.IsOffsetId(_zoneKey))
         {
-            off = new TimeZoneOffset(TimeZoneData.OffsetOf(TimeZone), false);
+            off = new TimeZoneOffset(TimeZoneData.OffsetOf(_zoneKey), false);
         }
-        else if (!_zones.TryGetOffset(TimeZone, t, out off))
+        else if (!_zones.TryGetOffset(_zoneKey, t, out off))
         {
-            throw IntlException.Range($"Invalid time zone specified: {TimeZone}");
+            throw IntlException.Range($"Invalid time zone specified: {_zoneKey}");
         }
 
         double local = t + off.OffsetMs;
@@ -266,5 +267,5 @@ internal sealed partial class DateTimeFormatService
     }
 
     private string ZoneName(ZoneNameStyle style, LocalFields f) =>
-        TimeZoneNames.Format(_data, TimeZone, f.Instant, f.Offset, style, t => _zones.TryGetOffset(TimeZone, t, out TimeZoneOffset o) ? o : null);
+        TimeZoneNames.Format(_data, _zoneKey, f.Instant, f.Offset, style, t => _zones.TryGetOffset(_zoneKey, t, out TimeZoneOffset o) ? o : null);
 }

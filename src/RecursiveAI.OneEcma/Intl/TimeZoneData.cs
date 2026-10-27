@@ -28,6 +28,7 @@ internal static class TimeZoneData
 {
     private static readonly object Gate = new();
     private static Dictionary<string, string>? s_canonical;   // lower-case id -> canonical id
+    private static Dictionary<string, string>? s_identifiers; // lower-case id -> id as spelled in the time zone database
     private static string[]? s_supported;
 
     /// <summary>
@@ -45,6 +46,23 @@ internal static class TimeZoneData
 
         Dictionary<string, string> map = Map();
         return map.TryGetValue(id.ToLowerInvariantAscii(), out string? canonical) ? canonical : null;
+    }
+
+    /// <summary>
+    /// The identifier a <c>timeZone</c> option resolves to (ECMA-402 11.1.2 with GetAvailableNamedTimeZoneIdentifier): the input matched
+    /// without regard to case and returned in the spelling of the time zone database, so a link name such as <c>Asia/Kolkata</c> or
+    /// <c>Etc/UTC</c> is kept. Offset zones use <see cref="Canonicalize"/>.
+    /// </summary>
+    /// <returns>The identifier, or null when the string is not a valid time zone.</returns>
+    internal static string? Identify(string id)
+    {
+        if (id.Length > 0 && id[0] is '+' or '-' or '\u2212')
+        {
+            return Canonicalize(id);
+        }
+
+        Map();
+        return s_identifiers!.TryGetValue(id.ToLowerInvariantAscii(), out string? identifier) ? identifier : null;
     }
 
     /// <summary>True when the identifier is an offset time zone such as <c>+05:30</c>.</summary>
@@ -89,6 +107,7 @@ internal static class TimeZoneData
             }
 
             var map = new Dictionary<string, string>(StringComparer.Ordinal);
+            var identifiers = new Dictionary<string, string>(StringComparer.Ordinal);
             DataTree sup = CldrData.Supplemental;
             foreach (string key in sup.GetKeys("bcp47", "timezone", "tz"))
             {
@@ -103,10 +122,12 @@ internal static class TimeZoneData
                 foreach (string alias in aliases)
                 {
                     // The four legacy US rule zones stay zones of their own in ICU-based engines, though tzdata now links them.
+                    identifiers[alias.ToLowerInvariantAscii()] = alias;
                     map[alias.ToLowerInvariantAscii()] = alias is "EST5EDT" or "CST6CDT" or "MST7MDT" or "PST8PDT" ? alias : canonical;
                 }
             }
 
+            s_identifiers = identifiers;
             return s_canonical = map;
         }
     }

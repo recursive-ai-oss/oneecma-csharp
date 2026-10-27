@@ -201,3 +201,5 @@ cedd94d4 range whose end precedes its start: the reference drops the weekday com
 
 # DurationFormat: the reference formats a NaN field as an empty string; ToIntegerIfIntegral (ECMA-402 13.5.2) makes it a RangeError and we follow the specification.
 22d40aa5 duration with a NaN field: the reference returns an empty string, the specification throws RangeError
+
+# General: Node 24 resolves a timeZone option to its CLDR primary identifier (Asia/Calcutta for Asia/Kolkata); we keep the identifier as asked, in the spelling of the time zone database, as ECMA-402 requires, and look offsets and names up under the primary identifier.

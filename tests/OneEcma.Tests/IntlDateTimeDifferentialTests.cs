@@ -201,7 +201,7 @@ public class IntlDateTimeDifferentialTests
         }));
     }
 
-    private static DurationFormatOptions DurationOptions(JsonElement o)
+    internal static DurationFormatOptions DurationOptions(JsonElement o)
     {
         var units = new Dictionary<string, string>();
         foreach (JsonProperty p in o.EnumerateObject())
