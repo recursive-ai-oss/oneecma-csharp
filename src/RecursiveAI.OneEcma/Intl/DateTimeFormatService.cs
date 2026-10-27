@@ -49,6 +49,7 @@ internal sealed partial class DateTimeFormatService
     private List<PatternToken> _tokens = [];
     private bool _hasMinute, _hasSecond;
     private string _dataLocale = "";
+    private string? _datePart, _timePart, _glue;
 
     private DateTimeFormatService(ITimeZoneSource zones) => _zones = zones;
 

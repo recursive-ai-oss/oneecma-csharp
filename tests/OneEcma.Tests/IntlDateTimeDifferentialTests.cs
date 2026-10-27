@@ -187,4 +187,17 @@ public class IntlDateTimeDifferentialTests
             }
         }));
     }
+
+    [Fact]
+    public void DateTimeRangeMatchesNode()
+    {
+        AssertClean("date-time-range", IntlCorpus.Run("date-time-range", IntlCorpus.Rows("date-time-range.jsonl"), row =>
+        {
+            DateTimeFormatService s = Make(row);
+            JsonElement v = row.GetProperty("v");
+            string actual = string.Join("|", s.FormatRangeToParts(v[0].GetDouble(), v[1].GetDouble()).Select(p => p.Type + ":" + p.Value + ":" + p.Source));
+            string expected = string.Join("|", row.GetProperty("p").EnumerateArray().Select(p => p[0].GetString() + ":" + p[1].GetString() + ":" + p[2].GetString()));
+            return actual == expected ? null : $"[{s.Pattern}] expected {expected} got {actual}";
+        }));
+    }
 }

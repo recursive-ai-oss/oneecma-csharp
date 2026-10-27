@@ -293,6 +293,9 @@ internal sealed partial class DateTimeFormatService
             int style = dateStyle switch { "full" => 0, "long" => 1, "medium" => 2, _ => 3 };
             string glue = DateTimePatternGenerator.For(_dataLocale).GlueFor(style);
             SetPattern(DateTimePatternGenerator.Glue(glue, timePattern, datePattern));
+            _datePart = datePattern;
+            _timePart = timePattern;
+            _glue = glue;
         }
         else
         {

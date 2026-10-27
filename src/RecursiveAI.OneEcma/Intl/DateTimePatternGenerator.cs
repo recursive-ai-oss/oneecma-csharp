@@ -418,8 +418,15 @@ internal sealed class DateTimePatternGenerator
     /// <summary>
     /// The best pattern for a skeleton (for example <c>yMMMdhm</c>). Hour widths follow the request.
     /// </summary>
-    internal string GetBestPattern(string skeletonText)
+    internal string GetBestPattern(string skeletonText) => GetBestPattern(skeletonText, out _, out _, out _);
+
+    /// <summary>
+    /// The best pattern for a skeleton; when it had to be assembled from a date part and a time part, those parts and the joining
+    /// pattern are returned too (null otherwise).
+    /// </summary>
+    internal string GetBestPattern(string skeletonText, out string? datePart, out string? timePart, out string? glue)
     {
+        datePart = timePart = glue = null;
         DateSkeleton request = DateSkeleton.Parse(skeletonText);
         string best = BestRaw(request, -1, out int missing, out int extra, out DateSkeleton specified, out string pattern) ? pattern : "";
         if (missing == 0 && extra == 0)
@@ -451,7 +458,10 @@ internal sealed class DateTimePatternGenerator
             style = 2;
         }
 
-        return Glue(_dateTimeGlue[style], time, date);
+        datePart = date;
+        timePart = time;
+        glue = _dateTimeGlue[style];
+        return Glue(glue, time, date);
     }
 
     /// <summary>The date-time joining pattern of one style (0 full, 1 long, 2 medium, 3 short).</summary>

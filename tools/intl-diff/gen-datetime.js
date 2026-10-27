@@ -189,10 +189,9 @@ module.exports = function (h) {
       const f = new Intl.DateTimeFormat(l, opts);
       const p = f.formatRangeToParts(a, b).map(x => [x.type, x.value, x.source]);
       const s = f.formatRange(a, b);
-      if (s !== p.map(x => x[1]).join('')) throw new Error('range != parts');
-      return { p, tz: f.resolvedOptions().timeZone };
+      return { p, tz: f.resolvedOptions().timeZone, f: s !== p.map(x => x[1]).join('') ? s : undefined };
     });
-    if (res.r) emit('date-time-range', { s: 'dtr', l, o: opts, v: [a, b], z: zinfo(res.r.tz, [a, b], /Generic/.test(opts.timeZoneName)), p: res.r.p });
+    if (res.r) emit('date-time-range', { s: 'dtr', l, o: opts, v: [a, b], z: zinfo(res.r.tz, [a, b], /Generic/.test(opts.timeZoneName)), p: res.r.p, f: res.r.f });
     else emit('date-time-range', { s: 'dtr', l, o: opts, v: [a, b], e: res.e });
   }
 
