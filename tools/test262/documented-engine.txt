@@ -1,6 +1,18 @@
 # Known failures of the engine backend, each with a reason. Format: <path> | <reason>.
 # Directory prefixes end in '/', '*' is a glob.
 
+# u18 regexp
+# These tests pass with the missing helpers polyfilled; they fail here only because the helper belongs to another built-in area that has not merged yet. Remove each entry when that area lands.
+built-ins/RegExp/property-escapes/generated/ | needs String.fromCodePoint (String built-ins)
+built-ins/RegExp/CharacterClassEscapes/ | needs String.fromCodePoint (String built-ins)
+built-ins/RegExp/escape/escaped-otherpunctuators.js | needs String.prototype.codePointAt (String built-ins)
+built-ins/String/prototype/match/S15.5.4.10_A2_T*.js | needs String.prototype.lastIndexOf (String built-ins)
+built-ins/RegExp/is-a-constructor.js | needs Reflect.construct (Reflect built-in)
+built-ins/RegExp/proto-from-ctor-realm.js | needs Reflect.construct (Reflect built-in)
+built-ins/RegExp/match-indices/indices-array-non-unicode-match.js | harness deepEqual needs Map (collections)
+built-ins/RegExp/match-indices/indices-array-unicode-match.js | harness deepEqual needs Map (collections)
+built-ins/RegExp/prototype/Symbol.split/species-ctor-species-non-ctor.js | needs Date (Date built-in)
+
 # u15 array-iterators: Array, array iterators, Iterator helpers. Every entry waits on a built-in outside this area.
 built-ins/Array/from/items-is-arraybuffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
 built-ins/Array/fromAsync/asyncitems-arraybuffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
