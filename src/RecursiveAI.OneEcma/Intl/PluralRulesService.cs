@@ -102,6 +102,7 @@ internal sealed class PluralRulesService
         string lang = _ruleLocale.Split('-')[0];
         string? result = _supplemental.GetString("pluralRanges", _ruleLocale, $"pluralRange-start-{start}-end-{end}")
             ?? _supplemental.GetString("pluralRanges", lang, $"pluralRange-start-{start}-end-{end}");
-        return result ?? end;
+        // Pairs the data does not list select "other" (the range formatter default).
+        return result ?? "other";
     }
 }

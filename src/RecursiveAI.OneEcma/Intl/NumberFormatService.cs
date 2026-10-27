@@ -634,8 +634,47 @@ internal sealed partial class NumberFormatService
         return CldrData.Plurals.Select(_dataLocale, PluralType.Cardinal, ops);
     }
 
-    /// <summary>PartitionNumberPattern (15.5.?): appends the parts of <paramref name="x"/> to <paramref name="parts"/>.</summary>
-    private void Partition(DecimalNumber x, List<NumberPart> parts, string? source)
+    /// <summary>
+    /// The parts of one formatted value in layers, outermost first: unit or currency-name text, then the
+    /// sign, pattern and compact affixes ("middle"), then the digits. Range formatting collapses layers
+    /// that two values share.
+    /// </summary>
+    private sealed class Pieces
+    {
+        internal readonly List<NumberPart> OuterPrefix = [];
+        internal readonly List<NumberPart> MiddlePrefix = [];
+        internal readonly List<NumberPart> Number = [];
+        internal readonly List<NumberPart> MiddleSuffix = [];
+        internal readonly List<NumberPart> OuterSuffix = [];
+
+        internal void AppendTo(List<NumberPart> parts, string? source)
+        {
+            foreach (List<NumberPart> list in new[] { OuterPrefix, MiddlePrefix, Number, MiddleSuffix, OuterSuffix })
+            {
+                foreach (NumberPart p in list)
+                {
+                    AddPart(parts, p, source);
+                }
+            }
+        }
+    }
+
+    private static void AddPart(List<NumberPart> parts, NumberPart p, string? source)
+    {
+        if (p.Type == "literal")
+        {
+            AddLiteral(parts, p.Value, source);
+        }
+        else
+        {
+            parts.Add(p with { Source = source });
+        }
+    }
+
+    private void Partition(DecimalNumber x, List<NumberPart> parts, string? source) => Build(x).AppendTo(parts, source);
+
+    /// <summary>PartitionNumberPattern (15.5.?): the layered parts of <paramref name="x"/>.</summary>
+    private Pieces Build(DecimalNumber x)
     {
         bool negative = x.IsNegative && !x.IsNaN;
         DecimalNumber abs = x.Abs();
@@ -657,7 +696,7 @@ internal sealed partial class NumberFormatService
         bool isZero = !special && scaled.Digits.IsZero;
         SignKind sign = Sign(negative, x.IsNaN, isZero);
         Layout layout = GetLayout(cat);
-        int start = parts.Count;
+        var pieces = new Pieces();
 
         Tok[] prefix = layout.Prefix, suffix = layout.Suffix;
         bool explicitNegative = false;
@@ -677,51 +716,49 @@ internal sealed partial class NumberFormatService
         // Currency compact patterns carry the currency themselves.
         Tok[] cPrefix = compact is null ? [] : AsKind(compact.Prefix, TokKind.Compact);
         Tok[] cSuffix = compact is null ? [] : AsKind(compact.Suffix, TokKind.Compact);
-        bool compactHasCurrency = compact is not null && Style == "currency" && CurrencyDisplay != "name";
-        if (compactHasCurrency)
+        if (compact is not null && Style == "currency" && CurrencyDisplay != "name")
         {
             prefix = [];
             suffix = [];
         }
 
+        // Unit and currency-name text wraps everything else; other affixes sit next to the digits.
+        bool outerLayout = Style == "unit" || (Style == "percent" && Notation == "compact") || (Style == "currency" && CurrencyDisplay == "name");
         if (!explicitNegative)
         {
             if (sign == SignKind.Minus)
             {
-                parts.Add(new NumberPart("minusSign", _symbols.Minus, source));
+                pieces.MiddlePrefix.Add(new NumberPart("minusSign", _symbols.Minus));
             }
             else if (sign == SignKind.Plus)
             {
-                parts.Add(new NumberPart("plusSign", _symbols.Plus, source));
+                pieces.MiddlePrefix.Add(new NumberPart("plusSign", _symbols.Plus));
             }
         }
 
-        EmitAffix(prefix, parts, source);
-        EmitAffix(cPrefix, parts, source);
-        int numberStart = parts.Count;
+        EmitAffix(prefix, outerLayout ? pieces.OuterPrefix : pieces.MiddlePrefix, null);
+        EmitAffix(cPrefix, pieces.MiddlePrefix, null);
         if (x.IsNaN)
         {
-            parts.Add(new NumberPart("nan", _symbols.NaN, source));
+            pieces.Number.Add(new NumberPart("nan", _symbols.NaN));
         }
         else if (x.IsInfinity)
         {
-            parts.Add(new NumberPart("infinity", _symbols.Infinity, source));
+            pieces.Number.Add(new NumberPart("infinity", _symbols.Infinity));
         }
         else if (compact is null || compact.ZeroCount > 0)
         {
-            EmitNumber(scaled, parts, source);
+            EmitNumber(scaled, pieces.Number, null);
         }
 
-        int numberEnd = parts.Count;
-        EmitAffix(cSuffix, parts, source);
-        EmitAffix(suffix, parts, source);
+        EmitAffix(cSuffix, pieces.MiddleSuffix, null);
+        EmitAffix(suffix, outerLayout ? pieces.OuterSuffix : pieces.MiddleSuffix, null);
         if (Style == "currency")
         {
-            ApplyCurrencySpacing(parts, start, source);
+            ApplyCurrencySpacing(pieces);
         }
 
-        _ = numberStart;
-        _ = numberEnd;
+        return pieces;
     }
 
     private void EmitAffix(Tok[] toks, List<NumberPart> parts, string? source)
@@ -878,29 +915,23 @@ internal sealed partial class NumberFormatService
     }
 
     // CLDR currencySpacing: insert a no-break space between a letter-ending currency and an adjoining digit.
-    private void ApplyCurrencySpacing(List<NumberPart> parts, int start, string? source)
+    private void ApplyCurrencySpacing(Pieces p)
     {
-        for (int i = start; i < parts.Count; i++)
+        if (p.Number.Count == 0 || p.Number[0].Type != "integer")
         {
-            if (parts[i].Type != "currency")
-            {
-                continue;
-            }
+            return;
+        }
 
-            string text = parts[i].Value;
-            if (i + 1 < parts.Count && IsNumberStart(parts[i + 1].Type) && NotSymbolOrSeparator(text[^1]))
-            {
-                parts.Insert(i + 1, new NumberPart("literal", SpacingChar("afterCurrency"), source));
-            }
-            else if (i > start && IsNumberEnd(parts[i - 1].Type) && NotSymbolOrSeparator(text[0]))
-            {
-                parts.Insert(i, new NumberPart("literal", SpacingChar("beforeCurrency"), source));
-                i++;
-            }
+        if (p.MiddlePrefix.Count > 0 && p.MiddlePrefix[^1] is { Type: "currency" } before && NotSymbolOrSeparator(before.Value[^1]))
+        {
+            p.MiddlePrefix.Add(new NumberPart("literal", SpacingChar("afterCurrency")));
+        }
+
+        if (p.MiddleSuffix.Count > 0 && IsNumberEnd(p.Number[^1].Type) && p.MiddleSuffix[0] is { Type: "currency" } after && NotSymbolOrSeparator(after.Value[0]))
+        {
+            p.MiddleSuffix.Insert(0, new NumberPart("literal", SpacingChar("beforeCurrency")));
         }
     }
-
-    private static bool IsNumberStart(string type) => type == "integer";
 
     private static bool IsNumberEnd(string type) => type is "integer" or "fraction" or "exponentInteger";
 

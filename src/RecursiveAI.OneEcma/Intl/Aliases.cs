@@ -183,7 +183,8 @@ internal static class KeywordAliases
         return map.TryGetValue(value, out string? c) ? c : value;
     }
 
-    internal static string CanonicalTransformValue(string value) => value;
+    // The only transform field value alias CLDR defines for the fields ECMA-402 canonicalizes (bcp47 transform data: m0 names = prprname).
+    internal static string CanonicalTransformValue(string value) => value == "names" ? "prprname" : value;
 
     private static Dictionary<string, string> Aliases2(string key)
     {

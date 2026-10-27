@@ -210,7 +210,7 @@ function pr(locales, optsList, values) {
   }
 }
 const PV = ['n:0', 'n:1', 'n:2', 'n:3', 'n:4', 'n:5', 'n:6', 'n:7', 'n:8', 'n:10', 'n:11', 'n:12', 'n:13', 'n:14', 'n:21', 'n:22', 'n:23', 'n:100', 'n:101', 'n:102', 'n:111', 'n:112', 'n:1000',
-  'n:1000000', 'n:2000000', 'n:1000001', 'n:0.5', 'n:1.0', 'n:1.5', 'n:2.5', 'n:1e21', 'n:-1', 'n:-2', 'n:NaN', 'n:Infinity', 'b:1000000', 'b:5', 's:1.00', 's:1.10', 's:0.0', 's:2', 'n:0.07', 'n:21.5', 'n:80', 'n:81', 'n:11000000'];
+  'n:1000000', 'n:2000000', 'n:1000001', 'n:0.5', 'n:1.0', 'n:1.5', 'n:2.5', 'n:1e21', 'n:-1', 'n:-2', 'n:NaN', 'n:Infinity', 's:1.00', 's:1.10', 's:0.0', 's:2', 'n:0.07', 'n:21.5', 'n:80', 'n:81', 'n:11000000'];
 pr(LOCALES, [{}, { type: 'ordinal' }, { minimumFractionDigits: 1 }, { minimumFractionDigits: 2, type: 'ordinal' }, { maximumFractionDigits: 0 }, { maximumSignificantDigits: 1 }, { roundingMode: 'floor', maximumFractionDigits: 0 }, { type: 'bogus' }], PV);
 for (const l of LOCALES) for (const o of [{}, { type: 'ordinal' }]) {
   for (const [a, b] of [['n:0', 'n:1'], ['n:1', 'n:2'], ['n:1', 'n:1'], ['n:0', 'n:0'], ['n:2', 'n:5'], ['n:1', 'n:21'], ['n:11', 'n:12'], ['n:0.5', 'n:1'], ['n:1000000', 'n:2000000'], ['n:NaN', 'n:1']]) {

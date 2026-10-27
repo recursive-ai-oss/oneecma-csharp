@@ -537,7 +537,10 @@ internal sealed class LocaleId
     /// <summary>Add Likely Subtags: fills in script and region. Returns this.</summary>
     internal LocaleId Maximize()
     {
-        string? likely = LikelyFor(Language, Script, Region);
+        // UTS #35: the unknown script (Zzzz) and region (ZZ) count as absent when looking up, and are replaced.
+        string? script = Script == "Zzzz" ? null : Script;
+        string? region = Region == "ZZ" ? null : Region;
+        string? likely = LikelyFor(Language, script, region);
         if (likely is null)
         {
             return this;
@@ -549,8 +552,8 @@ internal sealed class LocaleId
             Language = l.Language;
         }
 
-        Script ??= l.Script;
-        Region ??= l.Region;
+        Script = script ?? l.Script;
+        Region = region ?? l.Region;
         return this;
     }
 
@@ -598,13 +601,8 @@ internal sealed class LocaleId
             }
         }
 
-        // und with only a region is looked up as und-<region> (e.g. und-DE).
-        if (lang == "und" && region is not null && sup.GetString("likelySubtags", $"und-{region}") is { } r)
-        {
-            return r;
-        }
-
-        return sup.GetString("likelySubtags", "und");
+        // Only the undetermined language falls back to the "und" entry; an unknown language is left as it is.
+        return lang == "und" ? sup.GetString("likelySubtags", "und") : null;
     }
 }
 
