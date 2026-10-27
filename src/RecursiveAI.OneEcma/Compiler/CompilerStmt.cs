@@ -727,6 +727,7 @@ internal sealed partial class Compiler
     {
         List<Control> saved = _f.Controls;
         int savedDepth = _f.Depth;
+        CScope? savedScope = _scope;
         try
         {
             for (int i = saved.Count - 1; i > targetIndex; i--)
@@ -745,6 +746,7 @@ internal sealed partial class Compiler
         {
             _f.Controls = saved;
             _f.Depth = savedDepth;
+            _scope = savedScope;
         }
     }
 
@@ -789,7 +791,10 @@ internal sealed partial class Compiler
             case Control.K.With:
                 if (!forReturn)
                 {
+                    // A finally block compiled inline after this point runs outside the popped scope, so name
+                    // resolution must not count it (a hop too many reads a missing environment).
                     Emit(Op.PopScope);
+                    _scope = _scope?.Parent;
                 }
 
                 break;
