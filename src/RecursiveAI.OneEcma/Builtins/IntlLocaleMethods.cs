@@ -95,93 +95,130 @@ internal static partial class IntlJs
         return Ops.Call(defaultMapping, Ops.Str(s));
     }
 
-    private static bool IsAbove(string s, int index)
+    private static int Ccc(int cp) => Intl.Data.CldrData.Normalization.CombiningClass(cp);
+
+    private static int[] CodePoints(string s)
     {
-        // Combining class 230 ("Above") after the character at index, skipping combining marks of other classes (SpecialCasing "More_Above").
-        for (int i = index + 1; i < s.Length;)
+        var l = new List<int>(s.Length);
+        for (int i = 0; i < s.Length; i++)
         {
-            int cp = char.ConvertToUtf32(s, i);
-            int step = cp > 0xFFFF ? 2 : 1;
-            if (IsClass230(cp))
+            if (char.IsHighSurrogate(s[i]) && i + 1 < s.Length && char.IsLowSurrogate(s[i + 1]))
+            {
+                l.Add(char.ConvertToUtf32(s[i], s[i + 1]));
+                i++;
+            }
+            else
+            {
+                l.Add(s[i]);
+            }
+        }
+
+        return [.. l];
+    }
+
+    private static void Append(StringBuilder sb, int cp)
+    {
+        if (cp > 0xFFFF)
+        {
+            sb.Append(char.ConvertFromUtf32(cp));
+        }
+        else
+        {
+            sb.Append((char)cp);
+        }
+    }
+
+    /// <summary>SpecialCasing "More_Above": a class 230 mark follows, with only marks of other non-zero classes between.</summary>
+    private static bool MoreAbove(int[] cps, int index)
+    {
+        for (int i = index + 1; i < cps.Length; i++)
+        {
+            int c = Ccc(cps[i]);
+            if (c == 230)
             {
                 return true;
             }
 
-            if (!IsCombiningMark(cp))
+            if (c == 0)
             {
                 return false;
             }
-
-            i += step;
         }
 
         return false;
     }
 
-    private static bool IsClass230(int cp) =>
-        cp is >= 0x0300 and <= 0x0314 or 0x033D or 0x033E or 0x033F or 0x0346 or 0x034A or 0x034B or 0x034C or 0x0350 or 0x0351 or 0x0352
-            or 0x0357 or 0x035B or >= 0x0363 and <= 0x036F or 0x1D185 or 0x1D186 or 0x1D187 or 0x1D188 or 0x1D189;
-
-    private static bool IsCombiningMark(int cp) =>
-        cp is >= 0x0300 and <= 0x036F or >= 0x1D165 and <= 0x1D169 or >= 0x1D16D and <= 0x1D172 or >= 0x1D17B and <= 0x1D182 or >= 0x1D185 and <= 0x1D18B or >= 0x1D1AA and <= 0x1D1AD
-            && !IsClass230(cp);
-
     private static string LowerTailoring(string s, string language)
     {
+        int[] cps = CodePoints(s);
         var sb = new StringBuilder(s.Length + 4);
-        for (int i = 0; i < s.Length; i++)
+        for (int i = 0; i < cps.Length; i++)
         {
-            char c = s[i];
+            int c = cps[i];
             if (language is "tr" or "az")
             {
-                if (c == '\u0130')
+                if (c == 0x130)
                 {
                     sb.Append('i');
                 }
                 else if (c == 'I')
                 {
-                    // Before_Dot: "I" followed by U+0307 (possibly through marks that are not above or of class 0) is a dotted i.
-                    int j = i + 1;
-                    while (j < s.Length && s[j] != '\u0307' && IsCombiningMark(s[j]) && !IsClass230(s[j]))
+                    // Before_Dot: U+0307 follows, with only marks of other non-zero classes between; the dot is absorbed into the i.
+                    int dot = -1;
+                    for (int j = i + 1; j < cps.Length; j++)
                     {
-                        j++;
+                        if (cps[j] == 0x307)
+                        {
+                            dot = j;
+                            break;
+                        }
+
+                        int cc = Ccc(cps[j]);
+                        if (cc is 0 or 230)
+                        {
+                            break;
+                        }
                     }
 
-                    if (j < s.Length && s[j] == '\u0307')
+                    if (dot < 0)
                     {
-                        sb.Append('i');
-                        sb.Append(s, i + 1, j - i - 1);
-                        i = j;
+                        sb.Append('\u0131');
                     }
                     else
                     {
-                        sb.Append('\u0131');
+                        sb.Append('i');
+                        for (int j = i + 1; j < dot; j++)
+                        {
+                            Append(sb, cps[j]);
+                        }
+
+                        i = dot;
                     }
                 }
                 else
                 {
-                    sb.Append(c);
+                    Append(sb, c);
                 }
             }
             else
             {
-                // Lithuanian: keep the dot of i, j and i-ogonek when an accent above follows; accented capital I forms decompose.
+                // Lithuanian: i, j and i-ogonek keep their dot when an accent above follows; the accented capitals I decompose.
                 switch (c)
                 {
-                    case 'I' or 'J' or '\u012E' when IsAbove(s, i):
+                    case 'I' or 'J' or 0x12E when MoreAbove(cps, i):
                         sb.Append(c == 'I' ? 'i' : c == 'J' ? 'j' : '\u012F').Append('\u0307');
                         break;
-                    case '\u00CC':
+                    case 0xCC:
                         sb.Append("i\u0307\u0300");
                         break;
-                    case '\u00CD':
+                    case 0xCD:
                         sb.Append("i\u0307\u0301");
                         break;
-                    case '\u0128':
+                    case 0x128:
                         sb.Append("i\u0307\u0303");
                         break;
                     default:
-                        sb.Append(c);
+                        Append(sb, c);
                         break;
                 }
             }
@@ -190,43 +227,47 @@ internal static partial class IntlJs
         return sb.ToString();
     }
 
-    private static bool IsSoftDotted(char c) =>
-        c is 'i' or 'j' or '\u012F' or '\u0249' or '\u0268' or '\u029D' or '\u02B2' or '\u03F3' or '\u0456' or '\u0458' or '\u1D62' or '\u1D96'
-            or '\u1DA4' or '\u1DA8' or '\u1E2D' or '\u1ECB' or '\u2071' or '\u2148' or '\u2149' or '\u2C7C';
+    // Soft_Dotted (PropList.txt, Unicode 17).
+    private static bool IsSoftDotted(int c) =>
+        c is 'i' or 'j' or 0x12F or 0x249 or 0x268 or 0x29D or 0x2B2 or 0x3F3 or 0x456 or 0x458 or 0x1D62 or 0x1D96 or 0x1DA4 or 0x1DA8 or 0x1E2D or 0x1ECB or 0x2071
+            or 0x2148 or 0x2149 or 0x2C7C or 0x1D422 or 0x1D423 or 0x1D456 or 0x1D457 or 0x1D48A or 0x1D48B or 0x1D4BE or 0x1D4BF or 0x1D4F2 or 0x1D4F3
+            or 0x1D526 or 0x1D527 or 0x1D55A or 0x1D55B or 0x1D58E or 0x1D58F or 0x1D5C2 or 0x1D5C3 or 0x1D5F6 or 0x1D5F7 or 0x1D62A or 0x1D62B
+            or 0x1D65E or 0x1D65F or 0x1D692 or 0x1D693 or 0x1DF1A or 0x1E04C or 0x1E04D or 0x1E068;
 
     private static string UpperTailoring(string s, string language)
     {
+        int[] cps = CodePoints(s);
         var sb = new StringBuilder(s.Length + 2);
-        for (int i = 0; i < s.Length; i++)
+        for (int i = 0; i < cps.Length; i++)
         {
-            char c = s[i];
+            int c = cps[i];
             if (language is "tr" or "az")
             {
-                sb.Append(c == 'i' ? '\u0130' : c);
+                Append(sb, c == 'i' ? 0x130 : c);
             }
-            else if (c == '\u0307' && i > 0 && PrecededBySoftDotted(s, i))
+            else if (c == 0x307 && AfterSoftDotted(cps, i))
             {
-                // After_Soft_Dotted: U+0307 is dropped when uppercasing (the dot is part of the capital).
+                // After_Soft_Dotted: the dot above is part of the capital letter's form and is dropped.
             }
             else
             {
-                sb.Append(c);
+                Append(sb, c);
             }
         }
 
         return sb.ToString();
     }
 
-    private static bool PrecededBySoftDotted(string s, int index)
+    private static bool AfterSoftDotted(int[] cps, int index)
     {
         for (int i = index - 1; i >= 0; i--)
         {
-            if (IsSoftDotted(s[i]))
+            if (IsSoftDotted(cps[i]))
             {
                 return true;
             }
 
-            if (!IsCombiningMark(s[i]) || IsClass230(s[i]))
+            if (Ccc(cps[i]) is 0 or 230)
             {
                 return false;
             }

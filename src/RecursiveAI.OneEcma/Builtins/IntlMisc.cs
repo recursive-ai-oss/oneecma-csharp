@@ -83,7 +83,7 @@ internal static partial class IntlJs
         {
             JsIntl rtf = Allocate(r, nt, "RelativeTimeFormat");
             List<string> requested = Locales(A(a, 0));
-            var o = new Opts(GetOptionsObject(A(a, 1)), "RelativeTimeFormat");
+            var o = new Opts(CoerceOptions(A(a, 1)), "RelativeTimeFormat");
             string? matcher = o.Str("localeMatcher", "lookup", "best fit");
             string? nu = o.Str("numberingSystem");
             if (nu is not null)

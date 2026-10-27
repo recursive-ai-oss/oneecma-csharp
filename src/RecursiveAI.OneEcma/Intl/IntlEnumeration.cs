@@ -43,23 +43,14 @@ internal static class IntlEnumeration
 
             case "currency":
             {
-                // Currencies some region uses today (a region entry with no end date).
+                // Every currency the English display names know: DisplayNames accepts exactly these (and any three letters as a fallback code).
+                DataTree en = CldrData.GetLocale("en");
                 var codes = new SortedSet<string>(StringComparer.Ordinal);
-                DataTree sup = CldrData.Supplemental;
-                foreach (string region in sup.GetKeys("currencyData", "region"))
+                foreach (string code in en.GetKeys("currencies"))
                 {
-                    int n = sup.ArrayLength("currencyData", "region", region);
-                    for (int i = 0; i < n; i++)
+                    if (code.Length == 3 && en.GetString("currencies", code, "displayName") is not null)
                     {
-                        foreach (string code in sup.GetKeys("currencyData", "region", region, i.ToString(NumberFormatInfo.InvariantInfo)))
-                        {
-                            string at = i.ToString(NumberFormatInfo.InvariantInfo);
-                            if (sup.GetString("currencyData", "region", region, at, code, "_to") is null
-                                && sup.GetString("currencyData", "region", region, at, code, "_tender") != "false")
-                            {
-                                codes.Add(code);
-                            }
-                        }
+                        codes.Add(code);
                     }
                 }
 
@@ -74,7 +65,11 @@ internal static class IntlEnumeration
                     if (!k.StartsWith('_') && CldrData.Supplemental.GetString("bcp47", "timezone", "tz", k, "_alias") is { } alias)
                     {
                         string canonical = alias.Split(' ')[0];
-                        if (!canonical.StartsWith("Etc/", StringComparison.Ordinal))
+                        if (canonical == "Etc/UTC")
+                        {
+                            zones.Add("UTC");
+                        }
+                        else if (!canonical.StartsWith("Etc/", StringComparison.Ordinal) || IsFixedOffsetZone(canonical))
                         {
                             zones.Add(canonical);
                         }
@@ -88,4 +83,8 @@ internal static class IntlEnumeration
                 throw IntlException.Range($"Invalid key : {key}");
         }
     }
+
+    // Etc/GMT+1 ... Etc/GMT-14: zones that belong to no continent but are primary identifiers all the same (ECMA-402 6.5.3).
+    private static bool IsFixedOffsetZone(string id) =>
+        id.StartsWith("Etc/GMT", StringComparison.Ordinal) && id.Length > 8 && id[7] is '+' or '-' && id.AsSpan(8).IndexOfAnyExceptInRange('0', '9') < 0;
 }

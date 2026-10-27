@@ -109,20 +109,42 @@ internal static partial class IntlJs
         return new CollatorState(collator, rl.Locale, usage, sensitivity, ignorePunctuation, co.Length == 0 ? "default" : co, kn, kf);
     }
 
-    /// <summary>The collation types a locale's language has tailorings for, as BCP 47 type names (standard and search excluded).</summary>
+    private static readonly Dictionary<string, SortedSet<string>> CollationCache = new(StringComparer.Ordinal);
+
+    /// <summary>The collation types a locale's language has usable tailorings for, as BCP 47 type names (standard and search excluded).</summary>
     private static SortedSet<string> CollationTypes(string locale)
     {
         string lang = locale.Split('-')[0];
-        var list = new SortedSet<string>(StringComparer.Ordinal);
-        foreach (string type in CldrData.Supplemental.GetKeys("collationTailoring", lang))
+        lock (CollationCache)
         {
-            if (type is not ("standard" or "search"))
+            if (CollationCache.TryGetValue(lang, out SortedSet<string>? cached))
             {
-                list.Add(type switch { "phonebook" => "phonebk", "traditional" => "trad", _ => type });
+                return cached;
             }
-        }
 
-        return list;
+            var list = new SortedSet<string>(StringComparer.Ordinal);
+            foreach (string type in CldrData.Supplemental.GetKeys("collationTailoring", lang))
+            {
+                if (type is "standard" or "search")
+                {
+                    continue;
+                }
+
+                string bcp = type switch { "phonebook" => "phonebk", "traditional" => "trad", _ => type };
+                try
+                {
+                    _ = TextCollator.Create(lang, new CollatorOptions { Collation = bcp });
+                    list.Add(bcp);
+                }
+                catch (FormatException)
+                {
+                    // A tailoring whose rules import data the engine does not carry is not offered.
+                }
+            }
+
+            CollationCache[lang] = list;
+            return list;
+        }
     }
 
     // ---- Intl.NumberFormat (16) -------------------------------------------------------------------------------------

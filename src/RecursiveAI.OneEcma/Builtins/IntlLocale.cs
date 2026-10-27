@@ -80,6 +80,7 @@ internal static partial class IntlJs
         });
         Accessor(r, proto, "region", id => id.Region);
         Accessor(r, proto, "script", id => id.Script);
+        Accessor(r, proto, "variants", id => id.Variants.Count == 0 ? null : string.Join("-", id.Variants));
 
         r.Method(proto, "toString", 0, (t, a, nt) => Ops.Str(LocaleOf(This(t, "Locale", "toString")).ToString()));
         r.Method(proto, "maximize", 0, (t, a, nt) => Derived(r, This(t, "Locale", "maximize"), true));
@@ -220,29 +221,13 @@ internal static partial class IntlJs
 
     private static SortedSet<string> CollationsOf(LocaleId id)
     {
-        // The tailorings the language has, as BCP 47 types, without standard and search (15.5.10).
-        string lang = id.Language;
-        var list = new SortedSet<string>(StringComparer.Ordinal);
-        if (LocaleResolver.BestAvailableLocale(lang) is not null)
+        // 15.5.10: the tailorings the language has; a language without data gets the two root types.
+        if (LocaleResolver.BestAvailableLocale(id.Language) is null)
         {
-            DataTree sup = CldrData.Supplemental;
-            foreach (string type in sup.GetKeys("collationTailoring", lang))
-            {
-                if (type is "standard" or "search")
-                {
-                    continue;
-                }
-
-                list.Add(type switch { "phonebook" => "phonebk", "traditional" => "trad", _ => type });
-            }
-        }
-        else
-        {
-            list.Add("emoji");
-            list.Add("eor");
+            return new SortedSet<string>(StringComparer.Ordinal) { "emoji", "eor" };
         }
 
-        return list;
+        return CollationTypes(id.Language);
     }
 
     private static JsValue Derived(Realm r, JsIntl source, bool maximize)
