@@ -16,7 +16,7 @@ internal enum Op : byte
     // bindings
     LoadSlot, LoadSlotChecked, StoreSlot, StoreSlotChecked, InitSlot, ThrowConstAssign, LoadImport,
     LoadGlobal, StoreGlobal, TypeofGlobal, DeclareGlobals, InitGlobalLexical, DefineGlobalFunction,
-    LoadDyn, StoreDyn, TypeofDyn, DeleteDyn, LoadDynCall, InitDyn, DeclareEvalVar,
+    LoadDyn, StoreDyn, StoreVarDyn, TypeofDyn, DeleteDyn, LoadDynCall, InitDyn, DeclareEvalVar,
     PushScope, PopScope, CopyScope, PushWith, LoadArg, CreateArguments, CollectRest,
     LoadThis, LoadThisChecked, LoadNewTarget, LoadFunction,
 
@@ -42,7 +42,7 @@ internal enum Op : byte
     TryEnter, TryLeave, Throw, ThrowError, Return, ReturnUndef,
 
     // calls
-    Call, CallSpread, New, NewSpread, SuperCall, SuperCallSpread, CallEval, CallEvalSpread, ImportCallOp, ImportMeta, MakeClosure,
+    Call, TailCall, CallSpread, New, NewSpread, SuperCall, SuperCallSpread, CallEval, CallEvalSpread, ImportCallOp, ImportMeta, MakeClosure,
 
     // iteration
     GetIterator, IterNext, IterClose, IterCloseIfNotDone, IterCloseSilent, IterStep, IterRest,

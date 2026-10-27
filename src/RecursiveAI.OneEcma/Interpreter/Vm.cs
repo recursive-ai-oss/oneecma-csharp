@@ -485,6 +485,10 @@ internal static partial class Vm
                         case Op.StoreDyn:
                             StoreDynamic(f, fc.Names[ins.A], st[--sp], ins.B != 0, false);
                             break;
+                        case Op.StoreVarDyn:
+                            // B.3.3.3: the copy of a block function goes to the variable environment, past block and with scopes.
+                            StoreDynamic(f, fc.Names[ins.A], st[--sp], false, false, true);
+                            break;
                         case Op.InitDyn:
                             StoreDynamic(f, fc.Names[ins.A], st[--sp], false, true);
                             break;
@@ -1350,6 +1354,37 @@ internal static partial class Vm
                                 }
 
                                 throw Errors.Type(fc.Names[ins.B] + " is not a function");
+                            }
+
+                        case Op.TailCall:
+                            {
+                                int argc = ins.A;
+                                int bs = sp - argc - 2;
+                                if (st[bs].Ref is ScriptFunction sf && !f.IsConstruct)
+                                {
+                                    // ECMA-262 PrepareForTailCall (7.3.?): the callee takes this frame's place, so depth does not grow.
+                                    if (--ag.Fuel < 0)
+                                    {
+                                        ag.Tick();
+                                    }
+
+                                    Frame nf = PrepareFrame(ag, sf, st[bs + 1], st, bs + 2, argc, null);
+                                    f.Sp = bs;
+                                    f.State = FrameState.Completed;
+                                    nf.Caller = f.Caller;
+                                    nf.IsEntry = f.IsEntry;
+                                    f = nf;
+                                    ag.Frame = f;
+                                    ag.Realm = f.Realm;
+                                    st = f.Stack;
+                                    sp = f.Sp;
+                                    pc = 0;
+                                    code = f.Code.Ops;
+                                    fc = f.Code;
+                                    break;
+                                }
+
+                                goto case Op.Call;
                             }
 
                         case Op.CallSpread:

@@ -383,7 +383,7 @@ internal sealed partial class Compiler
         }
     }
 
-    private void Logical(LogicalExpression l)
+    private void Logical(LogicalExpression l, bool tail = false)
     {
         JumpLabel end = NewLabel();
         Expr(l.Left);
@@ -400,8 +400,96 @@ internal sealed partial class Compiler
                 break;
         }
 
-        Expr(l.Right);
+        if (tail)
+        {
+            ExprTail(l.Right);
+        }
+        else
+        {
+            Expr(l.Right);
+        }
+
         Mark(end);
+    }
+
+    /// <summary>
+    /// ECMA-262 15.10 tail position calls: in strict code a call in tail position reuses the caller's frame. Only
+    /// plain functions qualify (not constructors, generators or async functions) and only outside try blocks and
+    /// iterator loops, where the frame still has cleanup to do.
+    /// </summary>
+    private bool CanTailCall()
+    {
+        if (!_f.Strict || _f.IsAsync || _f.IsGenerator || _f.Kind is not (FunctionKind.Normal or FunctionKind.Arrow or FunctionKind.Method or FunctionKind.Getter or FunctionKind.Setter))
+        {
+            return false;
+        }
+
+        foreach (Control c in _f.Controls)
+        {
+            if (c.Kind is Control.K.Try or Control.K.IterLoop)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private bool _tailCall;
+
+    /// <summary>Compiles an expression whose value is returned directly, turning calls in tail position into tail calls.</summary>
+    private void ExprTail(Node n)
+    {
+        if (!CanTailCall())
+        {
+            Expr(n);
+            return;
+        }
+
+        switch (n)
+        {
+            case CallExpression call when !call.IsOptional && call.Callee is not (SuperExpression or ChainExpression) && !HasSpread(call.Arguments) && !call.IsDirectEvalCandidate:
+                {
+                    int s = _f.CurS;
+                    int e = _f.CurE;
+                    SetSpan(n);
+                    _tailCall = true;
+                    CallExpr(call);
+                    _tailCall = false;
+                    SetSpan(s, e);
+                    break;
+                }
+
+            case ConditionalExpression c:
+                {
+                    JumpLabel alt = NewLabel();
+                    JumpLabel end = NewLabel();
+                    Expr(c.Test);
+                    Jump(Op.JmpIfFalse, alt);
+                    ExprTail(c.Consequent);
+                    Jump(Op.Jmp, end);
+                    _f.Depth--;
+                    Mark(alt);
+                    ExprTail(c.Alternate);
+                    Mark(end);
+                    break;
+                }
+
+            case SequenceExpression sq:
+                for (int i = 0; i < sq.Expressions.Count - 1; i++)
+                {
+                    ExprDiscard(sq.Expressions[i]);
+                }
+
+                ExprTail(sq.Expressions[^1]);
+                break;
+            case LogicalExpression l:
+                Logical(l, true);
+                break;
+            default:
+                Expr(n);
+                break;
+        }
     }
 
     private void Unary(UnaryExpression u)
@@ -621,6 +709,8 @@ internal sealed partial class Compiler
 
     private void CallExpr(CallExpression call)
     {
+        bool tailRequested = _tailCall;
+        _tailCall = false;
         Expression callee = call.Callee;
         int textIdx = TextConst(callee);
         bool hasSpread = HasSpread(call.Arguments);
@@ -771,7 +861,8 @@ internal sealed partial class Compiler
             }
 
             SetSpan(callSpanS, callSpanE);
-            Emit(direct ? Op.CallEval : Op.Call, call.Arguments.Count, direct ? EvalFlags() : textIdx);
+            bool tail = tailRequested && !direct && !call.IsOptional;
+            Emit(direct ? Op.CallEval : tail ? Op.TailCall : Op.Call, call.Arguments.Count, direct ? EvalFlags() : textIdx);
         }
 
         SetSpan(call);

@@ -179,7 +179,7 @@ internal sealed partial class Compiler
             case Op.Dup2: case Op.LoadDynCall:
                 return 2;
             case Op.Pop: case Op.StoreLocal: case Op.StoreSlot: case Op.StoreSlotChecked: case Op.InitSlot: case Op.StoreGlobal:
-            case Op.InitGlobalLexical: case Op.DefineGlobalFunction: case Op.StoreDyn: case Op.InitDyn: case Op.PushWith:
+            case Op.InitGlobalLexical: case Op.DefineGlobalFunction: case Op.StoreDyn: case Op.StoreVarDyn: case Op.InitDyn: case Op.PushWith:
             case Op.JmpIfFalse: case Op.JmpIfTrue: case Op.Throw: case Op.Return: case Op.ThrowIfNotObject:
             case Op.ArrayPush: case Op.ArraySpread: case Op.SetProtoLiteral: case Op.CopyDataProps: case Op.DefineField:
             case Op.Add: case Op.Sub: case Op.Mul: case Op.Div: case Op.Mod: case Op.Exp: case Op.BitAnd: case Op.BitOr: case Op.BitXor:
@@ -193,7 +193,7 @@ internal sealed partial class Compiler
             case Op.DefineClassField: case Op.AddPrivateMethod:
                 return -3;
             case Op.DefineMethodOp: return a < 0 ? -2 : -1;
-            case Op.Call: case Op.CallEval: return -(a + 1);
+            case Op.Call: case Op.TailCall: case Op.CallEval: return -(a + 1);
             case Op.New: return -a;
             case Op.SuperCall: return a < 0 ? 1 : 1 - a;
             case Op.NewClass: return (b & 1) != 0 ? 1 : 2;

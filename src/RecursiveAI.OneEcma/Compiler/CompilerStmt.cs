@@ -78,7 +78,7 @@ internal sealed partial class Compiler
                 }
                 else
                 {
-                    Expr(rs.Argument);
+                    ExprTail(rs.Argument);
                     if (_f.IsAsync && _f.IsGenerator)
                     {
                         Emit(Op.Await);
@@ -279,7 +279,9 @@ internal sealed partial class Compiler
         }
 
         LoadIdent(name);
-        Ref r = varScope is null ? Resolve(name, null, null) : ResolveFromVarScope(name, varScope);
+        Ref r = varScope is null
+            ? new Ref { Kind = _evalUnit || _unknownParent ? RefKind.Dynamic : RefKind.Global, Name = name }
+            : ResolveFromVarScope(name, varScope);
         switch (r.Kind)
         {
             case RefKind.Local:
@@ -289,7 +291,7 @@ internal sealed partial class Compiler
                 Emit(Op.StoreGlobal, NameConst(name), 0);
                 break;
             default:
-                Emit(Op.StoreDyn, NameConst(name), 0);
+                Emit(Op.StoreVarDyn, NameConst(name), 0);
                 break;
         }
     }

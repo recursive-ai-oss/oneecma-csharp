@@ -133,7 +133,8 @@ internal static class Program
                 sb.Append(r.RelativePath).Append('\t').AppendLine(r.Detail.ReplaceLineEndings(" "));
             }
 
-            File.WriteAllText(failPath, sb.ToString());
+            // Messages can carry lone surrogates from script strings; write them as replacement characters.
+            File.WriteAllBytes(failPath, new UTF8Encoding(false, false).GetBytes(sb.ToString()));
         }
 
         return 0;

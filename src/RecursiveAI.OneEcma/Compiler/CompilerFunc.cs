@@ -153,7 +153,7 @@ internal sealed partial class Compiler
                 Emit(Op.GenStart);
             }
 
-            Expr(fn.Body);
+            ExprTail(fn.Body);
             Emit(Op.Return);
         }
 

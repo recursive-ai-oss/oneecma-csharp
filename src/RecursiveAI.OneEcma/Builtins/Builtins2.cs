@@ -76,7 +76,12 @@ internal static partial class Builtins
 
     // ---- Array ---------------------------------------------------------------------------------------------------------
 
-    private static string IdxKey(long i) => Ops.NumberToStr(i);
+    /// <summary>The property key of an array index; charges one step so loops over huge array-likes end in a limit.</summary>
+    private static string IdxKey(long i)
+    {
+        Agent.Current.Tick();
+        return Ops.NumberToStr(i);
+    }
 
     private static void SetupArray(Realm r)
     {

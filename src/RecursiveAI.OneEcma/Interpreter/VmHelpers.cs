@@ -261,11 +261,17 @@ internal static partial class Vm
         return u.Ref is JsObject uo && Ops.ToBoolean(uo.Get(key));
     }
 
-    private static DynRef ResolveDynamic(Frame f, string name)
+    private static DynRef ResolveDynamic(Frame f, string name, bool fromVarEnv = false)
     {
         var key = new PropertyKey(name);
         for (Env? e = f.Env; e is not null; e = e.Parent)
         {
+            if (fromVarEnv && e.Info is not { IsFunctionVarScope: true })
+            {
+                continue;
+            }
+
+            fromVarEnv = false;
             if (e.WithObject is { } w)
             {
                 if (w.HasProperty(key) && !BlockedByUnscopables(w, key))
@@ -353,9 +359,9 @@ internal static partial class Vm
         }
     }
 
-    private static void StoreDynamic(Frame f, string name, JsValue v, bool strict, bool init)
+    private static void StoreDynamic(Frame f, string name, JsValue v, bool strict, bool init, bool fromVarEnv = false)
     {
-        DynRef d = ResolveDynamic(f, name);
+        DynRef d = ResolveDynamic(f, name, fromVarEnv);
         switch (d.Kind)
         {
             case DynKind.Slot:
