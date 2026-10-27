@@ -526,7 +526,7 @@ internal static class ArrayProto
     internal static JsValue Push(JsValue t, ReadOnlySpan<JsValue> a, JsObject? nt)
     {
         JsObject o = Alg.This(t, null);
-        if (o is JsArray ja && ja.Dense is not null && ja.Count == ja.Length && ja.Extensible && ja.LengthWritable)
+        if (o is JsArray ja && ja.Dense is not null && ja.Count == ja.Length && ja.Extensible && ja.LengthWritable && Alg.ChainIndexFree(ja))
         {
             foreach (JsValue v in a)
             {
@@ -618,7 +618,7 @@ internal static class ArrayProto
                 throw Errors.Type("Invalid array length");
             }
 
-            if (Packed(o, out JsArray ja) && ja.Extensible && ja.LengthWritable && ja.Count + (long)argCount < int.MaxValue / 2)
+            if (Packed(o, out JsArray ja) && ja.Extensible && ja.LengthWritable && ja.Count + (long)argCount < int.MaxValue / 2 && Alg.ChainIndexFree(ja))
             {
                 Agent.Current.Alloc((ja.Count + argCount) * 16L);
                 int count = ja.Count;
@@ -865,7 +865,7 @@ internal static class ArrayProto
         }
         else if (itemCount > deleteCount)
         {
-            if (Packed(o, out JsArray ja) && ja.Extensible && ja.LengthWritable && len + itemCount - deleteCount < int.MaxValue / 2)
+            if (Packed(o, out JsArray ja) && ja.Extensible && ja.LengthWritable && len + itemCount - deleteCount < int.MaxValue / 2 && Alg.ChainIndexFree(ja))
             {
                 int grow = (int)(itemCount - deleteCount);
                 Agent.Current.Alloc((len + grow) * 16);
@@ -1191,7 +1191,7 @@ internal static class ArrayProto
         try
         {
             var sb = new StringBuilder();
-            JsValue[] fwd = localeArgs.Length > 2 ? localeArgs[..2].ToArray() : localeArgs.ToArray();
+            JsValue[] fwd = [Ops.Arg(localeArgs, 0), Ops.Arg(localeArgs, 1)];
             for (long k = 0; k < len; k++)
             {
                 if (k > 0)

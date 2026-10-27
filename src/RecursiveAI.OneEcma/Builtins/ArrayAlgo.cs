@@ -498,6 +498,59 @@ internal static class ArrayAlgo
         }
     }
 
+    [ThreadStatic]
+    private static List<PropertyKey>? t_keys;
+
+    /// <summary>
+    /// True when no object on the prototype chain of <paramref name="o"/> can hold or intercept an integer key, so adding an element
+    /// to <paramref name="o"/> with [[Set]] is the same as defining it directly. Prototypes that are not plain objects or arrays
+    /// (Proxy, exotic objects) answer false.
+    /// </summary>
+    internal static bool ChainIndexFree(JsObject o)
+    {
+        for (JsObject? p = o.Proto; p is not null; p = p.Proto)
+        {
+            if (p is JsArray pa)
+            {
+                if (pa.Dense is null || pa.Count > 0)
+                {
+                    return false;
+                }
+            }
+            else if (p.GetType() != typeof(JsObject) && p is not ObjectPrototypeObject)
+            {
+                return false;
+            }
+
+            Shape sh = p.Shape;
+            if (sh.IsDictionary)
+            {
+                for (int slot = 0; slot < sh.Count; slot++)
+                {
+                    if (!sh.IsDeleted(slot) && sh.KeyAt(slot).Ref is string s && s.Length > 0 && s[0] is >= '0' and <= '9')
+                    {
+                        return false;
+                    }
+                }
+            }
+            else
+            {
+                List<PropertyKey> keys = t_keys ??= [];
+                keys.Clear();
+                sh.CollectKeys(keys);
+                foreach (PropertyKey k in keys)
+                {
+                    if (k.Ref is string s && s.Length > 0 && s[0] is >= '0' and <= '9')
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
     // ---- sparse objects --------------------------------------------------------------------------------------------------
 
     /// <summary>Parses a canonical integer key ("0", "17", never "01") up to 2^53 - 1.</summary>

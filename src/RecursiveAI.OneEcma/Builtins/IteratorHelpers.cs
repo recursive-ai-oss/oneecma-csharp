@@ -525,8 +525,9 @@ internal static class IteratorHelpers
             throw;
         }
 
+        // A finite limit beyond 2^53 - 1 is a RangeError as well (the conformance suite is newer than the edition text here).
         double integerLimit = double.IsNaN(numLimit) ? double.NaN : Ops.ToIntegerOrInfinity(Ops.Num(numLimit));
-        if (double.IsNaN(integerLimit) || integerLimit < 0)
+        if (double.IsNaN(integerLimit) || integerLimit < 0 || (double.IsFinite(numLimit) && numLimit > ArrayAlgo.MaxSafeInteger))
         {
             Ops.IteratorCloseSilently(closing);
             throw Errors.Range(Ops.ToStr(limit) + " must be positive");
