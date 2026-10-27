@@ -73,4 +73,19 @@ public class LazyPrototypeAndRopeTests
         var e = Assert.Throws<JsLimitException>(() => engine.Evaluate("function f() { var s = 'x'.repeat(100000); var r = s + 'a'; var t = 'y'.repeat(2000000); return r.length + t.length; }\nf();", "m.js", Ct));
         Assert.Equal(LimitKind.Memory, e.Kind);
     }
+
+    // The loop-condition, increment and add-constant sequences run in one step for numbers; every other operand type takes the ordinary path.
+    [Theory]
+    [InlineData("function f() { var i = '5'; i++; return typeof i + i; } f()", "number6")]
+    [InlineData("function f() { var i = '5'; i += 7; return typeof i + i; } f()", "string57")]
+    [InlineData("function f() { var i = 5n; i++; return typeof i + i; } f()", "bigint6")]
+    [InlineData("function f() { var log = []; var i = { valueOf() { log.push('v'); return 3; } }; var n = 0; for (; i < 5; ) { n++; if (n > 2) break; } return log.length + ':' + n; } f()", "3:3")]
+    [InlineData("function f() { var i = NaN; var n = 0; for (; i < 5; ) { n++; break; } for (; !(i >= 5); ) { n += 10; break; } return n; } f()", "10")]
+    [InlineData("function f() { var i = 0, n = 0; for (i = 0; i <= 3; i++) n += i; for (i = 5; i > 2; i--) n += 100; for (i = 5; i >= 5; i++) { n += 1000; break; } return n + ':' + i; } f()", "1306:5")]
+    [InlineData("function f() { var i = 9007199254740992; i++; var j = -0; j += 0; return i + ':' + Object.is(j, 0); } f()", "9007199254740992:true")]
+    [InlineData("function f() { let n = 0; for (let i = 0; i < 4; i++) { n += i; } return n; } f()", "6")]
+    [InlineData("function f() { var fs = []; for (let i = 0; i < 3; i++) { fs.push(function () { return i; }); } return fs.map(function (g) { return g(); }).join(); } f()", "0,1,2")]
+    [InlineData("function f() { try { for (let i = 0; i < 3; i++) { x; let x = 1; } } catch (e) { return e.name; } } f()", "ReferenceError")]
+    [InlineData("function f() { var i = 0; var n = 0; while (i < 100000) { i += 3; n++; } return n + ':' + i; } f()", "33334:100002")]
+    public void FusedLoopSequencesKeepTheirMeaning(string source, string expected) => Assert.Equal(expected, Eval(source));
 }

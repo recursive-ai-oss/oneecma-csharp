@@ -55,6 +55,16 @@ To make an exotic object, subclass `JsObject` (or `JsArray` for array-likes that
 
 Large objects are cheap to build one property at a time: a `Shape` indexes its keys only after it has been looked up several times, so a built-in prototype with dozens of `DefineDirect` calls does not index every intermediate shape. Code that holds a `Frame` or an `Env` past the call that created it must mark it (`Frame.Escaped`, `Env.MarkCaptured`), because finished frames and uncaptured environments are reused; see `executor.md`.
 
+### Deferred own properties
+
+An ordinary function's own `prototype` object (ECMA-262 10.2.5 MakeConstructor) is created the first time anything can observe it, because most closures never use it. `ScriptFunction` created with `lazyPrototype: true` has the shape from `Realm.FunctionShape(proto, 3)`: `length`, `name`, then `prototype` flagged as an accessor with an empty slot, and `JsObject.Lazy` is set. The flag marks the slot as not a data property, so no cached or direct slot read ever uses it. The function overrides `GetOwnProperty` and `TryGetOwn` (for the key `prototype`) and `DefineOwnProperty`, `Delete`, `OwnKeys`, `SetPrototypeOf` and `PreventExtensions` (always) to call `Realize()`, which creates the object, switches to the ordinary shape (`FunctionShape(proto, 1)`) and clears `Lazy`. The non-virtual storage primitives on `JsObject` (`AddProperty`, `ReplaceProperty`, `DefineDirect`, `DefineAccessorDirect`, `RemoveSlot`) realize first, so a property added to a function still comes after `prototype`. A new virtual that exposes or changes an object's own keys must do the same if it can be reached on a `Lazy` object; code that only reads `length` and `name` through the shape needs nothing.
+
+`Shape.DigitKeys` counts the keys that start with a decimal digit (kept in step by `Add` and `Remove`, also in dictionary mode). `ArrayAlgo.ChainIndexFree` uses it, so `push` and similar fast paths decide in constant time per prototype whether an index key could be intercepted.
+
+### Strings built by concatenation
+
+`a + b` of two strings whose joined length is 24 or more makes a `Rope` node and charges 48 bytes. The characters are charged when the rope is first observed (`AsString`, `Rope.Flatten`), which copies once from the end of the result, following the left spine without a stack and keeping a small stack only for right children that are themselves ropes; flattening never recurses on the host stack. A flattened node keeps its string and drops its children. `length` on a string primitive and a `String.prototype` method lookup (`GetStringProp` in the VM) do not flatten. A value that a host function receives is always a flat `string`. While a limit report is being described, memory charges are recorded but do not raise a second limit (describing a frame previews its string locals, which flattens ropes).
+
 ## Native functions
 
 ```csharp

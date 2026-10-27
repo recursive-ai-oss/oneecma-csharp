@@ -545,11 +545,46 @@ internal sealed partial class Compiler
 
     private bool _unknownParent;
 
+    /// <summary>
+    /// Marks the first instruction of the sequences listed in <see cref="Fusion"/>. Nothing is removed or moved: the untraced dispatch
+    /// loop may run a marked sequence in one step when its operands are numbers, and otherwise (and in every traced run) executes
+    /// the instructions one by one, so behaviour, positions and jump targets are exactly those of the unmarked code.
+    /// </summary>
+    private static Instr[] Fuse(Instr[] ops)
+    {
+        for (int i = 0; i + 3 < ops.Length; i++)
+        {
+            if (ops[i].Op != Op.LoadSlot)
+            {
+                continue;
+            }
+
+            Instr a = ops[i];
+            Instr b = ops[i + 1];
+            Instr c = ops[i + 2];
+            Instr d = ops[i + 3];
+            if (b.Op == Op.PushInt && c.Op is Op.Lt or Op.Le or Op.Gt or Op.Ge && d.Op == Op.JmpIfFalse)
+            {
+                ops[i].Fused = Fusion.CompareSlotInt;
+            }
+            else if (b.Op == Op.ToNumeric && c.Op == Op.Inc && d.Op == Op.StoreSlot && d.A == a.A && d.B == a.B)
+            {
+                ops[i].Fused = Fusion.IncrementSlot;
+            }
+            else if (b.Op == Op.PushInt && c.Op == Op.Add && d.Op == Op.StoreSlot && d.A == a.A && d.B == a.B)
+            {
+                ops[i].Fused = Fusion.AddIntToSlot;
+            }
+        }
+
+        return ops;
+    }
+
     private FunctionCode Finish(FnState f, string name, int length, int srcStart, int srcEnd)
     {
         var code = new FunctionCode
         {
-            Ops = [.. f.Ops],
+            Ops = Fuse([.. f.Ops]),
             SpanStart = [.. f.SpanS],
             SpanEnd = [.. f.SpanE],
             Pos = [.. f.PosL],

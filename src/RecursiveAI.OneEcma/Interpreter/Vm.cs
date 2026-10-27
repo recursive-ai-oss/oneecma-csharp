@@ -303,6 +303,48 @@ internal static partial class Vm
                     f.Pc = pc;
                     pc++;
                     tracer.OnOp(f, ins, pc - 1, st, sp);
+                    if (typeof(TTrace) == typeof(NoTrace) && ins.Fused != Fusion.None)
+                    {
+                        // A marked sequence over a number binding runs in one step; anything else falls through to the first
+                        // instruction's own case and the rest run one by one. A traced run never takes this path.
+                        Env fe = f.Env!;
+                        for (int h = ins.A; h > 0; h--)
+                        {
+                            fe = fe.Parent!;
+                        }
+
+                        ref JsValue fv = ref fe.Slots[ins.B];
+                        if (fv.IsNumber)
+                        {
+                            switch (ins.Fused)
+                            {
+                                case Fusion.CompareSlotInt:
+                                    {
+                                        double x = fv.Num;
+                                        double y = code[pc].A;
+                                        bool r = code[pc + 1].Op switch
+                                        {
+                                            Op.Lt => x < y,
+                                            Op.Le => x <= y,
+                                            Op.Gt => x > y,
+                                            _ => x >= y,
+                                        };
+                                        pc = r ? pc + 3 : code[pc + 2].A;
+                                        continue;
+                                    }
+
+                                case Fusion.IncrementSlot:
+                                    fv = JsValue.FromNumber(fv.Num + 1);
+                                    pc += 3;
+                                    continue;
+                                case Fusion.AddIntToSlot:
+                                    fv = JsValue.FromNumber(fv.Num + code[pc].A);
+                                    pc += 3;
+                                    continue;
+                            }
+                        }
+                    }
+
                     switch (ins.Op)
                     {
                         case Op.Nop:
