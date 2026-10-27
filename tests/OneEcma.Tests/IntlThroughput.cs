@@ -37,6 +37,31 @@ public class IntlThroughput
         }
 
         Time("plural es select", () => { foreach (DecimalNumber v in decimals) { plural.Select(v); } }, values.Length);
+
+        // Date-time and duration formatting over a fixed zone source.
+        var instants = new double[1000];
+        for (int i = 0; i < instants.Length; i++)
+        {
+            instants[i] = 1.6e12 + (rng.NextDouble() * 4e11);
+        }
+
+        var zone = new FixedZoneSource(-4 * 3600000, true);
+        var dates = new (string Name, DateTimeFormatService Service)[]
+        {
+            ("datetime en-US numeric", DateTimeFormatService.Create(["en-US"], new DateTimeFormatOptions { Year = "numeric", Month = "numeric", Day = "numeric", Hour = "numeric", Minute = "numeric" }, "en-US", "UTC", zone)),
+            ("datetime de full+long", DateTimeFormatService.Create(["de"], new DateTimeFormatOptions { DateStyle = "full", TimeStyle = "long", TimeZone = "America/New_York" }, "en-US", "UTC", zone)),
+        };
+        foreach (var (name, service) in dates)
+        {
+            Time(name + " format", () => { foreach (double t in instants) { service.Format(t); } }, instants.Length);
+        }
+
+        DateTimeFormatService range = DateTimeFormatService.Create(["en-US"], new DateTimeFormatOptions { Year = "numeric", Month = "short", Day = "numeric" }, "en-US", "UTC", zone);
+        Time("datetime en-US formatRange", () => { for (int i = 1; i < instants.Length; i++) { range.FormatRange(instants[i - 1], instants[i]); } }, instants.Length - 1);
+
+        DurationFormatService duration = DurationFormatService.Create(["en"], new DurationFormatOptions { Style = "short" }, "en-US");
+        DurationRecord record = DurationRecord.Create([null, null, null, 2, 3, 4, 5, 6, null, null]);
+        Time("duration en short format", () => { for (int i = 0; i < 1000; i++) { duration.Format(record); } }, 1000);
     }
 
     private static void Time(string name, Action run, int perRun)
@@ -57,5 +82,15 @@ public class IntlThroughput
         double ns = w.Elapsed.TotalMilliseconds * 1e6 / (reps * (double)perRun);
         long bytes = (GC.GetAllocatedBytesForCurrentThread() - before) / (reps * (long)perRun);
         File.AppendAllText(Environment.GetEnvironmentVariable("ONEECMA_INTL_THROUGHPUT")!, $"THROUGHPUT {name}: {ns:F0} ns/op ({1e9 / ns / 1e6:F2} M ops/s), {bytes} B/op\n");
+    }
+}
+
+/// <summary>A zone source with one fixed offset.</summary>
+internal sealed class FixedZoneSource(int offsetMs, bool daylight) : ITimeZoneSource
+{
+    public bool TryGetOffset(string zoneId, double epochMs, out TimeZoneOffset offset)
+    {
+        offset = new TimeZoneOffset(offsetMs, daylight);
+        return true;
     }
 }

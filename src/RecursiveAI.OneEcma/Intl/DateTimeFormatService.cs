@@ -193,7 +193,7 @@ internal sealed partial class DateTimeFormatService
 
     private static string Pad(long n, int width)
     {
-        string s = n.ToString(CultureInfo.InvariantCulture);
+        string s = n.ToString(NumberFormatInfo.InvariantInfo);
         return s.Length >= width ? s : new string('0', width - s.Length) + s;
     }
 

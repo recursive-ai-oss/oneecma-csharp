@@ -102,7 +102,7 @@ internal static class TimeZoneNames
                 int n = sup.ArrayLength("metaZoneMap");
                 for (int i = 0; i < n; i++)
                 {
-                    string at = i.ToString(CultureInfo.InvariantCulture);
+                    string at = i.ToString(NumberFormatInfo.InvariantInfo);
                     if (sup.GetString("metaZoneMap", at, "mapZone", "_other") is { } other
                         && sup.GetString("metaZoneMap", at, "mapZone", "_territory") is { } territory
                         && sup.GetString("metaZoneMap", at, "mapZone", "_type") is { } type)
@@ -222,7 +222,7 @@ internal static class TimeZoneNames
         int n = sup.ArrayLength([.. path]);
         for (int i = 0; i < n; i++)
         {
-            string at = i.ToString(CultureInfo.InvariantCulture);
+            string at = i.ToString(NumberFormatInfo.InvariantInfo);
             string[] p = [.. path, at, "usesMetazone"];
             string? mz = sup.GetString([.. p, "_mzone"]);
             if (mz is null)
@@ -251,7 +251,7 @@ internal static class TimeZoneNames
     private static double? ParseUtc(string s)
     {
         // "yyyy-MM-dd HH:mm" in UTC.
-        if (DateTime.TryParseExact(s, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal, out DateTime dt))
+        if (DateTime.TryParseExact(s, "yyyy-MM-dd HH:mm", NumberFormatInfo.InvariantInfo, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal, out DateTime dt))
         {
             return (dt - DateTime.UnixEpoch).TotalMilliseconds;
         }
@@ -280,13 +280,13 @@ internal static class TimeZoneNames
             }
             else if (t.Letter == 'H')
             {
-                sb.Append(h.ToString(isLong ? "00" : "0", CultureInfo.InvariantCulture));
+                sb.Append(h.ToString(isLong ? "00" : "0", NumberFormatInfo.InvariantInfo));
             }
             else if (t.Letter == 'm')
             {
                 if (isLong || m != 0 || s != 0)
                 {
-                    sb.Append(m.ToString("00", CultureInfo.InvariantCulture));
+                    sb.Append(m.ToString("00", NumberFormatInfo.InvariantInfo));
                 }
                 else
                 {
@@ -302,7 +302,7 @@ internal static class TimeZoneNames
         if (s != 0)
         {
             char sep = pattern.Contains('.', StringComparison.Ordinal) ? '.' : ':';
-            sb.Append(sep).Append(s.ToString("00", CultureInfo.InvariantCulture));
+            sb.Append(sep).Append(s.ToString("00", NumberFormatInfo.InvariantInfo));
         }
 
         string gmt = data.GetString("timeZoneNames", "gmtFormat") ?? "GMT{0}";

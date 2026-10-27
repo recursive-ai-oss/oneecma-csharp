@@ -31,7 +31,7 @@ internal sealed class DateNames
                 var months = new string[12];
                 for (int m = 0; m < 12; m++)
                 {
-                    months[m] = d.GetString("gregorian", "months", ctx, Widths[w], (m + 1).ToString(CultureInfo.InvariantCulture)) ?? "";
+                    months[m] = d.GetString("gregorian", "months", ctx, Widths[w], (m + 1).ToString(NumberFormatInfo.InvariantInfo)) ?? "";
                 }
 
                 _months[(s * 3) + w] = months;
@@ -89,7 +89,7 @@ internal sealed class DateNames
         }
     }
 
-    private static int Minutes(string hhmm) => (int.Parse(hhmm[..2], CultureInfo.InvariantCulture) * 60) + int.Parse(hhmm[3..5], CultureInfo.InvariantCulture);
+    private static int Minutes(string hhmm) => (int.Parse(hhmm[..2], NumberFormatInfo.InvariantInfo) * 60) + int.Parse(hhmm[3..5], NumberFormatInfo.InvariantInfo);
 
     internal static DateNames For(string dataLocale, DataTree data) => Cache.GetOrAdd(dataLocale, _ => new DateNames(data));
 

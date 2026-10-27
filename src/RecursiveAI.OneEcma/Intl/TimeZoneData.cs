@@ -29,7 +29,6 @@ internal static class TimeZoneData
     private static readonly object Gate = new();
     private static Dictionary<string, string>? s_canonical;   // lower-case id -> canonical id
     private static Dictionary<string, string>? s_identifiers; // lower-case id -> id as spelled in the time zone database
-    private static string[]? s_supported;
 
     /// <summary>
     /// Validates and canonicalizes a <c>timeZone</c> option (ECMA-402 11.1.2 steps for timeZone):
@@ -70,32 +69,6 @@ internal static class TimeZoneData
 
     /// <summary>The offset in milliseconds of a canonical offset identifier (<c>+05:30</c>).</summary>
     internal static int OffsetOf(string offsetId) => ParseOffset(offsetId) ?? 0;
-
-    /// <summary>
-    /// The value of <c>Intl.supportedValuesOf("timeZone")</c> (ECMA-402 8.3.2): the canonical identifiers, without the
-    /// <c>Etc/</c> and fixed-offset aliases, ascending in code unit order.
-    /// </summary>
-    internal static string[] Supported()
-    {
-        lock (Gate)
-        {
-            if (s_supported is null)
-            {
-                var set = new SortedSet<string>(StringComparer.Ordinal);
-                foreach (string canonical in Map().Values)
-                {
-                    if (!canonical.StartsWith("Etc/", StringComparison.Ordinal) && canonical != "UTC")
-                    {
-                        set.Add(canonical);
-                    }
-                }
-
-                s_supported = [.. set];
-            }
-
-            return s_supported;
-        }
-    }
 
     private static Dictionary<string, string> Map()
     {
@@ -169,7 +142,7 @@ internal static class TimeZoneData
     private static string FormatOffsetId(int ms)
     {
         int abs = Math.Abs(ms) / 60000;
-        return string.Create(CultureInfo.InvariantCulture, $"{(ms < 0 ? '-' : '+')}{abs / 60:00}:{abs % 60:00}");
+        return string.Create(NumberFormatInfo.InvariantInfo, $"{(ms < 0 ? '-' : '+')}{abs / 60:00}:{abs % 60:00}");
     }
 }
 

@@ -15,9 +15,30 @@ internal static class IntlCorpus
     internal static string Dir =>
         Environment.GetEnvironmentVariable("ONEECMA_INTL_CORPUS") is { Length: > 0 } d ? d : Path.Combine(RepoPaths.Root, "testdata", "intl");
 
+    // The larger corpus files are stored gzip-compressed (name.jsonl.gz).
+    private static IEnumerable<string> Lines(string path)
+    {
+        if (File.Exists(path))
+        {
+            return File.ReadLines(path);
+        }
+
+        return ReadGzip(path + ".gz");
+    }
+
+    private static IEnumerable<string> ReadGzip(string path)
+    {
+        using var gz = new System.IO.Compression.GZipStream(File.OpenRead(path), System.IO.Compression.CompressionMode.Decompress);
+        using var reader = new StreamReader(gz, Encoding.UTF8);
+        while (reader.ReadLine() is { } line)
+        {
+            yield return line;
+        }
+    }
+
     internal static IEnumerable<JsonElement> Rows(string file, params string[] kinds)
     {
-        foreach (string line in File.ReadLines(Path.Combine(Dir, file)))
+        foreach (string line in Lines(Path.Combine(Dir, file)))
         {
             if (line.Length == 0)
             {

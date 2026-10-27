@@ -402,7 +402,7 @@ internal sealed class DateTimePatternGenerator
 
         for (int i = 0; i < _fieldNames.Length; i++)
         {
-            _fieldNames[i] = (FieldKeys[i] is { } key ? data.GetString("dateFields", key, "displayName") : null) ?? "F" + (i).ToString(CultureInfo.InvariantCulture);
+            _fieldNames[i] = (FieldKeys[i] is { } key ? data.GetString("dateFields", key, "displayName") : null) ?? "F" + (i).ToString(NumberFormatInfo.InvariantInfo);
         }
 
         _decimal = data.GetString("numbers", "symbols-numberSystem-latn", "decimal") ?? ".";
