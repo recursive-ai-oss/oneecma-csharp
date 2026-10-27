@@ -251,7 +251,7 @@ internal static partial class Vm
                         ag.Realm = f.Realm;
                         st = f.Stack;
                         sp = f.Sp;
-                        pc = f.Pc;
+                        pc = f.Pc + 1;
                         code = f.Code.Ops;
                         fc = f.Code;
                         st[sp++] = JsValue.FromObject(asyncPromise);
@@ -1771,7 +1771,7 @@ internal static partial class Vm
                                 if (yr.Kind == YieldStarKind.Yield)
                                 {
                                     f.Sp = sp;
-                                    f.Pc = pc - 1;
+                                    f.Pc = pc;
                                     f.State = FrameState.SuspendedYield;
                                     ag.CallDepth--;
                                     ag.Frame = f.Caller;
@@ -1781,7 +1781,7 @@ internal static partial class Vm
                                 if (yr.Kind == YieldStarKind.Await)
                                 {
                                     f.Sp = sp;
-                                    f.Pc = pc - 1;
+                                    f.Pc = pc;
                                     f.State = FrameState.Awaiting;
                                     ag.CallDepth--;
                                     Generators.AwaitInFrame(f, yr.Value);

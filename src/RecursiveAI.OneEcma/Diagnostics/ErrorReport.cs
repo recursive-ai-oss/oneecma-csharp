@@ -76,6 +76,11 @@ internal static class ErrorReport
     {
         try
         {
+            if (v.Ref is JsObject o && v.Ref is not JsFunction && o.Get("message") is { IsString: true } m)
+            {
+                return ThrownTypeName(v) + ": " + m.AsString;
+            }
+
             return v.IsString ? "'" + v.AsString + "'" : Ops.DisplayValue(v);
         }
         catch (JsException)

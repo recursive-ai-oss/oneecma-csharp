@@ -626,6 +626,29 @@ internal sealed partial class Compiler
         bool hasSpread = HasSpread(call.Arguments);
         bool direct = call.IsDirectEvalCandidate && callee is Identifier { Name: "eval" };
 
+        if (callee is SuperExpression)
+        {
+            // ECMA-262 13.3.7.1 SuperCall: evaluate the arguments, then construct through the parent constructor.
+            if (hasSpread)
+            {
+                ArgsArray(call.Arguments);
+                SetSpan(call);
+                Emit(Op.SuperCallSpread);
+            }
+            else
+            {
+                foreach (Node a in call.Arguments)
+                {
+                    Expr(a);
+                }
+
+                SetSpan(call);
+                Emit(Op.SuperCall, call.Arguments.Count);
+            }
+
+            return;
+        }
+
         // Push [function, this].
         switch (callee)
         {

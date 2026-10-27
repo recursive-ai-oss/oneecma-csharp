@@ -490,7 +490,7 @@ internal static class ModuleLoader
             ImportRef r;
             if (ie.ImportName is null)
             {
-                r = new ImportRef { Namespace = GetNamespace(target) };
+                r = new ImportRef { NsModule = target };
             }
             else
             {
@@ -546,7 +546,7 @@ internal static class ModuleLoader
                 ModuleRecord imported = m.Requested[ie.Request];
                 if (ie.ImportName is null)
                 {
-                    return new ImportRef { Namespace = GetNamespace(imported) };
+                    return new ImportRef { NsModule = imported };
                 }
 
                 return ResolveExport(imported, ie.ImportName, resolveSet);
@@ -584,7 +584,7 @@ internal static class ModuleLoader
     }
 
     private static bool SameBinding(ImportRef a, ImportRef b) =>
-        a.Namespace is not null || b.Namespace is not null ? ReferenceEquals(a.Namespace, b.Namespace) : ReferenceEquals(a.Env, b.Env) && a.Slot == b.Slot;
+        a.NsModule is not null || b.NsModule is not null ? ReferenceEquals(a.NsModule, b.NsModule) : ReferenceEquals(a.Env, b.Env) && a.Slot == b.Slot;
 
     private static void GetExportedNames(ModuleRecord m, HashSet<string> names, HashSet<ModuleRecord> visited)
     {
@@ -657,9 +657,9 @@ internal static class ModuleLoader
 
     internal static JsValue ReadRef(ImportRef r, string name)
     {
-        if (r.Namespace is not null)
+        if (r.NsModule is not null)
         {
-            return JsValue.FromObject(r.Namespace);
+            return JsValue.FromObject(GetNamespace(r.NsModule));
         }
 
         JsValue v = r.Env!.Slots[r.Slot];

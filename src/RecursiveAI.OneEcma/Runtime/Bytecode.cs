@@ -143,7 +143,7 @@ internal sealed class ImportRef
 {
     internal Env? Env;
     internal int Slot;
-    internal JsObject? Namespace;
+    internal ModuleRecord? NsModule;
     internal string Name = "";
 }
 
