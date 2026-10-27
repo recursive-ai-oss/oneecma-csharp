@@ -10,10 +10,17 @@
     <ToolCommandName>oneecma</ToolCommandName>
     <IsAotCompatible>true</IsAotCompatible>
     <PublishAot>true</PublishAot>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <StripSymbols>true</StripSymbols>
   </PropertyGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="OneEcma.Tests" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="/" />
+    <None Include="../../LICENSE-MIT" Pack="true" PackagePath="/" />
+    <None Include="../../LICENSE-APACHE" Pack="true" PackagePath="/" />
+    <None Include="../../THIRD-PARTY-NOTICES.md" Pack="true" PackagePath="/" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../$(PackagePrefix).OneEcma/$(PackagePrefix).OneEcma.csproj" />
