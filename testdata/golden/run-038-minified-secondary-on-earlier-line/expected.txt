@@ -1,0 +1,10 @@
+error[TypeError]: Cannot read properties of undefined (reading 'ms')
+ --> case.js:3:26
+  |
+2 | const timeout = cfg.timeout;
+  |                 ----------- undefined starts here: `cfg` has no `timeout`
+3 | …ar a=function(t){return t.ms*2},b=function(n){var r=0;for(var i=0;i<n;i++){r+=i}return r},c=function(t){return a(t)+b(10)},total=c(timeout),…
+  |                          ^ `t` is undefined
+  |
+  = help: `cfg` has `retries` but no `timeout`
+  = stack: a (case.js:3) ← c (case.js:3) ← <top-level> (case.js:3)

@@ -14,6 +14,61 @@ internal sealed class Origin(SourceText source, int start, int end, Origin? prev
     internal readonly Origin? Previous = previous;
 }
 
+/// <summary>How an undefined came to be.</summary>
+internal enum UndefinedKind
+{
+    /// <summary>A property read found no such key anywhere on the object or its prototypes.</summary>
+    MissingProperty,
+
+    /// <summary>The key exists and holds undefined.</summary>
+    PropertyHoldsUndefined,
+
+    /// <summary>A script function returned without a value.</summary>
+    CallReturned,
+
+    /// <summary><c>find</c> or <c>findLast</c> matched nothing.</summary>
+    FindNothing,
+}
+
+/// <summary>The record a tagged undefined points at: what produced it and where in the source.</summary>
+internal sealed class UndefinedOrigin
+{
+    internal int Id;
+    internal UndefinedKind Kind;
+    internal SourceText Source = null!;
+    internal int Start;
+    internal int End;
+
+    /// <summary>The object whose property was read.</summary>
+    internal JsObject? Owner;
+
+    /// <summary>The property name, the function name for a call, or the search method for a find.</summary>
+    internal string Key = "";
+
+    internal bool IsElement;
+
+    /// <summary>The array a find searched.</summary>
+    internal JsArray? Receiver;
+}
+
+/// <summary>A call in flight in one frame: it finishes when the frame runs its next instruction.</summary>
+internal sealed class PendingCall(int pc, JsValue fn, JsValue thisValue)
+{
+    internal readonly int Pc = pc;
+    internal readonly JsValue Fn = fn;
+    internal readonly JsValue This = thisValue;
+}
+
+/// <summary>How an array made by <c>filter</c> came out: the call and the lengths before and after.</summary>
+internal sealed class FilterResult(SourceText source, int start, int end, long inputLength, long keptLength)
+{
+    internal readonly SourceText Source = source;
+    internal readonly int Start = start;
+    internal readonly int End = end;
+    internal readonly long InputLength = inputLength;
+    internal readonly long KeptLength = keptLength;
+}
+
 /// <summary>
 /// What a traced replay remembers about where values came from. The recording tracer fills it while the script runs; the
 /// explainer reads it when the error is turned into a report. Held only during a replay, so the lean run pays nothing.
@@ -27,6 +82,244 @@ internal sealed class TraceState
     private readonly Dictionary<string, Origin> _globals = new(StringComparer.Ordinal);
     private readonly ConditionalWeakTable<JsObject, Dictionary<string, Origin>> _props = new();
     private readonly ConditionalWeakTable<JsObject, Origin> _objects = new();
+
+    /// <summary>The operands of the latest arithmetic or bitwise operator the replay started; when such an operator throws, these are the values it threw on.</summary>
+    internal JsValue LastLeft;
+
+    internal JsValue LastRight;
+
+    internal bool HasLastBinary;
+
+    internal void OnBinary(JsValue left, JsValue right)
+    {
+        LastLeft = left;
+        LastRight = right;
+        HasLastBinary = true;
+    }
+
+    // ---- where an undefined came from -------------------------------------------------------------
+    //
+    // An undefined carries no identity, but its number field is free: in a traced replay the operation that produces an undefined
+    // (a property read that finds nothing, a call that returns nothing, a find that matches nothing) writes the id of a record
+    // into that field. Copies of the value, through arguments, returns, bindings and properties, keep the id, so the explainer can
+    // follow an undefined back across function boundaries. Nothing else looks at the field: undefined equality compares references.
+
+    private const int RingSize = 1 << 16;
+
+    private readonly UndefinedOrigin?[] _undefinedRing = new UndefinedOrigin?[RingSize];
+    private int _nextUndefinedId = 1;
+
+    private readonly ConditionalWeakTable<Frame, PendingCall> _pendingCalls = new();
+    private int _pendingCallCount;
+
+    private Frame? _getFrame;
+    private int _getPc;
+    private JsValue _getOwner;
+    private JsValue _getKey;
+    private string? _getName;
+
+    private readonly ConditionalWeakTable<JsObject, FilterResult> _filtered = new();
+
+    /// <summary>The record behind a tagged undefined, or null for any other value.</summary>
+    internal UndefinedOrigin? UndefinedOriginOf(JsValue v)
+    {
+        if (!v.IsUndefined || v.Num < 1)
+        {
+            return null;
+        }
+
+        int id = (int)v.Num;
+        return _undefinedRing[id & (RingSize - 1)] is { } o && o.Id == id ? o : null;
+    }
+
+    /// <summary>What an array made by <c>filter</c> kept, for the note under a <c>find</c> that found nothing in it.</summary>
+    internal FilterResult? FilterOf(JsObject array) => _filtered.TryGetValue(array, out FilterResult? r) ? r : null;
+
+    private int Register(UndefinedOrigin o)
+    {
+        int id = _nextUndefinedId++;
+        o.Id = id;
+        _undefinedRing[id & (RingSize - 1)] = o;
+        return id;
+    }
+
+    /// <summary>Called before every operation of a traced replay: finishes the read or call that the previous operation of this frame started, then starts the next one.</summary>
+    internal void Observe(Frame frame, Instr ins, int pc, JsValue[] st, int sp)
+    {
+        if (_getFrame is not null)
+        {
+            Frame gf = _getFrame;
+            _getFrame = null;
+            if (ReferenceEquals(gf, frame) && pc == _getPc + 1 && sp >= 1 && st[sp - 1].IsUndefined && st[sp - 1].Num == 0)
+            {
+                CompleteGet(frame, st, sp);
+            }
+        }
+
+        if (_pendingCallCount > 0 && _pendingCalls.TryGetValue(frame, out PendingCall? call))
+        {
+            _pendingCalls.Remove(frame);
+            _pendingCallCount--;
+            if (pc == call.Pc + 1 && sp >= 1)
+            {
+                CompleteCall(frame, call, st, sp);
+            }
+        }
+
+        switch (ins.Op)
+        {
+            case Op.GetProp when sp >= 1:
+                _getFrame = frame;
+                _getPc = pc;
+                _getOwner = st[sp - 1];
+                _getKey = default;
+                _getName = frame.Code.Names[ins.A];
+                break;
+            case Op.GetElem when sp >= 2:
+                _getFrame = frame;
+                _getPc = pc;
+                _getOwner = st[sp - 2];
+                _getKey = st[sp - 1];
+                _getName = null;
+                break;
+            case Op.Call when sp >= ins.A + 2:
+                {
+                    int bs = sp - ins.A - 2;
+                    _pendingCalls.AddOrUpdate(frame, new PendingCall(pc, st[bs], st[bs + 1]));
+                    _pendingCallCount++;
+                    break;
+                }
+        }
+    }
+
+    private void CompleteGet(Frame frame, JsValue[] st, int sp)
+    {
+        if (_getOwner.Ref is not JsObject owner || (owner is ProxyObject))
+        {
+            return;
+        }
+
+        string? key = _getName ?? (_getKey.IsString ? _getKey.AsString : _getKey.IsNumber ? Ops.NumberToStr(_getKey.Num) : null);
+        if (key is null)
+        {
+            return;
+        }
+
+        bool present = false;
+        int guard = 0;
+        for (JsObject? o = owner; o is not null && guard++ < 64 && !present; o = o.Proto)
+        {
+            if (o is ProxyObject)
+            {
+                return;
+            }
+
+            present = o.GetOwnProperty(new PropertyKey(key), out PropertyDescriptor d) && !d.IsAccessor;
+            if (!present && o.GetOwnProperty(new PropertyKey(key), out PropertyDescriptor ad) && ad.IsAccessor)
+            {
+                return;
+            }
+        }
+
+        FunctionCode fc = frame.Code;
+        var origin = new UndefinedOrigin
+        {
+            Kind = present ? UndefinedKind.PropertyHoldsUndefined : UndefinedKind.MissingProperty,
+            Source = fc.Source,
+            Start = fc.SpanStart[_getPc],
+            End = ExtendToMember(fc.Source.Text, fc.SpanEnd[_getPc], key, _getName is null),
+            Owner = owner,
+            Key = key,
+            IsElement = _getName is null,
+        };
+        st[sp - 1] = new JsValue(null, Register(origin));
+    }
+
+    private void CompleteCall(Frame frame, PendingCall call, JsValue[] st, int sp)
+    {
+        JsValue result = st[sp - 1];
+        FunctionCode fc = frame.Code;
+        if (result.Ref is JsArray filtered && call.Fn.Ref is NativeFunction { } nf && NativeName(nf) == "filter" && call.This.Ref is JsArray input)
+        {
+            _filtered.AddOrUpdate(filtered, new FilterResult(fc.Source, fc.SpanStart[call.Pc], fc.SpanEnd[call.Pc], input.Length, filtered.Length));
+            return;
+        }
+
+        if (!result.IsUndefined || result.Num != 0)
+        {
+            return;
+        }
+
+        UndefinedOrigin? origin = null;
+        if (call.Fn.Ref is NativeFunction nat && NativeName(nat) is "find" or "findLast" && call.This.Ref is JsArray array)
+        {
+            origin = new UndefinedOrigin { Kind = UndefinedKind.FindNothing, Receiver = array, Key = NativeName(nat) };
+        }
+        else if (call.Fn.Ref is ScriptFunction sf)
+        {
+            origin = new UndefinedOrigin { Kind = UndefinedKind.CallReturned, Key = sf.Code.Name };
+        }
+
+        if (origin is null)
+        {
+            return;
+        }
+
+        origin.Source = fc.Source;
+        origin.Start = fc.SpanStart[call.Pc];
+        origin.End = fc.SpanEnd[call.Pc];
+        st[sp - 1] = new JsValue(null, Register(origin));
+    }
+
+    /// <summary>The recorded span of a property read stops after the object; this takes in the <c>.name</c> or <c>[key]</c> that follows.</summary>
+    private static int ExtendToMember(string text, int end, string key, bool element)
+    {
+        int i = end;
+        while (i < text.Length && char.IsWhiteSpace(text[i]))
+        {
+            i++;
+        }
+
+        if (element)
+        {
+            if (i >= text.Length || text[i] != '[')
+            {
+                return end;
+            }
+
+            int depth = 0;
+            for (int j = i; j < text.Length; j++)
+            {
+                depth += text[j] == '[' ? 1 : text[j] == ']' ? -1 : 0;
+                if (depth == 0)
+                {
+                    return j + 1;
+                }
+            }
+
+            return end;
+        }
+
+        if (i < text.Length && text[i] == '?')
+        {
+            i++;
+        }
+
+        if (i >= text.Length || text[i] != '.')
+        {
+            return end;
+        }
+
+        i++;
+        while (i < text.Length && char.IsWhiteSpace(text[i]))
+        {
+            i++;
+        }
+
+        return string.CompareOrdinal(text, i, key, 0, key.Length) == 0 ? i + key.Length : end;
+    }
+
+    private static string NativeName(NativeFunction f) => f.GetOwnProperty(new PropertyKey("name"), out PropertyDescriptor d) && !d.IsAccessor && d.Value.IsString ? d.Value.AsString : string.Empty;
 
     internal Origin? BindingOrigin(Env env, int slot) => _bindings.TryGetValue(env, out Origin?[]? a) && slot < a.Length ? a[slot] : null;
 
@@ -124,6 +417,7 @@ internal struct RecordingTrace : ITracer
 {
     public readonly void OnOp(Frame frame, Instr ins, int pc, JsValue[] st, int sp)
     {
+        Agent.CurrentOrNull?.Trace?.Observe(frame, ins, pc, st, sp);
         switch (ins.Op)
         {
             case Op.InitSlot:
@@ -135,6 +429,13 @@ internal struct RecordingTrace : ITracer
             case Op.SetProp:
             case Op.SetElem:
                 Agent.CurrentOrNull?.Trace?.OnStore(frame, ins, pc, st, sp);
+                break;
+            case >= Op.Add and <= Op.UShr:
+                if (sp >= 2)
+                {
+                    Agent.CurrentOrNull?.Trace?.OnBinary(st[sp - 2], st[sp - 1]);
+                }
+
                 break;
         }
     }

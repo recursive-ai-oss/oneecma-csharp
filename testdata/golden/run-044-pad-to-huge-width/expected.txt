@@ -1,0 +1,9 @@
+error[RangeError]: Invalid string length
+ --> case.js:2:13
+  |
+2 | console.log("7".padStart(width, "0"));
+  |             ^^^^^^^^^^^^ `padStart` would pad to 2147483648 characters, past the limit of 536870888
+  |                          ----- the target length is 2147483648
+  |
+  = help: pass the width you mean; the target length is the length of the whole result, not the number of padding characters
+  = stack: <top-level> (case.js:2)

@@ -1,0 +1,16 @@
+{
+  "id": "run-045-upstream-missing-property-through-calls",
+  "category": "rt:undefined-property",
+  "kind": "runtime",
+  "repair": null,
+  "node": {
+    "name": "TypeError",
+    "message": "Cannot read properties of undefined (reading 'reduce')",
+    "line": 8,
+    "column": 16,
+    "stack_head": [
+      "  return lines.reduce((n, l) => n + l.qty, 0);",
+      "               ^"
+    ]
+  }
+}

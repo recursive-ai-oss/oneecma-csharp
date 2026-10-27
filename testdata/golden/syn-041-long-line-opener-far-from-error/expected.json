@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "format": "oneecma.report",
+  "summary": {
+    "errors": 1,
+    "warnings": 0,
+    "repairs": 0
+  },
+  "diagnostics": [
+    {
+      "kind": "SyntaxError",
+      "code": "missing-paren-after-args",
+      "severity": "error",
+      "headline": "missing ) after argument list",
+      "source": {
+        "name": "case.js",
+        "length": 332
+      },
+      "span": {
+        "start": 315,
+        "end": 316,
+        "line": 1,
+        "column": 316,
+        "endLine": 1,
+        "endColumn": 317
+      },
+      "label": "expected `,` or `)` before this `;`",
+      "secondary": [
+        {
+          "span": {
+            "start": 8,
+            "end": 16,
+            "line": 1,
+            "column": 9,
+            "endLine": 1,
+            "endColumn": 17
+          },
+          "message": "the argument list opened here is never closed"
+        }
+      ],
+      "notes": [
+        "not repaired automatically: `)` could also belong after a later argument"
+      ],
+      "help": [
+        "add `)` before `;`: `compute({id:0,name:\"item0\"}, {id:1,name:\"item1\"}, {id:2,name:\"item2\"}, {id:3,name:\"item3\"}, {id:4,name:\"item4\"}, {id:5,name:\"item5\"}, {id:6,name:\"item6\"}, {id:7,name:\"item7\"}, {id:8,name:\"item8\"}, {id:9,name:\"item9\"}, {id:10,name:\"item10\"}, {id:11,name:\"item11\"}, {id:12,name:\"item12\"}, {id:13,name:\"item13\"});`"
+      ],
+      "fixes": [
+        {
+          "description": "add the missing `)`",
+          "edits": [
+            {
+              "start": 316,
+              "length": 0,
+              "line": 1,
+              "column": 317,
+              "text": ")"
+            }
+          ]
+        }
+      ],
+      "recovery": [
+        {
+          "action": "insertedToken",
+          "span": {
+            "start": 316,
+            "end": 316,
+            "line": 1,
+            "column": 317,
+            "endLine": 1,
+            "endColumn": 317
+          },
+          "text": ")"
+        }
+      ]
+    }
+  ]
+}

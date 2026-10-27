@@ -88,23 +88,31 @@ public sealed class RecordReplayTests
     [Fact]
     public async Task AsyncHostMethodsSettleAtTheirRecordedPlace()
     {
+        // Each call returns a task the test completes by hand, so the order of settlement is fixed without any real delay.
         var engine = new ScriptEngine();
+        var pending = new List<(double N, TaskCompletionSource<double> Done)>();
         engine.DefineGlobalFunction("later", 1, (_, a) =>
         {
             double n = engine.MainRealm.ToNumber(a[0]);
+            var done = new TaskCompletionSource<double>(TaskCreationOptions.RunContinuationsAsynchronously);
+            pending.Add((n, done));
             return JsMarshal.FromTask(engine.MainRealm, "later", async () =>
             {
-                await Task.Delay((int)n);
+                double v = await done.Task;
                 if (n > 20)
                 {
                     throw new InvalidOperationException("too slow: " + n);
                 }
 
-                return n * 2;
+                return v * 2;
             }, (_, v) => JsValue.FromNumber(v));
         });
-        const string src = "globalThis.out = []; later(5).then(v => out.push('a' + v)); later(250).catch(e => out.push('b ' + e.message)); Promise.resolve().then(() => out.push('first'));";
+        const string src = "globalThis.out = []; globalThis.aDone = new Promise(r => { globalThis.resolveA = r; }); later(5).then(v => { out.push('a' + v); resolveA(); }); later(250).catch(e => out.push('b ' + e.message)); Promise.resolve().then(() => out.push('first'));";
         engine.Evaluate(src, "t.js", TestContext.Current.CancellationToken);
+        Assert.Equal(2, pending.Count);
+        pending[0].Done.SetResult(5);
+        await engine.AwaitAsync(engine.Evaluate("aDone", cancellationToken: TestContext.Current.CancellationToken), TestContext.Current.CancellationToken);
+        pending[1].Done.SetResult(250);
         await engine.RunUntilIdleAsync(TestContext.Current.CancellationToken);
         string recorded = Show(engine, engine.Evaluate("out.join('|')", cancellationToken: TestContext.Current.CancellationToken));
         Assert.Equal("first|a10|b InvalidOperationException: too slow: 250", recorded);
@@ -148,7 +156,7 @@ public sealed class RecordReplayTests
         JsValue fn = engine.Evaluate("(x) => x + 1", cancellationToken: TestContext.Current.CancellationToken);
         engine.Call(fn, default, [JsValue.FromNumber(1)], TestContext.Current.CancellationToken);
         Assert.False(engine.RecordLog.IsReplayable);
-        Assert.Contains("ScriptEngine.Call", engine.RecordLog.NotReplayableReason, StringComparison.Ordinal);
+        Assert.Contains("never passed to a host function", engine.RecordLog.NotReplayableReason, StringComparison.Ordinal);
         Assert.Throws<InvalidOperationException>(() => ScriptEngine.Replay(engine.RecordLog, null, TestContext.Current.CancellationToken));
     }
 

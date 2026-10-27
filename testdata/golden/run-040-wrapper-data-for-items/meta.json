@@ -1,0 +1,16 @@
+{
+  "id": "run-040-wrapper-data-for-items",
+  "category": "rt:undefined-property",
+  "kind": "runtime",
+  "repair": null,
+  "node": {
+    "name": "TypeError",
+    "message": "Cannot read properties of undefined (reading 'map')",
+    "line": 2,
+    "column": 21,
+    "stack_head": [
+      "console.log(r.items.map(x => x * 2));",
+      "                    ^"
+    ]
+  }
+}

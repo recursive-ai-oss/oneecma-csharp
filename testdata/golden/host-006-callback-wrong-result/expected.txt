@@ -6,5 +6,4 @@ error[TypeError]: Shop.OrderApi.Find: the value returned by callback 'predicate'
   |
   = help: pass true or false; Boolean(value) converts
   = note: host function: Shop.OrderApi.Find(Func<Order, bool> predicate)
-  = note: explanation unavailable: the run cannot be replayed: JsRealm.Call was used, and its function argument is not part of the log
   = stack: Shop.OrderApi.Find [.NET] ← <top-level> (case.js:2)

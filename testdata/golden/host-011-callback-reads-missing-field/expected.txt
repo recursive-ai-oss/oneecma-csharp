@@ -1,0 +1,8 @@
+error[TypeError]: Cannot read properties of undefined (reading 'name')
+ --> case.js:2:39
+  |
+2 | const found = api.find(order => order.customer.name === "Ada");
+  |                                       ^^^^^^^^ `order.customer` is undefined
+  |
+  = help: guard it: `order.customer?.name`
+  = stack: <anonymous> (case.js:2) ← <top-level> (case.js:2)

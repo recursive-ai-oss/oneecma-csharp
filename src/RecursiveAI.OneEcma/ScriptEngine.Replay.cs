@@ -147,6 +147,20 @@ public sealed partial class ScriptEngine
                         break;
                     }
 
+                case LogTag.Callback:
+                    {
+                        // A function script gave to the host, called by .NET code outside any host function: an entry call.
+                        r.Tag();
+                        Finish(rec, result, () => Guard(() =>
+                        {
+                            rec.EntryCount++;
+                            (JsValue value, JsException? thrown) = rec.RunRecordedCallback(_realm, nested: false);
+                            TrackEntryPromise(rec.EntryCount - 1, value);
+                            return thrown is null ? value : throw thrown;
+                        }, token), options);
+                        break;
+                    }
+
                 case LogTag.Await:
                     {
                         // The host marked the promise of an earlier entry call as handled before waiting for it (ScriptEngine.Await).
@@ -278,6 +292,115 @@ public sealed partial class ScriptEngine
             throw;
         }
     }
+
+    /// <summary>
+    /// Calls a script function on behalf of .NET code and logs the call so a replay re-enters the script at the same point. Inside a
+    /// host function the call is written as a nested Callback event; made by itself (an event handler fired by the host, a
+    /// continuation of an async host method) it is an entry call of its own. A function script never passed to a host function, or
+    /// arguments that are not data, make the log not replayable.
+    /// </summary>
+    internal JsValue CallFromHost(Realm? realm, JsValue function, JsValue thisValue, JsValue[] args, CancellationToken token)
+    {
+        Recorder rec = _recorder;
+        JsValue Body() => Ops.Call(function, thisValue, args);
+        if (rec.Replaying)
+        {
+            // A live host function recomputed after a replay was handed the results of the callbacks it made.
+            if (rec.Queued is { Count: > 0 } queue)
+            {
+                (JsValue value, JsException? thrown) = queue.Dequeue();
+                return thrown is null ? value : throw thrown;
+            }
+
+            return Guard(Body, token, realm);
+        }
+
+        if (realm is not null && !ReferenceEquals(realm, _realm))
+        {
+            NoteNotReplayable("a script function was called in a second realm");
+            return Guard(Body, token, realm);
+        }
+
+        if (!rec.Log.IsReplayable)
+        {
+            return Guard(Body, token, realm);
+        }
+
+        string reason = string.Empty;
+        if (!InAgent(() => rec.CanDescribeCallback(function, thisValue, args, out reason)))
+        {
+            NoteNotReplayable(reason);
+            return Guard(Body, token, realm);
+        }
+
+        bool alone = _active == 0 || (_inHostContinuation && !rec.InHostFn);
+        if (!alone)
+        {
+            if (!rec.InHostFn)
+            {
+                NoteNotReplayable("a script function was called from .NET while script was running, outside the host function that received it");
+                return Guard(Body, token, realm);
+            }
+
+            rec.WriteCallback(function, thisValue, args);
+            rec.InHostFn = false;
+            try
+            {
+                JsValue v = Body();
+                rec.WriteCallbackEnd(false);
+                return v;
+            }
+            catch (JsException e)
+            {
+                rec.WriteCallbackEnd(true);
+                rec.LastCallbackError = e;
+                throw;
+            }
+            finally
+            {
+                rec.InHostFn = true;
+            }
+        }
+
+        int index = rec.EntryCount++;
+        InAgent(() =>
+        {
+            rec.WriteCallback(function, thisValue, args);
+            return 0;
+        });
+        bool continuation = _inHostContinuation;
+        _inHostContinuation = false;
+        try
+        {
+            JsValue value = Guard(Body, token, realm);
+            EndEntry(null);
+            TrackEntryPromise(index, value);
+            return value;
+        }
+        catch (JsException e)
+        {
+            EndEntry(e.Report?.Headline ?? e.Message);
+            Explain(e, index);
+            throw;
+        }
+        catch (JsLimitException e)
+        {
+            EndEntry(e.Message);
+            throw;
+        }
+        catch (OperationCanceledException)
+        {
+            EndEntry("cancelled");
+            throw;
+        }
+        finally
+        {
+            _inHostContinuation = continuation;
+        }
+    }
+
+    /// <summary>Runs <paramref name="body"/> with the engine's agent current: as is inside a running call, in a guarded call otherwise.</summary>
+    private T InAgent<T>(Func<T> body) => _active > 0 ? body() : Guard(body, default);
 
     private void EndEntry(string? failure)
     {

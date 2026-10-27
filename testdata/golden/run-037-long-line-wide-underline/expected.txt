@@ -1,0 +1,7 @@
+error[ReferenceError]: computeAll is not defined
+ --> case.js:1:9
+  |
+1 | var r = computeAll({id:0,name:"item0"}, {id:1,name:"item1"}, {id:2,name:"item2"}, {id:3,name:"item3"}, {id:4,name:"item4"}, {id:5,name:"item…
+  |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^… `computeAll` is not declared in this scope (underline cut at the window edge)
+  |
+  = stack: <top-level> (case.js:1)
