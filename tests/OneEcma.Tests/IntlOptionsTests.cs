@@ -70,3 +70,27 @@ public class IntlOptionsTests
         Assert.Throws<IntlException>(() => LocaleOptions.Apply("en", new LocaleOptionsInput { HourCycle = "h13" }));
     }
 }
+
+public class IntlExtremeInputTests
+{
+    [Theory]
+    [InlineData("1e100000")]
+    [InlineData("1e-100000")]
+    public void HugeExponentsFormatWithoutRecursionOrBlowup(string text)
+    {
+        var nf = NumberFormatService.Create(["en"], new NumberFormatOptions { Notation = "compact" }, "en-US");
+        Assert.NotEmpty(nf.Format(DecimalNumber.ParseNumericString(text)));
+    }
+
+    [Fact]
+    public void LongListFormats()
+    {
+        var lf = ListFormatService.Create(["es"], null, null, "en-US");
+        string[] items = [.. Enumerable.Range(0, 200_000).Select(i => "x" + i)];
+        Assert.EndsWith(" y x199999", lf.Format(items), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ExponentBeyondTheLimitIsARangeError() =>
+        Assert.Equal(IntlErrorKind.Range, Assert.Throws<IntlException>(() => DecimalNumber.ParseNumericString("1e100000000")).Kind);
+}

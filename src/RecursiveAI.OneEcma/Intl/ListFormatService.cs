@@ -102,7 +102,54 @@ internal sealed class ListFormatService
             return Merge(parts);
         }
 
-        // Built from the right: the end pattern joins the last two, middle patterns add elements, start the first.
+        // Each pattern reads pre{0}mid{1}post, with the rest of the list nested inside {1}: the pieces before {1}
+        // are emitted left to right and the "post" pieces in reverse, so the work is linear in the list length.
+        if (Split(_start) is not { } start || Split(_middle) is not { } middle || Split(Spanish(_end, list[n - 1])) is not { } end)
+        {
+            return FormatNested(list);
+        }
+
+        parts.Add(new ListPart("literal", start.Pre));
+        parts.Add(new ListPart("element", list[0]));
+        parts.Add(new ListPart("literal", start.Mid));
+        for (int i = 1; i <= n - 3; i++)
+        {
+            parts.Add(new ListPart("literal", middle.Pre));
+            parts.Add(new ListPart("element", list[i]));
+            parts.Add(new ListPart("literal", middle.Mid));
+        }
+
+        parts.Add(new ListPart("literal", end.Pre));
+        parts.Add(new ListPart("element", list[n - 2]));
+        parts.Add(new ListPart("literal", end.Mid));
+        parts.Add(new ListPart("element", list[n - 1]));
+        parts.Add(new ListPart("literal", end.Post));
+        for (int i = n - 3; i >= 1; i--)
+        {
+            parts.Add(new ListPart("literal", middle.Post));
+        }
+
+        parts.Add(new ListPart("literal", start.Post));
+        return Merge(parts);
+    }
+
+    private static (string Pre, string Mid, string Post)? Split(string pattern)
+    {
+        int zero = pattern.IndexOf("{0}", StringComparison.Ordinal);
+        int one = pattern.IndexOf("{1}", StringComparison.Ordinal);
+        if (zero < 0 || one < zero + 3)
+        {
+            return null;
+        }
+
+        return (pattern[..zero], pattern[(zero + 3)..one], pattern[(one + 3)..]);
+    }
+
+    // Fallback for a pattern that does not read {0} before {1}: expand from the right.
+    private List<ListPart> FormatNested(IReadOnlyList<string> list)
+    {
+        int n = list.Count;
+        var parts = new List<ListPart>();
         var tail = new List<ListPart>();
         Apply(Spanish(_end, list[n - 1]), list[n - 2], list[n - 1], tail, null);
         for (int i = n - 3; i >= 1; i--)
