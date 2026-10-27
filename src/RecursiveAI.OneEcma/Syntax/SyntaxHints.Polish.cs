@@ -447,7 +447,7 @@ internal static partial class SyntaxHints
             return;
         }
 
-        if (d.Help.Count > 0 && d.Help[0].StartsWith("add `)` before", StringComparison.Ordinal))
+        if (d.Help.Count > 0 && d.Help[0].StartsWith("add `)", StringComparison.Ordinal) && d.Help[0].Contains("` before `", StringComparison.Ordinal))
         {
             d.Notes.Add(ClosesBeforeLineEndingSemicolon(d)
                 ? "repair is off by default; with it on, R012 closes it before the `;` that ends the line, though `)` could also belong after a later argument"
@@ -456,9 +456,9 @@ internal static partial class SyntaxHints
 
         foreach (RecoveryAction r in d.Recovery)
         {
-            if (r.Kind == RecoveryKind.InsertedToken && r.Text == ")")
+            if (r.Kind == RecoveryKind.InsertedToken && r.Text.Length > 0 && r.Text.All(ch => ch == ')'))
             {
-                AddFix(d, "add the missing `)`", new TextEdit(r.Span.Start, 0, ")"));
+                AddFix(d, "add the missing `" + r.Text + "`", new TextEdit(r.Span.Start, 0, r.Text));
                 break;
             }
         }

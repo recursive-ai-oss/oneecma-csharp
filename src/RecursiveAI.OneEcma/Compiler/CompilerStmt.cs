@@ -397,9 +397,24 @@ internal sealed partial class Compiler
     private (int Start, int End)? _destructureSpan;
 
     /// <summary>V8 prints the initializer in "x is not iterable" when it is a name or a literal; any other expression is named by the value's type.</summary>
-    private static string IterTextFor(Node init) => init is Identifier or NullLiteral or BooleanLiteral or NumberLiteral or ThisExpression or RegExpLiteral or ObjectLiteral
-        ? CalleeText(init)
-        : "\u0002";
+    private static string IterTextFor(Node init) => init switch
+    {
+        Identifier or NullLiteral or BooleanLiteral or NumberLiteral or ThisExpression or RegExpLiteral or ObjectLiteral => CalleeText(init),
+        // V8 names the callee when it is a plain name (`const [a] = f()`), and the value's type for every other call.
+        CallExpression c when IsPlainCallee(c.Callee) => WholeMessage + IterCalleeText(c.Callee) + NotFunctionOrIterable,
+        NewExpression { Callee: Identifier ne } => WholeMessage + ne.Name + NotFunctionOrIterable,
+        _ => "\u0002",
+    };
+
+    private static bool IsPlainCallee(Node callee)
+    {
+        while (callee is CallExpression c)
+        {
+            callee = c.Callee;
+        }
+
+        return callee is Identifier;
+    }
 
     private string SourceSlice(Node n)
     {
@@ -597,7 +612,8 @@ internal sealed partial class Compiler
         }
 
         SetSpan(fo.Right);
-        Emit(Op.GetIterator, isAwait ? 1 : 0, TextConst(fo.Right));
+        SetIterPosition(fo.Right);
+        Emit(Op.GetIterator, isAwait ? 1 : 0, IterConst(fo.Right, isAwait, true));
         SetSpan(fo);
         Control c = new() { Kind = Control.K.IterLoop, Labels = labels, Break = NewLabel(), Continue = NewLabel(), StackItems = 2, Async = isAwait, RecordDepth = _f.Depth };
         _f.Controls.Add(c);

@@ -1653,6 +1653,13 @@ internal static partial class Vm
                                 IteratorRecord rec;
                                 if (ins.A == 1)
                                 {
+                                    string asyncText = fc.Names[ins.B];
+                                    if (asyncText.Length > 0 && asyncText[0] == '\u0003'
+                                        && (iterable.IsNullish || !(Ops.IsCallable(Ops.GetV(iterable, new PropertyKey(WellKnown.AsyncIterator))) || Ops.IsCallable(Ops.GetV(iterable, new PropertyKey(WellKnown.Iterator))))))
+                                    {
+                                        throw Errors.Type(asyncText[1..]);
+                                    }
+
                                     rec = Ops.GetIterator(iterable, true);
                                 }
                                 else

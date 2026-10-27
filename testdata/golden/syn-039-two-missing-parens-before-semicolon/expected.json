@@ -42,18 +42,18 @@
         "repair is off by default; with it on, R012 closes it before the `;` that ends the line, though `)` could also belong after a later argument"
       ],
       "help": [
-        "add `)` before `;`: `double(21);`"
+        "add `))` before `;`: `double(21));`"
       ],
       "fixes": [
         {
-          "description": "add the missing `)`",
+          "description": "add the missing `))`",
           "edits": [
             {
               "start": 58,
               "length": 0,
               "line": 2,
               "column": 22,
-              "text": ")"
+              "text": "))"
             }
           ]
         }
@@ -69,7 +69,7 @@
             "endLine": 2,
             "endColumn": 22
           },
-          "text": ")"
+          "text": "))"
         }
       ]
     }

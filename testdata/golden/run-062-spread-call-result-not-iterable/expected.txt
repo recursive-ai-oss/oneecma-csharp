@@ -1,0 +1,8 @@
+error[TypeError]: loadRows is not a function or its return value is not iterable
+ --> case.js:4:17
+  |
+4 | const all = [...loadRows()];
+  |                 ^^^^^^^^^^ `loadRows(...)` returned something that is not iterable
+  |
+  = help: make `loadRows` return an array or another iterable; for a plain object loop over `Object.keys(...)`, `Object.values(...)` or `Object.entries(...)`
+  = stack: <top-level> (case.js:4)

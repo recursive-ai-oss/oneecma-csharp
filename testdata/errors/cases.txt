@@ -1245,3 +1245,64 @@ try {
   }
 } catch (e) { log.push(e.name); }
 globalThis.__e = log.join(",");
+//// iter-forof-method-call-number
+const obj = { items() { return 5; } };
+for (const x of obj.items()) {}
+//// iter-forof-method-call-object
+const obj = { items() { return {}; } };
+for (const x of obj.items()) {}
+//// iter-forof-method-call-undefined
+const obj = { items() {} };
+for (const x of obj.items()) {}
+//// iter-forof-call-plain
+function g() { return 1; }
+for (const x of g()) {}
+//// iter-forof-call-nested
+const ctx = { a: { b: { c() { return 1; } } } };
+for (const x of ctx.a.b.c()) {}
+//// iter-forof-call-index
+const obj = { items() { return 5; } };
+for (const x of obj["items"]()) {}
+//// iter-forof-new
+for (const x of new Object()) {}
+//// iter-forof-call-comma
+const ctx = { f() { return 1; } };
+for (const x of (0, ctx.f)()) {}
+//// iter-spread-array-call
+const obj = { items() { return 5; } };
+[...obj.items()];
+//// iter-spread-array-call-object
+const obj = { o() { return {}; } };
+[...obj.o()];
+//// iter-spread-args-call
+const obj = { items() { return 5; } };
+Math.max(...obj.items());
+//// iter-destructure-method-call-number
+const obj = { items() { return 5; } };
+const [a] = obj.items();
+//// iter-destructure-method-call-object
+const obj = { o() { return {}; } };
+const [a] = obj.o();
+//// iter-destructure-call-plain
+function g() { return {}; }
+const [a] = g();
+//// iter-destructure-assign-call
+const obj = { o() { return {}; } };
+let a;
+[a] = obj.o();
+//// iter-yield-star-call
+const obj = { items() { return 5; } };
+function* g() { yield* obj.items(); }
+[...g()];
+//// iter-forof-param
+function g(p) { for (const x of p) {} }
+g(1);
+//// iter-new-set-call
+const obj = { items() { return 5; } };
+new Set(obj.items());
+//// iter-forof-optional-call
+const obj = { o() { return {}; } };
+for (const x of obj.o?.()) {}
+//// iter-forawait-call
+const obj = { o() { return {}; } };
+(async () => { try { for await (const x of obj.o()) {} } catch (e) { globalThis.__e = e; } })();
