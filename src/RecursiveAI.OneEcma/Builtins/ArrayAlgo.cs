@@ -107,7 +107,7 @@ internal static class ArrayAlgo
         if (!o.Set(k, v, JsValue.FromObject(o)))
         {
             // V8 names the frozen length when an element cannot be added because of it.
-            if (o is JsArray { LengthWritable: false } ja && k.TryGetIndex(out uint idx) && idx >= ja.Length)
+            if (o is JsArray { LengthWritable: false, Extensible: true } ja && k.TryGetIndex(out uint idx) && idx >= ja.Length)
             {
                 throw Errors.Type("Cannot assign to read only property 'length' of object '[object Array]'");
             }

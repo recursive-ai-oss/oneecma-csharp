@@ -499,22 +499,16 @@ internal static class ArrayProto
 
     // ---- mutators --------------------------------------------------------------------------------------------------------
 
-    /// <summary>True for a dense array whose slots 0..length-1 are all present, so element moves are plain copies.</summary>
-    private static bool Packed(JsObject o, out JsArray ja)
+    /// <summary>
+    /// True for a dense array that can be moved with plain copies: nothing on its prototype chain can see an index, so a hole
+    /// copied from one slot to another is the same as the spec's "delete the target when the source is absent", and every
+    /// property is a default data property, so no store can fail. The copy charges a small amount of fuel for its length.
+    /// </summary>
+    private static bool Movable(JsObject o, out JsArray ja)
     {
-        if (o is JsArray arr && arr.Dense is not null && arr.Count == arr.Length)
+        if (o is JsArray arr && arr.Dense is not null && arr.Count == arr.Length && arr.Extensible && arr.LengthWritable && Alg.ChainIndexFree(arr))
         {
-            Agent.Current.Charge(arr.Count);
-            JsValue[] d = arr.Dense;
-            for (int i = 0; i < arr.Count; i++)
-            {
-                if (d[i].IsHole)
-                {
-                    ja = arr;
-                    return false;
-                }
-            }
-
+            Agent.Current.Charge((arr.Count / 64) + 1);
             ja = arr;
             return true;
         }
@@ -578,9 +572,9 @@ internal static class ArrayProto
             return default;
         }
 
-        if (Packed(o, out JsArray ja) && ja.LengthWritable)
+        if (Movable(o, out JsArray ja))
         {
-            JsValue first = ja.Dense![0];
+            JsValue first = ja.Dense![0].IsHole ? Alg.Get(o, 0) : ja.Dense![0];
             Array.Copy(ja.Dense, 1, ja.Dense, 0, ja.Count - 1);
             ja.Dense[ja.Count - 1] = default;
             ja.Count--;
@@ -618,13 +612,14 @@ internal static class ArrayProto
                 throw Errors.Type("Invalid array length");
             }
 
-            if (Packed(o, out JsArray ja) && ja.Extensible && ja.LengthWritable && ja.Count + (long)argCount < int.MaxValue / 2 && Alg.ChainIndexFree(ja))
+            if (Movable(o, out JsArray ja) && ja.Count + (long)argCount < int.MaxValue / 2)
             {
-                Agent.Current.Alloc((ja.Count + argCount) * 16L);
                 int count = ja.Count;
                 if (count + argCount > ja.Dense!.Length)
                 {
-                    Array.Resize(ref ja.Dense, Math.Max(count + argCount, count * 2));
+                    int capacity = Math.Max(count + argCount, count * 2);
+                    Agent.Current.Alloc(capacity * 16L);
+                    Array.Resize(ref ja.Dense, capacity);
                 }
 
                 Array.Copy(ja.Dense, 0, ja.Dense, argCount, count);
@@ -662,7 +657,7 @@ internal static class ArrayProto
     {
         JsObject o = Alg.This(t, null);
         long len = Ops.LengthOfArrayLike(o);
-        if (Packed(o, out JsArray ja))
+        if (Movable(o, out JsArray ja))
         {
             Array.Reverse(ja.Dense!, 0, ja.Count);
             return JsValue.FromObject(o);
@@ -832,7 +827,7 @@ internal static class ArrayProto
         Alg.SetLength(res, deleteCount);
         if (itemCount < deleteCount)
         {
-            if (Packed(o, out JsArray ja) && ja.LengthWritable)
+            if (Movable(o, out JsArray ja) && ja.Count == len)
             {
                 int tail = ja.Count - (int)(start + deleteCount);
                 Array.Copy(ja.Dense!, start + deleteCount, ja.Dense!, start + itemCount, tail);
@@ -865,13 +860,14 @@ internal static class ArrayProto
         }
         else if (itemCount > deleteCount)
         {
-            if (Packed(o, out JsArray ja) && ja.Extensible && ja.LengthWritable && len + itemCount - deleteCount < int.MaxValue / 2 && Alg.ChainIndexFree(ja))
+            if (Movable(o, out JsArray ja) && ja.Count == len && len + itemCount - deleteCount < int.MaxValue / 2)
             {
                 int grow = (int)(itemCount - deleteCount);
-                Agent.Current.Alloc((len + grow) * 16);
                 if (ja.Count + grow > ja.Dense!.Length)
                 {
-                    Array.Resize(ref ja.Dense, Math.Max(ja.Count + grow, ja.Count * 2));
+                    int capacity = Math.Max(ja.Count + grow, ja.Count * 2);
+                    Agent.Current.Alloc(capacity * 16L);
+                    Array.Resize(ref ja.Dense, capacity);
                 }
 
                 Array.Copy(ja.Dense, start + deleteCount, ja.Dense, start + itemCount, ja.Count - (start + deleteCount));
