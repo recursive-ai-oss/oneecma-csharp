@@ -23,3 +23,7 @@ The three fetch/install scripts take their destination from `ONEECMA_HOME` (defa
 ## locale data
 
 `tools/locale-data/fetch.sh` downloads the pinned CLDR 48.0 and UCD 17.0.0 inputs (SHA-256 verified) to `~/oneecma/locale-data/` (override with `ONEECMA_LOCALE_DATA`). `tools/LocaleDataGen` turns them into the embedded blobs under `src/RecursiveAI.OneEcma/Intl/Data/Generated/`; the output is deterministic. Format, pins and how to add a locale: `docs/locale-data.md`.
+
+## text-service differentials
+
+`tools/text-diff/` records the reference Node's `Intl.Collator` and `Intl.Segmenter` output for the committed corpora in `testdata/text/` (`gen-collation.js`, `gen-segmentation.js`; `make-collation-corpus.py` writes the collation corpus). The tests compare the engine's collator and segmenter with those recordings; the conformance tests for normalization, collation and segmentation read the Unicode test files that `tools/locale-data/fetch.sh` downloads. See `docs/text-services.md`.

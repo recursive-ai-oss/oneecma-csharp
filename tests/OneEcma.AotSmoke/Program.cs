@@ -1,5 +1,6 @@
 using RecursiveAI.OneEcma;
 using RecursiveAI.OneEcma.Diagnostics;
+using RecursiveAI.OneEcma.TextServices;
 
 // Published with NativeAOT in CI: the build must produce no trim or AOT warnings and this must run.
 var engine = new ScriptEngine();
@@ -24,6 +25,44 @@ if (!repaired.Parses || repaired.Repairs.Count != 2
     || !repairReport.StartsWith("repair[R001]: removed an extra closing delimiter", StringComparison.Ordinal))
 {
     Console.Error.WriteLine("smoke: unexpected repair\n" + repairReport);
+    return 1;
+}
+
+// Text services: normalization, collation (with a tailoring and numeric ordering) and segmentation.
+if (Normalizer.Normalize("e\u0301", NormalizationForm.Nfc) != "\u00E9"
+    || Normalizer.Normalize("\uFB01", NormalizationForm.Nfkd) != "fi"
+    || !Normalizer.IsNormalized("abc", NormalizationForm.Nfd))
+{
+    Console.Error.WriteLine("smoke: normalization");
+    return 1;
+}
+
+TextCollator spanish = TextCollator.Create("es");
+TextCollator numeric = TextCollator.Create("en", new CollatorOptions { Numeric = true });
+if (spanish.Compare("\u00F1", "nz") <= 0 || numeric.Compare("a2", "a10") >= 0 || spanish.GetSortKey("a").Length == 0)
+{
+    Console.Error.WriteLine("smoke: collation");
+    return 1;
+}
+
+int words = 0;
+int graphemes = 0;
+foreach (TextSegment s in TextSegmenter.Enumerate("Hello, wor\u0301ld!", SegmentGranularity.Word))
+{
+    if (s.IsWordLike)
+    {
+        words++;
+    }
+}
+
+foreach (TextSegment s in TextSegmenter.Enumerate("e\u0301\uD83C\uDDFA\uD83C\uDDF8", SegmentGranularity.Grapheme))
+{
+    graphemes++;
+}
+
+if (words != 2 || graphemes != 2)
+{
+    Console.Error.WriteLine($"smoke: segmentation {words} {graphemes}");
     return 1;
 }
 
