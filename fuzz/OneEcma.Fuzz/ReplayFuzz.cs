@@ -77,6 +77,31 @@ internal static class ReplayFuzz
         };
     }
 
+    private static JsValue EachCallback(ScriptEngine engine, ReadOnlySpan<JsValue> a, bool swallow)
+    {
+        if (a.Length < 2 || a[0].Ref is not JsObject items)
+        {
+            return JsValue.Undefined;
+        }
+
+        JsRealm realm = engine.MainRealm;
+        int n = (int)Math.Min(8, Math.Max(0, realm.ToNumber(engine.GetProperty(items, "length"))));
+        int done = 0;
+        for (int i = 0; i < n; i++)
+        {
+            try
+            {
+                realm.Call(a[1], default, engine.GetProperty(items, i.ToString(CultureInfo.InvariantCulture)), JsValue.FromNumber(i));
+                done++;
+            }
+            catch (JsException) when (swallow)
+            {
+            }
+        }
+
+        return JsValue.FromNumber(done);
+    }
+
     private static string BodyOutcome(ScriptEngine engine, Func<JsValue> run)
     {
         try
@@ -125,6 +150,17 @@ internal static class ReplayFuzz
 
         engine.DefineGlobalFunction("hostTask", 1, (_, a) => TaskFor(engine, a));
 
+        // Callbacks into script: hostEach(items, fn) calls fn for every element and lets the first error escape (hostEachSafe
+        // swallows it); hostOn(fn) keeps a handler the harness fires after the script has finished.
+        JsValue handler = default;
+        engine.DefineGlobalFunction("hostEach", 2, (_, a) => EachCallback(engine, a, swallow: false));
+        engine.DefineGlobalFunction("hostEachSafe", 2, (_, a) => EachCallback(engine, a, swallow: true));
+        engine.DefineGlobalFunction("hostOn", 1, (_, a) =>
+        {
+            handler = a.Length > 0 ? a[0] : default;
+            return JsValue.Undefined;
+        });
+
         string original;
         try
         {
@@ -159,6 +195,16 @@ internal static class ReplayFuzz
             return "recording run threw " + e.GetType().Name + ": " + e.Message + "\n" + (e.InnerException ?? e).StackTrace;
         }
 
+        bool handlerRan = false;
+        if (!body && original.StartsWith("value", StringComparison.Ordinal) && JsRealm.IsCallable(handler) && engine.RecordLog.IsReplayable)
+        {
+            // A handler fired by the host between entry calls is an entry call of its own; the replay must end in the same outcome.
+            JsObject ev = engine.MainRealm.NewObject();
+            engine.MainRealm.DefineData(ev, "n", JsValue.FromNumber(5));
+            original = BodyOutcome(engine, () => engine.MainRealm.Call(handler, default, JsValue.FromObject(ev), JsValue.FromNumber(2)));
+            handlerRan = true;
+        }
+
         if (!engine.RecordLog.IsReplayable)
         {
             Interlocked.Increment(ref _skipped);
@@ -181,6 +227,11 @@ internal static class ReplayFuzz
             else
             {
                 replayed = Outcome(r.Engine, r.Value, r.Exception, r.Limit);
+            }
+
+            if (handlerRan && r.Entries < 2)
+            {
+                return "replay skipped the handler entry call";
             }
 
             Interlocked.Increment(ref _compared);
@@ -217,6 +268,11 @@ internal static class ReplayFuzz
         {
             "const o = hostObj(); function f(x) { return x.items.map((n) => n * hostNum(n)); } f(o);",
             "const o = hostObj(); o.itms.length;",
+            "const seen = []; hostEach([1, 2, 3], (x, i) => { seen.push(x * i); }); seen.length + hostEachSafe([1, 2], (x) => { if (x === 1) throw new Error('one'); seen.push(x); })",
+            "const cfg = { name: 'x' }; hostEach([cfg], (c) => c.opts.depth);",
+            "const rows = [{ id: 1 }, { id: 2 }]; hostEach(rows, (r) => { r.seen = true; hostNum(r.id); }); rows.map(r => r.seen).missing.x;",
+            "globalThis.log = []; hostOn((e, k) => { log.push(e.n + k); return log.length; }); 1",
+            "hostOn((e) => e.missing.deeper); 1",
             "const t = Date.now(); const r = Math.random(); ({ t, r, n: hostNum(2) }).missing.x;",
             "async function g() { const a = await Promise.resolve(hostObj()); return a.idd.toString(); } g();",
             "let s = 0; for (let i = 0; i < 50; i++) { s += hostNum(i); } s.foo();",
