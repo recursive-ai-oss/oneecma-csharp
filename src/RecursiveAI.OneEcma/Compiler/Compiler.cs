@@ -35,7 +35,7 @@ internal struct Ref
     internal string Name;
 }
 
-internal sealed class Label
+internal sealed class JumpLabel
 {
     internal int Pc = -1;
     internal List<int>? Fixups;
@@ -60,8 +60,8 @@ internal sealed class Control
 
     internal K Kind;
     internal List<string>? Labels;
-    internal Label? Break;
-    internal Label? Continue;
+    internal JumpLabel? Break;
+    internal JumpLabel? Continue;
     internal BlockStatement? Finalizer;
     internal bool Async;
     internal int StackItems;
@@ -123,17 +123,17 @@ internal sealed partial class Compiler
         return c.RunScript(program);
     }
 
-    /// <summary>Compiles eval code. <paramref name="strictCaller"/> is true when the eval call site is strict.</summary>
+    /// <summary>Compiles eval code; <paramref name="direct"/> is true for a direct eval call.</summary>
     internal static FunctionCode CompileEval(Syntax.Program program, SourceText source, bool direct)
     {
         var c = new Compiler(source, true);
         return c.RunEval(program, direct);
     }
 
-    internal static FunctionCode CompileModule(Syntax.Program program, SourceText source, string moduleId, ModuleRecordInfo info)
+    internal static FunctionCode CompileModule(Syntax.Program program, SourceText source, string moduleId)
     {
         var c = new Compiler(source, false);
-        return c.RunModule(program, moduleId, info);
+        return c.RunModule(program, moduleId);
     }
 
     // ---- emission helpers --------------------------------------------------------------------
@@ -203,9 +203,9 @@ internal sealed partial class Compiler
         }
     }
 
-    private Label NewLabel() => new();
+    private static JumpLabel NewLabel() => new();
 
-    private void Mark(Label l)
+    private void Mark(JumpLabel l)
     {
         l.Pc = _f.Ops.Count;
         if (l.Fixups is not null)
@@ -221,7 +221,7 @@ internal sealed partial class Compiler
         }
     }
 
-    private void Jump(Op op, Label l, int b = 0)
+    private void Jump(Op op, JumpLabel l, int b = 0)
     {
         if (l.Pc >= 0)
         {

@@ -19,7 +19,7 @@ internal sealed partial class Compiler
                 else if (logical)
                 {
                     LoadIdent(id.Name);
-                    Label end = NewLabel();
+                    JumpLabel end = NewLabel();
                     Jump(LogicalJump(a.Operator), end);
                     ExprNamed(a.Right, id.Name);
                     if (!discard)
@@ -124,7 +124,7 @@ internal sealed partial class Compiler
 
             if (logical)
             {
-                Label end = NewLabel();
+                JumpLabel end = NewLabel();
                 Jump(LogicalJump(a.Operator), end);
                 Expr(a.Right);
                 SuperStore(computed, name);
@@ -132,7 +132,7 @@ internal sealed partial class Compiler
                 if (computed)
                 {
                     // [key, val] on the short-circuit path: drop the key.
-                    Label done = NewLabel();
+                    JumpLabel done = NewLabel();
                     Jump(Op.Jmp, done);
                     Mark(done);
                 }
@@ -207,8 +207,8 @@ internal sealed partial class Compiler
             LoadMember(m, name, isPrivate);
             if (logical)
             {
-                Label shortL = NewLabel();
-                Label end = NewLabel();
+                JumpLabel shortL = NewLabel();
+                JumpLabel end = NewLabel();
                 Jump(LogicalJump(a.Operator), shortL);
                 Expr(a.Right);
                 SetSpan(m.Object);
@@ -460,7 +460,7 @@ internal sealed partial class Compiler
 
             case AssignmentPattern ap:
                 {
-                    Label have = NewLabel();
+                    JumpLabel have = NewLabel();
                     Jump(Op.JmpIfNotUndefKeep, have);
                     if (ap.Left is Identifier lid)
                     {
@@ -497,8 +497,8 @@ internal sealed partial class Compiler
         int done = NewTemp();
         Emit(Op.PushFalse);
         Emit(Op.StoreLocal, done);
-        Label handler = NewLabel();
-        Label end = NewLabel();
+        JumpLabel handler = NewLabel();
+        JumpLabel end = NewLabel();
         Jump(Op.TryEnter, handler);
         int depth = _f.Depth;
         var tc = new Control { Kind = Control.K.Try };

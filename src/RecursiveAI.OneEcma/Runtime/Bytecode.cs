@@ -260,6 +260,7 @@ internal sealed class Frame
     internal JsValue Completion;
     internal int Base;
     internal bool AwaitedInStar;
+    internal ResumeMode StarMode;
     internal bool RawYield;
 
     internal Frame(FunctionCode code, Realm realm)

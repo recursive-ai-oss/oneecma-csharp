@@ -422,14 +422,6 @@ internal sealed partial class Compiler
 
     // ---- scripts, eval, modules -----------------------------------------------------------------
 
-    internal sealed class GlobalDeclsView
-    {
-        internal List<string> Vars = [];
-        internal List<string> AnnexB = [];
-        internal List<string> Functions = [];
-        internal List<(string Name, bool IsConst)> Lexicals = [];
-    }
-
     private static GlobalDeclsView CollectDecls(Scope scope)
     {
         var d = new GlobalDeclsView();
@@ -578,7 +570,7 @@ internal sealed partial class Compiler
         return cs;
     }
 
-    private FunctionCode RunModule(Syntax.Program program, string moduleId, ModuleRecordInfo? info)
+    private FunctionCode RunModule(Syntax.Program program, string moduleId)
     {
         var f = new FnState { Strict = true, Kind = FunctionKind.Module };
         _f = f;
@@ -607,7 +599,6 @@ internal sealed partial class Compiler
         FunctionCode code = Finish(f, "", 0, program.Start, program.End);
         code.ModuleId = moduleId;
         code.FuncScope = top!.Info;
-        _ = info;
         return code;
     }
 
@@ -672,7 +663,11 @@ internal sealed partial class Compiler
     }
 }
 
-/// <summary>Placeholder for per-module compile information (kept for the module loader).</summary>
-internal sealed class ModuleRecordInfo
+/// <summary>The global declarations of a script or eval body, as the declaration-instantiation ops consume them.</summary>
+internal sealed class GlobalDeclsView
 {
+    internal List<string> Vars = [];
+    internal List<string> AnnexB = [];
+    internal List<string> Functions = [];
+    internal List<(string Name, bool IsConst)> Lexicals = [];
 }

@@ -116,9 +116,6 @@ internal static class Promises
                 rej.Call(default, [e.Value]);
             }
         });
-        p.State = 3; // locked in: resolved but pending
-        p.State = 0;
-        p.Locked = true;
     }
 
     internal static void Fulfill(PromiseObject p, JsValue v)

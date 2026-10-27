@@ -201,8 +201,8 @@ internal static partial class Builtins
 
             return n == 0 ? Ops.Num(double.NaN) : Ops.Num(neg ? -v : v);
         });
-        r.Value((JsObject)r.Intrinsics["%Number%"], "parseFloat", JsValue.FromObject(parseFloat));
-        r.Value((JsObject)r.Intrinsics["%Number%"], "parseInt", JsValue.FromObject(parseInt));
+        Realm.Value((JsObject)r.Intrinsics["%Number%"], "parseFloat", JsValue.FromObject(parseFloat));
+        Realm.Value((JsObject)r.Intrinsics["%Number%"], "parseInt", JsValue.FromObject(parseInt));
     }
 
     /// <summary>PerformEval for indirect eval (19.2.1.1): global scope, sloppy unless the code says otherwise.</summary>
@@ -224,8 +224,8 @@ internal static partial class Builtins
         var math = r.NewObject();
         r.Global.DefineDirect("Math", JsValue.FromObject(math), PropFlags.Hidden);
         math.DefineDirect(new PropertyKey(WellKnown.ToStringTag), Ops.Str("Math"), PropFlags.Configurable);
-        r.Value(math, "PI", Ops.Num(Math.PI), PropFlags.None);
-        r.Value(math, "E", Ops.Num(Math.E), PropFlags.None);
+        Realm.Value(math, "PI", Ops.Num(Math.PI), PropFlags.None);
+        Realm.Value(math, "E", Ops.Num(Math.E), PropFlags.None);
         void M1(string n, Func<double, double> f) => r.Method(math, n, 1, (t, a, nt) => Ops.Num(f(Ops.ToNumber(A(a, 0)))));
         M1("floor", Math.Floor);
         M1("ceil", Math.Ceiling);
@@ -440,7 +440,7 @@ internal static partial class Builtins
         });
         JsObject h = r.NewObject();
         r.Global.DefineDirect("$262", JsValue.FromObject(h), PropFlags.Hidden);
-        r.Value(h, "global", JsValue.FromObject(r.Global));
+        Realm.Value(h, "global", JsValue.FromObject(r.Global));
         r.Method(h, "gc", 0, (t, a, nt) => default);
         r.Method(h, "createRealm", 0, (t, a, nt) =>
         {
@@ -450,9 +450,9 @@ internal static partial class Builtins
         r.Method(h, "evalScript", 1, (t, a, nt) => ScriptRunner.RunScript(r, Ops.ToStr(A(a, 0)), "<evalScript>"));
         r.Method(h, "detachArrayBuffer", 1, (t, a, nt) => throw Errors.Type("detachArrayBuffer is not available in this build"));
         var agent = r.NewObject();
-        r.Value(h, "agent", JsValue.FromObject(agent));
+        Realm.Value(h, "agent", JsValue.FromObject(agent));
         var dda = new HtmlDdaObject(r.ObjectPrototype);
-        r.Value(h, "IsHTMLDDA", JsValue.FromObject(dda));
+        Realm.Value(h, "IsHTMLDDA", JsValue.FromObject(dda));
     }
 }
 

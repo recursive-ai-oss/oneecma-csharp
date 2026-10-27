@@ -6,7 +6,7 @@ namespace RecursiveAI.OneEcma;
 internal sealed partial class Compiler
 {
     private string? _nameHint;
-    private Label? _chainEnd;
+    private JumpLabel? _chainEnd;
 
     private static bool IsAnonymousFunctionDefinition(Node n) => n switch
     {
@@ -129,8 +129,8 @@ internal sealed partial class Compiler
                 break;
             case ConditionalExpression c:
                 {
-                    Label alt = NewLabel();
-                    Label end = NewLabel();
+                    JumpLabel alt = NewLabel();
+                    JumpLabel end = NewLabel();
                     Expr(c.Test);
                     Jump(Op.JmpIfFalse, alt);
                     Expr(c.Consequent);
@@ -153,8 +153,8 @@ internal sealed partial class Compiler
                 break;
             case ChainExpression ch:
                 {
-                    Label saved = _chainEnd!;
-                    Label end = NewLabel();
+                    JumpLabel saved = _chainEnd!;
+                    JumpLabel end = NewLabel();
                     _chainEnd = end;
                     Expr(ch.Expression);
                     Mark(end);
@@ -385,7 +385,7 @@ internal sealed partial class Compiler
 
     private void Logical(LogicalExpression l)
     {
-        Label end = NewLabel();
+        JumpLabel end = NewLabel();
         Expr(l.Left);
         switch (l.Operator)
         {
@@ -492,8 +492,8 @@ internal sealed partial class Compiler
                 return;
             case ChainExpression ch:
                 {
-                    Label saved = _chainEnd!;
-                    Label end = NewLabel();
+                    JumpLabel saved = _chainEnd!;
+                    JumpLabel end = NewLabel();
                     _chainEnd = end;
                     Delete(ch.Expression);
                     Mark(end);
@@ -572,7 +572,7 @@ internal sealed partial class Compiler
     }
 
     /// <summary>The text V8 prints for a callee in "x is not a function".</summary>
-    private string CalleeText(Node n)
+    private static string CalleeText(Node n)
     {
         switch (n)
         {
@@ -689,8 +689,8 @@ internal sealed partial class Compiler
             case ChainExpression ch when ch.Expression is MemberExpression:
                 {
                     // (a?.b)() keeps `a` as the this value.
-                    Label saved = _chainEnd!;
-                    Label end = NewLabel();
+                    JumpLabel saved = _chainEnd!;
+                    JumpLabel end = NewLabel();
                     _chainEnd = end;
                     var inner = (MemberExpression)ch.Expression;
                     Expr(inner.Object);
@@ -710,7 +710,7 @@ internal sealed partial class Compiler
                         Emit(Op.GetMethod, NameConst(((Identifier)inner.Property).Name), NewCache());
                     }
 
-                    Label done = NewLabel();
+                    JumpLabel done = NewLabel();
                     Jump(Op.Jmp, done);
                     Mark(end);
                     Emit(Op.PushUndef);
@@ -1034,8 +1034,8 @@ internal sealed partial class Compiler
             Expr(y.Argument!);
             Emit(Op.GetIterator, asyncGen ? 1 : 0, NameConst("yield*"));
             Emit(Op.PushUndef);
-            Label ret = NewLabel();
-            Label end = NewLabel();
+            JumpLabel ret = NewLabel();
+            JumpLabel end = NewLabel();
             Jump(Op.YieldStar, ret, asyncGen ? 1 : 0);
             Jump(Op.Jmp, end);
             Mark(ret);
@@ -1058,8 +1058,8 @@ internal sealed partial class Compiler
             Emit(Op.Await);
         }
 
-        Label retL = NewLabel();
-        Label cont = NewLabel();
+        JumpLabel retL = NewLabel();
+        JumpLabel cont = NewLabel();
         Jump(Op.Yield, retL, asyncGen ? 1 : 0);
         Jump(Op.Jmp, cont);
         Mark(retL);

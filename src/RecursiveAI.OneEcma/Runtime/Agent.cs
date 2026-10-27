@@ -69,6 +69,7 @@ public sealed class JsLimitException : Exception
 /// <param name="Source">The source the frame's code came from.</param>
 /// <param name="Span">The span of the executing operation.</param>
 /// <param name="IsAsync">True for a frame stitched from an async function.</param>
+/// <param name="IsConstruct">True when the frame is a <c>new</c> call.</param>
 public sealed record StackFrameInfo(string Function, SourceText Source, Span Span, bool IsAsync = false, bool IsConstruct = false)
 {
     /// <summary>The 1-based line and column of the span start.</summary>
@@ -86,7 +87,6 @@ internal sealed class Agent
     private static Agent? t_current;
 
     private long _fuelTotal;
-    private long _chunk;
     private double _deadline;
     private long _allocated;
     private CancellationToken _cancel;
@@ -116,6 +116,9 @@ internal sealed class Agent
     internal Realm Realm = null!;
 
     internal Frame? Frame;
+
+    /// <summary>When set, new realms get the test-harness globals (<c>print</c>, <c>$262</c>).</summary>
+    internal bool InstallTest262Host;
 
     internal int CallDepth;
 

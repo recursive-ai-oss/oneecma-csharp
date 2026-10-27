@@ -560,7 +560,7 @@ internal static partial class Vm
 
     // ---- arguments object -----------------------------------------------------------------------------
 
-    private static JsObject CreateArguments(Frame f, int[]? map)
+    private static JsArguments CreateArguments(Frame f, int[]? map)
     {
         Realm r = f.Realm;
         int n = f.ArgCount;

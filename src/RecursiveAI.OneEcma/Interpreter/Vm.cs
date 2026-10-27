@@ -543,7 +543,7 @@ internal static partial class Vm
                             st[sp++] = f.ThisFrame.NewTarget is { } nt ? JsValue.FromObject(nt) : default;
                             break;
                         case Op.LoadFunction:
-                            st[sp++] = f.ThisFrame.Func is { } fnv ? JsValue.FromObject(fnv) : default;
+                            st[sp++] = f.ThisFrame.Func is { } thisFn ? JsValue.FromObject(thisFn) : default;
                             break;
 
                         // ---- properties ----

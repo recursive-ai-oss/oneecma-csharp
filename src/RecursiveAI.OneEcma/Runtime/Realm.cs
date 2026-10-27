@@ -170,7 +170,7 @@ internal sealed partial class Realm
         target.DefineAccessorDirect(key, g, s, PropFlags.Configurable);
     }
 
-    internal void Value(JsObject target, string name, JsValue v, PropFlags flags = PropFlags.Hidden) => target.DefineDirect(name, v, flags);
+    internal static void Value(JsObject target, string name, JsValue v, PropFlags flags = PropFlags.Hidden) => target.DefineDirect(name, v, flags);
 
     /// <summary>Creates a constructor function with its prototype object and links them.</summary>
     internal NativeFunction Ctor(string name, int length, NativeFn fn, JsObject prototype, JsObject? ctorProto = null)

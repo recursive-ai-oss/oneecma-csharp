@@ -9,10 +9,10 @@ internal static partial class Builtins
     internal static void Setup(Realm r)
     {
         JsObject g = r.Global;
-        r.Value(g, "globalThis", JsValue.FromObject(g));
-        r.Value(g, "undefined", default, PropFlags.None);
-        r.Value(g, "NaN", JsValue.FromNumber(double.NaN), PropFlags.None);
-        r.Value(g, "Infinity", JsValue.FromNumber(double.PositiveInfinity), PropFlags.None);
+        Realm.Value(g, "globalThis", JsValue.FromObject(g));
+        Realm.Value(g, "undefined", default, PropFlags.None);
+        Realm.Value(g, "NaN", JsValue.FromNumber(double.NaN), PropFlags.None);
+        Realm.Value(g, "Infinity", JsValue.FromNumber(double.PositiveInfinity), PropFlags.None);
         SetupObject(r);
         SetupFunction(r);
         SetupErrors(r);
@@ -664,8 +664,8 @@ internal static partial class Builtins
         r.ErrorPrototype = proto;
         r.ErrorPrototypes["Error"] = proto;
         NativeFunction errorCtor = MakeErrorCtor(r, "Error", proto, null);
-        r.Value(proto, "name", Ops.Str("Error"));
-        r.Value(proto, "message", Ops.Str(string.Empty));
+        Realm.Value(proto, "name", Ops.Str("Error"));
+        Realm.Value(proto, "message", Ops.Str(string.Empty));
         r.Method(proto, "toString", 0, (t, a, nt) =>
         {
             if (t.Ref is not JsObject o)
@@ -679,14 +679,14 @@ internal static partial class Builtins
             string msg = mv.IsUndefined ? string.Empty : Ops.ToStr(mv);
             return Ops.Str(name.Length == 0 ? msg : msg.Length == 0 ? name : name + ": " + msg);
         });
-        r.Value(errorCtor, "stackTraceLimit", JsValue.FromNumber(10), PropFlags.Default);
+        Realm.Value(errorCtor, "stackTraceLimit", JsValue.FromNumber(10), PropFlags.Default);
         foreach (string n in new[] { "TypeError", "RangeError", "ReferenceError", "SyntaxError", "EvalError", "URIError" })
         {
             JsObject p = new(proto);
             r.ErrorPrototypes[n] = p;
             MakeErrorCtor(r, n, p, errorCtor);
-            r.Value(p, "name", Ops.Str(n));
-            r.Value(p, "message", Ops.Str(string.Empty));
+            Realm.Value(p, "name", Ops.Str(n));
+            Realm.Value(p, "message", Ops.Str(string.Empty));
         }
 
         JsObject ap = new(proto);
@@ -705,8 +705,8 @@ internal static partial class Builtins
         ap.DefineDirect("constructor", JsValue.FromObject(agg), PropFlags.Hidden);
         r.Global.DefineDirect("AggregateError", JsValue.FromObject(agg), PropFlags.Hidden);
         r.Intrinsics["%AggregateError%"] = agg;
-        r.Value(ap, "name", Ops.Str("AggregateError"));
-        r.Value(ap, "message", Ops.Str(string.Empty));
+        Realm.Value(ap, "name", Ops.Str("AggregateError"));
+        Realm.Value(ap, "message", Ops.Str(string.Empty));
     }
 
     private static void InitErrorWithOptions(Realm r, JsError e, JsValue message, JsValue options)
@@ -756,7 +756,7 @@ internal static partial class Builtins
             ("toStringTag", WellKnown.ToStringTag), ("unscopables", WellKnown.Unscopables),
         })
         {
-            r.Value(ctor, n, JsValue.FromSymbol(s), PropFlags.None);
+            Realm.Value(ctor, n, JsValue.FromSymbol(s), PropFlags.None);
         }
 
         r.Method(ctor, "for", 1, (t, a, nt) =>
@@ -839,14 +839,14 @@ internal static partial class Builtins
 
             return Ops.Str(radix == 10 ? Ops.NumberToStr(n) : NumberConv.ToRadixString(n, (int)radix));
         });
-        r.Value(nctor, "MAX_SAFE_INTEGER", Ops.Num(9007199254740991d), PropFlags.None);
-        r.Value(nctor, "MIN_SAFE_INTEGER", Ops.Num(-9007199254740991d), PropFlags.None);
-        r.Value(nctor, "MAX_VALUE", Ops.Num(double.MaxValue), PropFlags.None);
-        r.Value(nctor, "MIN_VALUE", Ops.Num(double.Epsilon), PropFlags.None);
-        r.Value(nctor, "EPSILON", Ops.Num(Math.Pow(2, -52)), PropFlags.None);
-        r.Value(nctor, "NaN", Ops.Num(double.NaN), PropFlags.None);
-        r.Value(nctor, "POSITIVE_INFINITY", Ops.Num(double.PositiveInfinity), PropFlags.None);
-        r.Value(nctor, "NEGATIVE_INFINITY", Ops.Num(double.NegativeInfinity), PropFlags.None);
+        Realm.Value(nctor, "MAX_SAFE_INTEGER", Ops.Num(9007199254740991d), PropFlags.None);
+        Realm.Value(nctor, "MIN_SAFE_INTEGER", Ops.Num(-9007199254740991d), PropFlags.None);
+        Realm.Value(nctor, "MAX_VALUE", Ops.Num(double.MaxValue), PropFlags.None);
+        Realm.Value(nctor, "MIN_VALUE", Ops.Num(double.Epsilon), PropFlags.None);
+        Realm.Value(nctor, "EPSILON", Ops.Num(Math.Pow(2, -52)), PropFlags.None);
+        Realm.Value(nctor, "NaN", Ops.Num(double.NaN), PropFlags.None);
+        Realm.Value(nctor, "POSITIVE_INFINITY", Ops.Num(double.PositiveInfinity), PropFlags.None);
+        Realm.Value(nctor, "NEGATIVE_INFINITY", Ops.Num(double.NegativeInfinity), PropFlags.None);
         r.Method(nctor, "isNaN", 1, (t, a, nt) => Ops.Bool(A(a, 0).IsNumber && double.IsNaN(A(a, 0).Num)));
         r.Method(nctor, "isFinite", 1, (t, a, nt) => Ops.Bool(A(a, 0).IsNumber && double.IsFinite(A(a, 0).Num)));
         r.Method(nctor, "isInteger", 1, (t, a, nt) => Ops.Bool(A(a, 0).IsNumber && double.IsFinite(A(a, 0).Num) && Math.Floor(A(a, 0).Num) == A(a, 0).Num));

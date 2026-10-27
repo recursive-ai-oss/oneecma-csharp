@@ -72,7 +72,7 @@ public class JsObject
     internal bool Extensible = true;
     internal Shape? ChildRoot;
 
-    /// <summary>Set by exotic subclasses that override <see cref="Get"/> (Proxy, module namespaces, typed arrays).</summary>
+    /// <summary>Set by exotic subclasses that override <see cref="Get(PropertyKey, JsValue)"/> (Proxy, module namespaces, typed arrays).</summary>
     internal bool OverridesGet;
 
     /// <summary>Set by exotic subclasses that override <see cref="Set"/>.</summary>

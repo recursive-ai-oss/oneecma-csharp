@@ -90,8 +90,8 @@ internal sealed partial class Compiler
             case IfStatement ifs:
                 {
                     ResetCompletion();
-                    Label els = NewLabel();
-                    Label end = NewLabel();
+                    JumpLabel els = NewLabel();
+                    JumpLabel end = NewLabel();
                     Expr(ifs.Test);
                     Jump(Op.JmpIfFalse, els);
                     Stmt(ifs.Consequent);
@@ -140,7 +140,7 @@ internal sealed partial class Compiler
                 {
                     ResetCompletion();
                     Control c = PushLoop(labels);
-                    Label top = NewLabel();
+                    JumpLabel top = NewLabel();
                     Mark(top);
                     Stmt(dw.Body);
                     Mark(c.Continue!);
@@ -433,7 +433,7 @@ internal sealed partial class Compiler
         }
 
         Control c = PushLoop(labels);
-        Label top = NewLabel();
+        JumpLabel top = NewLabel();
         Mark(top);
         if (fs.Test is not null)
         {
@@ -464,7 +464,7 @@ internal sealed partial class Compiler
         LeaveScope(cs);
     }
 
-    private bool LoopHeadIsLexical(Node left, out VariableDeclaration? vd)
+    private static bool LoopHeadIsLexical(Node left, out VariableDeclaration? vd)
     {
         vd = left as VariableDeclaration;
         return vd is not null && vd.DeclarationKind != VarKind.Var;
@@ -495,8 +495,8 @@ internal sealed partial class Compiler
         Emit(Op.ForInStart);
         Control c = new() { Kind = Control.K.ForIn, Labels = labels, Break = NewLabel(), Continue = NewLabel(), StackItems = 1 };
         _f.Controls.Add(c);
-        Label top = NewLabel();
-        Label exit = NewLabel();
+        JumpLabel top = NewLabel();
+        JumpLabel exit = NewLabel();
         Mark(top);
         Jump(Op.ForInNext, exit);
         LoopBody(fi.Left, fi.Scope, lexical, fi.Body, c, false);
@@ -568,9 +568,9 @@ internal sealed partial class Compiler
         SetSpan(fo);
         Control c = new() { Kind = Control.K.IterLoop, Labels = labels, Break = NewLabel(), Continue = NewLabel(), StackItems = 2, Async = isAwait };
         _f.Controls.Add(c);
-        Label top = NewLabel();
-        Label exit = NewLabel();
-        Label handler = NewLabel();
+        JumpLabel top = NewLabel();
+        JumpLabel exit = NewLabel();
+        JumpLabel handler = NewLabel();
         Mark(top);
         if (isAwait)
         {
@@ -652,9 +652,9 @@ internal sealed partial class Compiler
         // [it, nx, exc]: call return() and await it, swallowing any error, then fall through to the rethrow.
         int t = NewTemp();
         Emit(Op.StoreLocal, t);
-        Label skip = NewLabel();
-        Label caught = NewLabel();
-        Label done = NewLabel();
+        JumpLabel skip = NewLabel();
+        JumpLabel caught = NewLabel();
+        JumpLabel done = NewLabel();
         Jump(Op.TryEnter, caught);
         Jump(Op.AsyncIterCloseStart, skip);
         Emit(Op.Await);
@@ -759,7 +759,7 @@ internal sealed partial class Compiler
 
     private void EmitAsyncClose()
     {
-        Label skip = NewLabel();
+        JumpLabel skip = NewLabel();
         Jump(Op.AsyncIterCloseStart, skip);
         Emit(Op.Await);
         Emit(Op.ThrowIfNotObject);
@@ -855,8 +855,8 @@ internal sealed partial class Compiler
     private void Try(TryStatement ts)
     {
         ResetCompletion();
-        Label end = NewLabel();
-        Label finHandler = NewLabel();
+        JumpLabel end = NewLabel();
+        JumpLabel finHandler = NewLabel();
         bool hasFin = ts.Finalizer is not null;
         bool hasCatch = ts.Handler is not null;
         int baseDepth = _f.Depth;
@@ -870,8 +870,8 @@ internal sealed partial class Compiler
 
         if (hasCatch)
         {
-            Label catchL = NewLabel();
-            Label afterCatch = NewLabel();
+            JumpLabel catchL = NewLabel();
+            JumpLabel afterCatch = NewLabel();
             Jump(Op.TryEnter, catchL);
             var tc = new Control { Kind = Control.K.Try };
             _f.Controls.Add(tc);
@@ -958,8 +958,8 @@ internal sealed partial class Compiler
         HoistFunctions(all);
         var c = new Control { Kind = Control.K.Switch, Labels = labels, Break = NewLabel() };
         _f.Controls.Add(c);
-        var caseLabels = new Label[sw.Cases.Count];
-        Label defaultL = NewLabel();
+        var caseLabels = new JumpLabel[sw.Cases.Count];
+        JumpLabel defaultL = NewLabel();
         bool hasDefault = false;
         for (int i = 0; i < sw.Cases.Count; i++)
         {
