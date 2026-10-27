@@ -66,6 +66,7 @@ public sealed class Diagnostic
         Headline = headline;
         Source = source;
         PrimarySpan = primary;
+        ParseOffset = primary.Start;
         Severity = severity;
     }
 
@@ -108,6 +109,9 @@ public sealed class Diagnostic
 
     /// <summary>What the parser assumed or skipped to continue after this error.</summary>
     public List<RecoveryAction> Recovery { get; } = [];
+
+    /// <summary>Where the parser noticed the problem; a hint may later move <see cref="PrimarySpan"/> to the construct that is actually wrong, this stays.</summary>
+    internal int ParseOffset { get; }
 
     /// <summary>The 1-based line and column where the primary span starts.</summary>
     public LinePosition Position => Source.GetPosition(PrimarySpan.Start);

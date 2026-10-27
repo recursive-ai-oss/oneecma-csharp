@@ -734,15 +734,41 @@ internal sealed partial class Parser
         }
         else
         {
-            d.PrimaryLabel = "expected `,` or `)` before this `" + offendingText + "`";
+            bool atEnd = offending.Type == TokenType.EndOfInput;
+            d.PrimaryLabel = atEnd ? "expected `,` or `)` before the end of the input" : "expected `,` or `)` before this `" + offendingText + "`";
             d.SecondaryLabels.Add(new Label(new Span(calleeStart, open.End), "the argument list opened here is never closed"));
-            if (offending.Type is TokenType.Semicolon or TokenType.RBrace or TokenType.RBracket or TokenType.EndOfInput)
+            if (atEnd)
+            {
+                d.Help.Add("add `)` at the end of the input");
+            }
+            else if (offending.Type is TokenType.Semicolon or TokenType.RBrace or TokenType.RBracket)
             {
                 d.Help.Add("add `)` before `" + offendingText + "`: `" + _s.Substring(calleeStart, offending.Start - calleeStart) + ")" + offendingText + "`");
             }
 
             NoteInserted(d, offending.Start, ")");
         }
+    }
+
+    /// <summary>
+    /// When the next element or property starts on a new line, the likely mistake is a forgotten comma: say where the
+    /// previous one ends and what to add.
+    /// </summary>
+    private void LabelMissingComma(Diagnostic? d, Node previous, string what)
+    {
+        Token t = _tok;
+        bool startsValue = t.Type is TokenType.Identifier or TokenType.String or TokenType.Number or TokenType.BigInt or TokenType.Template
+            or TokenType.True or TokenType.False or TokenType.Null or TokenType.This or TokenType.LBracket or TokenType.LBrace
+            or TokenType.PrivateName or TokenType.Star;
+        if (d is null || !t.NewlineBefore || !startsValue)
+        {
+            return;
+        }
+
+        Node shown = previous is Property { PropertyKind: PropertyKind.Init, Shorthand: false } p ? p.Value : previous;
+        d.PrimaryLabel = "expected `,` before this " + what;
+        d.SecondaryLabels.Add(new Label(shown.Span, "the previous " + what + " ends here"));
+        d.Help.Add("add `,` after `" + SourceOf(shown) + "`");
     }
 
     private string SourceOf(Node n) => _s.Substring(n.Start, n.End - n.Start);
@@ -1293,6 +1319,7 @@ internal sealed partial class Parser
             {
                 Diagnostic? d = Unexpected();
                 NoteInserted(d, _prevEnd, ",");
+                LabelMissingComma(d, el, "element");
                 if (_tok.Start == before || _tok.Type is TokenType.Semicolon or TokenType.RBrace or TokenType.RParen)
                 {
                     break;

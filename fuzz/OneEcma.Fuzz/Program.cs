@@ -180,6 +180,7 @@ internal static class Program
                 if (mode == 0)
                 {
                     _ = DiagnosticRenderer.RenderAll(r.Diagnostics);
+                    CheckRepair(input, options, r.HasErrors);
                 }
             }
         }
@@ -191,6 +192,79 @@ internal static class Program
         {
             Interlocked.Exchange(ref _started, 0);
         }
+    }
+
+    /// <summary>
+    /// Repair mode: whatever it returns must parse, must be reproducible, must not touch source that parses (a fence aside),
+    /// must be a fixed point, and its edits (original offsets) must rebuild the repaired text.
+    /// </summary>
+    private static void CheckRepair(string input, ParseOptions options, bool hadErrors)
+    {
+        var limits = new RepairOptions { MaxParses = 60, MaxRepairs = 8 };
+        RepairResult rr = SyntaxRepair.Repair(input, options, limits);
+        RepairResult again = SyntaxRepair.Repair(input, options, limits);
+        if (rr.RepairedSource != again.RepairedSource || rr.Repairs.Count != again.Repairs.Count)
+        {
+            throw new InvalidOperationException("repair is not deterministic");
+        }
+
+        if (!rr.Changed)
+        {
+            if (rr.RepairedSource != input)
+            {
+                throw new InvalidOperationException("unchanged result carries different text");
+            }
+
+            return;
+        }
+
+        if (JsParser.Parse(rr.RepairedSource, options).HasErrors)
+        {
+            throw new InvalidOperationException("repaired source does not parse");
+        }
+
+        if (!hadErrors && rr.Repairs.Any(x => x.Id != "R003"))
+        {
+            throw new InvalidOperationException("source that parses was repaired by a rule other than the fence rule");
+        }
+
+        var edits = rr.Repairs.SelectMany(x => x.Edits).OrderBy(e => e.Start).ToList();
+        bool disjoint = true;
+        for (int i = 0; i < edits.Count; i++)
+        {
+            if (edits[i].Start < 0 || edits[i].Start + edits[i].Length > input.Length || (i > 0 && edits[i].Start < edits[i - 1].Start + edits[i - 1].Length))
+            {
+                disjoint = false;
+            }
+        }
+
+        if (disjoint)
+        {
+            var sb = new StringBuilder();
+            int pos = 0;
+            foreach (TextEdit e in edits)
+            {
+                sb.Append(input, pos, e.Start - pos).Append(e.Text);
+                pos = e.Start + e.Length;
+            }
+
+            sb.Append(input, pos, input.Length - pos);
+            if (sb.ToString() != rr.RepairedSource)
+            {
+                throw new InvalidOperationException("edits do not rebuild the repaired source");
+            }
+        }
+        else if (rr.Repairs.Any(x => x.Span.Start < 0 || x.Span.End > input.Length))
+        {
+            throw new InvalidOperationException("repair span outside the source");
+        }
+
+        if (!rr.RepairedSource.Contains("```", StringComparison.Ordinal) && SyntaxRepair.Repair(rr.RepairedSource, options, limits).Changed)
+        {
+            throw new InvalidOperationException("repair is not a fixed point");
+        }
+
+        _ = DiagnosticRenderer.RenderRepairResult(rr);
     }
 
     private static bool Fails(string input)

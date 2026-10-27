@@ -142,16 +142,28 @@ internal sealed partial class Parser
     }
 
     private int _sinceSyntaxError = int.MaxValue / 2;
-    private const int ErrorCooldownTokens = 10;
+    private const int ErrorCooldownTokens = 3;
+    private const int SameLineCooldownTokens = 12;
     private int _lastSyntaxErrorLine = -1;
 
     private Diagnostic? Report(string code, string message, int start, int end, bool syntactic = false)
     {
         // Errors within a few tokens of a parse failure are its fallout, not new mistakes.
         if (_sinceSyntaxError < ErrorCooldownTokens
-            || (_sinceSyntaxError < 4 * ErrorCooldownTokens && _src.GetPosition(start).Line == _lastSyntaxErrorLine))
+            || (_sinceSyntaxError < SameLineCooldownTokens && code != "unexpected-end" && _src.GetPosition(start).Line == _lastSyntaxErrorLine))
         {
             return null;
+        }
+
+        // An early error (not a grammar error) a line or two after a syntax error is usually the same mistake seen again:
+        // `def f(x):` followed by a `return` is one problem, not two.
+        if (!syntactic && _lastSyntaxErrorLine > 0)
+        {
+            int line = _src.GetPosition(start).Line;
+            if (line >= _lastSyntaxErrorLine && line - _lastSyntaxErrorLine <= 2)
+            {
+                return null;
+            }
         }
 
         if (end < start)
@@ -164,7 +176,8 @@ internal sealed partial class Parser
             return null;
         }
 
-        if (!_errorStarts.Add(start))
+        // All end-of-input errors are one error however the parser words its position.
+        if (!_errorStarts.Add(code == "unexpected-end" ? -1 : start))
         {
             return null;
         }
@@ -293,6 +306,60 @@ internal sealed partial class Parser
         Diagnostic? d = Unexpected();
         NoteInserted(d, _tok.Start, PunctText(t));
         return false;
+    }
+
+    /// <summary>
+    /// Consumes the <c>)</c> that ends a statement head (<c>if (...)</c>, <c>while (...)</c>, <c>for (...)</c>, <c>with (...)</c>).
+    /// When something else is there the error is reported once, and the rest of the head up to its matching <c>)</c> is skipped
+    /// on bracket structure, so the body is parsed as a body instead of as the fallout of a broken head. The skip stays on
+    /// the head's line, stops at a <c>{</c> or a closer that belongs to an enclosing construct, and never crosses a template.
+    /// </summary>
+    private void ExpectCloseParenResync()
+    {
+        if (Is(TokenType.RParen))
+        {
+            Advance();
+            return;
+        }
+
+        Diagnostic? d = Unexpected();
+        NoteInserted(d, _tok.Start, ")");
+        int from = _tok.Start;
+        int depth = 0;
+        while (true)
+        {
+            TokenType t = _tok.Type;
+            if (t is TokenType.EndOfInput or TokenType.Template or TokenType.Invalid || (_tok.NewlineBefore && from != _tok.Start))
+            {
+                break;
+            }
+
+            if (t is TokenType.LParen or TokenType.LBracket || (t == TokenType.LBrace && depth > 0))
+            {
+                depth++;
+            }
+            else if (t is TokenType.RParen or TokenType.RBracket or TokenType.RBrace)
+            {
+                if (depth == 0)
+                {
+                    if (t == TokenType.RParen)
+                    {
+                        NoteSkipped(d, from, _tok.End);
+                        Advance();
+                    }
+
+                    break;
+                }
+
+                depth--;
+            }
+            else if (t == TokenType.LBrace && depth == 0)
+            {
+                break;
+            }
+
+            Advance();
+        }
     }
 
     private static string PunctText(TokenType t) => t switch
