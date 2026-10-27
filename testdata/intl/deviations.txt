@@ -198,3 +198,6 @@ ea8ec735 hour with fractionalSecondDigits: the reference rearranges the time fie
 8b87ffa1 range whose end precedes its start: the reference drops the weekday comma of the full date style
 cedd94d4 range whose end precedes its start: the reference drops the weekday comma of the full date style
 476fbe2d de month-only range from January to December: the reference separates the months with thin spaces around the dash
+
+# DurationFormat: the reference formats a NaN field as an empty string; ToIntegerIfIntegral (ECMA-402 13.5.2) makes it a RangeError and we follow the specification.
+22d40aa5 duration with a NaN field: the reference returns an empty string, the specification throws RangeError

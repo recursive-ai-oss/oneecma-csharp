@@ -200,4 +200,144 @@ public class IntlDateTimeDifferentialTests
             return actual == expected ? null : $"[{s.Pattern}] expected {expected} got {actual}";
         }));
     }
+
+    private static DurationFormatOptions DurationOptions(JsonElement o)
+    {
+        var units = new Dictionary<string, string>();
+        foreach (JsonProperty p in o.EnumerateObject())
+        {
+            if (p.Value.ValueKind == JsonValueKind.String && p.Name is not ("style" or "localeMatcher" or "numberingSystem"))
+            {
+                units[p.Name] = p.Value.GetString()!;
+            }
+            else if (p.Value.ValueKind == JsonValueKind.Number && p.Name is not "fractionalDigits")
+            {
+                units[p.Name] = p.Value.GetRawText();
+            }
+        }
+
+        return new DurationFormatOptions
+        {
+            LocaleMatcher = o.Str("localeMatcher"),
+            NumberingSystem = o.Str("numberingSystem"),
+            Style = o.Str("style"),
+            UnitOptions = units,
+            FractionalDigits = o.Int("fractionalDigits"),
+        };
+    }
+
+    private static DurationRecord Duration(JsonElement v)
+    {
+        var fields = new double?[10];
+        foreach (JsonProperty p in v.EnumerateObject())
+        {
+            int i = Array.IndexOf(DurationRecord.UnitNames, p.Name);
+            if (i < 0)
+            {
+                continue;
+            }
+
+            fields[i] = p.Value.ValueKind == JsonValueKind.String ? p.Value.GetString() switch { "NaN" => double.NaN, "Infinity" => double.PositiveInfinity, _ => double.NegativeInfinity } : p.Value.GetDouble();
+        }
+
+        if (fields.All(f => f is null))
+        {
+            throw IntlException.Type("Invalid duration: no unit is set");
+        }
+
+        return DurationRecord.Create(fields);
+    }
+
+    private static string ResolvedDuration(DurationFormatService s)
+    {
+        var d = new SortedDictionary<string, string>(StringComparer.Ordinal) { ["locale"] = s.Locale, ["numberingSystem"] = s.NumberingSystem, ["style"] = s.Style };
+        for (int i = 0; i < 10; i++)
+        {
+            d[DurationRecord.UnitNames[i]] = s.Unit(i).Style;
+            d[DurationRecord.UnitNames[i] + "Display"] = s.Unit(i).Display;
+        }
+
+        if (s.FractionalDigits is { } fd)
+        {
+            d["fractionalDigits"] = fd.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        return string.Join(";", d.Select(kv => kv.Key + "=" + kv.Value));
+    }
+
+    [Fact]
+    public void DurationFormatMatchesNode()
+    {
+        AssertClean("duration-format", IntlCorpus.Run("duration-format", IntlCorpus.Rows("duration-format.jsonl"), row =>
+        {
+            string kind = row.GetProperty("s").GetString()!;
+            JsonElement o = row.GetProperty("o");
+            if (kind == "dfo")
+            {
+                DurationFormatService s;
+                try
+                {
+                    s = DurationFormatService.Create([row.GetProperty("l").GetString()!], DurationOptions(o), "en-US");
+                }
+                catch (IntlException x) when (row.TryGetProperty("e", out JsonElement e))
+                {
+                    string cls = x.Kind == IntlErrorKind.Range ? "RangeError" : "TypeError";
+                    return cls == e.GetString() ? null : $"threw {cls}, expected {e.GetString()}";
+                }
+
+                if (row.TryGetProperty("e", out JsonElement exp))
+                {
+                    return $"expected {exp.GetString()}";
+                }
+
+                string a = ResolvedDuration(s), b = Resolved(row.GetProperty("r"));
+                return a == b ? null : $"resolved {a} expected {b}";
+            }
+
+            DurationFormatService svc = DurationFormatService.Create([row.GetProperty("l").GetString()!], DurationOptions(o), "en-US");
+            if (kind == "dfv")
+            {
+                try
+                {
+                    DurationRecord rec = row.GetProperty("v").ValueKind == JsonValueKind.String ? throw IntlException.Range("Invalid duration") : Duration(row.GetProperty("v"));
+                    string text = svc.Format(rec);
+                    return row.TryGetProperty("e", out JsonElement ee) ? $"expected {ee.GetString()}, got '{text}'" : text == row.GetProperty("p").GetString() ? null : $"expected '{row.GetProperty("p").GetString()}' got '{text}'";
+                }
+                catch (IntlException x) when (row.TryGetProperty("e", out JsonElement e))
+                {
+                    string cls = x.Kind == IntlErrorKind.Range ? "RangeError" : "TypeError";
+                    return cls == e.GetString() ? null : $"threw {cls}, expected {e.GetString()}";
+                }
+            }
+
+            if (row.TryGetProperty("e", out JsonElement er))
+            {
+                try
+                {
+                    svc.FormatToParts(Duration(row.GetProperty("v")));
+                }
+                catch (IntlException)
+                {
+                    return null;
+                }
+
+                return $"expected {er.GetString()}";
+            }
+
+            string actual = string.Join("|", svc.FormatToParts(Duration(row.GetProperty("v"))).Select(p => p.Type + ":" + p.Value + ":" + (p.Unit ?? "-")));
+            string expected = string.Join("|", row.GetProperty("p").EnumerateArray().Select(p => p[0].GetString() + ":" + p[1].GetString() + ":" + (p[2].ValueKind == JsonValueKind.Null ? "-" : p[2].GetString())));
+            if (actual != expected)
+            {
+                return $"expected {expected} got {actual}";
+            }
+
+            if (row.TryGetProperty("r", out JsonElement r))
+            {
+                string ra = ResolvedDuration(svc), rb = Resolved(r);
+                return ra == rb ? null : $"resolved {ra} expected {rb}";
+            }
+
+            return null;
+        }));
+    }
 }
