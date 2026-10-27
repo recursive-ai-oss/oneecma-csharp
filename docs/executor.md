@@ -1,6 +1,12 @@
 # Executor shape: closure tree or bytecode
 
-Result of a measured spike (`spike/OneEcma.ExecutorSpike`). Two executors were built over the real syntax tree and
+> **Status.** The engine's executor is a *stack* bytecode machine with an explicit frame stack and the 16-byte `JsValue`
+> described here; it was built after this study and replaced the spike, which has been removed. Its speed
+> against Jint is measured by `bench/OneEcma.Benchmarks` (`EngineBenchmarks`). The text below is kept for the reasoning behind
+> the frame, depth, suspend and tracing decisions, which the engine follows; its timings are those of the study.
+
+
+Result of a measured spike (a throwaway study project). Two executors were built over the real syntax tree and
 benchmarked against each other and against Jint 4.17.0 on the same sources.
 
 ## Recommendation
@@ -16,7 +22,7 @@ throw/catch). What decides it is the other requirements:
 | (b) generators, async, await | No cheap way. Needs a second, resumable form of every node, or a lowering to a flat form, which is a bytecode compiler anyway. | A suspended frame is a copy of its register window plus a pc (see "Suspend"). Natural. |
 | (c) fuel | A field decrement on loop back-edges and calls. | The same, in the back-edge jump instructions and in calls. No difference. |
 | (d) lean run with spans only, traced replay with the same semantics | Hooks mean a second tree built by a decorating factory, and fused nodes (a register compared with a constant) have no child nodes to hook, so the traced tree must disable the fusions: two code paths that must be kept identical. Frames are pooled, so locals vanish on return. | One dispatch loop generic over a tracer struct. The lean instantiation has empty inlined hooks. The pc maps to a span through a table. Frames and registers are heap data that stay intact until overwritten. |
-| (e) no IL, safe code, AOT | Fine. | Fine. The tracer generic is a struct type argument known at compile time, so NativeAOT compiles both instantiations (`spike/OneEcma.ExecutorSpike.AotCheck`). |
+| (e) no IL, safe code, AOT | Fine. | Fine. The tracer generic is a struct type argument known at compile time, so NativeAOT compiles both instantiations (an AOT check app). |
 
 The cost of choosing B: a compiler with register allocation, jump patching and compile-time environment depth, a
 dispatch loop that must be kept correct by tests, and 1.0 to 1.6x slower steady-state calls than a closure tree. Nothing
@@ -44,7 +50,7 @@ All of it is BCL only, safe code, no IL emission.
   Deliberate deviations: top-level `var`/function declarations are locals of the program, not global-object properties;
   sloppy `this` is `undefined`; no Annex B function-in-block var copy; number formatting is approximate.
 
-Tests (`tests/OneEcma.Tests/ExecutorSpikeTests.cs`, 48 cases): the benchmark scripts against values computed in C#;
+Tests (48 cases): the benchmark scripts against values computed in C#;
 semantics checked on both executors (closure capture per iteration, TDZ, const assignment, error messages with the
 callee text taken from the span, evaluation order, `try` through frames); fuel limits on four loop shapes and on
 recursion; a 100,000-term sum and a 100,000-link member or call chain on a 256 KB thread; recursion depth on a thin

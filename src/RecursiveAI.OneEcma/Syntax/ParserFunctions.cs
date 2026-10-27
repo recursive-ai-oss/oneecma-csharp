@@ -1603,6 +1603,8 @@ internal sealed partial class Parser
             }
         }
 
+        // 10.2.5 / Function.prototype.toString: a method's source text begins after `static`.
+        int methodStart = _tok.Start;
         bool isAsync = false;
         bool isGen = false;
         ClassMemberKind kind = ClassMemberKind.Method;
@@ -1693,7 +1695,7 @@ internal sealed partial class Parser
                 DeclarePrivate(ctx, pk.Name, pkind, pk.Span);
             }
 
-            FunctionNode f = ParseFunctionRest(start, null, isAsync, isGen, flavor, isExpression: true);
+            FunctionNode f = ParseFunctionRest(methodStart, null, isAsync, isGen, flavor, isExpression: true);
             return new MethodDefinition(start, _prevEnd, kind, key, computed, isStatic, f);
         }
 

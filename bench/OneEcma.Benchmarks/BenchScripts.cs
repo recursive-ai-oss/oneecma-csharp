@@ -1,7 +1,7 @@
-namespace RecursiveAI.OneEcma.ExecutorSpike;
+namespace RecursiveAI.OneEcma.Benchmarks;
 
-/// <summary>The benchmark sources. Each is plain ES5-style code inside the spike subset, so every engine runs the same text.</summary>
-public static class SpikeScripts
+/// <summary>Small kernel sources. Each is plain ES5-style code, so every engine runs the same text.</summary>
+public static class BenchScripts
 {
     /// <summary>Name, source and the expected completion value of each benchmark.</summary>
     public static IReadOnlyList<(string Name, string Source, object Expected)> All { get; } =

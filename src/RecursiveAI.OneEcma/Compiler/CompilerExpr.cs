@@ -27,6 +27,27 @@ internal sealed partial class Compiler
         _nameHint = null;
     }
 
+    /// <summary>13.15.2 step 1.c: the anonymous function takes the target's name only when the target is an IdentifierRef, which a parenthesized identifier is not.</summary>
+    private void ExprNamedUnlessParenthesized(Node e, Identifier target)
+    {
+        if (target.IsParenthesized)
+        {
+            Expr(e);
+        }
+        else
+        {
+            ExprNamed(e, target.Name);
+        }
+    }
+
+    /// <summary>13.3.7.1 SuperProperty : super [ Expression ]: the this binding is read (and may throw) before the key expression runs.</summary>
+    private void SuperKeyExpr(MemberExpression sm)
+    {
+        Emit(Op.LoadThis);
+        Emit(Op.Pop);
+        Expr(sm.Property);
+    }
+
     private void ExprDiscard(Node n)
     {
         int s = _f.CurS;
@@ -474,13 +495,25 @@ internal sealed partial class Compiler
 
         switch (n)
         {
-            case CallExpression call when !call.IsOptional && call.Callee is not (SuperExpression or ChainExpression) && !HasSpread(call.Arguments) && !call.IsDirectEvalCandidate:
+            case CallExpression call when !call.IsOptional && call.Callee is not (SuperExpression or ChainExpression) && !HasSpread(call.Arguments):
                 {
                     int s = _f.CurS;
                     int e = _f.CurE;
                     SetSpan(n);
                     _tailCall = true;
                     CallExpr(call);
+                    _tailCall = false;
+                    SetSpan(s, e);
+                    break;
+                }
+
+            case TaggedTemplate:
+                {
+                    int s = _f.CurS;
+                    int e = _f.CurE;
+                    SetSpan(n);
+                    _tailCall = true;
+                    Expr(n);
                     _tailCall = false;
                     SetSpan(s, e);
                     break;
@@ -643,7 +676,7 @@ internal sealed partial class Compiler
         {
             if (m.Computed)
             {
-                Expr(m.Property);
+                SuperKeyExpr(m);
                 Emit(Op.GetSuperElem);
             }
             else
@@ -801,7 +834,7 @@ internal sealed partial class Compiler
             case MemberExpression { Object: SuperExpression } sm:
                 if (sm.Computed)
                 {
-                    Expr(sm.Property);
+                    SuperKeyExpr(sm);
                     Emit(Op.GetSuperElem);
                 }
                 else
@@ -917,8 +950,8 @@ internal sealed partial class Compiler
             }
 
             SetSpan(callSpanS, callSpanE);
-            bool tail = tailRequested && !direct && !call.IsOptional;
-            Emit(direct ? Op.CallEval : tail ? Op.TailCall : Op.Call, call.Arguments.Count, direct ? EvalFlags() : textIdx);
+            bool tail = tailRequested && !call.IsOptional;
+            Emit(direct ? (tail ? Op.TailCallEval : Op.CallEval) : tail ? Op.TailCall : Op.Call, call.Arguments.Count, direct ? EvalFlags() : textIdx);
         }
 
         SetSpan(call);
@@ -1037,6 +1070,8 @@ internal sealed partial class Compiler
 
     private void TaggedTemplateExpr(TaggedTemplate tt)
     {
+        bool tailRequested = _tailCall;
+        _tailCall = false;
         // The tag is evaluated as a call target, so member tags keep their this value.
         switch (tt.Tag)
         {
@@ -1074,7 +1109,7 @@ internal sealed partial class Compiler
         }
 
         SetSpan(tt.Tag);
-        Emit(Op.Call, tt.Quasi.Expressions.Count + 1, TextConst(tt.Tag));
+        Emit(tailRequested ? Op.TailCall : Op.Call, tt.Quasi.Expressions.Count + 1, TextConst(tt.Tag));
     }
 
     private void ArrayLit(ArrayLiteral al)

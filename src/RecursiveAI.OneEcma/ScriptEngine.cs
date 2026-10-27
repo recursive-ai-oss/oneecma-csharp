@@ -272,7 +272,7 @@ public sealed class ScriptEngine
             e.Report ??= ErrorReport.ForLimit(e);
             throw;
         }
-        catch (Exception e) when (e is not (OperationCanceledException or ArgumentException))
+        catch (Exception e) when (e is not OperationCanceledException)
         {
             throw new InvalidOperationException("Internal engine error: " + e.GetType().Name + ": " + e.Message, e);
         }

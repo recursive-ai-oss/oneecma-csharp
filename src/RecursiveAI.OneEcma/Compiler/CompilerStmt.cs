@@ -127,11 +127,14 @@ internal sealed partial class Compiler
                 {
                     ResetCompletion();
                     Control c = PushLoop(labels);
-                    Mark(c.Continue!);
+                    // `continue` lands on the back edge (which charges fuel), not on the test, so a loop that only continues still ends.
+                    JumpLabel top = NewLabel();
+                    Mark(top);
                     Expr(ws.Test);
                     Jump(Op.JmpIfFalse, c.Break!);
                     Stmt(ws.Body);
-                    Jump(Op.JmpBack, c.Continue!);
+                    Mark(c.Continue!);
+                    Jump(Op.JmpBack, top);
                     PopControl(c);
                     Mark(c.Break!);
                     break;
@@ -580,7 +583,7 @@ internal sealed partial class Compiler
         SetSpan(fo.Right);
         Emit(Op.GetIterator, isAwait ? 1 : 0, TextConst(fo.Right));
         SetSpan(fo);
-        Control c = new() { Kind = Control.K.IterLoop, Labels = labels, Break = NewLabel(), Continue = NewLabel(), StackItems = 2, Async = isAwait };
+        Control c = new() { Kind = Control.K.IterLoop, Labels = labels, Break = NewLabel(), Continue = NewLabel(), StackItems = 2, Async = isAwait, RecordDepth = _f.Depth };
         _f.Controls.Add(c);
         JumpLabel top = NewLabel();
         JumpLabel exit = NewLabel();
@@ -727,6 +730,7 @@ internal sealed partial class Compiler
     {
         List<Control> saved = _f.Controls;
         int savedDepth = _f.Depth;
+        CScope? savedScope = _scope;
         try
         {
             for (int i = saved.Count - 1; i > targetIndex; i--)
@@ -745,6 +749,7 @@ internal sealed partial class Compiler
         {
             _f.Controls = saved;
             _f.Depth = savedDepth;
+            _scope = savedScope;
         }
     }
 
@@ -789,16 +794,24 @@ internal sealed partial class Compiler
             case Control.K.With:
                 if (!forReturn)
                 {
+                    // A finally block compiled inline after this point runs outside the popped scope, so name
+                    // resolution must not count it (a hop too many reads a missing environment).
                     Emit(Op.PopScope);
+                    _scope = _scope?.Parent;
                 }
 
                 break;
             case Control.K.Try:
                 Emit(Op.TryLeave);
+                if (c.DoneTemp >= 0)
+                {
+                    // Iterator of an array destructuring: its record sits StackItems deep; operands above it are still live.
+                    Emit(Op.IterCloseIfNotDone, c.DoneTemp, _f.Depth - c.StackItems);
+                }
+
                 if (c.Finalizer is not null)
                 {
-                    BlockStatement fin = c.Finalizer;
-                    Stmt(fin);
+                    FinallyBlock(c.Finalizer);
                 }
 
                 break;
@@ -809,7 +822,8 @@ internal sealed partial class Compiler
                 }
                 else
                 {
-                    Emit(Op.IterClose);
+                    // Operands above the record (an array destructuring in the loop head) are still on the stack.
+                    Emit(Op.IterClose, 0, forReturn ? _f.Depth - c.RecordDepth : 0);
                 }
 
                 if (!forReturn)
@@ -835,7 +849,7 @@ internal sealed partial class Compiler
         bool needsCleanup = false;
         foreach (Control c in _f.Controls)
         {
-            if (c.Kind == Control.K.Try && c.Finalizer is not null || c.Kind == Control.K.IterLoop)
+            if (c.Kind == Control.K.Try && (c.Finalizer is not null || c.DoneTemp >= 0) || c.Kind == Control.K.IterLoop)
             {
                 needsCleanup = true;
             }
@@ -866,6 +880,28 @@ internal sealed partial class Compiler
 
     // ---- try ------------------------------------------------------------------------------------
 
+    /// <summary>
+    /// 14.15.3 TryStatement : try Block Finally: a finally block that completes normally leaves the completion value of the
+    /// try or catch block in place, so statement values inside it must not leak into the completion register.
+    /// </summary>
+    private void FinallyBlock(BlockStatement fin)
+    {
+        if (_f.CompletionTemp < 0)
+        {
+            Stmt(fin);
+            return;
+        }
+
+        int keep = NewTemp();
+        Emit(Op.LoadLocal, _f.CompletionTemp);
+        Emit(Op.StoreLocal, keep);
+        ResetCompletion(); // an abrupt exit from the finally block (break, continue) carries its own value, empty meaning undefined
+        Stmt(fin);
+        Emit(Op.LoadLocal, keep);
+        Emit(Op.StoreLocal, _f.CompletionTemp);
+        FreeTemp(keep);
+    }
+
     private void Try(TryStatement ts)
     {
         ResetCompletion();
@@ -895,6 +931,7 @@ internal sealed partial class Compiler
             Jump(Op.Jmp, afterCatch);
             _f.Depth = baseDepth + 1;
             Mark(catchL);
+            ResetCompletion(); // 14.15.3 step: the catch block's value replaces the try block's (UpdateEmpty(C, undefined))
             CatchClause h = ts.Handler!;
             CScope? cs = EnterScope(h.Scope);
             Control? sc = null;
@@ -931,13 +968,13 @@ internal sealed partial class Compiler
         {
             PopControl(finCtl!);
             Emit(Op.TryLeave);
-            Stmt(ts.Finalizer!);
+            FinallyBlock(ts.Finalizer!);
             Jump(Op.Jmp, end);
             _f.Depth = baseDepth + 1;
             Mark(finHandler);
             int t = NewTemp();
             Emit(Op.StoreLocal, t);
-            Stmt(ts.Finalizer!);
+            FinallyBlock(ts.Finalizer!);
             Emit(Op.LoadLocal, t);
             Emit(Op.Throw);
             FreeTemp(t);

@@ -131,7 +131,9 @@ public class JsObject
     internal void PrivateAddMethod(PrivateMethodDef m)
     {
         Privates ??= new Dictionary<PrivateName, PrivateElement>();
-        if (Privates.TryGetValue(m.Name, out PrivateElement? ex) && ex.Kind == 2 && m.Method is null)
+        // A getter and a setter of one name arrive as two definitions and merge; a slot that is already filled is a double initialization.
+        if (Privates.TryGetValue(m.Name, out PrivateElement? ex) && ex.Kind == 2 && m.Method is null
+            && ((m.Getter is not null && ex.Getter is null) || (m.Setter is not null && ex.Setter is null)))
         {
             ex.Getter ??= m.Getter;
             ex.Setter ??= m.Setter;

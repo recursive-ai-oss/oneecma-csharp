@@ -133,6 +133,11 @@ public sealed class Runner
         {
             failure = "harness: " + e.Message;
         }
+        catch (Exception e) when (e is not OperationCanceledException)
+        {
+            // One test must never take down the run.
+            failure = "harness crash: " + e.GetType().Name + ": " + Trim(e.Message);
+        }
 
         string? reason = _options.Documented.Find(rel);
         if (failure is null)
