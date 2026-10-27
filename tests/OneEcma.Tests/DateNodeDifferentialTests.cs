@@ -81,7 +81,9 @@ public class DateNodeDifferentialTests
         Assert.Equal(expected.Length, actual.Count);
         for (int i = 0; i < expected.Length; i++)
         {
-            if (expected[i] != actual[i] && !known.Contains(zone + "|" + Label(expected[i])) && !(zone != "UTC" && IsEarly(expected[i])))
+            // The reference engine prints a plain space where the CLDR patterns (and test262's intl402 expectations) use
+            // U+202F NARROW NO-BREAK SPACE before the day period, so the two are compared as equal here.
+            if (expected[i] != actual[i].Replace('\u202F', ' ') && !known.Contains(zone + "|" + Label(expected[i])) && !(zone != "UTC" && IsEarly(expected[i])))
             {
                 bad.Add($"expected: {expected[i]}\n  actual: {actual[i]}");
             }
