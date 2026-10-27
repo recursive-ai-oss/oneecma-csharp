@@ -54,6 +54,19 @@ internal sealed class RegExpCompiler
 
     private void Add(params int[] ops) => _code.AddRange(ops);
 
+    // A pattern may hold a lone surrogate (as a raw code unit or a \u escape); char.ConvertFromUtf32 rejects those.
+    private static void AppendCodePoint(System.Text.StringBuilder sb, int cp)
+    {
+        if (cp <= 0xFFFF)
+        {
+            sb.Append((char)cp);
+        }
+        else
+        {
+            sb.Append(char.ConvertFromUtf32(cp));
+        }
+    }
+
     private int AddJump(int op)
     {
         _code.Add(op);
@@ -381,7 +394,7 @@ internal sealed class RegExpCompiler
                         var sb = new System.Text.StringBuilder();
                         foreach (int cp in cps)
                         {
-                            sb.Append(char.ConvertFromUtf32(fold ? RegExpUnicode.SimpleFold(cp) : cp));
+                            AppendCodePoint(sb, fold ? RegExpUnicode.SimpleFold(cp) : cp);
                         }
 
                         strings.Add(sb.ToString());
@@ -462,7 +475,7 @@ internal sealed class RegExpCompiler
                     i++;
                 }
 
-                sb.Append(char.ConvertFromUtf32(RegExpUnicode.SimpleFold(cp)));
+                AppendCodePoint(sb, RegExpUnicode.SimpleFold(cp));
             }
 
             result.Add(sb.ToString());

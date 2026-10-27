@@ -83,6 +83,7 @@ The differential in `testdata/regexp/` (835 hand-written cases) and three seeded
 1. **Match starting inside a surrogate pair.** In a `u`/`v` pattern V8 can return a match whose start index lies between the two halves of a pair (`/\B/u` on a string with astral characters, and lookaheads such as `(?!.)`). The specification only starts on code point boundaries; so do we.
 2. **Modifier `i` leaks into `\W`, `\b`, `\B`.** After a group `(?i:…)`, V8 evaluates a later `\W`, `\b` or `\B` of a `u`/`v` pattern without `i` as if `i` were set, so U+017F and U+212A count as word characters. We apply the flags of the enclosing scope, as the spec does.
 3. **Repeated group names.** For some arrangements of alternatives V8 accepts names that 22.2.1.1 rejects, for example `(x|y)|(?<n>)(?<n>1|)`, which depends on an earlier capturing group containing `|`. V8's rule is not a function of the spec's, so we implement the spec's MightBothParticipate with V8's registration time. Where V8 accepts `(?<n>a(?<n>b)|c)` (the inner group in a non-last alternative of the outer group's own body) and rejects `(?<n>a|c(?<n>b))`, we agree.
+4. **Single characters in `\q{…}` under `v` and `i`.** V8 does not match `[\q{c}]` against `C` with flags `iv`, although `[c]` does; ECMA-262 22.2.2.7.3 folds both sides, so `[\q{c}]` matches `C` here.
 
 ## V8 message table
 
