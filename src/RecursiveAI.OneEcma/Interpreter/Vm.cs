@@ -114,16 +114,14 @@ internal static partial class Vm
             throw Errors.Type("Class constructor " + code.Name + " cannot be invoked without 'new'");
         }
 
-        var f = new Frame(code, fn.Realm)
-        {
-            Func = fn,
-            Env = fn.Env,
-            NewTarget = newTarget,
-            ArgArr = args,
-            ArgOff = off,
-            ArgCount = argc,
-            IsConstruct = newTarget is not null,
-        };
+        var f = Frame.Obtain(code, fn.Realm);
+        f.Func = fn;
+        f.Env = fn.Env;
+        f.NewTarget = newTarget;
+        f.ArgArr = args;
+        f.ArgOff = off;
+        f.ArgCount = argc;
+        f.IsConstruct = newTarget is not null;
         if (code.Kind == FunctionKind.Arrow)
         {
             f.ThisFrame = fn.OuterFrame!.ThisFrame;
@@ -543,7 +541,7 @@ internal static partial class Vm
                             DeclareEvalVars(f, (GlobalDeclsView)fc.Tables[ins.A]);
                             break;
                         case Op.PushScope:
-                            f.Env = new Env(f.Env, fc.Scopes[ins.A]);
+                            f.Env = Env.Obtain(f.Env, fc.Scopes[ins.A]);
                             break;
                         case Op.PopScope:
                             f.Env = f.Env!.Parent;
@@ -1340,6 +1338,7 @@ internal static partial class Vm
                                     return rv;
                                 }
 
+                                Frame done = f;
                                 f = f.Caller!;
                                 ag.Frame = f;
                                 ag.Realm = f.Realm;
@@ -1349,6 +1348,11 @@ internal static partial class Vm
                                 code = f.Code.Ops;
                                 fc = f.Code;
                                 st[sp++] = rv;
+                                if (typeof(TTrace) == typeof(NoTrace))
+                                {
+                                    Frame.Recycle(done);
+                                }
+
                                 break;
                             }
 
