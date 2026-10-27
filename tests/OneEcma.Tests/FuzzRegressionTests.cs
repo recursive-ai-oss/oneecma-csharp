@@ -149,5 +149,16 @@ public sealed class FuzzRegressionTests
         Assert.True(ms < 3000, ms.ToString(System.Globalization.CultureInfo.InvariantCulture) + " ms");
     }
 
+    [Fact]
+    public void AwaitingAPromiseThatCanNeverSettleThrowsAnExceptionWithAReport()
+    {
+        // A thenable that never calls back leaves the entry promise pending with nothing left to run.
+        var engine = new ScriptEngine();
+        JsValue p = engine.EvaluateAsyncBody("await { then() {} };", "t.js", Ct);
+        JsException e = Assert.Throws<JsException>(() => engine.Await(p, Ct));
+        Assert.NotNull(e.Report);
+        Assert.Equal("The promise never settles: no job is queued and no host operation is running", e.Report.Headline);
+    }
+
     private static CancellationToken Ct => TestContext.Current.CancellationToken;
 }

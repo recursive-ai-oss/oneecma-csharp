@@ -144,7 +144,13 @@ public sealed partial class ScriptEngine
             }
         }
 
-        throw Guard<JsException>(() => Errors.Make("Error", "The promise never settles: no job is queued and no host operation is running"), default);
+        // The exception is built, not thrown, inside the guard, so the guard's own handler never sees it: give it its report here.
+        throw Guard<JsException>(() =>
+        {
+            JsException e = Errors.Make("Error", "The promise never settles: no job is queued and no host operation is running");
+            e.Report ??= Diagnostics.ErrorReport.ForException(e);
+            return e;
+        }, default);
     }
 
     private bool PumpStep(Func<bool>? done, CancellationToken token, out bool finished)
