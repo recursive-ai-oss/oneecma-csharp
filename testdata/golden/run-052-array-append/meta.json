@@ -1,0 +1,16 @@
+{
+  "id": "run-052-array-append",
+  "category": "rt:not-a-function",
+  "kind": "runtime",
+  "repair": null,
+  "node": {
+    "name": "TypeError",
+    "message": "rows.append is not a function",
+    "line": 2,
+    "column": 6,
+    "stack_head": [
+      "rows.append(4);",
+      "     ^"
+    ]
+  }
+}

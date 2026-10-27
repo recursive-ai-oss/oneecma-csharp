@@ -1,0 +1,12 @@
+error[RangeError]: Invalid time value
+ --> case.js:4:13
+  |
+2 | const dates = events.map((e) => new Date(e.createdAt));
+  |                                 --------------------- `new Date(e.createdAt)`: `e.createdAt` is undefined, so the Date is invalid
+3 | const latest = dates[1];
+  |                -------- `latest` is made here
+4 | console.log(latest.toISOString());
+  |             ^^^^^^^^^^^^^^^^^^ `latest` is an Invalid Date, so `toISOString` throws
+  |
+  = help: did you mean `e.created_at`? (string)
+  = stack: <top-level> (case.js:4)

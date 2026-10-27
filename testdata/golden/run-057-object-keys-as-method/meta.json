@@ -1,0 +1,16 @@
+{
+  "id": "run-057-object-keys-as-method",
+  "category": "rt:not-a-function",
+  "kind": "runtime",
+  "repair": null,
+  "node": {
+    "name": "TypeError",
+    "message": "config.keys is not a function",
+    "line": 2,
+    "column": 19,
+    "stack_head": [
+      "const ks = config.keys();",
+      "                  ^"
+    ]
+  }
+}

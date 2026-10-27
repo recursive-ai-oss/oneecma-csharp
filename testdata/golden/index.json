@@ -90,6 +90,19 @@
   "run-044-pad-to-huge-width",
   "run-045-upstream-missing-property-through-calls",
   "run-046-find-after-filter-kept-nothing",
-  "run-047-function-returns-nothing"
+  "run-047-function-returns-nothing",
+  "run-048-array-sum",
+  "run-049-array-contains",
+  "run-050-array-length-called",
+  "run-051-array-first",
+  "run-052-array-append",
+  "run-053-array-count",
+  "run-054-string-contains",
+  "run-055-string-to-upper",
+  "run-056-string-strip",
+  "run-057-object-keys-as-method",
+  "run-058-object-items",
+  "run-059-map-map",
+  "run-060-invalid-date-misnamed-field"
  ]
 }

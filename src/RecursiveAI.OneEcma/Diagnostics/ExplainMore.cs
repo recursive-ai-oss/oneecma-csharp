@@ -769,7 +769,10 @@ internal static partial class Explain
                 input = FindDateInCallers(d, trace, (JsDate)dateEval.Value.Ref!, name);
             }
 
-            d.Help.Add("check it before " + (argSpan is null ? "formatting" : "passing it on") + ": `if (Number.isNaN(" + name + ".getTime())) { ... }`");
+            if (!ExplainDateFromUndefined(d, trace, (JsDate)dateEval.Value.Ref!, primary))
+            {
+                d.Help.Add("check it before " + (argSpan is null ? "formatting" : "passing it on") + ": `if (Number.isNaN(" + name + ".getTime())) { ... }`");
+            }
         }
         else if (inlineText is not null)
         {
@@ -796,6 +799,53 @@ internal static partial class Explain
         {
             d.Help.Insert(0, "`new Date(text)` only reliably reads ISO 8601 text such as `2024-01-31` or `2024-01-31T10:00:00Z`");
         }
+    }
+
+    /// <summary>
+    /// When the Invalid Date was made by `new Date(x)` and `x` was an undefined from a property read, says so at the `new Date`
+    /// and gives the usual help for a missing property (did you mean, including `created_at` for `createdAt`).
+    /// </summary>
+    private static bool ExplainDateFromUndefined(Diagnostic d, TraceState trace, JsDate date, Span primary)
+    {
+        if (trace.MadeDateOf(date) is not { } made || trace.UndefinedOriginOf(made.Argument) is not { } uo
+            || (!ReferenceEquals(made.Source, d.Source) && made.Source.Name != d.Source.Name))
+        {
+            return false;
+        }
+
+        string argText = Slice(d.Source, uo.Start, uo.End);
+        // The recorded span is the constructor name; the label wants `new Date(...)` whole.
+        string all = d.Source.Text;
+        int madeStart = made.Start;
+        int back = madeStart;
+        while (back > 0 && char.IsWhiteSpace(all[back - 1]))
+        {
+            back--;
+        }
+
+        if (back >= 3 && string.CompareOrdinal(all, back - 3, "new", 0, 3) == 0 && (back == 3 || !IsIdentPart(all[back - 4])))
+        {
+            madeStart = back - 3;
+        }
+
+        int madeEnd = ExtendCall(all, made.End);
+        string madeText = Clip(Slice(d.Source, madeStart, madeEnd).Replace("\n", " ", StringComparison.Ordinal), 60);
+        var madeSpan = new Span(madeStart, madeEnd);
+        if (!ExplainUndefinedOrigin(d, trace, argText, made.Argument, string.Empty, false, primary, advise: true))
+        {
+            return false;
+        }
+
+        // One label says it all: the Date call and the undefined that went into it.
+        string message = "`" + madeText + "`: `" + argText + "` is undefined, so the Date is invalid";
+        d.SecondaryLabels.RemoveAll(x => x.Span == madeSpan);
+        d.Provenance.RemoveAll(x => x.Span == madeSpan);
+        var undefinedSpan = new Span(uo.Start, uo.End);
+        d.SecondaryLabels.RemoveAll(x => x.Span == undefinedSpan);
+        d.Provenance.RemoveAll(x => x.Span == undefinedSpan);
+        d.SecondaryLabels.Add(new Label(madeSpan, message));
+        d.Provenance.Add(new ProvenanceStep(madeSpan, message));
+        return true;
     }
 
     /// <summary>The text of <c>new Date("...")</c> or of the string a path holds, or null when it is neither.</summary>

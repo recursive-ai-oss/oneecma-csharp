@@ -1,0 +1,10 @@
+error[TypeError]: config.keys is not a function
+ --> case.js:2:12
+  |
+1 | const config = { a: 1, b: 2 };
+  |                -------------- `config` comes from here: { a, b }
+2 | const ks = config.keys();
+  |            ^^^^^^^^^^^ `config` is an Object, so it has no `keys`
+  |
+  = help: `keys` is a static function, not a method of objects; call `Object.keys(config)`
+  = stack: <top-level> (case.js:2)

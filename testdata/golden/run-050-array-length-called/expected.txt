@@ -1,0 +1,10 @@
+error[TypeError]: rows.length is not a function
+ --> case.js:2:11
+  |
+1 | const rows = [1, 2, 3];
+  |              --------- `rows` comes from here: Array (3 items)
+2 | const n = rows.length();
+  |           ^^^^^^^^^^^ `rows.length` is a number, not a function
+  |
+  = help: `length` is a property, not a method; write `rows.length`
+  = stack: <top-level> (case.js:2)

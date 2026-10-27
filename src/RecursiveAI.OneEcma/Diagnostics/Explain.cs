@@ -538,13 +538,29 @@ internal static partial class Explain
             return 0.5;
         }
 
-        if (wanted.Length >= 3 && cand.Length >= 3 && (cand.Contains(wanted, StringComparison.OrdinalIgnoreCase) || wanted.Contains(cand, StringComparison.OrdinalIgnoreCase)))
+        // `createdAt` and `created_at` are the same word in two spellings.
+        if (SameWords(wanted, cand))
+        {
+            return 0.5;
+        }
+
+        // One name inside the other (`item` in `items`), when the shorter is five or more characters or most of the longer: `sum` is not `summary`.
+        if (wanted.Length >= 3 && cand.Length >= 3 && (Math.Min(wanted.Length, cand.Length) >= 5 || Math.Min(wanted.Length, cand.Length) * 3 >= Math.Max(wanted.Length, cand.Length) * 2)
+            && (cand.Contains(wanted, StringComparison.OrdinalIgnoreCase) || wanted.Contains(cand, StringComparison.OrdinalIgnoreCase)))
         {
             return 1;
         }
 
+        // Short names are not close to anything two edits away: `sum` and `some`, `size` and `slice` are different words.
+        int allowed = wanted.Length <= 4 ? 1 : Math.Max(2, wanted.Length / 3);
         int dist = Distance(wanted, cand);
-        return dist <= Math.Max(2, wanted.Length / 3) && dist < Math.Max(wanted.Length, 1) ? dist + 1 : 99;
+        return dist <= allowed && dist < Math.Max(wanted.Length, 1) ? dist + 1 : 99;
+    }
+
+    private static bool SameWords(string a, string b)
+    {
+        static string Flat(string s) => s.Replace("_", string.Empty, StringComparison.Ordinal).Replace("-", string.Empty, StringComparison.Ordinal);
+        return a.Length > 3 && b.Length > 3 && string.Equals(Flat(a), Flat(b), StringComparison.OrdinalIgnoreCase);
     }
 
     private static (string Name, JsValue Value)? Closest(string wanted, IEnumerable<(string Name, JsValue Value)> candidates, string? needsMember, Realm realm)
@@ -923,6 +939,12 @@ internal static partial class Explain
         if (ov.Ref is PromiseObject)
         {
             d.Help.Add("`" + ownerText + "` is a Promise; `await` it first");
+            return;
+        }
+
+        if (IdiomHelp(ov, ownerText, member, found) is { } idiom)
+        {
+            d.Help.Add(idiom);
             return;
         }
 

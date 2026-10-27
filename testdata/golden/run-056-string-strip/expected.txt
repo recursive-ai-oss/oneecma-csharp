@@ -1,0 +1,10 @@
+error[TypeError]: title.strip is not a function
+ --> case.js:2:11
+  |
+1 | const title = "  hi ";
+  |               ------- `title` comes from here: "  hi "
+2 | const t = title.strip();
+  |           ^^^^^^^^^^^ `title` is a string, so it has no `strip`
+  |
+  = help: strings have no `strip`; use `title.trim()`
+  = stack: <top-level> (case.js:2)
