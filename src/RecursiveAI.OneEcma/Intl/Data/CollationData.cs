@@ -23,6 +23,9 @@ internal sealed class CollationData
     private readonly int _maxContraction;
     private readonly (int Base, int Shift, int Mode, int Origin)[] _classes;
     private readonly (int First, int Last, byte Class)[] _runs;
+    private readonly Dictionary<ulong, CollationElement[]> _packed;
+    private readonly int[] _digitZeros;
+    private int _lastIgnorableSecondary = -1;
 
     private CollationData(
         string version,
@@ -31,7 +34,8 @@ internal sealed class CollationData
         HashSet<int> starts,
         int maxContraction,
         (int, int, int, int)[] classes,
-        (int, int, byte)[] runs)
+        (int, int, byte)[] runs,
+        int[] digitZeros)
     {
         Version = version;
         _singles = singles;
@@ -40,6 +44,112 @@ internal sealed class CollationData
         _maxContraction = maxContraction;
         _classes = classes;
         _runs = runs;
+        _digitZeros = digitZeros;
+        _packed = new Dictionary<ulong, CollationElement[]>(contractions.Count);
+        Span<int> cps = stackalloc int[2 * MaxPackedLength + 2];
+        foreach (var (key, ces) in contractions)
+        {
+            int n = 0;
+            foreach (System.Text.Rune r in key.EnumerateRunes())
+            {
+                if (n == MaxPackedLength)
+                {
+                    throw new InvalidDataException("A root contraction is longer than the packed key allows.");
+                }
+
+                cps[n++] = r.Value;
+            }
+
+            _packed[PackKey(cps[..n])] = ces;
+        }
+    }
+
+    /// <summary>Longest contraction (in code points) that <see cref="TryGetContraction"/> can look up.</summary>
+    internal const int MaxPackedLength = 3;
+
+    /// <summary>Packs up to <see cref="MaxPackedLength"/> code points into one lookup key (each stored as cp + 1 in 21 bits).</summary>
+    internal static ulong PackKey(ReadOnlySpan<int> cps)
+    {
+        ulong key = 0;
+        for (int i = 0; i < cps.Length; i++)
+        {
+            key |= (ulong)(cps[i] + 1) << (21 * i);
+        }
+
+        return key;
+    }
+
+    /// <summary>Looks up a contraction (two or more code points) without allocating.</summary>
+    internal bool TryGetContraction(ReadOnlySpan<int> key, out CollationElement[] elements)
+    {
+        if (key.Length > MaxPackedLength)
+        {
+            elements = [];
+            return false;
+        }
+
+        return _packed.TryGetValue(PackKey(key), out elements!);
+    }
+
+    /// <summary>Whether some contraction of the table starts with this code point.</summary>
+    internal bool IsContractionStart(int cp) => _contractionStarts.Contains(cp);
+
+    /// <summary>The elements of a single code point that has its own table entry; false for implicit weights.</summary>
+    internal bool TryGetSingle(int cp, out CollationElement[] elements) => _singles.TryGetValue(cp, out elements!);
+
+    /// <summary>
+    /// The largest secondary weight among elements that are ignorable at level 1; UTS #35's
+    /// <c>[last primary ignorable]</c> reset position.
+    /// </summary>
+    internal int LastPrimaryIgnorableSecondary
+    {
+        get
+        {
+            if (_lastIgnorableSecondary < 0)
+            {
+                int max = 0;
+                foreach (CollationElement[] ces in _singles.Values.Concat(_contractions.Values))
+                {
+                    foreach (CollationElement e in ces)
+                    {
+                        if (e.Primary == 0 && e.Secondary > max)
+                        {
+                            max = e.Secondary;
+                        }
+                    }
+                }
+
+                _lastIgnorableSecondary = max;
+            }
+
+            return _lastIgnorableSecondary;
+        }
+    }
+
+    /// <summary>The decimal value (0-9) of a code point with general category Nd, or -1.</summary>
+    internal int DecimalDigitValue(int cp)
+    {
+        int lo = 0;
+        int hi = _digitZeros.Length - 1;
+        while (lo <= hi)
+        {
+            int mid = (lo + hi) >>> 1;
+            int zero = _digitZeros[mid];
+            if (cp < zero)
+            {
+                hi = mid - 1;
+            }
+            else if (cp > zero + 9)
+            {
+                lo = mid + 1;
+            }
+            else
+            {
+                return cp - zero;
+            }
+        }
+
+        return -1;
     }
 
     /// <summary>The UCA version of the table, for example <c>17.0.0</c>.</summary>
@@ -108,7 +218,16 @@ internal sealed class CollationData
             contractions[key.ToString()] = ReadElements(ref r);
         }
 
-        return new CollationData(version, singles, contractions, starts, maxLen, classes, runs);
+        // Added after the contractions; older blobs end here.
+        var zeros = new int[r.AtEnd ? 0 : r.Varint()];
+        int z = 0;
+        for (int i = 0; i < zeros.Length; i++)
+        {
+            z += r.Varint();
+            zeros[i] = z;
+        }
+
+        return new CollationData(version, singles, contractions, starts, maxLen, classes, runs, zeros);
     }
 
     private static CollationElement[] ReadElements(ref BlobReader r)

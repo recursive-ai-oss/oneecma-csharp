@@ -228,6 +228,7 @@ internal static class Format
     public const byte KindPlurals = 2;
     public const byte KindCollation = 3;
     public const byte KindBreaks = 4;
+    public const byte KindNormalization = 5;
 }
 
 /// <summary>Serializes a tree into the string-table-plus-nodes layout described in docs/locale-data.md.</summary>

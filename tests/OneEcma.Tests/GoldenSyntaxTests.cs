@@ -43,4 +43,56 @@ public sealed partial class GoldenSyntaxTests
         Assert.Equal(Headline().Matches(expected).Select(m => m.Groups[1].Value), Headline().Matches(actual).Select(m => m.Groups[1].Value));
         Assert.Equal(Arrow().Matches(expected).Select(m => m.Value.Trim()), Arrow().Matches(actual).Select(m => m.Value.Trim()));
     }
+
+    // Cases whose expected text the renderer cannot produce as written: the corpus draws an underline past the end of
+    // a line, and one that starts under whitespace on the previous token. Everything else must match byte for byte.
+    private static readonly HashSet<string> TextKnownDifferent =
+    [
+        "syn-012-missing-comma-arguments",
+        "syn-027-backtick-in-template",
+    ];
+
+    [Theory]
+    [MemberData(nameof(Cases))]
+    public void ReportTextMatchesTheCorpus(string id)
+    {
+        if (TextKnownDifferent.Contains(id))
+        {
+            return;
+        }
+
+        string dir = Path.Combine(RepoPaths.Root, "testdata", "golden", id);
+        string source = File.ReadAllText(Path.Combine(dir, "case.js"));
+        string expected = File.ReadAllText(Path.Combine(dir, "expected.txt"));
+        var result = JsParser.Parse(source, new ParseOptions { FileName = "case.js" }, TestContext.Current.CancellationToken);
+        Assert.Equal(expected, DiagnosticRenderer.RenderAll(result.Diagnostics));
+    }
+
+    public static IEnumerable<TheoryDataRow<string>> RepairCases()
+    {
+        string dir = Path.Combine(RepoPaths.Root, "testdata", "golden");
+        foreach (string d in Directory.GetDirectories(dir, "syn-*").Order(StringComparer.Ordinal))
+        {
+            if (File.Exists(Path.Combine(d, "repaired.js")))
+            {
+                yield return new TheoryDataRow<string>(Path.GetFileName(d));
+            }
+        }
+    }
+
+    [Theory]
+    [MemberData(nameof(RepairCases))]
+    public void RepairReproducesTheCorpus(string id)
+    {
+        string dir = Path.Combine(RepoPaths.Root, "testdata", "golden", id);
+        string source = File.ReadAllText(Path.Combine(dir, "case.js"));
+        RepairResult result = SyntaxRepair.Repair(source, new ParseOptions { FileName = "case.js" }, cancellationToken: TestContext.Current.CancellationToken);
+
+        Assert.Equal(File.ReadAllText(Path.Combine(dir, "repaired.js")), result.RepairedSource);
+        Assert.True(result.Parses);
+
+        // The corpus note says the repaired source ran; this library only parsed it.
+        var options = new RenderOptions { RepairOutcome = "the repaired source ran to completion and is returned with this report" };
+        Assert.Equal(File.ReadAllText(Path.Combine(dir, "expected.repair.txt")), DiagnosticRenderer.RenderRepair(result.Repairs[0], options));
+    }
 }

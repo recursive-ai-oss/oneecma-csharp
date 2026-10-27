@@ -16,7 +16,7 @@ It never throws for malformed input; every problem is a `Diagnostic`. `ParseOpti
 | `MaxDepth` | 512 | nesting limit; exceeding it reports `depth-limit` and stops |
 | `MaxErrors` | 100 | parsing stops after this many errors |
 | `AllowReturnOutsideFunction`, `AllowNewTarget`, `AllowSuperProperty`, `AllowSuperCall`, `InClassFieldInitializer`, `PrivateNames` | off | context for direct `eval` code and hosts that wrap source in a function body |
-| `RegExpValidator` | accepts all | `(pattern, flags) -> string?`: an error message for a bad pattern body, or null |
+| `RegExpValidator` | the engine's `RegExpValidator.ValidateLiteral` | `(body, flags, bodyStart) -> IReadOnlyList<RegExpDiagnostic>`: problems with source-offset spans, empty when valid; the first becomes the SyntaxError (headline = its V8 message, span = its token); null accepts all patterns |
 
 ## Positions
 
@@ -61,10 +61,14 @@ duplicates rules, `for (var x = 1 in y)` (sloppy), labelled function declaration
 
 - The parser reports every syntax error it finds. After an error it inserts the missing token or skips the stuck
   token (recorded in `Diagnostic.Recovery`) and resynchronizes at statement boundaries and at the closing bracket.
-- **Cooldown:** a new error within 10 tokens of a syntax error, or within 40 tokens on the same line, is dropped
-  as fallout. After a lexical error (unterminated string, typographic quote) errors on the same and next line are
-  dropped. Early errors are subject to the same rule. Deviation: two real mistakes closer than that are reported
-  as one.
+- **Resynchronization:** an error inside a parameter list skips to the next `,` or the closing `)` on bracket
+  structure; a broken `if`/`while`/`for`/`with` head skips to its `)` on the same line. The body is then parsed as a
+  body instead of as fallout of the head.
+- **Cooldown:** a new error within 3 tokens of a syntax error, or within 12 tokens on the same line, is dropped as
+  fallout; an end-of-input error is exempt from the same-line window (an unclosed bracket is always worth saying).
+  An early error (not a grammar error) within two lines after a syntax error is dropped as well. After a lexical
+  error (unterminated string, typographic quote) errors on the same and next line are dropped. Deviation: two real
+  mistakes closer than that are reported as one.
 - **Hints:** after parsing, `SyntaxHints` recognizes common mistakes (Python `elif`/`def`/`and`/`or`/`for ... in range`,
   TypeScript annotations, `as` casts and `interface`, HTML entities, typographic quotes, stray closers, a bracket
   still open at the end of the input) and may move the primary span to the construct that is wrong and add a label

@@ -27,17 +27,18 @@ The output is a pure function of the pinned inputs: two runs give identical byte
 
 | File | Content | Bytes |
 |---|---|---:|
-| `supplemental.bin` | tree: likely subtags, aliases, parent locales, default content, currency data (digits, regions), week data, time data, calendar preferences, numbering systems, metazone mapping, plural ranges, day period rules, territory containment, right-to-left scripts, BCP 47 keyword data (calendar, collation, currency, measure, number, timezone including IANA aliases), collation tailoring rule text, list of stored locales | 351,918 |
+| `supplemental.bin` | tree (collation tailoring rule text also covers the root `search` collation): likely subtags, aliases, parent locales, default content, currency data (digits, regions), week data, time data, calendar preferences, numbering systems, metazone mapping, plural ranges, day period rules, territory containment, right-to-left scripts, BCP 47 keyword data (calendar, collation, currency, measure, number, timezone including IANA aliases), collation tailoring rule text, list of stored locales | 351,918 |
 | `locale-<id>.bin` | tree per stored locale, delta against its parent | und 31,520; en 148,874; en-001 15,736; en-GB 4,192; es 125,352; es-419 17,439; es-US 13,955; fr 133,642; de 130,050; pt 125,568 |
 | `plurals.bin` | cardinal and ordinal plural rule ASTs for every CLDR language | 6,968 |
-| `collation.bin` | CLDR root collation table, contractions, implicit-weight ranges | 282,705 |
+| `collation.bin` | CLDR root collation table, contractions, implicit-weight ranges, decimal digit zeros | 282,838 |
 | `breaks.bin` | UAX #29 property ranges | 17,607 |
+| `normalization.bin` | UAX #15 combining classes, one-step decomposition mappings, composition exclusions | 35,464 |
 
-Total 1,405,526 bytes. The largest parts are likely subtags (222 KB of the supplemental tree), the root collation table (283 KB), and per language the units (about 35 KB) and currency names (about 31 KB). `en-US` is CLDR default content of `en` and `pt-BR` of `pt`, so they have no blob of their own; `en-GB`, `es-US` store only their differences.
+Total 1,445,121 bytes. The largest parts are likely subtags (222 KB of the supplemental tree), the root collation table (283 KB), and per language the units (about 35 KB) and currency names (about 31 KB). `en-US` is CLDR default content of `en` and `pt-BR` of `pt`, so they have no blob of their own; `en-GB`, `es-US` store only their differences.
 
 ## Container
 
-All integers are little endian. A varint is unsigned LEB128, at most 5 bytes. Every blob starts with 8 bytes: `OEDT`, format version (1), kind (1 tree, 2 plurals, 3 collation, 4 breaks), two zero bytes. A reader rejects any other version.
+All integers are little endian. A varint is unsigned LEB128, at most 5 bytes. Every blob starts with 8 bytes: `OEDT`, format version (1), kind (1 tree, 2 plurals, 3 collation, 4 breaks, 5 normalization), two zero bytes. A reader rejects any other version.
 
 ### Tree blobs (kind 1)
 
@@ -57,15 +58,19 @@ Two sections, cardinal then ordinal. Each: varint language count, then per langu
 
 ### Collation (kind 3)
 
-The CLDR root collation (`allkeys_CLDR.txt`, UCA 17.0.0, default alternate handling non-ignorable). Layout: varint-length version string; implicit classes (varint count; each u16 base, byte shift, byte mode, varint origin); implicit runs (varint count; each varint gap since previous end, varint length-1, byte class; class 0 covers every code point not in a run); single-code-point entries (varint count; each varint code point delta, byte CE count, CEs); contractions (varint count; each byte key length, varint code points, byte CE count, CEs). A CE is varint primary, varint secondary, byte tertiary with bit 7 set for variable (`*`) elements.
+The CLDR root collation (`allkeys_CLDR.txt`, UCA 17.0.0, default alternate handling non-ignorable). Layout: varint-length version string; implicit classes (varint count; each u16 base, byte shift, byte mode, varint origin); implicit runs (varint count; each varint gap since previous end, varint length-1, byte class; class 0 covers every code point not in a run); single-code-point entries (varint count; each varint code point delta, byte CE count, CEs); contractions (varint count; each byte key length, varint code points, byte CE count, CEs). A CE is varint primary, varint secondary, byte tertiary with bit 7 set for variable (`*`) elements. After the contractions come the decimal digits for numeric collation: varint count, then varint code point deltas of each digit zero (every general category Nd run is ten digits long, so only its zero is stored). A reader of an older blob that ends after the contractions has no digits.
 
 Implicit weights (UTS #10 §10.1.3, Table 16) for code points without an entry: `AAAA = base + (cp >> shift)` (shift 0 means no addition); `BBBB = ((mode 0 ? cp - origin : cp & 0x7FFF) | 0x8000)`; the pair is `[AAAA.0020.0002][BBBB.0000.0000]`. Classes: Tangut and Tangut Supplement (FB00), Tangut Components and Supplement (FB01), Nushu (FB02), Khitan Small Script (FB03) (assigned code points only), core Han = Unified_Ideograph in the CJK Unified Ideographs or CJK Compatibility Ideographs blocks (FB40 + cp>>15), other Unified_Ideograph (FB80 + cp>>15), everything else (FBC0 + cp>>15).
 
-The reader's `MatchLongest` expects NFD text and matches contiguous contractions only; discontiguous contraction matching, variable weighting options and the Collator options (`caseFirst`, `numeric`, `sensitivity`, ...) belong to the Collator.
+The reader's `MatchLongest` expects NFD text and matches contiguous contractions only; discontiguous contraction matching, variable weighting options and the Collator options (`caseFirst`, `numeric`, `sensitivity`, ...) belong to the Collator (docs/text-services.md).
 
-**Tailoring.** The root table is the default collation of en, fr, de and pt. Spanish (`standard`) adds `&N<ñ<<<Ñ`. The rule text of every non-alternate, non-draft `<collation>` of en, es, fr, de and pt (for example `es` `traditional`, `de` `phonebook`) is stored in `supplemental.bin` under `collationTailoring/<language>/<type>` exactly as CLDR writes it (decomposed, comments removed). The Collator applies it with the UTS #35 rule syntax; the data layer does not.
+**Tailoring.** The root table is the default collation of en, fr, de and pt. Spanish (`standard`) adds `&N<ñ<<<Ñ`. The rule text of every non-alternate, non-draft `<collation>` of en, es, fr, de and pt, and the `search` collation of the root (for example `es` `traditional`, `de` `phonebook`) is stored in `supplemental.bin` under `collationTailoring/<language>/<type>` exactly as CLDR writes it (decomposed, comments removed). The Collator applies it with the UTS #35 rule syntax; the data layer does not.
 
 **Deviation.** CLDR orders Han in the root by radical-stroke (`[radical ...]` data in FractionalUCA). The shipped table has the UCA code point order for Han (the implicit weights above). The Node differential must exclude Han ordering until that is added.
+
+### Normalization (kind 5)
+
+After the header: varint range count and per range varint gap since the previous end, varint length-1, byte canonical combining class (only non-zero classes; code points not listed have class 0); varint mapping count and per mapping: varint code point delta, byte flags (bit 0: compatibility mapping, bit 1: Full_Composition_Exclusion), byte length, varint code points. Mappings are the single-step values of `UnicodeData.txt` field 5 with the `<tag>` removed; Hangul syllables are left to the algorithm of Unicode section 3.12. The reader expands every mapping recursively, once, when it loads, and derives the primary composites: canonical mappings of two code points that are not composition-excluded.
 
 ### Breaks (kind 4)
 
@@ -86,4 +91,4 @@ Another numbering system or calendar is a generator change: `DropNonLatinNumberS
 
 ## Reader
 
-`RecursiveAI.OneEcma.Intl.Data` (internal): `CldrData` (entry point; `GetLocale`, `TryResolveLocale`, `Supplemental`, `Plurals`, `Collation`, `Breaks`), `DataTree` (path lookups across the inheritance chain), `TreeBlob`, `PluralData` / `PluralOperands`, `CollationData`, `BreakData`. Loading is lazy and cached; every object is immutable and thread-safe. No reflection other than reading the manifest resource.
+`RecursiveAI.OneEcma.Intl.Data` (internal): `CldrData` (entry point; `GetLocale`, `TryResolveLocale`, `Supplemental`, `Plurals`, `Collation`, `Breaks`), `DataTree` (path lookups across the inheritance chain), `TreeBlob`, `PluralData` / `PluralOperands`, `CollationData`, `BreakData`, `NormalizationData`. Loading is lazy and cached; every object is immutable and thread-safe. No reflection other than reading the manifest resource.

@@ -26,6 +26,7 @@ internal static class CldrData
     private static PluralData? s_plurals;
     private static CollationData? s_collation;
     private static BreakData? s_breaks;
+    private static NormalizationData? s_normalization;
 
     /// <summary>Supplemental data: likely subtags, aliases, parent locales, currency, week and time data, and more.</summary>
     internal static DataTree Supplemental => GetTree("supplemental", "supplemental.bin", null);
@@ -50,6 +51,18 @@ internal static class CldrData
             lock (Gate)
             {
                 return s_collation ??= CollationData.Open(Load("collation.bin"));
+            }
+        }
+    }
+
+    /// <summary>The UAX #15 normalization tables (combining classes, decompositions, composites).</summary>
+    internal static NormalizationData Normalization
+    {
+        get
+        {
+            lock (Gate)
+            {
+                return s_normalization ??= NormalizationData.Open(Load("normalization.bin"));
             }
         }
     }

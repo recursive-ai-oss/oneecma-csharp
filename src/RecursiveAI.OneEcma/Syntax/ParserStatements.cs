@@ -490,7 +490,7 @@ internal sealed partial class Parser
     {
         Expect(TokenType.LParen);
         Expression e = ParseExpression(noIn: false);
-        Expect(TokenType.RParen);
+        ExpectCloseParenResync();
         return e;
     }
 
@@ -680,7 +680,7 @@ internal sealed partial class Parser
             Expression? test = Is(TokenType.Semicolon) ? null : ParseExpression(noIn: false);
             Expect(TokenType.Semicolon);
             Expression? update = Is(TokenType.RParen) ? null : ParseExpression(noIn: false);
-            Expect(TokenType.RParen);
+            ExpectCloseParenResync();
             Node body = ParseLoopBody();
             return new ForStatement(start, _prevEnd, init, test, update, body, lexicalHead ? forScope : null);
         }
@@ -716,7 +716,7 @@ internal sealed partial class Parser
 
         Advance(); // `in` or `of`
         Expression right = isOf ? ParseAssignment(noIn: false) : ParseExpression(noIn: false);
-        Expect(TokenType.RParen);
+        ExpectCloseParenResync();
         Node body = ParseLoopBody();
         Scope? scope = lexicalHead ? forScope : null;
         if (isOf)
@@ -809,7 +809,7 @@ internal sealed partial class Parser
         Advance();
         Expect(TokenType.LParen);
         Expression obj = ParseExpression(noIn: false);
-        Expect(TokenType.RParen);
+        ExpectCloseParenResync();
         for (Scope? s = _scope; s is not null; s = s.Parent)
         {
             s.ContainsWith = true;
@@ -937,7 +937,7 @@ internal sealed partial class Parser
         {
             // V8 points at the end of the try block.
             Diagnostic? d = Report("missing-catch-or-finally", Messages.MissingCatchOrFinally, _prevStart, _prevEnd);
-            d?.SecondaryLabels.Add(new Label(new Span(kw.Start, kw.End), "this `try` needs one of them"));
+            d?.SecondaryLabels.Add(new Label(new Span(kw.Start, block.Start + 1), "this `try` needs one of them"));
         }
 
         _ = kw;

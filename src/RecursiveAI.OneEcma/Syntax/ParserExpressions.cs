@@ -81,9 +81,15 @@ internal sealed partial class Parser
     };
 
     /// <summary>ECMA-262 13.15 AssignmentExpression (including arrow functions and yield).</summary>
+    // ECMA-262 15.3: ArrowFunction[In] : ArrowParameters => ConciseBody[?In]. An arrow function is recognised deep inside
+    // primary-expression parsing, so the In parameter of the enclosing AssignmentExpression is kept here for its body.
+    private bool _assignmentNoIn;
+
     private Expression ParseAssignment(bool noIn, CoverErrors? cover = null)
     {
         Enter();
+        bool savedNoIn = _assignmentNoIn;
+        _assignmentNoIn = noIn;
         try
         {
             if (IsContextual("yield") && _fn.IsGenerator)
@@ -154,6 +160,7 @@ internal sealed partial class Parser
         }
         finally
         {
+            _assignmentNoIn = savedNoIn;
             Leave();
         }
     }
@@ -734,15 +741,41 @@ internal sealed partial class Parser
         }
         else
         {
-            d.PrimaryLabel = "expected `,` or `)` before this `" + offendingText + "`";
+            bool atEnd = offending.Type == TokenType.EndOfInput;
+            d.PrimaryLabel = atEnd ? "expected `,` or `)` before the end of the input" : "expected `,` or `)` before this `" + offendingText + "`";
             d.SecondaryLabels.Add(new Label(new Span(calleeStart, open.End), "the argument list opened here is never closed"));
-            if (offending.Type is TokenType.Semicolon or TokenType.RBrace or TokenType.RBracket or TokenType.EndOfInput)
+            if (atEnd)
+            {
+                d.Help.Add("add `)` at the end of the input");
+            }
+            else if (offending.Type is TokenType.Semicolon or TokenType.RBrace or TokenType.RBracket)
             {
                 d.Help.Add("add `)` before `" + offendingText + "`: `" + _s.Substring(calleeStart, offending.Start - calleeStart) + ")" + offendingText + "`");
             }
 
             NoteInserted(d, offending.Start, ")");
         }
+    }
+
+    /// <summary>
+    /// When the next element or property starts on a new line, the likely mistake is a forgotten comma: say where the
+    /// previous one ends and what to add.
+    /// </summary>
+    private void LabelMissingComma(Diagnostic? d, Node previous, string what)
+    {
+        Token t = _tok;
+        bool startsValue = t.Type is TokenType.Identifier or TokenType.String or TokenType.Number or TokenType.BigInt or TokenType.Template
+            or TokenType.True or TokenType.False or TokenType.Null or TokenType.This or TokenType.LBracket or TokenType.LBrace
+            or TokenType.PrivateName or TokenType.Star;
+        if (d is null || !t.NewlineBefore || !startsValue)
+        {
+            return;
+        }
+
+        Node shown = previous is Property { PropertyKind: PropertyKind.Init, Shorthand: false } p ? p.Value : previous;
+        d.PrimaryLabel = "expected `,` before this " + what;
+        d.SecondaryLabels.Add(new Label(shown.Span, "the previous " + what + " ends here"));
+        d.Help.Add("add `,` after `" + SourceOf(shown) + "`");
     }
 
     private string SourceOf(Node n) => _s.Substring(n.Start, n.End - n.Start);
@@ -1202,10 +1235,12 @@ internal sealed partial class Parser
             return;
         }
 
-        string? error = _regExpValidator?.Invoke(body, flags);
-        if (error is not null)
+        // The body starts right after the opening slash; the validator returns spans in source offsets.
+        var found = _regExpValidator?.Invoke(body, flags, r.Start + 1);
+        if (found is { Count: > 0 })
         {
-            Report("invalid-regexp", Messages.Format(Messages.InvalidRegExpPrefix, body, flags, error), r.Start, r.End);
+            var d = found[0];
+            Report("invalid-regexp", d.Message, d.Start, d.Start + Math.Max(1, d.Length));
         }
     }
 
@@ -1293,6 +1328,7 @@ internal sealed partial class Parser
             {
                 Diagnostic? d = Unexpected();
                 NoteInserted(d, _prevEnd, ",");
+                LabelMissingComma(d, el, "element");
                 if (_tok.Start == before || _tok.Type is TokenType.Semicolon or TokenType.RBrace or TokenType.RParen)
                 {
                     break;
