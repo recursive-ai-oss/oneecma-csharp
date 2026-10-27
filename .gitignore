@@ -7,6 +7,7 @@
 !/tests/
 !/fuzz/
 !/bench/
+!/spike/
 !/tools/
 !/docs/
 !/testdata/

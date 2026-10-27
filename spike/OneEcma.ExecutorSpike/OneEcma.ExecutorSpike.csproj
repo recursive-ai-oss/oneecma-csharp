@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>$(PackagePrefix).OneEcma.ExecutorSpike</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <IsAotCompatible>true</IsAotCompatible>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="OneEcma.Tests" />
+    <InternalsVisibleTo Include="OneEcma.Benchmarks" />
+    <ProjectReference Include="../../src/$(PackagePrefix).OneEcma/$(PackagePrefix).OneEcma.csproj" />
+  </ItemGroup>
+</Project>
