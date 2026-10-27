@@ -1,7 +1,7 @@
 // Compares the output of js-surface.js under the reference Node (js-surface.node24.txt) with the output under the engine.
 // Usage: node compare-js-surface.js <engine-output.txt>
 // Rows named in js-surface.deviations.txt ("<label> | <reason>") are expected to differ. U+202F and U+0020 are treated alike:
-// the reference prints the narrow no-break space of CLDR 48 patterns only in formatToParts.
+// the reference's format() prints U+0020 where the CLDR 48 time patterns, and our format(), have the narrow no-break space.
 const fs = require('fs');
 const path = require('path');
 const dir = __dirname;
