@@ -42,31 +42,56 @@ internal sealed class NativeFunction : JsFunction
     internal override JsValue Call(JsValue thisValue, ReadOnlySpan<JsValue> args)
     {
         Agent a = Agent.Current;
+        NativeFunction? prev = a.CurrentNative;
+        JsValue prevThis = a.CurrentNativeThis;
+        bool prevNew = a.CurrentNativeNew;
+        a.CurrentNative = this;
+        a.CurrentNativeThis = thisValue;
+        a.CurrentNativeNew = false;
+        JsValue result;
         if (ReferenceEquals(a.Realm, Realm))
         {
-            return _fn(thisValue, args, null);
+            result = _fn(thisValue, args, null);
+        }
+        else
+        {
+            Realm saved = a.Realm;
+            a.Realm = Realm;
+            try
+            {
+                result = _fn(thisValue, args, null);
+            }
+            finally
+            {
+                a.Realm = saved;
+            }
         }
 
-        Realm saved = a.Realm;
-        a.Realm = Realm;
-        try
-        {
-            return _fn(thisValue, args, null);
-        }
-        finally
-        {
-            a.Realm = saved;
-        }
+        // Not restored when _fn throws: the interpreter clears it where it catches, and entry points reset it.
+        a.CurrentNative = prev;
+        a.CurrentNativeThis = prevThis;
+        a.CurrentNativeNew = prevNew;
+        return result;
     }
 
     internal override JsValue Construct(ReadOnlySpan<JsValue> args, JsObject newTarget)
     {
         Agent a = Agent.Current;
         Realm saved = a.Realm;
+        NativeFunction? prev = a.CurrentNative;
+        JsValue prevThis = a.CurrentNativeThis;
+        bool prevNew = a.CurrentNativeNew;
+        a.CurrentNative = this;
+        a.CurrentNativeThis = default;
+        a.CurrentNativeNew = true;
         a.Realm = Realm;
         try
         {
-            return _fn(default, args, newTarget);
+            JsValue result = _fn(default, args, newTarget);
+            a.CurrentNative = prev;
+            a.CurrentNativeThis = prevThis;
+            a.CurrentNativeNew = prevNew;
+            return result;
         }
         finally
         {
@@ -170,9 +195,65 @@ internal sealed class JsError : JsObject
 {
     internal List<StackFrameInfo>? Frames;
 
+    /// <summary>True until <c>stack</c> is first read: V8 formats the header ("Name: message") then, so a name or message set after construction shows.</summary>
+    internal bool StackPending;
+
     internal JsError(JsObject? proto)
         : base(proto)
     {
+        OverridesGet = true;
+    }
+
+    private static bool IsStack(PropertyKey key) => key.String == "stack";
+
+    private void FormatStackNow()
+    {
+        StackPending = false;
+        int s = Shape.Lookup("stack", out PropFlags f);
+        if (s >= 0 && (f & PropFlags.Accessor) == 0 && Frames is not null)
+        {
+            Slots[s] = JsValue.FromString(Errors.FormatStack(Errors.Header(this), Frames));
+        }
+    }
+
+    internal override JsValue Get(PropertyKey key, JsValue receiver)
+    {
+        if (StackPending && IsStack(key))
+        {
+            FormatStackNow();
+        }
+
+        return base.Get(key, receiver);
+    }
+
+    internal override bool GetOwnProperty(PropertyKey key, out PropertyDescriptor desc)
+    {
+        if (StackPending && IsStack(key))
+        {
+            FormatStackNow();
+        }
+
+        return base.GetOwnProperty(key, out desc);
+    }
+
+    internal override bool Set(PropertyKey key, JsValue value, JsValue receiver)
+    {
+        if (StackPending && IsStack(key))
+        {
+            StackPending = false;
+        }
+
+        return base.Set(key, value, receiver);
+    }
+
+    internal override bool DefineOwnProperty(PropertyKey key, in PropertyDescriptor desc)
+    {
+        if (StackPending && IsStack(key))
+        {
+            StackPending = false;
+        }
+
+        return base.DefineOwnProperty(key, desc);
     }
 
     internal override string ClassName => "Error";

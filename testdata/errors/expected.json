@@ -1,0 +1,1277 @@
+{
+ "node": "v24.22.1",
+ "cases": {
+  "type-read-undefined": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read properties of undefined (reading 'x')",
+   "stack": "TypeError: Cannot read properties of undefined (reading 'x')\n    at case.js:2:3"
+  },
+  "type-read-null": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read properties of null (reading 'x')",
+   "stack": "TypeError: Cannot read properties of null (reading 'x')\n    at case.js:2:3"
+  },
+  "type-read-nested": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read properties of undefined (reading 'c')",
+   "stack": "TypeError: Cannot read properties of undefined (reading 'c')\n    at case.js:2:5"
+  },
+  "type-read-method-call-undefined": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read properties of undefined (reading 'reduce')",
+   "stack": "TypeError: Cannot read properties of undefined (reading 'reduce')\n    at case.js:2:13"
+  },
+  "type-read-deep-chain": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read properties of undefined (reading 'toString')",
+   "stack": "TypeError: Cannot read properties of undefined (reading 'toString')\n    at case.js:2:17"
+  },
+  "type-set-undefined": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot set properties of undefined (setting 'x')",
+   "stack": "TypeError: Cannot set properties of undefined (setting 'x')\n    at case.js:2:5"
+  },
+  "type-set-null": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot set properties of null (setting 'name')",
+   "stack": "TypeError: Cannot set properties of null (setting 'name')\n    at case.js:2:8"
+  },
+  "type-not-function-call": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "o.go is not a function",
+   "stack": "TypeError: o.go is not a function\n    at case.js:2:3"
+  },
+  "type-not-function-plain": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "f is not a function",
+   "stack": "TypeError: f is not a function\n    at case.js:2:1"
+  },
+  "type-not-function-nested": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "o.a.b is not a function",
+   "stack": "TypeError: o.a.b is not a function\n    at case.js:2:5"
+  },
+  "type-not-function-array-method": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "o.map is not a function",
+   "stack": "TypeError: o.map is not a function\n    at case.js:2:3"
+  },
+  "type-not-function-new-call": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "x is not a constructor",
+   "stack": "TypeError: x is not a constructor\n    at case.js:2:1"
+  },
+  "type-not-constructor-arrow": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "f is not a constructor",
+   "stack": "TypeError: f is not a constructor\n    at case.js:2:1"
+  },
+  "type-not-constructor-method": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "o.m is not a constructor",
+   "stack": "TypeError: o.m is not a constructor\n    at case.js:2:1"
+  },
+  "type-class-without-new": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Class constructor A cannot be invoked without 'new'",
+   "stack": "TypeError: Class constructor A cannot be invoked without 'new'\n    at case.js:2:1"
+  },
+  "type-class-without-new-nested": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Class constructor Foo cannot be invoked without 'new'",
+   "stack": "TypeError: Class constructor Foo cannot be invoked without 'new'\n    at make (case.js:2:26)\n    at case.js:3:1"
+  },
+  "type-not-iterable-spread": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "n is not iterable",
+   "stack": "TypeError: n is not iterable\n    at case.js:2:5"
+  },
+  "type-not-iterable-forof": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "o is not iterable",
+   "stack": "TypeError: o is not iterable\n    at case.js:2:17"
+  },
+  "type-not-iterable-destructure": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "{} is not iterable",
+   "stack": "TypeError: {} is not iterable\n    at case.js:1:13"
+  },
+  "type-not-iterable-destructure-undefined": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "undefined is not iterable",
+   "stack": "TypeError: undefined is not iterable\n    at case.js:1:13"
+  },
+  "type-not-iterable-new-set": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "number 5 is not iterable (cannot read property Symbol(Symbol.iterator))",
+   "stack": "TypeError: number 5 is not iterable (cannot read property Symbol(Symbol.iterator))\n    at new Set (<anonymous>)\n    at case.js:1:1"
+  },
+  "type-destructure-undefined": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot destructure property 'a' of 'undefined' as it is undefined.",
+   "stack": "TypeError: Cannot destructure property 'a' of 'undefined' as it is undefined.\n    at case.js:1:9"
+  },
+  "type-destructure-null": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot destructure property 'a' of 'null' as it is null.",
+   "stack": "TypeError: Cannot destructure property 'a' of 'null' as it is null.\n    at case.js:1:9"
+  },
+  "type-destructure-param": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot destructure property 'a' of 'undefined' as it is undefined.",
+   "stack": "TypeError: Cannot destructure property 'a' of 'undefined' as it is undefined.\n    at f (case.js:1:14)\n    at case.js:2:1"
+  },
+  "type-destructure-nested": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read properties of undefined (reading 'b')",
+   "stack": "TypeError: Cannot read properties of undefined (reading 'b')\n    at case.js:1:14"
+  },
+  "type-const-assign": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Assignment to constant variable.",
+   "stack": "TypeError: Assignment to constant variable.\n    at case.js:2:3"
+  },
+  "type-const-assign-compound": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Assignment to constant variable.",
+   "stack": "TypeError: Assignment to constant variable.\n    at case.js:2:3"
+  },
+  "type-readonly-strict": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot assign to read only property 'a' of object '#<Object>'",
+   "stack": "TypeError: Cannot assign to read only property 'a' of object '#<Object>'\n    at case.js:3:5"
+  },
+  "type-add-property-nonextensible": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot add property a, object is not extensible",
+   "stack": "TypeError: Cannot add property a, object is not extensible\n    at case.js:3:5"
+  },
+  "type-delete-nonconfigurable": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot delete property 'a' of #<Object>",
+   "stack": "TypeError: Cannot delete property 'a' of #<Object>\n    at case.js:3:1"
+  },
+  "type-in-primitive": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot use 'in' operator to search for 'a' in abc",
+   "stack": "TypeError: Cannot use 'in' operator to search for 'a' in abc\n    at case.js:1:5"
+  },
+  "type-instanceof-nonobject": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Right-hand side of 'instanceof' is not an object",
+   "stack": "TypeError: Right-hand side of 'instanceof' is not an object\n    at case.js:1:6"
+  },
+  "type-instanceof-noncallable": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Right-hand side of 'instanceof' is not callable",
+   "stack": "TypeError: Right-hand side of 'instanceof' is not callable\n    at case.js:1:6"
+  },
+  "type-symbol-to-string": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot convert a Symbol value to a string",
+   "stack": "TypeError: Cannot convert a Symbol value to a string\n    at case.js:2:4"
+  },
+  "type-symbol-to-number": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot convert a Symbol value to a number",
+   "stack": "TypeError: Cannot convert a Symbol value to a number\n    at case.js:1:1"
+  },
+  "type-bigint-mix": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot mix BigInt and other types, use explicit conversions",
+   "stack": "TypeError: Cannot mix BigInt and other types, use explicit conversions\n    at case.js:1:4"
+  },
+  "type-bigint-to-number": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot convert a BigInt value to a number",
+   "stack": "TypeError: Cannot convert a BigInt value to a number\n    at case.js:1:1"
+  },
+  "type-json-circular": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Converting circular structure to JSON\n    --> starting at object with constructor 'Object'\n    --- property 'self' closes the circle",
+   "stack": "TypeError: Converting circular structure to JSON\n    --> starting at object with constructor 'Object'\n    --- property 'self' closes the circle\n    at JSON.stringify (<anonymous>)\n    at case.js:3:6"
+  },
+  "type-reduce-empty": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Reduce of empty array with no initial value",
+   "stack": "TypeError: Reduce of empty array with no initial value\n    at Array.reduce (<anonymous>)\n    at case.js:1:4"
+  },
+  "type-map-not-function": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "number 5 is not a function",
+   "stack": "TypeError: number 5 is not a function\n    at Array.map (<anonymous>)\n    at case.js:1:8"
+  },
+  "type-sort-bad-comparator": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "The comparison function must be either a function or undefined: 5",
+   "stack": "TypeError: The comparison function must be either a function or undefined: 5\n    at Array.sort (<anonymous>)\n    at case.js:1:8"
+  },
+  "type-object-define-bad": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Object.defineProperty called on non-object",
+   "stack": "TypeError: Object.defineProperty called on non-object\n    at Object.defineProperty (<anonymous>)\n    at case.js:1:8"
+  },
+  "type-object-redefine": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot redefine property: a",
+   "stack": "TypeError: Cannot redefine property: a\n    at Object.defineProperty (<anonymous>)\n    at case.js:3:8"
+  },
+  "type-object-create-bad": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Object prototype may only be an Object or null: 5",
+   "stack": "TypeError: Object prototype may only be an Object or null: 5\n    at Object.create (<anonymous>)\n    at case.js:1:8"
+  },
+  "type-object-keys-null": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot convert undefined or null to object",
+   "stack": "TypeError: Cannot convert undefined or null to object\n    at Object.keys (<anonymous>)\n    at case.js:1:8"
+  },
+  "type-object-assign-null": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot convert undefined or null to object",
+   "stack": "TypeError: Cannot convert undefined or null to object\n    at Object.assign (<anonymous>)\n    at case.js:1:8"
+  },
+  "type-object-fromentries": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Iterator value 1 is not an entry object",
+   "stack": "TypeError: Iterator value 1 is not an entry object\n    at Object.fromEntries (<anonymous>)\n    at case.js:1:8"
+  },
+  "type-proxy-revoked": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot perform 'get' on a proxy that has been revoked",
+   "stack": "TypeError: Cannot perform 'get' on a proxy that has been revoked\n    at case.js:3:7"
+  },
+  "type-proxy-nonobject": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot create proxy with a non-object as target or handler",
+   "stack": "TypeError: Cannot create proxy with a non-object as target or handler\n    at case.js:1:1"
+  },
+  "type-reflect-nonobject": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Reflect.get called on non-object",
+   "stack": "TypeError: Reflect.get called on non-object\n    at Reflect.get (<anonymous>)\n    at case.js:1:9"
+  },
+  "type-weakmap-key": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Invalid value used as weak map key",
+   "stack": "TypeError: Invalid value used as weak map key\n    at WeakMap.set (<anonymous>)\n    at case.js:1:15"
+  },
+  "type-weakref-target": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "WeakRef: invalid target",
+   "stack": "TypeError: WeakRef: invalid target\n    at new WeakRef (<anonymous>)\n    at case.js:1:1"
+  },
+  "type-map-incompatible": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Method Map.prototype.get called on incompatible receiver #<Object>",
+   "stack": "TypeError: Method Map.prototype.get called on incompatible receiver #<Object>\n    at Object.get (<anonymous>)\n    at case.js:1:19"
+  },
+  "type-promise-no-new": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Promise constructor cannot be invoked without 'new'",
+   "stack": "TypeError: Promise constructor cannot be invoked without 'new'\n    at Promise (<anonymous>)\n    at case.js:1:1"
+  },
+  "type-promise-executor": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Promise resolver 5 is not a function",
+   "stack": "TypeError: Promise resolver 5 is not a function\n    at new Promise (<anonymous>)\n    at case.js:1:1"
+  },
+  "type-string-repeat-negative": {
+   "threw": true,
+   "name": "RangeError",
+   "message": "Invalid count value: -1",
+   "stack": "RangeError: Invalid count value: -1\n    at String.repeat (<anonymous>)\n    at case.js:1:5"
+  },
+  "type-string-normalize-bad": {
+   "threw": true,
+   "name": "RangeError",
+   "message": "The normalization form should be one of NFC, NFD, NFKC, NFKD.",
+   "stack": "RangeError: The normalization form should be one of NFC, NFD, NFKC, NFKD.\n    at String.normalize (<anonymous>)\n    at case.js:1:5"
+  },
+  "type-tofixed-range": {
+   "threw": true,
+   "name": "RangeError",
+   "message": "toFixed() digits argument must be between 0 and 100",
+   "stack": "RangeError: toFixed() digits argument must be between 0 and 100\n    at Number.toFixed (<anonymous>)\n    at case.js:1:5"
+  },
+  "type-tostring-radix": {
+   "threw": true,
+   "name": "RangeError",
+   "message": "toString() radix argument must be between 2 and 36",
+   "stack": "RangeError: toString() radix argument must be between 2 and 36\n    at Number.toString (<anonymous>)\n    at case.js:1:5"
+  },
+  "type-date-invalid-iso": {
+   "threw": true,
+   "name": "RangeError",
+   "message": "Invalid time value",
+   "stack": "RangeError: Invalid time value\n    at Date.toISOString (<anonymous>)\n    at case.js:1:15"
+  },
+  "type-array-length-negative": {
+   "threw": true,
+   "name": "RangeError",
+   "message": "Invalid array length",
+   "stack": "RangeError: Invalid array length\n    at case.js:1:1"
+  },
+  "type-call-stack": {
+   "threw": true,
+   "name": "RangeError",
+   "message": "Maximum call stack size exceeded",
+   "stack": "RangeError: Maximum call stack size exceeded\n    at f (case.js:1:16)\n    at f (case.js:1:16)\n    at f (case.js:1:16)\n    at f (case.js:1:16)\n    at f (case.js:1:16)\n    at f (case.js:1:16)\n    at f (case.js:1:16)\n    at f (case.js:1:16)\n    at f (case.js:1:16)\n    at f (case.js:1:16)"
+  },
+  "type-call-stack-mutual": {
+   "threw": true,
+   "name": "RangeError",
+   "message": "Maximum call stack size exceeded",
+   "stack": "RangeError: Maximum call stack size exceeded\n    at b (case.js:2:16)\n    at a (case.js:1:16)\n    at b (case.js:2:16)\n    at a (case.js:1:16)\n    at b (case.js:2:16)\n    at a (case.js:1:16)\n    at b (case.js:2:16)\n    at a (case.js:1:16)\n    at b (case.js:2:16)\n    at a (case.js:1:16)"
+  },
+  "type-regexp-bad": {
+   "threw": true,
+   "name": "SyntaxError",
+   "message": "Invalid regular expression: /(/: Unterminated group",
+   "stack": "SyntaxError: Invalid regular expression: /(/: Unterminated group\n    at new RegExp (<anonymous>)\n    at case.js:1:1"
+  },
+  "type-regexp-nonglobal-matchall": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "String.prototype.matchAll called with a non-global RegExp argument",
+   "stack": "TypeError: String.prototype.matchAll called with a non-global RegExp argument\n    at String.matchAll (<anonymous>)\n    at case.js:1:5"
+  },
+  "type-generator-running": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Generator is already running",
+   "stack": "TypeError: Generator is already running\n    at g.next (<anonymous>)\n    at g (case.js:1:20)\n    at g.next (<anonymous>)\n    at case.js:3:4"
+  },
+  "type-iterator-result": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Iterator result 1 is not an object",
+   "stack": "TypeError: Iterator result 1 is not an object\n    at case.js:2:5"
+  },
+  "type-super-before-this": {
+   "threw": true,
+   "name": "ReferenceError",
+   "message": "Must call super constructor in derived class before accessing 'this' or returning from derived constructor",
+   "stack": "ReferenceError: Must call super constructor in derived class before accessing 'this' or returning from derived constructor\n    at new B (case.js:2:37)\n    at case.js:3:1"
+  },
+  "type-super-not-called": {
+   "threw": true,
+   "name": "ReferenceError",
+   "message": "Must call super constructor in derived class before accessing 'this' or returning from derived constructor",
+   "stack": "ReferenceError: Must call super constructor in derived class before accessing 'this' or returning from derived constructor\n    at new B (case.js:2:32)\n    at case.js:3:1"
+  },
+  "type-extends-bad": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Class extends value 5 is not a constructor or null",
+   "stack": "TypeError: Class extends value 5 is not a constructor or null\n    at case.js:1:1"
+  },
+  "type-extends-null-proto": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Class extends value () => {} is not a constructor or null",
+   "stack": "TypeError: Class extends value () => {} is not a constructor or null\n    at case.js:2:17"
+  },
+  "type-class-private-missing": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read private member #x from an object whose class did not declare it",
+   "stack": "TypeError: Cannot read private member #x from an object whose class did not declare it\n    at A.get (case.js:1:44)\n    at case.js:2:3"
+  },
+  "type-class-getter-throws": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "bad getter",
+   "stack": "TypeError: bad getter\n    at get x (case.js:1:27)\n    at case.js:2:9"
+  },
+  "type-class-method-this-undefined": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read properties of undefined (reading 'v')",
+   "stack": "TypeError: Cannot read properties of undefined (reading 'v')\n    at m (case.js:1:59)\n    at case.js:3:1"
+  },
+  "type-class-field-init-throws": {
+   "threw": true,
+   "name": "Error",
+   "message": "field",
+   "stack": "Error: field\n    at case.js:1:30\n    at <instance_members_initializer> (case.js:1:52)\n    at new A (case.js:1:1)\n    at case.js:2:1"
+  },
+  "type-class-constructor-throws": {
+   "threw": true,
+   "name": "Error",
+   "message": "ctor",
+   "stack": "Error: ctor\n    at new A (case.js:1:33)\n    at case.js:2:1"
+  },
+  "type-class-derived-ctor-throws": {
+   "threw": true,
+   "name": "RangeError",
+   "message": "base",
+   "stack": "RangeError: base\n    at new A (case.js:1:33)\n    at new B (case.js:2:37)\n    at case.js:3:1"
+  },
+  "type-class-method-nested": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read properties of null (reading 'x')",
+   "stack": "TypeError: Cannot read properties of null (reading 'x')\n    at A.deep (case.js:1:86)\n    at A.step (case.js:1:62)\n    at A.run (case.js:1:31)\n    at case.js:2:9"
+  },
+  "type-class-static-method": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read properties of undefined (reading 'x')",
+   "stack": "TypeError: Cannot read properties of undefined (reading 'x')\n    at A.build (case.js:1:74)\n    at A.make (case.js:1:36)\n    at case.js:2:3"
+  },
+  "type-object-literal-method": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read properties of undefined (reading 'x')",
+   "stack": "TypeError: Cannot read properties of undefined (reading 'x')\n    at Object.run (case.js:1:41)\n    at case.js:2:3"
+  },
+  "type-arrow-nested": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read properties of undefined (reading 'x')",
+   "stack": "TypeError: Cannot read properties of undefined (reading 'x')\n    at case.js:1:33\n    at case.js:2:4"
+  },
+  "type-anonymous-function": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read properties of null (reading 'x')",
+   "stack": "TypeError: Cannot read properties of null (reading 'x')\n    at case.js:1:21\n    at case.js:1:26"
+  },
+  "type-anonymous-callback": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read properties of null (reading 'x')",
+   "stack": "TypeError: Cannot read properties of null (reading 'x')\n    at case.js:1:32\n    at Array.forEach (<anonymous>)\n    at case.js:1:5"
+  },
+  "type-arrow-callback": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read properties of undefined (reading 'z')",
+   "stack": "TypeError: Cannot read properties of undefined (reading 'z')\n    at case.js:1:18\n    at Array.map (<anonymous>)\n    at case.js:1:5"
+  },
+  "type-nested-calls": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read properties of undefined (reading 'p')",
+   "stack": "TypeError: Cannot read properties of undefined (reading 'p')\n    at c (case.js:3:33)\n    at b (case.js:2:23)\n    at a (case.js:1:23)\n    at case.js:4:1"
+  },
+  "type-nested-calls-args": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read properties of undefined (reading 'bar')",
+   "stack": "TypeError: Cannot read properties of undefined (reading 'bar')\n    at c (case.js:3:30)\n    at b (case.js:2:24)\n    at a (case.js:1:24)\n    at case.js:4:1"
+  },
+  "type-callback-sort": {
+   "threw": true,
+   "name": "Error",
+   "message": "cmp",
+   "stack": "Error: cmp\n    at case.js:1:27\n    at Array.sort (<anonymous>)\n    at case.js:1:8"
+  },
+  "type-callback-map-nested": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read properties of undefined (reading 'w')",
+   "stack": "TypeError: Cannot read properties of undefined (reading 'w')\n    at case.js:1:31\n    at Array.map (<anonymous>)\n    at case.js:1:18\n    at Array.map (<anonymous>)\n    at case.js:1:7"
+  },
+  "type-callback-reduce": {
+   "threw": true,
+   "name": "Error",
+   "message": "red",
+   "stack": "Error: red\n    at case.js:1:33\n    at Array.reduce (<anonymous>)\n    at case.js:1:8"
+  },
+  "type-callback-tostring": {
+   "threw": true,
+   "name": "Error",
+   "message": "ts",
+   "stack": "Error: ts\n    at Object.toString (case.js:1:23)\n    at case.js:1:45"
+  },
+  "type-callback-proxy-trap": {
+   "threw": true,
+   "name": "Error",
+   "message": "trap",
+   "stack": "Error: trap\n    at Object.get (case.js:1:31)\n    at case.js:1:55"
+  },
+  "type-callback-symbol-iterator": {
+   "threw": true,
+   "name": "Error",
+   "message": "iter",
+   "stack": "Error: iter\n    at [Symbol.iterator] (case.js:1:41)\n    at case.js:2:5"
+  },
+  "type-callback-new-promise": {
+   "threw": false,
+   "name": "Error",
+   "message": "exec",
+   "stack": "Error: exec\n    at case.js:1:27\n    at new Promise (<anonymous>)\n    at case.js:1:1"
+  },
+  "type-new-function": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read properties of undefined (reading 'x')",
+   "stack": "TypeError: Cannot read properties of undefined (reading 'x')\n    at eval (eval at <anonymous> (case.js:1:1), <anonymous>:3:18)\n    at case.js:1:35"
+  },
+  "type-eval-throws": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read properties of null (reading 'x')",
+   "stack": "TypeError: Cannot read properties of null (reading 'x')\n    at eval (eval at <anonymous> (case.js:1:1), <anonymous>:1:6)\n    at case.js:1:1"
+  },
+  "type-eval-nested": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read properties of undefined (reading 'y')",
+   "stack": "TypeError: Cannot read properties of undefined (reading 'y')\n    at eval (eval at f (case.js:1:23), <anonymous>:1:11)\n    at f (case.js:1:23)\n    at case.js:2:1"
+  },
+  "type-eval-in-method": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read properties of undefined (reading 'r')",
+   "stack": "TypeError: Cannot read properties of undefined (reading 'r')\n    at eval (eval at m (case.js:1:26), <anonymous>:1:8)\n    at Object.m (case.js:1:26)\n    at case.js:2:3"
+  },
+  "type-try-catch-rethrow": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read properties of null (reading 'x')",
+   "stack": "TypeError: Cannot read properties of null (reading 'x')\n    at case.js:1:12"
+  },
+  "type-try-catch-wrap": {
+   "threw": true,
+   "name": "Error",
+   "message": "wrapped",
+   "stack": "Error: wrapped\n    at case.js:1:35"
+  },
+  "type-ternary": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read properties of undefined (reading 'x')",
+   "stack": "TypeError: Cannot read properties of undefined (reading 'x')\n    at case.js:2:21"
+  },
+  "type-optional-chain-call": {
+   "threw": false,
+   "primitive": "undefined"
+  },
+  "type-tagged-template": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "tag is not a function",
+   "stack": "TypeError: tag is not a function\n    at case.js:2:4"
+  },
+  "type-spread-call": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Spread syntax requires ...iterable[Symbol.iterator] to be a function",
+   "stack": "TypeError: Spread syntax requires ...iterable[Symbol.iterator] to be a function\n    at case.js:2:1"
+  },
+  "type-getter-prototype": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read properties of undefined (reading 'deep')",
+   "stack": "TypeError: Cannot read properties of undefined (reading 'deep')\n    at get v (case.js:1:44)\n    at case.js:3:3"
+  },
+  "type-bound-function": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read properties of null (reading 'x')",
+   "stack": "TypeError: Cannot read properties of null (reading 'x')\n    at f (case.js:1:21)\n    at case.js:3:1"
+  },
+  "type-bigint-from-float": {
+   "threw": true,
+   "name": "RangeError",
+   "message": "The number 1.5 cannot be converted to a BigInt because it is not an integer",
+   "stack": "RangeError: The number 1.5 cannot be converted to a BigInt because it is not an integer\n    at BigInt (<anonymous>)\n    at case.js:1:1"
+  },
+  "type-bigint-divide-zero": {
+   "threw": true,
+   "name": "RangeError",
+   "message": "Division by zero",
+   "stack": "RangeError: Division by zero\n    at case.js:1:4"
+  },
+  "type-string-from-codepoint": {
+   "threw": true,
+   "name": "RangeError",
+   "message": "Invalid code point -1",
+   "stack": "RangeError: Invalid code point -1\n    at String.fromCodePoint (<anonymous>)\n    at case.js:1:8"
+  },
+  "type-uri-malformed": {
+   "threw": true,
+   "name": "URIError",
+   "message": "URI malformed",
+   "stack": "URIError: URI malformed\n    at decodeURIComponent (<anonymous>)\n    at case.js:1:1"
+  },
+  "type-json-parse-single-quote": {
+   "threw": true,
+   "name": "SyntaxError",
+   "message": "Expected property name or '}' in JSON at position 1 (line 1 column 2)",
+   "stack": "SyntaxError: Expected property name or '}' in JSON at position 1 (line 1 column 2)\n    at JSON.parse (<anonymous>)\n    at case.js:1:6"
+  },
+  "type-json-parse-undefined": {
+   "threw": true,
+   "name": "SyntaxError",
+   "message": "\"undefined\" is not valid JSON",
+   "stack": "SyntaxError: \"undefined\" is not valid JSON\n    at JSON.parse (<anonymous>)\n    at case.js:1:6"
+  },
+  "type-json-parse-long": {
+   "threw": true,
+   "name": "SyntaxError",
+   "message": "Expected ',' or '}' after property value in JSON at position 69 (line 1 column 70)",
+   "stack": "SyntaxError: Expected ',' or '}' after property value in JSON at position 69 (line 1 column 70)\n    at JSON.parse (<anonymous>)\n    at case.js:1:6"
+  },
+  "range-array-length": {
+   "threw": true,
+   "name": "RangeError",
+   "message": "Invalid array length",
+   "stack": "RangeError: Invalid array length\n    at case.js:1:1"
+  },
+  "range-string-length": {
+   "threw": true,
+   "name": "RangeError",
+   "message": "Invalid string length",
+   "stack": "RangeError: Invalid string length\n    at String.repeat (<anonymous>)\n    at case.js:1:5"
+  },
+  "range-date-iso": {
+   "threw": true,
+   "name": "RangeError",
+   "message": "Invalid time value",
+   "stack": "RangeError: Invalid time value\n    at Date.toISOString (<anonymous>)\n    at case.js:1:21"
+  },
+  "range-intl-bad-locale": {
+   "threw": true,
+   "name": "RangeError",
+   "message": "Incorrect locale information provided",
+   "stack": "RangeError: Incorrect locale information provided\n    at new NumberFormat (<anonymous>)\n    at case.js:1:1"
+  },
+  "range-number-format-digits": {
+   "threw": true,
+   "name": "RangeError",
+   "message": "minimumFractionDigits value is out of range.",
+   "stack": "RangeError: minimumFractionDigits value is out of range.\n    at new NumberFormat (<anonymous>)\n    at case.js:1:1"
+  },
+  "range-bigint-too-big": {
+   "threw": true,
+   "name": "RangeError",
+   "message": "Maximum BigInt size exceeded",
+   "stack": "RangeError: Maximum BigInt size exceeded\n    at case.js:1:4"
+  },
+  "range-typedarray-length": {
+   "threw": true,
+   "name": "RangeError",
+   "message": "Invalid typed array length: -1",
+   "stack": "RangeError: Invalid typed array length: -1\n    at new Uint8Array (<anonymous>)\n    at case.js:1:1"
+  },
+  "range-dataview-offset": {
+   "threw": true,
+   "name": "RangeError",
+   "message": "Start offset 3 is outside the bounds of the buffer",
+   "stack": "RangeError: Start offset 3 is outside the bounds of the buffer\n    at new DataView (<anonymous>)\n    at case.js:1:1"
+  },
+  "range-stack-recursion": {
+   "threw": true,
+   "name": "RangeError",
+   "message": "Maximum call stack size exceeded",
+   "stack": "RangeError: Maximum call stack size exceeded\n    at f (case.js:1:17)\n    at f (case.js:1:17)\n    at f (case.js:1:17)\n    at f (case.js:1:17)\n    at f (case.js:1:17)\n    at f (case.js:1:17)\n    at f (case.js:1:17)\n    at f (case.js:1:17)\n    at f (case.js:1:17)\n    at f (case.js:1:17)"
+  },
+  "range-time-zone": {
+   "threw": true,
+   "name": "RangeError",
+   "message": "Invalid time zone specified: Nowhere/Land",
+   "stack": "RangeError: Invalid time zone specified: Nowhere/Land\n    at new DateTimeFormat (<anonymous>)\n    at case.js:1:1"
+  },
+  "reference-undefined-variable": {
+   "threw": true,
+   "name": "ReferenceError",
+   "message": "foo is not defined",
+   "stack": "ReferenceError: foo is not defined\n    at case.js:1:1"
+  },
+  "reference-undefined-variable-call": {
+   "threw": true,
+   "name": "ReferenceError",
+   "message": "foo is not defined",
+   "stack": "ReferenceError: foo is not defined\n    at case.js:1:1"
+  },
+  "reference-undefined-in-function": {
+   "threw": true,
+   "name": "ReferenceError",
+   "message": "missing is not defined",
+   "stack": "ReferenceError: missing is not defined\n    at f (case.js:1:16)\n    at case.js:2:1"
+  },
+  "reference-undefined-nested": {
+   "threw": true,
+   "name": "ReferenceError",
+   "message": "typo is not defined",
+   "stack": "ReferenceError: typo is not defined\n    at b (case.js:2:16)\n    at a (case.js:1:23)\n    at case.js:3:1"
+  },
+  "reference-tdz-let": {
+   "threw": true,
+   "name": "ReferenceError",
+   "message": "Cannot access 'x' before initialization",
+   "stack": "ReferenceError: Cannot access 'x' before initialization\n    at case.js:1:1"
+  },
+  "reference-tdz-const": {
+   "threw": true,
+   "name": "ReferenceError",
+   "message": "Cannot access 'y' before initialization",
+   "stack": "ReferenceError: Cannot access 'y' before initialization\n    at case.js:1:1"
+  },
+  "reference-tdz-function-scope": {
+   "threw": true,
+   "name": "ReferenceError",
+   "message": "Cannot access 'v' before initialization",
+   "stack": "ReferenceError: Cannot access 'v' before initialization\n    at f (case.js:1:16)\n    at case.js:2:1"
+  },
+  "reference-assign-undeclared-strict": {
+   "threw": true,
+   "name": "ReferenceError",
+   "message": "undeclared is not defined",
+   "stack": "ReferenceError: undeclared is not defined\n    at case.js:2:12"
+  },
+  "reference-this-before-super": {
+   "threw": true,
+   "name": "ReferenceError",
+   "message": "Must call super constructor in derived class before accessing 'this' or returning from derived constructor",
+   "stack": "ReferenceError: Must call super constructor in derived class before accessing 'this' or returning from derived constructor\n    at new B (case.js:2:37)\n    at case.js:3:1"
+  },
+  "reference-member-of-undeclared": {
+   "threw": true,
+   "name": "ReferenceError",
+   "message": "undeclaredObj is not defined",
+   "stack": "ReferenceError: undeclaredObj is not defined\n    at case.js:1:1"
+  },
+  "reference-in-class-method": {
+   "threw": true,
+   "name": "ReferenceError",
+   "message": "nope is not defined",
+   "stack": "ReferenceError: nope is not defined\n    at A.m (case.js:1:17)\n    at case.js:2:9"
+  },
+  "reference-eval": {
+   "threw": true,
+   "name": "ReferenceError",
+   "message": "zzz is not defined",
+   "stack": "ReferenceError: zzz is not defined\n    at eval (eval at <anonymous> (case.js:1:1), <anonymous>:1:1)\n    at case.js:1:1"
+  },
+  "syntax-eval-bad": {
+   "threw": true,
+   "name": "SyntaxError",
+   "message": "Unexpected end of input",
+   "stack": "SyntaxError: Unexpected end of input\n    at case.js:1:1"
+  },
+  "syntax-eval-unexpected-token": {
+   "threw": true,
+   "name": "SyntaxError",
+   "message": "Unexpected end of input",
+   "stack": "SyntaxError: Unexpected end of input\n    at case.js:1:1"
+  },
+  "syntax-eval-unterminated-string": {
+   "threw": true,
+   "name": "SyntaxError",
+   "message": "Invalid or unexpected token",
+   "stack": "SyntaxError: Invalid or unexpected token\n    at case.js:1:1"
+  },
+  "syntax-eval-invalid-assignment": {
+   "threw": true,
+   "name": "SyntaxError",
+   "message": "Invalid left-hand side in assignment",
+   "stack": "SyntaxError: Invalid left-hand side in assignment\n    at case.js:1:1"
+  },
+  "syntax-eval-await-outside": {
+   "threw": true,
+   "name": "SyntaxError",
+   "message": "await is only valid in async functions and the top level bodies of modules",
+   "stack": "SyntaxError: await is only valid in async functions and the top level bodies of modules\n    at case.js:1:1"
+  },
+  "syntax-eval-return-outside": {
+   "threw": true,
+   "name": "SyntaxError",
+   "message": "Illegal return statement",
+   "stack": "SyntaxError: Illegal return statement\n    at case.js:1:1"
+  },
+  "syntax-eval-unexpected-eos": {
+   "threw": true,
+   "name": "SyntaxError",
+   "message": "Unexpected end of input",
+   "stack": "SyntaxError: Unexpected end of input\n    at case.js:1:1"
+  },
+  "syntax-eval-invalid-regex": {
+   "threw": true,
+   "name": "SyntaxError",
+   "message": "Invalid regular expression: /(/: Unterminated group",
+   "stack": "SyntaxError: Invalid regular expression: /(/: Unterminated group\n    at case.js:1:1"
+  },
+  "syntax-eval-strict-reserved": {
+   "threw": true,
+   "name": "SyntaxError",
+   "message": "Unexpected strict mode reserved word",
+   "stack": "SyntaxError: Unexpected strict mode reserved word\n    at case.js:1:1"
+  },
+  "syntax-new-function": {
+   "threw": true,
+   "name": "SyntaxError",
+   "message": "Arg string terminates parameters early",
+   "stack": "SyntaxError: Arg string terminates parameters early\n    at new Function (<anonymous>)\n    at case.js:1:1"
+  },
+  "syntax-new-function-body": {
+   "threw": true,
+   "name": "SyntaxError",
+   "message": "Unexpected token '}'",
+   "stack": "SyntaxError: Unexpected token '}'\n    at new Function (<anonymous>)\n    at case.js:1:1"
+  },
+  "eval-error-subclass": {
+   "threw": true,
+   "name": "EvalError",
+   "message": "custom eval",
+   "stack": "EvalError: custom eval\n    at case.js:1:7"
+  },
+  "custom-error-class": {
+   "threw": true,
+   "name": "AppError",
+   "message": "custom",
+   "stack": "AppError: custom\n    at case.js:2:7"
+  },
+  "custom-error-class-no-name": {
+   "threw": true,
+   "name": "Error",
+   "message": "custom2",
+   "stack": "Error: custom2\n    at case.js:2:7"
+  },
+  "custom-error-nested": {
+   "threw": true,
+   "name": "DbError",
+   "message": "conn",
+   "stack": "DbError: conn\n    at query (case.js:2:26)\n    at run (case.js:3:25)\n    at case.js:4:1"
+  },
+  "custom-error-with-cause": {
+   "threw": true,
+   "name": "Error",
+   "message": "outer",
+   "stack": "Error: outer\n    at f (case.js:1:22)\n    at case.js:2:1"
+  },
+  "error-throw-string": {
+   "threw": true,
+   "primitive": "just a string"
+  },
+  "error-throw-error-no-message": {
+   "threw": true,
+   "name": "Error",
+   "message": "",
+   "stack": "Error\n    at case.js:1:7"
+  },
+  "error-throw-typeerror-explicit": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "explicit type",
+   "stack": "TypeError: explicit type\n    at case.js:1:7"
+  },
+  "error-throw-rangeerror-explicit": {
+   "threw": true,
+   "name": "RangeError",
+   "message": "explicit range",
+   "stack": "RangeError: explicit range\n    at f (case.js:1:22)\n    at case.js:2:1"
+  },
+  "error-throw-in-constructor": {
+   "threw": true,
+   "name": "Error",
+   "message": "in ctor",
+   "stack": "Error: in ctor\n    at new Thing (case.js:1:26)\n    at case.js:2:1"
+  },
+  "error-throw-in-method-chain": {
+   "threw": true,
+   "name": "Error",
+   "message": "chain",
+   "stack": "Error: chain\n    at Object.c (case.js:1:77)\n    at Object.b (case.js:1:57)\n    at Object.a (case.js:1:31)\n    at case.js:2:3"
+  },
+  "error-aggregate": {
+   "threw": false,
+   "primitive": "undefined"
+  },
+  "error-aggregate-promise-any": {
+   "threw": false,
+   "name": "AggregateError",
+   "message": "All promises were rejected",
+   "stack": "AggregateError: All promises were rejected"
+  },
+  "error-promise-reject-native": {
+   "threw": false,
+   "name": "Error",
+   "message": "rejected",
+   "stack": "Error: rejected\n    at case.js:1:16"
+  },
+  "error-promise-then-throws": {
+   "threw": false,
+   "name": "Error",
+   "message": "in then",
+   "stack": "Error: in then\n    at case.js:1:38"
+  },
+  "error-promise-all-reject": {
+   "threw": false,
+   "name": "TypeError",
+   "message": "pall",
+   "stack": "TypeError: pall\n    at case.js:1:49"
+  },
+  "error-promise-microtask-fn": {
+   "threw": false,
+   "name": "TypeError",
+   "message": "Cannot read properties of null (reading 'x')",
+   "stack": "TypeError: Cannot read properties of null (reading 'x')\n    at boom (case.js:1:24)"
+  },
+  "async-throw": {
+   "threw": false,
+   "name": "Error",
+   "message": "async throw",
+   "stack": "Error: async throw\n    at f (case.js:1:28)\n    at case.js:2:1"
+  },
+  "async-type-error": {
+   "threw": false,
+   "name": "TypeError",
+   "message": "Cannot read properties of null (reading 'x')",
+   "stack": "TypeError: Cannot read properties of null (reading 'x')\n    at f (case.js:1:27)\n    at case.js:2:1"
+  },
+  "async-await-rejected": {
+   "threw": false,
+   "name": "Error",
+   "message": "awaited",
+   "stack": "Error: awaited\n    at f (case.js:1:43)\n    at case.js:2:1"
+  },
+  "async-await-then-throw": {
+   "threw": false,
+   "name": "TypeError",
+   "message": "Cannot read properties of null (reading 'x')",
+   "stack": "TypeError: Cannot read properties of null (reading 'x')\n    at f (case.js:1:36)"
+  },
+  "async-nested": {
+   "threw": false,
+   "name": "Error",
+   "message": "inner async",
+   "stack": "Error: inner async\n    at inner (case.js:1:44)\n    at async outer (case.js:2:26)"
+  },
+  "async-nested-three": {
+   "threw": false,
+   "name": "TypeError",
+   "message": "Cannot read properties of undefined (reading 'q')",
+   "stack": "TypeError: Cannot read properties of undefined (reading 'q')\n    at c (case.js:1:44)\n    at async b (case.js:2:22)\n    at async a (case.js:3:22)"
+  },
+  "async-sync-prefix": {
+   "threw": false,
+   "name": "Error",
+   "message": "sync part",
+   "stack": "Error: sync part\n    at inner (case.js:1:32)\n    at outer (case.js:2:32)\n    at case.js:3:1"
+  },
+  "async-method": {
+   "threw": false,
+   "name": "TypeError",
+   "message": "Cannot read properties of null (reading 'x')",
+   "stack": "TypeError: Cannot read properties of null (reading 'x')\n    at S.run (case.js:1:42)"
+  },
+  "async-arrow": {
+   "threw": false,
+   "name": "TypeError",
+   "message": "Cannot read properties of undefined (reading 'x')",
+   "stack": "TypeError: Cannot read properties of undefined (reading 'x')\n    at f (case.js:1:47)"
+  },
+  "async-anonymous": {
+   "threw": false,
+   "name": "TypeError",
+   "message": "Cannot read properties of null (reading 'x')",
+   "stack": "TypeError: Cannot read properties of null (reading 'x')\n    at case.js:1:39"
+  },
+  "async-promise-all": {
+   "threw": false,
+   "name": "Error",
+   "message": "pa",
+   "stack": "Error: pa\n    at a (case.js:1:40)\n    at async Promise.all (index 0)\n    at async b (case.js:2:22)"
+  },
+  "async-try-catch-rethrow": {
+   "threw": false,
+   "name": "Error",
+   "message": "second: first",
+   "stack": "Error: second: first\n    at f (case.js:1:90)"
+  },
+  "async-generator": {
+   "threw": false,
+   "name": "Error",
+   "message": "agen",
+   "stack": "Error: agen\n    at g (case.js:1:41)"
+  },
+  "async-for-await": {
+   "threw": false,
+   "name": "Error",
+   "message": "fa",
+   "stack": "Error: fa\n    at case.js:1:72\n    at AsyncGenerator.next (<anonymous>)\n    at f (case.js:1:39)\n    at case.js:2:1"
+  },
+  "async-await-host-like": {
+   "threw": false,
+   "name": "TypeError",
+   "message": "Cannot read properties of undefined (reading 'reduce')",
+   "stack": "TypeError: Cannot read properties of undefined (reading 'reduce')\n    at checkout (case.js:2:81)\n    at async main (case.js:3:25)"
+  },
+  "generator-throw": {
+   "threw": true,
+   "name": "Error",
+   "message": "gen",
+   "stack": "Error: gen\n    at g (case.js:1:32)\n    at g.next (<anonymous>)\n    at case.js:4:4"
+  },
+  "generator-type-error": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read properties of null (reading 'x')",
+   "stack": "TypeError: Cannot read properties of null (reading 'x')\n    at g (case.js:1:28)\n    at g.next (<anonymous>)\n    at case.js:2:5"
+  },
+  "generator-nested-yield-star": {
+   "threw": true,
+   "name": "Error",
+   "message": "inner gen",
+   "stack": "Error: inner gen\n    at inner (case.js:1:27)\n    at inner.next (<anonymous>)\n    at outer (case.js:2:28)\n    at outer.next (<anonymous>)\n    at case.js:3:9"
+  },
+  "generator-method": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read properties of null (reading 'x')",
+   "stack": "TypeError: Cannot read properties of null (reading 'x')\n    at Object.g (case.js:1:25)\n    at g.next (<anonymous>)\n    at case.js:2:7"
+  },
+  "getter-setter-static": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read properties of undefined (reading 'x')",
+   "stack": "TypeError: Cannot read properties of undefined (reading 'x')\n    at get v (case.js:1:42)\n    at case.js:2:3"
+  },
+  "function-name-inferred": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read properties of null (reading 'x')",
+   "stack": "TypeError: Cannot read properties of null (reading 'x')\n    at handler (case.js:1:36)\n    at case.js:2:1"
+  },
+  "function-name-property-assign": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read properties of null (reading 'x')",
+   "stack": "TypeError: Cannot read properties of null (reading 'x')\n    at o.handler (case.js:2:32)\n    at case.js:3:3"
+  },
+  "function-name-arrow-property": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read properties of null (reading 'x')",
+   "stack": "TypeError: Cannot read properties of null (reading 'x')\n    at Object.handler (case.js:1:35)\n    at case.js:2:3"
+  },
+  "function-default-param-throws": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read properties of undefined (reading 'x')",
+   "stack": "TypeError: Cannot read properties of undefined (reading 'x')\n    at f (case.js:1:26)\n    at case.js:2:1"
+  },
+  "function-iife-named": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read properties of null (reading 'x')",
+   "stack": "TypeError: Cannot read properties of null (reading 'x')\n    at named (case.js:1:26)\n    at case.js:1:31"
+  },
+  "function-new-target": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "need new",
+   "stack": "TypeError: need new\n    at F (case.js:1:39)\n    at case.js:2:1"
+  },
+  "function-constructor-method-on-new": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read properties of undefined (reading 'z')",
+   "stack": "TypeError: Cannot read properties of undefined (reading 'z')\n    at new Thing (case.js:1:36)\n    at case.js:2:1"
+  },
+  "function-constructor-class-new": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read properties of undefined (reading 'z')",
+   "stack": "TypeError: Cannot read properties of undefined (reading 'z')\n    at new Thing (case.js:1:47)\n    at case.js:2:1"
+  },
+  "function-recursive-then-throw": {
+   "threw": true,
+   "name": "Error",
+   "message": "bottom",
+   "stack": "Error: bottom\n    at f (case.js:1:36)\n    at f (case.js:1:64)\n    at f (case.js:1:64)\n    at f (case.js:1:64)\n    at case.js:2:1"
+  },
+  "function-recursive-many": {
+   "threw": true,
+   "name": "Error",
+   "message": "deep",
+   "stack": "Error: deep\n    at f (case.js:1:36)\n    at f (case.js:1:62)\n    at f (case.js:1:62)\n    at f (case.js:1:62)\n    at f (case.js:1:62)\n    at f (case.js:1:62)\n    at f (case.js:1:62)\n    at f (case.js:1:62)\n    at f (case.js:1:62)\n    at f (case.js:1:62)"
+  },
+  "function-method-call-on-prototype": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read properties of null (reading 'x')",
+   "stack": "TypeError: Cannot read properties of null (reading 'x')\n    at A.go (case.js:2:37)\n    at case.js:3:9"
+  },
+  "function-in-object-in-array": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read properties of null (reading 'x')",
+   "stack": "TypeError: Cannot read properties of null (reading 'x')\n    at Object.run (case.js:1:30)\n    at case.js:2:9"
+  },
+  "function-symbol-toprimitive": {
+   "threw": true,
+   "name": "Error",
+   "message": "prim",
+   "stack": "Error: prim\n    at [Symbol.toPrimitive] (case.js:1:44)\n    at case.js:2:1"
+  },
+  "function-valueof-bad": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot convert object to primitive value",
+   "stack": "TypeError: Cannot convert object to primitive value\n    at case.js:2:3"
+  },
+  "strict-this-undefined": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read properties of undefined (reading 'x')",
+   "stack": "TypeError: Cannot read properties of undefined (reading 'x')\n    at f (case.js:2:28)\n    at case.js:3:1"
+  },
+  "strict-arguments-callee": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "'caller', 'callee', and 'arguments' properties may not be accessed on strict mode functions or the arguments objects for calls to them",
+   "stack": "TypeError: 'caller', 'callee', and 'arguments' properties may not be accessed on strict mode functions or the arguments objects for calls to them\n    at case.js:2:33\n    at case.js:2:43"
+  },
+  "strict-frozen-array-push": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot add property 1, object is not extensible",
+   "stack": "TypeError: Cannot add property 1, object is not extensible\n    at Array.push (<anonymous>)\n    at case.js:2:20"
+  },
+  "strict-primitive-property": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot create property 'foo' on number '5'",
+   "stack": "TypeError: Cannot create property 'foo' on number '5'\n    at case.js:2:9"
+  },
+  "strict-undefined-assign": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot assign to read only property 'undefined' of object '[object Object]'",
+   "stack": "TypeError: Cannot assign to read only property 'undefined' of object '[object Object]'\n    at case.js:2:11"
+  },
+  "strict-global-this": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read properties of undefined (reading 'y')",
+   "stack": "TypeError: Cannot read properties of undefined (reading 'y')\n    at case.js:2:8"
+  },
+  "misc-logical-assign": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read properties of undefined (reading 'x')",
+   "stack": "TypeError: Cannot read properties of undefined (reading 'x')\n    at case.js:3:3"
+  },
+  "misc-delete-super": {
+   "threw": true,
+   "name": "ReferenceError",
+   "message": "Unsupported reference to 'super'",
+   "stack": "ReferenceError: Unsupported reference to 'super'\n    at A.m (case.js:1:17)\n    at case.js:2:9"
+  },
+  "misc-nested-destructure-default": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot read properties of undefined (reading 'b')",
+   "stack": "TypeError: Cannot read properties of undefined (reading 'b')\n    at case.js:2:3"
+  },
+  "misc-getter-on-class-static-chain": {
+   "threw": true,
+   "name": "Error",
+   "message": "static chain",
+   "stack": "Error: static chain\n    at C.c (case.js:3:30)\n    at B.b (case.js:2:33)\n    at A.a (case.js:1:33)\n    at case.js:4:3"
+  },
+  "misc-closure-counter": {
+   "threw": true,
+   "name": "Error",
+   "message": "twice",
+   "stack": "Error: twice\n    at case.js:1:65\n    at case.js:4:1"
+  },
+  "misc-error-capture": {
+   "threw": false,
+   "name": "Error",
+   "message": "captured",
+   "stack": "Error: captured\n    at f (case.js:1:23)\n    at case.js:2:18"
+  },
+  "misc-error-capture-class": {
+   "threw": false,
+   "name": "TypeError",
+   "message": "made",
+   "stack": "TypeError: made\n    at V.make (case.js:1:27)\n    at case.js:2:26"
+  },
+  "misc-error-stack-limit": {
+   "threw": false,
+   "name": "Error",
+   "message": "limit",
+   "stack": "Error: limit\n    at f (case.js:1:39)\n    at f (case.js:1:28)\n    at f (case.js:1:28)\n    at f (case.js:1:28)\n    at f (case.js:1:28)\n    at f (case.js:1:28)\n    at f (case.js:1:28)\n    at f (case.js:1:28)\n    at f (case.js:1:28)\n    at f (case.js:1:28)"
+  },
+  "misc-error-message-multi-line": {
+   "threw": true,
+   "name": "Error",
+   "message": "line1\nline2",
+   "stack": "Error: line1\nline2\n    at case.js:1:7"
+  },
+  "misc-error-empty-name": {
+   "threw": true,
+   "name": "",
+   "message": "m",
+   "stack": "m\n    at case.js:1:11"
+  },
+  "misc-error-object-message": {
+   "threw": true,
+   "name": "Error",
+   "message": "[object Object]",
+   "stack": "Error: [object Object]\n    at case.js:1:7"
+  }
+ }
+}

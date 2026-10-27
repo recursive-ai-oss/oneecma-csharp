@@ -50,6 +50,7 @@ internal sealed partial class Compiler
                     LoadIdent(id.Name);
                     Expr(a.Right);
                     SetSpan(a);
+                    _f.CurP = OperatorPos(a.Left.End);
                     Emit(BinOp(compound!.Value));
                 }
 
@@ -58,6 +59,7 @@ internal sealed partial class Compiler
                     Emit(Op.Dup);
                 }
 
+                _f.CurP = OperatorPos(a.Left.End);
                 StoreIdent(id.Name);
                 return;
 
@@ -131,6 +133,7 @@ internal sealed partial class Compiler
             Emit(Op.GetDynRef, nm);
             Expr(a.Right);
             SetSpan(a);
+            _f.CurP = OperatorPos(a.Left.End);
             Emit(BinOp(compound!.Value));
         }
 
@@ -220,6 +223,14 @@ internal sealed partial class Compiler
         }
     }
 
+    /// <summary>The name V8 infers for a function assigned to <c>a.b.prototype.c</c>: the text with <c>.prototype</c> dropped.</summary>
+    private string InferredTargetName(MemberExpression m)
+    {
+        string text = _source.Text.Substring(m.Start, Math.Min(m.End - m.Start, 120));
+        text = text.Replace(".prototype", string.Empty, StringComparison.Ordinal);
+        return text.StartsWith("this.", StringComparison.Ordinal) ? text[5..] : text;
+    }
+
     private void MemberAssign(AssignmentExpression a, MemberExpression m, bool discard, bool logical, BinaryOp? compound)
     {
         bool isPrivate = m.Property is PrivateIdentifier;
@@ -240,17 +251,25 @@ internal sealed partial class Compiler
 
         int keyItems = isPrivate || m.Computed ? 1 : 0;
         SetSpan(m.Object);
+        _f.CurP = OperatorPos(a.Left.End);
         if (a.Operator == AssignOp.Assign)
         {
             if (name is not null)
             {
+                int funcsBefore = _f.Funcs.Count;
                 ExprNamed(a.Right, string.Empty);
+                if (_f.Funcs.Count == funcsBefore + 1 && a.Right is FunctionNode { Id: null } && m.Object is Identifier or MemberExpression or ThisExpression)
+                {
+                    _f.Funcs[^1].InferredName = InferredTargetName(m);
+                }
             }
             else
             {
                 Expr(a.Right);
             }
 
+            SetSpan(m.Object);
+            _f.CurP = OperatorPos(a.Left.End);
             StoreMember(m, name, isPrivate);
         }
         else
@@ -264,6 +283,7 @@ internal sealed partial class Compiler
                 Jump(LogicalJump(a.Operator), shortL);
                 Expr(a.Right);
                 SetSpan(m.Object);
+                _f.CurP = OperatorPos(a.Left.End);
                 StoreMember(m, name, isPrivate);
                 Jump(Op.Jmp, end);
                 // Short-circuit: the stack holds [obj, (key), val]; keep only val.
@@ -288,8 +308,10 @@ internal sealed partial class Compiler
             {
                 Expr(a.Right);
                 SetSpan(a);
+                _f.CurP = OperatorPos(a.Left.End);
                 Emit(BinOp(compound!.Value));
                 SetSpan(m.Object);
+                _f.CurP = OperatorPos(a.Left.End);
                 StoreMember(m, name, isPrivate);
             }
         }
@@ -672,7 +694,7 @@ internal sealed partial class Compiler
             SetSpan(spS, spE);
         }
 
-        Emit(Op.GetIterator, 0, NameConst(DestructureText));
+        Emit(Op.GetIterator, 0, NameConst(_paramPattern ? "\u0002" : DestructureText));
         SetSpan(ds, de);
         int done = NewTemp();
         Emit(Op.PushFalse);
@@ -721,6 +743,12 @@ internal sealed partial class Compiler
         FreeTemp(done);
     }
 
+    // True while binding a parameter pattern, whose failure message names the value because no source expression produced it.
+    private bool _paramPattern;
+
+    // True while binding a pattern that is the value of a property of an enclosing pattern: V8 words its failure as a plain read.
+    private bool _nestedPattern;
+
     private void ObjectPatternBind(ObjectPattern obj, BindMode mode)
     {
         string? first = null;
@@ -744,7 +772,9 @@ internal sealed partial class Compiler
             SetSpan(spS, spE);
         }
 
-        Emit(Op.CheckObjectCoercibleDestructure, first is null ? -1 : NameConst(first), NameConst(DestructureText));
+        _f.CurP = obj.Properties.Count > 0 && obj.Properties[0] is Property { } firstProp ? firstProp.Key.Start : obj.Start;
+        string sourceText = _nestedPattern ? "\u0001" : DestructureText;
+        Emit(Op.CheckObjectCoercibleDestructure, first is null ? -1 : NameConst(first), NameConst(sourceText));
         SetSpan(cs, ce);
         int keys = -1;
         if (hasRest)
@@ -800,7 +830,10 @@ internal sealed partial class Compiler
                 Emit(Op.GetElem);
             }
 
+            bool wasNested = _nestedPattern;
+            _nestedPattern = prop.Value is ObjectPattern or AssignmentPattern { Left: ObjectPattern };
             BindTarget(prop.Value, mode, keyPre);
+            _nestedPattern = wasNested;
         }
 
         Emit(Op.Pop);

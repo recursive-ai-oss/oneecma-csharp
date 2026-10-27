@@ -31,9 +31,19 @@ internal static class ErrorReport
 
     private static Diagnostic Build(string kind, string code, string headline, IReadOnlyList<StackFrameInfo> frames)
     {
-        Text.SourceText src = frames.Count > 0 ? frames[0].Source : Empty;
-        Text.Span span = frames.Count > 0 ? frames[0].Span : new Text.Span(0, 0);
-        return new Diagnostic(kind, code, headline, src, span) { Stack = frames };
+        // Built-in functions are frames of err.stack, not of the report: the report points at the script code that called them.
+        var script = new List<StackFrameInfo>(frames.Count);
+        foreach (StackFrameInfo f in frames)
+        {
+            if (!f.IsNative)
+            {
+                script.Add(f);
+            }
+        }
+
+        Text.SourceText src = script.Count > 0 ? script[0].Source : Empty;
+        Text.Span span = script.Count > 0 ? script[0].Span : new Text.Span(0, 0);
+        return new Diagnostic(kind, code, headline, src, span) { Stack = script };
     }
 
     /// <summary>The constructor name of a thrown non-Error object (for example a harness-defined error class), else "Error".</summary>

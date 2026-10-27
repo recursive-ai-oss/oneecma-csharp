@@ -37,8 +37,11 @@ internal sealed partial class Compiler
         EnsureStack();
         int ss = _f.CurS;
         int se = _f.CurE;
+        int savedStmt = _f.StmtStart;
+        _f.StmtStart = s.Start;
         SetSpan(s);
         StmtCore(s, labels);
+        _f.StmtStart = savedStmt;
         SetSpan(ss, se);
     }
 

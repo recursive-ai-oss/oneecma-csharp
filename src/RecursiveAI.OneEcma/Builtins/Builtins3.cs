@@ -87,7 +87,7 @@ internal static partial class Builtins
     /// <summary>PerformEval for indirect eval (19.2.1.1): global scope, sloppy unless the code says otherwise.</summary>
     internal static JsValue PerformEval(Realm r, string src)
     {
-        Syntax.ParseResult pr = Syntax.JsParser.Parse(src, new Syntax.ParseOptions { Goal = Syntax.ParseGoal.Eval, FileName = "<eval>" });
+        Syntax.ParseResult pr = Syntax.JsParser.Parse(src, new Syntax.ParseOptions { Goal = Syntax.ParseGoal.Eval, FileName = r.Agent.Frame?.EvalOrigin() ?? "<eval>" });
         if (pr.HasErrors)
         {
             throw Errors.Syntax(pr.Diagnostics[0].Headline);

@@ -24,6 +24,12 @@ public sealed class ScriptEngineOptions
     /// </summary>
     public bool ThrowOnUnhandledRejection { get; set; } = true;
 
+    /// <summary>
+    /// When true, a call in tail position of strict code reuses the caller's frame (the proper tail calls ECMA-262 requires), so the
+    /// caller no longer appears in <c>err.stack</c> or in reports. Default false, which keeps every frame, as V8 does.
+    /// </summary>
+    public bool ProperTailCalls { get; set; }
+
     /// <summary>When true the global object gets the test-harness additions <c>print</c> and <c>$262</c>. Default false.</summary>
     public bool InstallTest262Host { get; set; }
 }
@@ -52,7 +58,7 @@ public sealed partial class ScriptEngine
     /// <param name="options">Host, limits and switches; <see langword="null"/> means all defaults.</param>
     public ScriptEngine(ScriptEngineOptions? options)
     {
-        _agent = new Agent(options?.Host ?? new DefaultHost(), options?.Limits ?? new EngineLimits()) { InstallTest262Host = options?.InstallTest262Host ?? false };
+        _agent = new Agent(options?.Host ?? new DefaultHost(), options?.Limits ?? new EngineLimits()) { InstallTest262Host = options?.InstallTest262Host ?? false, ProperTailCalls = options?.ProperTailCalls ?? false };
         _throwOnUnhandled = options?.ThrowOnUnhandledRejection ?? true;
         Agent? old = Agent.Enter(_agent);
         try
@@ -244,6 +250,7 @@ public sealed partial class ScriptEngine
         Agent? old = Agent.Enter(_agent);
         _agent.SetCancellation(token);
         _agent.Frame = null;
+        _agent.CurrentNative = null;
         _agent.CallDepth = 0;
         _agent.NativeDepth = 0;
         _agent.Realm = realm ?? _realm;

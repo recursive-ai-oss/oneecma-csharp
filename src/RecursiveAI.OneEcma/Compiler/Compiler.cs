@@ -91,6 +91,9 @@ internal sealed partial class Compiler
         internal List<Instr> Ops = new(64);
         internal List<int> SpanS = new(64);
         internal List<int> SpanE = new(64);
+        internal List<int> PosL = new(64);
+        internal int CurP = -1;
+        internal int StmtStart = -1;
         internal List<JsValue> Consts = [];
         internal Dictionary<object, int> ConstIndex = new();
         internal List<string> Names = [];
@@ -147,6 +150,7 @@ internal sealed partial class Compiler
         f.Ops.Add(new Instr { Op = op, A = a, B = b });
         f.SpanS.Add(f.CurS);
         f.SpanE.Add(f.CurE);
+        f.PosL.Add(f.CurP >= 0 ? f.CurP : f.CurS);
         AdjustDepth(op, a, b);
         return f.Ops.Count - 1;
     }
@@ -292,12 +296,50 @@ internal sealed partial class Compiler
     {
         _f.CurS = n.Start;
         _f.CurE = n.End;
+        _f.CurP = -1;
     }
 
     private void SetSpan(int s, int e)
     {
         _f.CurS = s;
         _f.CurE = e;
+        _f.CurP = -1;
+    }
+
+    /// <summary>
+    /// The offset of the operator that follows an operand ending at <paramref name="from"/>: stack traces point at the operator of a
+    /// binary operation or an assignment, not at its first operand.
+    /// </summary>
+    private int OperatorPos(int from)
+    {
+        string t = _source.Text;
+        int i = from;
+        while (i < t.Length)
+        {
+            char c = t[i];
+            if (c is ' ' or '\t' or '\r' or '\n' or ')' or '\u00A0' or '\u2028' or '\u2029')
+            {
+                i++;
+            }
+            else if (c == '/' && i + 1 < t.Length && t[i + 1] == '/')
+            {
+                while (i < t.Length && t[i] is not ('\n' or '\r'))
+                {
+                    i++;
+                }
+            }
+            else if (c == '/' && i + 1 < t.Length && t[i + 1] == '*')
+            {
+                int end = t.IndexOf("*/", i + 2, StringComparison.Ordinal);
+                i = end < 0 ? t.Length : end + 2;
+            }
+            else
+            {
+                return i;
+            }
+        }
+
+        return from;
     }
 
     private void PushNumber(double d)
@@ -489,6 +531,7 @@ internal sealed partial class Compiler
             Ops = [.. f.Ops],
             SpanStart = [.. f.SpanS],
             SpanEnd = [.. f.SpanE],
+            Pos = [.. f.PosL],
             Consts = [.. f.Consts],
             Names = [.. f.Names],
             Functions = [.. f.Funcs],

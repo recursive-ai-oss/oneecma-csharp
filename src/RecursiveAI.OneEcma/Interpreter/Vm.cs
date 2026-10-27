@@ -40,6 +40,9 @@ internal static partial class Vm
         Frame? savedFrame = ag.Frame;
         int savedDepth = ag.CallDepth;
         Realm savedRealm = ag.Realm;
+        NativeFunction? savedNative = ag.CurrentNative;
+        JsValue savedNativeThis = ag.CurrentNativeThis;
+        bool savedNativeNew = ag.CurrentNativeNew;
         ag.NativeDepth++;
         try
         {
@@ -47,10 +50,17 @@ internal static partial class Vm
             Frame f = PrepareFrame(ag, fn, thisValue, arr, 0, arr.Length, newTarget);
             f.IsEntry = true;
             f.Caller = savedFrame;
+            f.NativeCaller = savedNative;
+            f.NativeCallerThis = savedNativeThis;
+            f.NativeCallerNew = savedNativeNew;
+            ag.CurrentNative = null;
             return Run(ag, f);
         }
         finally
         {
+            ag.CurrentNative = savedNative;
+            ag.CurrentNativeThis = savedNativeThis;
+            ag.CurrentNativeNew = savedNativeNew;
             ag.NativeDepth--;
             ag.Frame = savedFrame;
             ag.CallDepth = savedDepth;
@@ -69,15 +79,25 @@ internal static partial class Vm
         Frame? savedFrame = ag.Frame;
         int savedDepth = ag.CallDepth;
         Realm savedRealm = ag.Realm;
+        NativeFunction? savedNative = ag.CurrentNative;
+        JsValue savedNativeThis = ag.CurrentNativeThis;
+        bool savedNativeNew = ag.CurrentNativeNew;
         ag.NativeDepth++;
         try
         {
             f.IsEntry = true;
             f.Caller = savedFrame;
+            f.NativeCaller = savedNative;
+            f.NativeCallerThis = savedNativeThis;
+            f.NativeCallerNew = savedNativeNew;
+            ag.CurrentNative = null;
             return Run(ag, f);
         }
         finally
         {
+            ag.CurrentNative = savedNative;
+            ag.CurrentNativeThis = savedNativeThis;
+            ag.CurrentNativeNew = savedNativeNew;
             ag.NativeDepth--;
             ag.Frame = savedFrame;
             ag.CallDepth = savedDepth;
@@ -108,6 +128,7 @@ internal static partial class Vm
         {
             f.ThisFrame = fn.OuterFrame!.ThisFrame;
             f.This = default;
+            f.CallReceiver = thisValue;
         }
         else if (newTarget is not null)
         {
@@ -823,7 +844,7 @@ internal static partial class Vm
                         case Op.ArraySpread:
                             {
                                 JsValue it = st[--sp];
-                                SpreadInto((JsArray)st[sp - 1].Ref!, it);
+                                SpreadInto((JsArray)st[sp - 1].Ref!, it, ins.A == 1, fc.Names[ins.B]);
                                 break;
                             }
 
@@ -1905,6 +1926,7 @@ internal static partial class Vm
             }
             catch (JsException ex)
             {
+                ag.CurrentNative = null;
                 thrown = ex.Value;
                 hasThrown = true;
             }
