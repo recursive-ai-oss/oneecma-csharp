@@ -138,7 +138,7 @@ internal sealed class Repl
 
     private void Evaluate(string source)
     {
-        string name = "repl:" + (++_entry).ToString(System.Globalization.CultureInfo.InvariantCulture);
+        string name = "repl-" + (++_entry).ToString(System.Globalization.CultureInfo.InvariantCulture);
         try
         {
             JsValue result;

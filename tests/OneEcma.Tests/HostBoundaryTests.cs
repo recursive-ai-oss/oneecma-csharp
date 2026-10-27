@@ -195,6 +195,22 @@ public sealed class HostBoundaryTests
     }
 
     [Fact]
+    public void RecursiveDataIsBoundedInBothDirections()
+    {
+        Assert.Equal("3", Eval("new Trees().count({ name: 'a', children: [{ name: 'b', children: [] }, { name: 'c', children: [] }] })"));
+        // A script object that contains itself ends in a TypeError naming the path, not a stack overflow.
+        JsException cyc = Fails("const n = { name: 'x', children: [] }; n.children.push(n); new Trees().count(n)");
+        Assert.Contains("levels deep", cyc.Message, StringComparison.Ordinal);
+        Assert.Contains("node.children[0].children[0]", cyc.Message.Replace("argument 'n.", "argument 'node."), StringComparison.Ordinal);
+        // So does very deep but finite nesting.
+        Fails("let d = { name: 'leaf', children: [] }; for (let i = 0; i < 500; i++) d = { name: 'n', children: [d] }; new Trees().count(d)");
+        // A cyclic .NET graph handed to script is a RangeError.
+        JsException back = Fails("new Trees().cycle()");
+        Assert.Equal("RangeError", back.Report!.Kind);
+        Assert.Equal("59", Eval("String(new Trees().count(new Trees().build(58)))"));
+    }
+
+    [Fact]
     public void CallbacksRunInScriptAndConvertTheirResults()
     {
         Assert.Equal("7", Eval("new Geometry().apply((a, b) => a + b, 3, 4)"));

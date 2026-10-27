@@ -1031,6 +1031,7 @@ internal sealed class BindingEmitter
         b.Append("        /// <summary>Reads a script object as ").Append(EscapeDoc(_typeShort)).Append(". Missing required properties and wrong types are reported with the property path.</summary>\n");
         b.Append("        public static bool TryFromJs(JsValue v, ref JsConv c, out ").Append(_typeCs).Append(" r)\n        {\n            r = default!;\n");
         b.Append("            if (!JsMarshal.IsPlainObject(v))\n            {\n                return c.Fail(").Append(Lit(Expect(new TypeDesc(TK.Value, _type, _typeCs) { Export = _export })) ).Append(", v);\n            }\n\n");
+        b.Append("            if (!c.Enter(v))\n            {\n                return false;\n            }\n\n");
         b.Append("            JsObject o = v.AsObject!;\n");
         if (_export.RejectUnknown)
         {
@@ -1100,16 +1101,16 @@ internal sealed class BindingEmitter
             b.Append("            ").Append(a).Append('\n');
         }
 
-        b.Append("            return true;\n        }\n\n");
+        b.Append("            c.Leave();\n            return true;\n        }\n\n");
 
         b.Append("        /// <summary>Copies the value into a new plain script object.</summary>\n");
-        b.Append("        public static JsValue ToJs(JsRealm realm, ").Append(_typeCs).Append(" v)\n        {\n            JsObject o = realm.NewObject();\n");
+        b.Append("        public static JsValue ToJs(JsRealm realm, ").Append(_typeCs).Append(" v)\n        {\n            JsMarshal.EnterToJs();\n            try\n            {\n                JsObject o = realm.NewObject();\n");
         foreach (ValueMember m in members)
         {
-            b.Append("            realm.DefineData(o, ").Append(Lit(m.JsName)).Append(", ").Append(ToJs(m.Type)).Append("(realm, v.").Append(m.Read).Append("));\n");
+            b.Append("                realm.DefineData(o, ").Append(Lit(m.JsName)).Append(", ").Append(ToJs(m.Type)).Append("(realm, v.").Append(m.Read).Append("));\n");
         }
 
-        b.Append("            return JsValue.FromObject(o);\n        }\n\n");
+        b.Append("                return JsValue.FromObject(o);\n            }\n            finally\n            {\n                JsMarshal.LeaveToJs();\n            }\n        }\n\n");
         if (_export.RejectUnknown)
         {
             b.Append("        private static readonly string[] Known = [").Append(string.Join(", ", members.Select(m => Lit(m.JsName)))).Append("];\n\n");

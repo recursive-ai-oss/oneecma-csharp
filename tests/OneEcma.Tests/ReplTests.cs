@@ -42,7 +42,7 @@ public sealed class ReplTests
     {
         (string o, string e) = Session("let u;\nu.x\n1 + 1\n");
         Assert.Equal("2\n", o);
-        Assert.StartsWith("error[TypeError]: Cannot read properties of undefined (reading 'x')\n --> repl:2:1", e, StringComparison.Ordinal);
+        Assert.StartsWith("error[TypeError]: Cannot read properties of undefined (reading 'x')\n --> repl-2:1:1", e, StringComparison.Ordinal);
     }
 
     [Fact]

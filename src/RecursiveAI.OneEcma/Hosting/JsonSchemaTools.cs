@@ -16,7 +16,7 @@ namespace RecursiveAI.OneEcma;
 /// </summary>
 public static class JsonSchemaTools
 {
-    private const int MaxDepth = 64;
+    private const int MaxDepth = JsMarshal.MaxDepth;
 
     /// <summary>Defines a global-style function: returns the function object; publish it with <see cref="JsRealm.DefineData(JsObject, string, JsValue, JsAttributes)"/>.</summary>
     /// <param name="realm">The realm.</param>
@@ -183,7 +183,7 @@ public static class JsonSchemaTools
 
         if (depth > MaxDepth)
         {
-            return c.Fail("a value nested less than " + MaxDepth.ToString(CultureInfo.InvariantCulture) + " levels deep", v);
+            return c.Fail("a value nested less than " + MaxDepth.ToString(NumberFormatInfo.InvariantInfo) + " levels deep", v);
         }
 
         if (schema.TryGetProperty("$ref", out JsonElement r) && r.ValueKind == JsonValueKind.String)
@@ -369,12 +369,12 @@ public static class JsonSchemaTools
         string s = v.AsString;
         if (schema.TryGetProperty("minLength", out JsonElement min) && min.TryGetInt32(out int mn) && s.Length < mn)
         {
-            return c.Fail("a string of at least " + mn.ToString(CultureInfo.InvariantCulture) + " characters", v);
+            return c.Fail("a string of at least " + mn.ToString(NumberFormatInfo.InvariantInfo) + " characters", v);
         }
 
         if (schema.TryGetProperty("maxLength", out JsonElement max) && max.TryGetInt32(out int mx) && s.Length > mx)
         {
-            return c.Fail("a string of at most " + mx.ToString(CultureInfo.InvariantCulture) + " characters", v);
+            return c.Fail("a string of at most " + mx.ToString(NumberFormatInfo.InvariantInfo) + " characters", v);
         }
 
         if (schema.TryGetProperty("pattern", out JsonElement p) && p.ValueKind == JsonValueKind.String)
@@ -404,19 +404,19 @@ public static class JsonSchemaTools
         uint n = arr.Length;
         if (schema.TryGetProperty("minItems", out JsonElement min) && min.TryGetUInt32(out uint mn) && n < mn)
         {
-            return c.Fail("an array of at least " + mn.ToString(CultureInfo.InvariantCulture) + " items", v);
+            return c.Fail("an array of at least " + mn.ToString(NumberFormatInfo.InvariantInfo) + " items", v);
         }
 
         if (schema.TryGetProperty("maxItems", out JsonElement max) && max.TryGetUInt32(out uint mx) && n > mx)
         {
-            return c.Fail("an array of at most " + mx.ToString(CultureInfo.InvariantCulture) + " items", v);
+            return c.Fail("an array of at most " + mx.ToString(NumberFormatInfo.InvariantInfo) + " items", v);
         }
 
         if (schema.TryGetProperty("items", out JsonElement items))
         {
             for (uint i = 0; i < n; i++)
             {
-                if (!Check(root, items, arr.Get(i.ToString(CultureInfo.InvariantCulture)), ref c, depth + 1))
+                if (!Check(root, items, arr.Get(i.ToString(NumberFormatInfo.InvariantInfo)), ref c, depth + 1))
                 {
                     return c.InIndex((int)i);
                 }
@@ -513,7 +513,7 @@ public static class JsonSchemaTools
             int n = CountMatches(root, one, v, depth);
             if (n != 1)
             {
-                return c.Fail(n == 0 ? "a value matching one of the allowed shapes" : "a value matching exactly one of the allowed shapes (it matches " + n.ToString(CultureInfo.InvariantCulture) + ")", v);
+                return c.Fail(n == 0 ? "a value matching one of the allowed shapes" : "a value matching exactly one of the allowed shapes (it matches " + n.ToString(NumberFormatInfo.InvariantInfo) + ")", v);
             }
         }
 
@@ -576,7 +576,7 @@ public static class JsonSchemaTools
     {
         if (depth > MaxDepth)
         {
-            return c.Fail("data nested less than " + MaxDepth.ToString(CultureInfo.InvariantCulture) + " levels deep", v);
+            return c.Fail("data nested less than " + MaxDepth.ToString(NumberFormatInfo.InvariantInfo) + " levels deep", v);
         }
 
         if (v.IsUndefined || v.IsNull)
@@ -607,7 +607,7 @@ public static class JsonSchemaTools
             w.WriteStartArray();
             for (uint i = 0; i < arr.Length; i++)
             {
-                if (!Write(w, arr.Get(i.ToString(CultureInfo.InvariantCulture)), ref c, depth + 1))
+                if (!Write(w, arr.Get(i.ToString(NumberFormatInfo.InvariantInfo)), ref c, depth + 1))
                 {
                     return c.InIndex((int)i);
                 }

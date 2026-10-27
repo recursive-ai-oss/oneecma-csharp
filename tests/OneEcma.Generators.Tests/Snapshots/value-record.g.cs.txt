@@ -18,6 +18,11 @@ namespace Demo
                 return c.Fail("an Pt object { x?, y?, label? }", v);
             }
 
+            if (!c.Enter(v))
+            {
+                return false;
+            }
+
             JsObject o = v.AsObject!;
             if (!JsMarshal.TryMember(o, "x", true, "a number (System.Double)", ref c, out JsValue mv0))
             {
@@ -56,17 +61,26 @@ namespace Demo
             }
 
             r = new global::Demo.Pt(m0, m1, m2);
+            c.Leave();
             return true;
         }
 
         /// <summary>Copies the value into a new plain script object.</summary>
         public static JsValue ToJs(JsRealm realm, global::Demo.Pt v)
         {
-            JsObject o = realm.NewObject();
-            realm.DefineData(o, "x", J3(realm, v.X));
-            realm.DefineData(o, "y", J3(realm, v.Y));
-            realm.DefineData(o, "label", J4(realm, v.Label));
-            return JsValue.FromObject(o);
+            JsMarshal.EnterToJs();
+            try
+            {
+                JsObject o = realm.NewObject();
+                realm.DefineData(o, "x", J3(realm, v.X));
+                realm.DefineData(o, "y", J3(realm, v.Y));
+                realm.DefineData(o, "label", J4(realm, v.Label));
+                return JsValue.FromObject(o);
+            }
+            finally
+            {
+                JsMarshal.LeaveToJs();
+            }
         }
 
     private static bool C0(JsValue v, ref JsConv c, out double r) => JsMarshal.TryDouble(v, ref c, "System.Double", out r);

@@ -177,3 +177,30 @@ public class Streams
         return f(20);
     }
 }
+
+[JsExport]
+public record TreeNode(string Name, List<TreeNode> Children);
+
+[JsExport]
+public class Trees
+{
+    public virtual int Count(TreeNode n) => 1 + n.Children.Sum(Count);
+
+    public virtual TreeNode Cycle()
+    {
+        var root = new TreeNode("loop", []);
+        root.Children.Add(root);
+        return root;
+    }
+
+    public virtual TreeNode Build(int depth)
+    {
+        var node = new TreeNode("leaf", []);
+        for (int i = 0; i < depth; i++)
+        {
+            node = new TreeNode("n" + i, [node]);
+        }
+
+        return node;
+    }
+}

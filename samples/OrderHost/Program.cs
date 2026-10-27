@@ -1,6 +1,5 @@
 using RecursiveAI.OneEcma;
 using RecursiveAI.OneEcma.Diagnostics;
-using OrderHost;
 using Shop;
 
 // A host that exposes an order service to scripts. Everything crossing the boundary is checked, and a mistake in a script

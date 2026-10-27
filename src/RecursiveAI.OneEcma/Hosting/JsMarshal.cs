@@ -24,6 +24,7 @@ public struct JsConv
     private IReadOnlyList<string>? _known;
     private bool _missing;
     private string? _hint;
+    private int _depth;
 
     /// <summary>Starts a conversion context for one host call.</summary>
     /// <param name="realm">The realm the call runs in.</param>
@@ -75,6 +76,21 @@ public struct JsConv
         return false;
     }
 
+    /// <summary>Enters one level of nested data. Returns false (failure recorded) past the nesting limit, so a cyclic or very deep script value cannot overflow the stack.</summary>
+    /// <param name="value">The value at this level.</param>
+    public bool Enter(JsValue value)
+    {
+        if (++_depth > JsMarshal.MaxDepth)
+        {
+            return Fail("data nested less than " + JsMarshal.MaxDepth.ToString(NumberFormatInfo.InvariantInfo) + " levels deep", value);
+        }
+
+        return true;
+    }
+
+    /// <summary>Leaves a level entered with <see cref="Enter"/>.</summary>
+    public void Leave() => _depth--;
+
     /// <summary>Records that a required value is absent. Always returns false.</summary>
     public bool Missing(string expected)
     {
@@ -102,7 +118,7 @@ public struct JsConv
     /// <summary>Notes that the failure is inside element <paramref name="index"/>. Always returns false.</summary>
     public bool InIndex(int index)
     {
-        (_segments ??= []).Add("[" + index.ToString(CultureInfo.InvariantCulture) + "]");
+        (_segments ??= []).Add("[" + index.ToString(NumberFormatInfo.InvariantInfo) + "]");
         return false;
     }
 
@@ -205,6 +221,31 @@ public static class JsMarshal
 {
     private const double MaxSafe = 9007199254740991d;
 
+    /// <summary>The deepest nesting of by-value types converted in either direction. Only by-value types can refer to themselves, so they are the ones counted.</summary>
+    public const int MaxDepth = 64;
+
+    [ThreadStatic]
+    private static int t_toJsDepth;
+
+    /// <summary>Enters one level of a .NET value being copied to script; throws a RangeError past <see cref="MaxDepth"/> (a cyclic object graph).</summary>
+    public static void EnterToJs()
+    {
+        if (++t_toJsDepth > MaxDepth)
+        {
+            t_toJsDepth = 0;
+            throw Errors.Range("Maximum nesting depth exceeded while copying a .NET value to script (is the data cyclic?)");
+        }
+    }
+
+    /// <summary>Leaves a level entered with <see cref="EnterToJs"/>.</summary>
+    public static void LeaveToJs()
+    {
+        if (t_toJsDepth > 0)
+        {
+            t_toJsDepth--;
+        }
+    }
+
     // ---- describing values ---------------------------------------------------------------------
 
     /// <summary>A short description of a value for messages.</summary>
@@ -238,7 +279,7 @@ public static class JsMarshal
 
         if (v.IsBigInt)
         {
-            return "bigint " + v.AsBigInt.ToString(CultureInfo.InvariantCulture) + "n";
+            return "bigint " + v.AsBigInt.ToString(NumberFormatInfo.InvariantInfo) + "n";
         }
 
         if (v.IsSymbol)
@@ -260,7 +301,7 @@ public static class JsMarshal
 
             if (o is JsArray arr)
             {
-                return "an array of " + arr.Length.ToString(CultureInfo.InvariantCulture) + (arr.Length == 1 ? " item" : " items");
+                return "an array of " + arr.Length.ToString(NumberFormatInfo.InvariantInfo) + (arr.Length == 1 ? " item" : " items");
             }
 
             var keys = new List<PropertyKey>();
@@ -430,7 +471,7 @@ public static class JsMarshal
                 return true;
             }
 
-            return c.Fail(d == Math.Floor(d) && !double.IsInfinity(d) ? "an integer in the range of " + clr + " (" + min.ToString(CultureInfo.InvariantCulture) + " to " + max.ToString(CultureInfo.InvariantCulture) + ")" : "an integer (" + clr + ")", v);
+            return c.Fail(d == Math.Floor(d) && !double.IsInfinity(d) ? "an integer in the range of " + clr + " (" + min.ToString(NumberFormatInfo.InvariantInfo) + " to " + max.ToString(NumberFormatInfo.InvariantInfo) + ")" : "an integer (" + clr + ")", v);
         }
 
         if (v.IsBigInt && v.AsBigInt >= min && v.AsBigInt <= max)
@@ -455,7 +496,7 @@ public static class JsMarshal
                 return true;
             }
 
-            return c.Fail(d == Math.Floor(d) && !double.IsInfinity(d) ? "a non-negative integer in the range of " + clr + " (0 to " + max.ToString(CultureInfo.InvariantCulture) + ")" : "a non-negative integer (" + clr + ")", v);
+            return c.Fail(d == Math.Floor(d) && !double.IsInfinity(d) ? "a non-negative integer in the range of " + clr + " (0 to " + max.ToString(NumberFormatInfo.InvariantInfo) + ")" : "a non-negative integer (" + clr + ")", v);
         }
 
         if (v.IsBigInt && v.AsBigInt >= 0 && v.AsBigInt <= max)
@@ -628,7 +669,7 @@ public static class JsMarshal
         result.Capacity = (int)Math.Min(n, 1 << 20);
         for (uint i = 0; i < n; i++)
         {
-            JsValue item = arr.Get(i.ToString(CultureInfo.InvariantCulture));
+            JsValue item = arr.Get(i.ToString(NumberFormatInfo.InvariantInfo));
             if (!element(item, ref c, out T? r))
             {
                 return c.InIndex((int)i);
