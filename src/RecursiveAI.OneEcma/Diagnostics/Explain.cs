@@ -683,6 +683,10 @@ internal static partial class Explain
                 d.Help.Add("declare `" + name + "` with `let` if it is meant to change");
             }
         }
+        else if (TrySplitCallNotIterable(headline, out string callee, out bool asyncLoop))
+        {
+            CallNotIterable(d, frame, trace, callee, asyncLoop);
+        }
         else if (headline.EndsWith(" is not iterable", StringComparison.Ordinal))
         {
             NotIterable(d, frame, trace, headline[..^" is not iterable".Length], expr);
@@ -1013,6 +1017,48 @@ internal static partial class Explain
         }
     }
 
+    private const string CallNotIterableTail = " is not a function or its return value is not iterable";
+    private const string CallNotAsyncIterableTail = " is not a function or its return value is not async iterable";
+
+    private static bool TrySplitCallNotIterable(string headline, out string callee, out bool asyncLoop)
+    {
+        asyncLoop = headline.EndsWith(CallNotAsyncIterableTail, StringComparison.Ordinal);
+        string tail = asyncLoop ? CallNotAsyncIterableTail : CallNotIterableTail;
+        callee = headline.EndsWith(tail, StringComparison.Ordinal) ? headline[..^tail.Length] : string.Empty;
+        if (asyncLoop && callee.EndsWith("(...)", StringComparison.Ordinal))
+        {
+            callee = callee[..^"(...)".Length];
+        }
+
+        return callee.Length > 0;
+    }
+
+    /// <summary>
+    /// V8 words "the callee is not a function" and "the call returned something that is not iterable" alike. Looks at the callee
+    /// to say which one it is: a missing or non-function callee is explained as a failed call; a function is blamed for its result.
+    /// </summary>
+    private static void CallNotIterable(Diagnostic d, StackFrameInfo frame, TraceState trace, string callee, bool asyncLoop)
+    {
+        Path? p = ParsePath(callee);
+        Eval? ev = p is null ? null : Evaluate(p, frame, trace);
+        if (p is null || ev is null)
+        {
+            return;
+        }
+
+        if (ev.Value.Ref is not JsFunction)
+        {
+            NotAFunction(d, frame, trace, callee, string.Empty);
+            return;
+        }
+
+        string shown = Pretty(p, p.Keys.Count);
+        d.PrimaryLabel = "`" + shown + "(...)` returned something that is not " + (asyncLoop ? "async iterable" : "iterable");
+        d.Help.Add(asyncLoop
+            ? "make `" + shown + "` return an async iterable, an iterable or an array"
+            : "make `" + shown + "` return an array or another iterable; for a plain object loop over `Object.keys(...)`, `Object.values(...)` or `Object.entries(...)`");
+    }
+
     private static void NotIterable(Diagnostic d, StackFrameInfo frame, TraceState trace, string text, string expr)
     {
         Path? p = ParsePath(text);
@@ -1075,7 +1121,8 @@ internal static partial class Explain
     }
 
     private static bool BlamesArgument(string h) =>
-        h == "Cannot convert undefined or null to object" || h == "Invalid array length" || h.EndsWith(" in JSON", StringComparison.Ordinal)
+        h == "Cannot convert undefined or null to object" || h == "Invalid array length"
+        || h.StartsWith("The number NaN cannot be converted to a BigInt", StringComparison.Ordinal) || h.EndsWith(" in JSON", StringComparison.Ordinal)
         || h.Contains(" in JSON at position", StringComparison.Ordinal) || h.EndsWith(" is not valid JSON", StringComparison.Ordinal);
 
     private static void BlameArgument(Diagnostic d, StackFrameInfo frame, TraceState trace, string call, Span primary)
@@ -1111,9 +1158,18 @@ internal static partial class Explain
         int start = open + 1 + lead;
         int end = start + inner.Trim().Length;
         string arg = inner.Trim();
+        Span callSpan = d.PrimarySpan;
         d.MovePrimary(new Span(start, end));
         Path? p = ParsePath(arg);
         Eval? ev = p is null ? null : Evaluate(p, frame, trace);
+        if (NanOriginFor(trace, ev?.Value, d.Source, callSpan) is { } nanOrigin)
+        {
+            // The argument is NaN because an undefined went through arithmetic or Number(): name the read that made the undefined.
+            d.PrimaryLabel = "`" + arg + "` is NaN, computed from an undefined";
+            ExplainUndefinedOrigin(d, trace, arg, nanOrigin, string.Empty, false, callSpan, advise: true);
+            return;
+        }
+
         if (p is null || ev is null)
         {
             d.PrimaryLabel = "`" + (callee.StartsWith("new ", StringComparison.Ordinal) ? callee[4..] : callee) + "` rejected this argument";
@@ -1135,6 +1191,23 @@ internal static partial class Explain
         {
             ExplainJsonText(d, frame, trace, arg, new Span(start, end), p, ev, ev.Value.AsString);
         }
+    }
+
+    /// <summary>The undefined behind a NaN argument: from the argument's own value when it is a plain path, else from the last built-in call that was handed such a NaN at this call.</summary>
+    private static UndefinedOrigin? NanOriginFor(TraceState trace, JsValue? value, SourceText source, Span call)
+    {
+        if (value is { } v && v.IsNumber && double.IsNaN(v.Num))
+        {
+            return trace.OriginBehind(v);
+        }
+
+        if (value is null && trace.LastNanCall is { } last && (ReferenceEquals(last.Source, source) || last.Source.Name == source.Name)
+            && last.Start <= call.End && call.Start <= last.End)
+        {
+            return last.Origin;
+        }
+
+        return null;
     }
 
     /// <summary>The index of the bracket that closes the one at <paramref name="open"/>, skipping strings; -1 when there is none.</summary>

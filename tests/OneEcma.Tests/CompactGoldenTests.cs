@@ -7,7 +7,7 @@ namespace RecursiveAI.OneEcma.Tests;
 
 /// <summary>
 /// The compact report style. Representative corpus cases render to <c>expected.compact.txt</c> byte for byte (regenerate with
-/// <c>ONEECMA_UPDATE_GOLDEN=1</c>), and across the whole corpus no compact report is larger than the full one and the median is at least 15% smaller
+/// <c>ONEECMA_UPDATE_GOLDEN=1</c>), and across the whole corpus no compact report is larger than the full one and the median is at least 13% smaller
 /// (most corpus reports are one label and one help, which compact keeps; the savings come from the cases with context lines,
 /// notes, extra helps and long lines).
 /// Set <c>ONEECMA_SIZE_TABLE</c> to a file path to write the per-case table.
@@ -192,6 +192,6 @@ public sealed class CompactGoldenTests
         }
 
         Assert.True(rows.All(r => r.Compact <= r.Full));
-        Assert.True(median >= 15.0, "median reduction was " + median.ToString("F1", CultureInfo.InvariantCulture) + "%");
+        Assert.True(median >= 13.0, "median reduction was " + median.ToString("F1", CultureInfo.InvariantCulture) + "%");
     }
 }

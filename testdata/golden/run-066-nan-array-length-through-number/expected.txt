@@ -1,0 +1,10 @@
+error[RangeError]: Invalid array length
+ --> case.js:3:25
+  |
+2 | const count = Number(order.count);
+  |                      ----------- undefined starts here: `order` has no `count`
+3 | const slots = new Array(count);
+  |                         ^^^^^ `count` is NaN, computed from an undefined
+  |
+  = help: did you mean `order.lineCount`? (number)
+  = stack: <top-level> (case.js:3)

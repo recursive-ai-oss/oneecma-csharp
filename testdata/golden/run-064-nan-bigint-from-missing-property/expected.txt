@@ -1,0 +1,9 @@
+error[RangeError]: The number NaN cannot be converted to a BigInt because it is not an integer
+ --> case.js:2:22
+  |
+2 | const cents = BigInt(order.total * 100);
+  |                      ----------- undefined starts here: `order` has no `total`
+  |                      ^^^^^^^^^^^^^^^^^ `order.total * 100` is NaN, computed from an undefined
+  |
+  = help: did you mean `order.totalPrice`? (number)
+  = stack: <top-level> (case.js:2)

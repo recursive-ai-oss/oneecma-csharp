@@ -827,6 +827,96 @@ internal sealed partial class Compiler
 
     private int TextConst(Node n) => NameConst(CalleeText(n));
 
+    // V8 words a failed iteration of a call's result by the callee, since either the callee or what it returned may be at fault.
+    // A leading "\u0003" marks a text that is already the whole message.
+    private const string WholeMessage = "\u0003";
+    private const string NotFunctionOrIterable = " is not a function or its return value is not iterable";
+
+    /// <summary>The callee as V8 prints it for a failed iteration: calls in callee position lose their <c>(...)</c> and a comma expression is spelled out.</summary>
+    private static string IterCalleeText(Node callee, int depth = 0)
+    {
+        if (depth > 16)
+        {
+            return "(intermediate value)";
+        }
+
+        return callee switch
+        {
+            CallExpression c => IterCalleeText(c.Callee, depth + 1),
+            SequenceExpression seq => "(" + string.Join(" , ", seq.Expressions.Select(e => e is CallExpression ? "(intermediate value)" : CalleeText(e))) + ")",
+            _ => CalleeText(callee),
+        };
+    }
+
+    /// <summary>
+    /// The message text for a value that cannot be iterated by <c>for-of</c>, an array spread or <c>yield*</c>: the whole message
+    /// when the operand is a call (or <c>new</c>), else the operand's text for "is not iterable".
+    /// </summary>
+    private static string IterOperandText(Node n, bool isAwait, bool allowOptional)
+    {
+        switch (n)
+        {
+            case CallExpression c:
+                return isAwait
+                    ? WholeMessage + CalleeText(c) + " is not a function or its return value is not async iterable"
+                    : WholeMessage + IterCalleeText(c.Callee) + NotFunctionOrIterable;
+            case NewExpression ne:
+                return WholeMessage + CalleeText(ne.Callee) + NotFunctionOrIterable;
+            case ChainExpression { Expression: CallExpression oc } when !isAwait:
+                return allowOptional
+                    ? WholeMessage + OptionalCalleeText(oc.Callee) + " is not iterable (cannot read property Symbol(Symbol.iterator))"
+                    : WholeMessage + "(intermediate value) is not iterable";
+            default:
+                return CalleeText(n);
+        }
+    }
+
+    private static string OptionalCalleeText(Node callee) => callee switch
+    {
+        MemberExpression { Computed: false, Property: Identifier p } m => OptionalCalleeText(m.Object) + (m.IsOptional ? "?." : ".") + p.Name,
+        _ => CalleeText(callee),
+    };
+
+    /// <summary>Where V8 puts the position of a failed iteration of a call's result: the property name of a dotted callee, else the opening parenthesis; -1 for the operand's own start.</summary>
+    private int IterPosition(Node n)
+    {
+        CallExpression? call = n as CallExpression ?? (n as ChainExpression)?.Expression as CallExpression;
+        if (call is null)
+        {
+            return -1;
+        }
+
+        if (call.Callee is MemberExpression { Computed: false, IsOptional: false, Property: { } prop } && n is CallExpression)
+        {
+            return prop.Start;
+        }
+
+        if (call.Callee is Identifier && n is CallExpression)
+        {
+            return -1;
+        }
+
+        string t = _source.Text;
+        int i = call.Callee.End;
+        while (i < t.Length && t[i] != '(')
+        {
+            i++;
+        }
+
+        return i < t.Length ? i : -1;
+    }
+
+    private void SetIterPosition(Node n)
+    {
+        int pos = IterPosition(n);
+        if (pos >= 0)
+        {
+            _f.CurP = pos;
+        }
+    }
+
+    private int IterConst(Node n, bool isAwait, bool allowOptional) => NameConst(IterOperandText(n, isAwait, allowOptional));
+
     private void CallExpr(CallExpression call)
     {
         bool tailRequested = _tailCall;
@@ -1177,7 +1267,8 @@ internal sealed partial class Compiler
             {
                 Expr(sp.Argument);
                 SetSpan(sp.Argument);
-                Emit(Op.ArraySpread, 0, TextConst(sp.Argument));
+                SetIterPosition(sp.Argument);
+                Emit(Op.ArraySpread, 0, IterConst(sp.Argument, false, false));
             }
             else
             {
@@ -1293,7 +1384,9 @@ internal sealed partial class Compiler
         if (y.IsDelegate)
         {
             Expr(y.Argument!);
-            Emit(Op.GetIterator, asyncGen ? 1 : 0, NameConst("\u0002"));
+            // V8 names the operand of `yield*` only as an "intermediate value" unless it is a plain name.
+            SetIterPosition(y.Argument!);
+            Emit(Op.GetIterator, asyncGen ? 1 : 0, NameConst(y.Argument is Identifier or StringLiteral or NumberLiteral ? "\u0002" : WholeMessage + "yield* (intermediate value) is not iterable"));
             Emit(Op.PushUndef);
             JumpLabel ret = NewLabel();
             JumpLabel end = NewLabel();

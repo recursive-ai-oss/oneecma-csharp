@@ -136,6 +136,59 @@ internal sealed class TraceState
     /// <summary>Where an Invalid Date was made and from what, for a Date built with `new Date(x)` in the traced run.</summary>
     internal MadeDate? MadeDateOf(JsObject date) => _madeDates.TryGetValue(date, out MadeDate? m) ? m : null;
 
+    // A NaN made from an undefined carries the same record id in its payload bits, so "NaN" can be explained by the read that
+    // produced the undefined. The tag survives the arithmetic that propagates it; nothing outside a traced replay ever sees one.
+    private const long NanTagBits = 0x7FF8_0100_0000_0000L;
+    private const long NanTagMask = 0x7FFF_FF00_0000_0000L;
+
+    private static bool TryNanId(JsValue v, out int id)
+    {
+        id = 0;
+        if (!v.IsNumber || !double.IsNaN(v.Num))
+        {
+            return false;
+        }
+
+        long bits = BitConverter.DoubleToInt64Bits(v.Num);
+        if ((bits & NanTagMask) != NanTagBits)
+        {
+            return false;
+        }
+
+        id = (int)(bits & 0xFFFF_FFFFL);
+        return true;
+    }
+
+    private static JsValue TagNan(int id) => JsValue.FromNumber(BitConverter.Int64BitsToDouble(NanTagBits | (uint)id));
+
+    /// <summary>The origin of the undefined behind a value: the undefined itself, or a NaN that was computed from one.</summary>
+    internal UndefinedOrigin? OriginBehind(JsValue v)
+    {
+        if (TryNanId(v, out int id))
+        {
+            return _undefinedRing[id & (RingSize - 1)] is { } o && o.Id == id ? o : null;
+        }
+
+        return UndefinedOriginOf(v);
+    }
+
+    private Frame? _nanFrame;
+    private int _nanPc;
+    private UndefinedOrigin? _nanOrigin;
+
+    /// <summary>The last call to a built-in that was handed a value computed from an undefined: where the call is and what the value came from.</summary>
+    internal (SourceText Source, int Start, int End, UndefinedOrigin Origin)? LastNanCall;
+
+    private void StartNan(Frame frame, int pc, UndefinedOrigin? origin)
+    {
+        if (origin is not null)
+        {
+            _nanFrame = frame;
+            _nanPc = pc;
+            _nanOrigin = origin;
+        }
+    }
+
     /// <summary>The record behind a tagged undefined, or null for any other value.</summary>
     internal UndefinedOrigin? UndefinedOriginOf(JsValue v)
     {
@@ -169,6 +222,16 @@ internal sealed class TraceState
             if (ReferenceEquals(gf, frame) && pc == _getPc + 1 && sp >= 1 && st[sp - 1].IsUndefined && st[sp - 1].Num == 0)
             {
                 CompleteGet(frame, st, sp);
+            }
+        }
+
+        if (_nanFrame is not null)
+        {
+            Frame nanFrame = _nanFrame;
+            _nanFrame = null;
+            if (ReferenceEquals(nanFrame, frame) && pc == _nanPc + 1 && sp >= 1 && st[sp - 1].IsNumber && double.IsNaN(st[sp - 1].Num) && !TryNanId(st[sp - 1], out _) && _nanOrigin is { } no)
+            {
+                st[sp - 1] = TagNan(no.Id);
             }
         }
 
@@ -212,14 +275,44 @@ internal sealed class TraceState
                 _newFrame = frame;
                 _newPc = pc;
                 _newArg = st[sp - 1];
+                NoteNanArguments(frame, pc, st, sp - 1, sp);
+                break;
+            case Op.New when ins.A > 1 && sp >= ins.A + 1 && st[sp - ins.A - 1].Ref is NativeFunction:
+                NoteNanArguments(frame, pc, st, sp - ins.A, sp);
+                break;
+            case >= Op.Add and <= Op.UShr when sp >= 2:
+                StartNan(frame, pc, OriginBehind(st[sp - 2]) ?? OriginBehind(st[sp - 1]));
+                break;
+            case Op.Neg or Op.Plus or Op.ToNumeric or Op.Inc or Op.Dec when sp >= 1:
+                StartNan(frame, pc, OriginBehind(st[sp - 1]));
                 break;
             case Op.Call when sp >= ins.A + 2:
                 {
                     int bs = sp - ins.A - 2;
                     _pendingCalls.AddOrUpdate(frame, new PendingCall(pc, st[bs], st[bs + 1]));
                     _pendingCallCount++;
+                    if (st[bs].Ref is NativeFunction)
+                    {
+                        NoteNanArguments(frame, pc, st, bs + 2, sp);
+                    }
+
                     break;
                 }
+        }
+    }
+
+    /// <summary>A built-in is about to receive a value computed from an undefined: its result, if NaN, carries the origin on, and a failure in it can name it.</summary>
+    private void NoteNanArguments(Frame frame, int pc, JsValue[] st, int from, int to)
+    {
+        for (int i = from; i < to; i++)
+        {
+            if (OriginBehind(st[i]) is { } origin)
+            {
+                FunctionCode fc = frame.Code;
+                LastNanCall = (fc.Source, fc.SpanStart[pc], fc.SpanEnd[pc], origin);
+                StartNan(frame, pc, origin);
+                return;
+            }
         }
     }
 
