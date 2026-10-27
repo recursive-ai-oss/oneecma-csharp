@@ -134,6 +134,17 @@ if (runner.ToDisplayString(answer) != "44" || runner.ToDisplayString(runner.Eval
     return 1;
 }
 
+// Binary data: typed arrays over a resizable buffer, DataView, Atomics and base64.
+JsValue binary = runner.Evaluate(
+    "const rab = new ArrayBuffer(4, { maxByteLength: 8 }); const all = new Float16Array(rab); rab.resize(8);\n" +
+    "const dv = new DataView(rab); dv.setUint16(0, 0x3c00, true);\n" +
+    "[all.length, all[0], Atomics.add(new Int32Array(new SharedArrayBuffer(8)), 0, 5), new Uint8Array([72, 105]).toBase64()].join()");
+if (runner.ToDisplayString(binary) != "4,1,0,SGk=")
+{
+    Console.Error.WriteLine("smoke: binary data gave " + runner.ToDisplayString(binary));
+    return 1;
+}
+
 try
 {
     runner.Evaluate("const o = {};\no.missing.x;", "smoke.js");

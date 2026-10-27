@@ -28,7 +28,9 @@ internal static partial class Builtins
         SetupCollections(r);
         SetupWeak(r);
         SetupReflect(r);
+        SetupDate(r);
         SetupProxy(r);
+        BinaryData.Setup(r);
         SetupHost(r);
         RegExpBuiltins.Setup(r);
         IntlJs.Setup(r);

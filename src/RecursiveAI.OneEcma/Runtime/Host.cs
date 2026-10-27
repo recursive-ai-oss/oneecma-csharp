@@ -27,6 +27,24 @@ public interface IJsHost
     string TimeZoneId { get; }
 
     /// <summary>
+    /// The offset of a time zone at one instant, for local time in <c>Date</c> and for Intl. The default reads the machine's
+    /// time zone rules through the BCL; a host overrides it to supply its own rules (a recorded table, a tzdata reader) so a run
+    /// does not depend on the machine.
+    /// </summary>
+    /// <param name="zoneId">An IANA zone id such as <c>America/Chicago</c> (normally <see cref="TimeZoneId"/>).</param>
+    /// <param name="epochMs">The instant, in milliseconds since the Unix epoch.</param>
+    /// <param name="offsetMs">Milliseconds east of UTC at that instant.</param>
+    /// <param name="isDaylight">Whether daylight saving time is in effect.</param>
+    /// <returns>False when the zone is unknown, in which case the engine treats local time as UTC.</returns>
+    bool TryGetTimeZoneOffset(string zoneId, double epochMs, out int offsetMs, out bool isDaylight)
+    {
+        bool known = RecursiveAI.OneEcma.Intl.BclTimeZoneSource.Shared.TryGetOffset(zoneId, epochMs, out RecursiveAI.OneEcma.Intl.TimeZoneOffset o);
+        offsetMs = o.OffsetMs;
+        isDaylight = o.IsDaylight;
+        return known;
+    }
+
+    /// <summary>
     /// Resolves a module specifier. <paramref name="referrerId"/> is the Id of the importing module, or null for
     /// <c>import()</c> from a script. Returns null when the module does not exist.
     /// </summary>
@@ -61,4 +79,10 @@ public interface IJsHost
     /// </summary>
     /// <returns>The recorded ids, or null.</returns>
     IReadOnlyList<long>? ReplayWeakCollection() => null;
+
+    /// <summary>
+    /// Whether <c>Atomics.wait</c> may suspend the running agent ([[CanBlock]], ECMA-262 9.7). The engine has one agent, so a
+    /// permitted wait can only time out, at once and without sleeping. The default is true.
+    /// </summary>
+    bool CanBlock => true;
 }

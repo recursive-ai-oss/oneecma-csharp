@@ -41,8 +41,7 @@ internal static partial class Builtins
             return JsValue.FromObject(Ops.CreateIterResult(default, true));
         }
 
-        // Typed arrays report a detached or out-of-bounds buffer here instead of reading "length"; they join this path with their own unit.
-        long len = Ops.LengthOfArrayLike(it.Target);
+        long len = it.Target is JsTypedArray ita ? BinaryData.IteratedLength(ita) : Ops.LengthOfArrayLike(it.Target);
         long i = it.Index;
         if (i >= len)
         {
