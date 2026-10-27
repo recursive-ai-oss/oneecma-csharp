@@ -47,6 +47,20 @@ internal static class Program
             return failure is null ? 0 : 1;
         }
 
+        // json <seconds> [seed] [outdir]: seeded generation and mutation of JSON text through parse, reviver and stringify.
+        // json-file <path>: one text, for replaying a finding.
+        if (args.Length >= 2 && args[0] == "json")
+        {
+            return JsonFuzz.RunRandom(int.Parse(args[1], CultureInfo.InvariantCulture), args.Length > 2 ? int.Parse(args[2], CultureInfo.InvariantCulture) : 1, args.Length > 3 ? args[3] : null);
+        }
+
+        if (args.Length == 2 && args[0] == "json-file")
+        {
+            string? failure = JsonFuzz.Check(File.ReadAllText(args[1]));
+            Console.WriteLine(failure ?? "ok");
+            return failure is null ? 0 : 1;
+        }
+
         if (args.Length >= 2 && args[0] == "regexp")
         {
             return RegExpFuzz.RunRandom(int.Parse(args[1], System.Globalization.CultureInfo.InvariantCulture), args.Length > 2 ? int.Parse(args[2], System.Globalization.CultureInfo.InvariantCulture) : 1, args.Length > 3 ? args[3] : null) == 0 ? 0 : 1;

@@ -145,6 +145,17 @@ if (runner.ToDisplayString(binary) != "4,1,0,SGk=")
     return 1;
 }
 
+// The Intl objects of the JavaScript layer: option reading, services and locale data under NativeAOT.
+JsValue intlJs = runner.Evaluate(
+    "new Intl.NumberFormat('de', { style: 'currency', currency: 'EUR' }).format(1234.5) + '|'" +
+    " + new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium', timeZone: 'UTC' }).format(0) + '|'" +
+    " + new Intl.Locale('en').maximize().toString() + '|' + new Intl.PluralRules('en').select(1)");
+if (runner.ToDisplayString(intlJs) != "1.234,50\u00A0\u20AC|1 Jan 1970|en-Latn-US|one")
+{
+    Console.Error.WriteLine("smoke: intl script gave " + runner.ToDisplayString(intlJs));
+    return 1;
+}
+
 // Host bindings: an exported service called from script, with a callback, a promise and boundary errors.
 var hostEngine = new ScriptEngine();
 RecursiveAI.OneEcma.AotSmoke.JsExports.InstallAll(hostEngine.MainRealm);

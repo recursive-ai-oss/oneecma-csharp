@@ -69,7 +69,7 @@ internal sealed class DisplayNamesService
         }
 
         ResolvedLocale r = LocaleResolver.Resolve(locales, [], new Dictionary<string, string?>(), (_, _) => [], defaultLocale);
-        string type = o.Type ?? throw IntlException.Type("Required option \"type\" is missing");
+        string type = o.Type ?? throw IntlException.Type("invalid_argument");
         if (type is not ("language" or "region" or "script" or "currency" or "calendar" or "dateTimeField"))
         {
             throw IntlException.Range($"Value {type} out of range for Intl.DisplayNames options property type");
@@ -105,7 +105,7 @@ internal sealed class DisplayNamesService
             {
                 if (!LocaleId.IsRegionSubtag(code))
                 {
-                    throw IntlException.Range($"Invalid argument: {code}");
+                    throw IntlException.Range("invalid_argument");
                 }
 
                 string region = code.ToUpperInvariantAscii();
@@ -116,7 +116,7 @@ internal sealed class DisplayNamesService
             {
                 if (!LocaleId.IsScriptSubtag(code))
                 {
-                    throw IntlException.Range($"Invalid argument: {code}");
+                    throw IntlException.Range("invalid_argument");
                 }
 
                 string script = code[..1].ToUpperInvariantAscii() + code[1..].ToLowerInvariantAscii();
@@ -127,7 +127,7 @@ internal sealed class DisplayNamesService
             {
                 if (code.Length != 3 || !code.All(c => (uint)((c | 0x20) - 'a') <= 25))
                 {
-                    throw IntlException.Range($"Invalid argument: {code}");
+                    throw IntlException.Range("invalid_argument");
                 }
 
                 string cur = code.ToUpperInvariantAscii();
@@ -168,7 +168,7 @@ internal sealed class DisplayNamesService
         string[] subtags = code.Split('-');
         if (code.Length == 0 || subtags.Any(s => s.Length is < 3 or > 8 || !s.All(c => char.IsAsciiLetterOrDigit(c))))
         {
-            throw IntlException.Range($"Invalid argument: {code}");
+            throw IntlException.Range("invalid_argument");
         }
 
         string canonical = KeywordAliases.CanonicalType("ca", code.ToLowerInvariantAscii());
@@ -191,7 +191,7 @@ internal sealed class DisplayNamesService
         int i = Array.IndexOf(FieldNames, code);
         if (i < 0)
         {
-            throw IntlException.Range($"Invalid argument: {code}");
+            throw IntlException.Range("invalid_argument");
         }
 
         string key = FieldKeys[i];
@@ -204,10 +204,10 @@ internal sealed class DisplayNamesService
 
     private string? OfLanguage(string code)
     {
-        LocaleId id = LocaleId.Parse(code) ?? throw IntlException.Range($"Invalid argument: {code}");
+        LocaleId id = LocaleId.Parse(code) ?? throw IntlException.Range("invalid_argument");
         if (id.HasUnicodeExtension || id.HasTransformExtension || id.OtherExtensions.Count > 0 || id.PrivateUse is not null)
         {
-            throw IntlException.Range($"Invalid argument: {code}");
+            throw IntlException.Range("invalid_argument");
         }
 
         id.Canonicalize();

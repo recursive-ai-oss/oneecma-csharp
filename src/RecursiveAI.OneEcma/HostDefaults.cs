@@ -30,6 +30,15 @@ public class DefaultHost : IJsHost
     public virtual string TimeZoneId => "UTC";
 
     /// <inheritdoc/>
+    public virtual bool TryGetTimeZoneOffset(string zoneId, double epochMs, out int offsetMs, out bool isDaylight)
+    {
+        bool known = Intl.BclTimeZoneSource.Shared.TryGetOffset(zoneId, epochMs, out Intl.TimeZoneOffset o);
+        offsetMs = o.OffsetMs;
+        isDaylight = o.IsDaylight;
+        return known;
+    }
+
+    /// <inheritdoc/>
     public virtual HostModule? ResolveModule(string specifier, string? referrerId, IReadOnlyDictionary<string, string> attributes) => null;
 
     /// <inheritdoc/>
