@@ -420,6 +420,7 @@ internal sealed class JsonParser
             {
                 string res = _s.Substring(start, _pos - start);
                 _pos++;
+                Agent.Current.Charge(res.Length >> 6);
                 Agent.Current.Alloc((res.Length * 2L) + 24);
                 return res;
             }
@@ -989,6 +990,7 @@ internal static partial class Builtins
     /// <summary>QuoteJSONString (25.5.4.3): lone surrogates are escaped so the output is well-formed.</summary>
     private static void Quote(StringBuilder sb, string s)
     {
+        Cost(s.Length);
         sb.Append('"');
         int run = 0;
         for (int i = 0; i < s.Length; i++)
