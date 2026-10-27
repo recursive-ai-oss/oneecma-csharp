@@ -42,7 +42,7 @@ internal enum Op : byte
     TryEnter, TryLeave, Throw, ThrowError, Return, ReturnUndef,
 
     // calls
-    Call, TailCall, CallSpread, New, NewSpread, SuperCall, SuperCallSpread, CallEval, CallEvalSpread, ImportCallOp, ImportMeta, MakeClosure,
+    Call, TailCall, TailCallEval, CallSpread, New, NewSpread, SuperCall, SuperCallSpread, CallEval, CallEvalSpread, ImportCallOp, ImportMeta, MakeClosure,
 
     // iteration
     GetIterator, IterNext, IterClose, IterCloseIfNotDone, IterCloseSilent, IterStep, IterRest,

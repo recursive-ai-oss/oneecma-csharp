@@ -196,7 +196,7 @@ internal sealed partial class Compiler
             case Op.DefineClassField: case Op.AddPrivateMethod:
                 return -3;
             case Op.DefineMethodOp: return a < 0 ? -2 : -1;
-            case Op.Call: case Op.TailCall: case Op.CallEval: return -(a + 1);
+            case Op.Call: case Op.TailCall: case Op.TailCallEval: case Op.CallEval: return -(a + 1);
             case Op.New: return -a;
             case Op.SuperCall: return a < 0 ? 1 : 1 - a;
             case Op.NewClass: return (b & 1) != 0 ? 1 : 2;

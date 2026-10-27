@@ -495,13 +495,25 @@ internal sealed partial class Compiler
 
         switch (n)
         {
-            case CallExpression call when !call.IsOptional && call.Callee is not (SuperExpression or ChainExpression) && !HasSpread(call.Arguments) && !call.IsDirectEvalCandidate:
+            case CallExpression call when !call.IsOptional && call.Callee is not (SuperExpression or ChainExpression) && !HasSpread(call.Arguments):
                 {
                     int s = _f.CurS;
                     int e = _f.CurE;
                     SetSpan(n);
                     _tailCall = true;
                     CallExpr(call);
+                    _tailCall = false;
+                    SetSpan(s, e);
+                    break;
+                }
+
+            case TaggedTemplate:
+                {
+                    int s = _f.CurS;
+                    int e = _f.CurE;
+                    SetSpan(n);
+                    _tailCall = true;
+                    Expr(n);
                     _tailCall = false;
                     SetSpan(s, e);
                     break;
@@ -938,8 +950,8 @@ internal sealed partial class Compiler
             }
 
             SetSpan(callSpanS, callSpanE);
-            bool tail = tailRequested && !direct && !call.IsOptional;
-            Emit(direct ? Op.CallEval : tail ? Op.TailCall : Op.Call, call.Arguments.Count, direct ? EvalFlags() : textIdx);
+            bool tail = tailRequested && !call.IsOptional;
+            Emit(direct ? (tail ? Op.TailCallEval : Op.CallEval) : tail ? Op.TailCall : Op.Call, call.Arguments.Count, direct ? EvalFlags() : textIdx);
         }
 
         SetSpan(call);
@@ -1058,6 +1070,8 @@ internal sealed partial class Compiler
 
     private void TaggedTemplateExpr(TaggedTemplate tt)
     {
+        bool tailRequested = _tailCall;
+        _tailCall = false;
         // The tag is evaluated as a call target, so member tags keep their this value.
         switch (tt.Tag)
         {
@@ -1095,7 +1109,7 @@ internal sealed partial class Compiler
         }
 
         SetSpan(tt.Tag);
-        Emit(Op.Call, tt.Quasi.Expressions.Count + 1, TextConst(tt.Tag));
+        Emit(tailRequested ? Op.TailCall : Op.Call, tt.Quasi.Expressions.Count + 1, TextConst(tt.Tag));
     }
 
     private void ArrayLit(ArrayLiteral al)

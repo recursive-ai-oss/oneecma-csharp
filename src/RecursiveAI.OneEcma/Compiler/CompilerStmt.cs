@@ -808,8 +808,7 @@ internal sealed partial class Compiler
 
                 if (c.Finalizer is not null)
                 {
-                    BlockStatement fin = c.Finalizer;
-                    Stmt(fin);
+                    FinallyBlock(c.Finalizer);
                 }
 
                 break;
@@ -878,6 +877,28 @@ internal sealed partial class Compiler
 
     // ---- try ------------------------------------------------------------------------------------
 
+    /// <summary>
+    /// 14.15.3 TryStatement : try Block Finally: a finally block that completes normally leaves the completion value of the
+    /// try or catch block in place, so statement values inside it must not leak into the completion register.
+    /// </summary>
+    private void FinallyBlock(BlockStatement fin)
+    {
+        if (_f.CompletionTemp < 0)
+        {
+            Stmt(fin);
+            return;
+        }
+
+        int keep = NewTemp();
+        Emit(Op.LoadLocal, _f.CompletionTemp);
+        Emit(Op.StoreLocal, keep);
+        ResetCompletion(); // an abrupt exit from the finally block (break, continue) carries its own value, empty meaning undefined
+        Stmt(fin);
+        Emit(Op.LoadLocal, keep);
+        Emit(Op.StoreLocal, _f.CompletionTemp);
+        FreeTemp(keep);
+    }
+
     private void Try(TryStatement ts)
     {
         ResetCompletion();
@@ -907,6 +928,7 @@ internal sealed partial class Compiler
             Jump(Op.Jmp, afterCatch);
             _f.Depth = baseDepth + 1;
             Mark(catchL);
+            ResetCompletion(); // 14.15.3 step: the catch block's value replaces the try block's (UpdateEmpty(C, undefined))
             CatchClause h = ts.Handler!;
             CScope? cs = EnterScope(h.Scope);
             Control? sc = null;
@@ -943,13 +965,13 @@ internal sealed partial class Compiler
         {
             PopControl(finCtl!);
             Emit(Op.TryLeave);
-            Stmt(ts.Finalizer!);
+            FinallyBlock(ts.Finalizer!);
             Jump(Op.Jmp, end);
             _f.Depth = baseDepth + 1;
             Mark(finHandler);
             int t = NewTemp();
             Emit(Op.StoreLocal, t);
-            Stmt(ts.Finalizer!);
+            FinallyBlock(ts.Finalizer!);
             Emit(Op.LoadLocal, t);
             Emit(Op.Throw);
             FreeTemp(t);
