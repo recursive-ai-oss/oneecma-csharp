@@ -11,7 +11,6 @@
     <PackageReference Include="xunit.v3" />
     <ProjectReference Include="../../src/$(PackagePrefix).OneEcma/$(PackagePrefix).OneEcma.csproj" />
     <ProjectReference Include="../../tools/OneEcma.Test262/OneEcma.Test262.csproj" />
-    <ProjectReference Include="../../spike/OneEcma.ExecutorSpike/OneEcma.ExecutorSpike.csproj" />
     <ProjectReference Include="../../tools/RegExpTest262/RegExpTest262.csproj" />
   </ItemGroup>
   <ItemGroup>
