@@ -131,7 +131,7 @@ internal static class TreeOps
     /// What <paramref name="child"/> says that <paramref name="parent"/> does not: members that are new or
     /// different, recursively. Null when the child adds nothing. Arrays and strings are replaced whole.
     /// </summary>
-    public static Node? Delta(Node child, Node? parent)
+    public static Node? Delta(Node child, Node? parent, bool tombstones = false)
     {
         if (parent is null)
         {
@@ -144,10 +144,23 @@ internal static class TreeOps
             foreach (var (k, v) in c.Members)
             {
                 p.Members.TryGetValue(k, out Node? pv);
-                Node? d = Delta(v, pv);
+                Node? d = Delta(v, pv, tombstones || k == "timeZoneNames");
                 if (d is not null)
                 {
                     result.Members[k] = d;
+                }
+            }
+
+            if (tombstones)
+            {
+                // The resolved CLDR JSON of a child drops a name its locale blocks with the empty marker (en-001 has no short
+                // America_Eastern names while en does); keep that as explicit markers so the parent's name is not inherited.
+                foreach (var (k, pv) in p.Members)
+                {
+                    if (!c.Members.ContainsKey(k))
+                    {
+                        result.Members[k] = Blocked(pv);
+                    }
                 }
             }
 
@@ -155,6 +168,22 @@ internal static class TreeOps
         }
 
         return Node.Equal(child, parent) ? null : child;
+    }
+
+    private static Node Blocked(Node parent)
+    {
+        if (parent is Obj o)
+        {
+            var r = new Obj();
+            foreach (var (k, v) in o.Members)
+            {
+                r.Members[k] = Blocked(v);
+            }
+
+            return r;
+        }
+
+        return new Str("\u2205\u2205\u2205");
     }
 
     /// <summary>Removes members for numbering systems other than Latin (only Latin digits ship).</summary>

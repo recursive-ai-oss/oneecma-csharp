@@ -203,3 +203,24 @@ built-ins/Iterator/from/get-return-method-when-call-return.js | needs RegExp lit
 built-ins/Iterator/from/return-method-calls-base-return-method.js | needs RegExp literals, which are not available yet
 built-ins/Iterator/from/return-method-throws-for-invalid-this.js | needs RegExp literals, which are not available yet
 built-ins/Iterator/proto-from-ctor-realm.js | needs Reflect, which is not implemented yet
+
+# u17 collections-proxy
+# Each of these fails only because a built-in owned by another area is not present yet; none is a Map, Set, Weak*, Reflect or Proxy defect.
+built-ins/Map/valid-keys.js | needs Int32Array (TypedArrays, later)
+built-ins/Set/prototype/add/preserves-insertion-order.js | needs Array.prototype.shift (Array area)
+built-ins/Set/prototype/forEach/iterates-in-insertion-order.js | needs Array.prototype.shift (Array area)
+built-ins/Set/prototype/forEach/iterates-in-iterable-entry-order.js | needs Array.prototype.shift (Array area)
+built-ins/Set/prototype/forEach/iterates-values-added-after-foreach-begins.js | needs Array.prototype.shift (Array area)
+built-ins/Set/prototype/forEach/iterates-values-deleted-then-readded.js | needs Array.prototype.shift (Array area)
+built-ins/Set/prototype/forEach/iterates-values-not-deleted.js | needs Array.prototype.shift (Array area)
+built-ins/Set/prototype/forEach/iterates-values-revisits-after-delete-re-add.js | needs Array.prototype.shift (Array area)
+built-ins/Set/valid-values.js | needs Int32Array (TypedArrays, later)
+built-ins/Reflect/construct/newtarget-is-not-constructor-throws.js | needs Date (Date, later)
+built-ins/Reflect/construct/target-is-not-constructor-throws.js | needs Date (Date, later)
+built-ins/Proxy/defineProperty/trap-is-null-target-is-proxy.js | needs RegExp literals (RegExp area)
+built-ins/Proxy/deleteProperty/trap-is-null-target-is-proxy.js | needs RegExp literals (RegExp area)
+built-ins/Proxy/get/trap-is-missing-target-is-proxy.js | needs RegExp literals (RegExp area)
+built-ins/Proxy/getOwnPropertyDescriptor/trap-is-undefined-target-is-proxy.js | needs RegExp literals (RegExp area)
+built-ins/Proxy/has/trap-is-missing-target-is-proxy.js | needs RegExp literals (RegExp area)
+built-ins/Proxy/isExtensible/trap-is-missing-target-is-proxy.js | needs RegExp literals (RegExp area)
+built-ins/Proxy/set/trap-is-missing-target-is-proxy.js | needs RegExp literals (RegExp area)

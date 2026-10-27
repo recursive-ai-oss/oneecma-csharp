@@ -309,6 +309,9 @@ for (const k of ['calendar', 'collation', 'currency', 'numberingSystem', 'timeZo
   emit('locale', { s: 'sv', l: '', o: {}, v: k, p: r.r, e: r.e });
 }
 
+// ---------------------------------------------------------------- DateTimeFormat, DurationFormat
+require('./gen-datetime.js')({ emit, sample, cross, run, LOCALES, SIX });
+
 for (const [name, rows] of Object.entries(files)) {
   fs.writeFileSync(path.join(out, name + '.jsonl'), rows.map(r => JSON.stringify(r)).join('\n') + '\n');
   console.log(name, rows.length);
