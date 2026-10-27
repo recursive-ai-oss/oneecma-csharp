@@ -38,37 +38,56 @@ public sealed class EngineBackend : ITestBackend
             return new BackendResult(true, "parse", d.Kind, d.Headline + " at " + d.Position.Line + ":" + d.Position.Column);
         }
 
-        if (test.Mode == SourceMode.Module)
-        {
-            return new BackendResult(false, NotImplemented: true, Message: "modules");
-        }
-
-        using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        cts.CancelAfter(timeout);
-        var engine = new ScriptEngine();
+        var host = new TestHost(test);
+        var limits = new EngineLimits { WallClockMs = timeout.TotalMilliseconds, MaxAllocatedBytes = 768L << 20, Fuel = 20_000_000_000L };
+        var engine = new ScriptEngine(new ScriptEngineOptions { Host = host, Limits = limits, InstallTest262Host = true, ThrowOnUnhandledRejection = false });
+        string phase = "runtime";
         try
         {
-            if (test.IsAsync)
-            {
-                return new BackendResult(false, NotImplemented: true, Message: "async tests need host print");
-            }
-
-            // The single-script entry point cannot load separate harness files, so the harness and
-            // the test run as one script; in strict mode the directive leads the whole text.
-            var text = new System.Text.StringBuilder();
             foreach (HarnessScript h in test.Harness)
             {
-                text.Append(h.Source).Append('\n');
+                phase = "harness";
+                engine.Evaluate(h.Source, h.Name, cancellationToken);
             }
 
-            text.Append(test.Source);
-            string full = test.Mode == SourceMode.Strict ? "\"use strict\";\n" + text : text.ToString();
-            engine.Evaluate(full, cts.Token);
+            phase = "parse";
+            if (test.Mode == SourceMode.Module)
+            {
+                phase = "parse";
+                engine.EvaluateModule(test.FullPath, cancellationToken);
+            }
+            else
+            {
+                engine.Evaluate(test.EffectiveSource, Path.GetFileName(test.FullPath), cancellationToken);
+            }
+
+            if (test.IsAsync)
+            {
+                engine.RunJobs(cancellationToken);
+                string? verdict = host.AsyncVerdict;
+                if (verdict is null)
+                {
+                    return new BackendResult(true, "async", "Test262Error", "$DONE was never called");
+                }
+
+                if (verdict.Length > 0)
+                {
+                    return new BackendResult(true, "async", "Test262Error", verdict);
+                }
+            }
+
             return BackendResult.Passed;
         }
-        catch (NotSupportedException e)
+        catch (JsException e)
         {
-            return new BackendResult(false, NotImplemented: true, Message: e.Message);
+            Diagnostic? r = e.Report;
+            string kind = r?.Kind ?? "Error";
+            string p = phase == "harness" || r is null || r.Code == "runtime" ? "runtime" : r.Code == "link" ? "resolution" : "parse";
+            return new BackendResult(true, p, kind, (r?.Headline ?? e.Message) + (r is { Stack.Count: > 0 } ? " at " + r.Source.Name + ":" + r.Position.Line : ""));
+        }
+        catch (JsLimitException e)
+        {
+            return new BackendResult(true, "runtime", "Limit", e.Message) with { TimedOut = e.Kind is LimitKind.WallClock or LimitKind.Cancelled };
         }
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
         {
@@ -76,10 +95,32 @@ public sealed class EngineBackend : ITestBackend
         }
         catch (Exception e) when (e is not OperationCanceledException)
         {
-            // Until the library has a script-error type, every failure of Check is a syntax error.
-            string phase = test.ParseOnly ? "parse" : "runtime";
-            string type = test.ParseOnly ? "SyntaxError" : e.GetType().Name;
-            return new BackendResult(true, phase, type, e.Message);
+            return new BackendResult(true, "runtime", e.GetType().Name, e.Message);
+        }
+    }
+
+    /// <summary>Collects <c>print</c> output (for async tests) and serves module files next to the test.</summary>
+    private sealed class TestHost(PreparedTest test) : DefaultHost(1)
+    {
+        public string? AsyncVerdict { get; private set; }
+
+        public override void Print(string text)
+        {
+            if (text.StartsWith("Test262:AsyncTestComplete", StringComparison.Ordinal))
+            {
+                AsyncVerdict = "";
+            }
+            else if (text.StartsWith("Test262:AsyncTestFailure:", StringComparison.Ordinal))
+            {
+                AsyncVerdict = text["Test262:AsyncTestFailure:".Length..];
+            }
+        }
+
+        public override HostModule? ResolveModule(string specifier, string? referrerId, IReadOnlyDictionary<string, string> attributes)
+        {
+            string baseDir = Path.GetDirectoryName(referrerId ?? test.FullPath)!;
+            string full = Path.GetFullPath(Path.IsPathRooted(specifier) ? specifier : Path.Combine(baseDir, specifier));
+            return File.Exists(full) ? new HostModule(full, File.ReadAllText(full)) : null;
         }
     }
 }

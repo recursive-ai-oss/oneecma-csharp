@@ -96,6 +96,9 @@ public sealed class Binding
     /// <summary>The scope holding the binding.</summary>
     public Scope Scope { get; }
 
+    /// <summary>For a <see cref="BindingKind.Parameter"/>: the body also declares a <c>var</c> or function of the same name (ECMA-262 10.2.11 step 28).</summary>
+    internal bool AlsoVar { get; set; }
+
     /// <summary>For <see cref="BindingKind.Function"/> and <see cref="BindingKind.LexicalFunction"/>: the declaration to instantiate (the last one wins for duplicates).</summary>
     public FunctionDeclaration? FunctionDeclaration { get; internal set; }
 

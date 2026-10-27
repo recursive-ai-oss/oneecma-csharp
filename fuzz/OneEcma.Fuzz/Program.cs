@@ -33,6 +33,20 @@ internal static class Program
     {
         // regexp <seconds> [seed] [corpus-file]: seeded pattern/input fuzzing of the RegExp parser and matcher.
         // regexp-file <path>: one byte-encoded case (pattern length, flags selector, pattern, input) for replaying a finding.
+        // interp <seconds> <outdir> [seed] [seeddir...]: seeded mutation fuzzing of the interpreter under tight limits.
+        // interp-file <path>: replay one input in script and module mode.
+        if (args.Length >= 3 && args[0] == "interp")
+        {
+            return InterpFuzz.RunRandom(int.Parse(args[1], CultureInfo.InvariantCulture), args[2], args.Length > 3 ? int.Parse(args[3], CultureInfo.InvariantCulture) : 1, args.Skip(4));
+        }
+
+        if (args.Length == 2 && args[0] == "interp-file")
+        {
+            string? failure = InterpFuzz.RunOne(File.ReadAllText(args[1]), 30);
+            Console.WriteLine(failure ?? "ok");
+            return failure is null ? 0 : 1;
+        }
+
         if (args.Length >= 2 && args[0] == "regexp")
         {
             return RegExpFuzz.RunRandom(int.Parse(args[1], System.Globalization.CultureInfo.InvariantCulture), args.Length > 2 ? int.Parse(args[2], System.Globalization.CultureInfo.InvariantCulture) : 1, args.Length > 3 ? args[3] : null) == 0 ? 0 : 1;

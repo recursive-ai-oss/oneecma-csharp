@@ -140,7 +140,7 @@ public class RepairTests
     [Fact]
     public void ScriptEngineExposesRepair()
     {
-        RepairResult r = new ScriptEngine().CheckAndRepair("console.log(\u201chi\u201d);", cancellationToken: TestContext.Current.CancellationToken);
+        RepairResult r = ScriptEngine.CheckAndRepair("console.log(\u201chi\u201d);", cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal("console.log(\"hi\");", r.RepairedSource);
     }
 
