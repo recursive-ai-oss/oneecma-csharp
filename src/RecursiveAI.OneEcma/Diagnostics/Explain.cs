@@ -20,7 +20,9 @@ internal static partial class Explain
 
     // ---- locals ----------------------------------------------------------------------------------
 
-    internal static IReadOnlyList<LocalInfo>? LocalsOf(Frame f)
+    internal static IReadOnlyList<LocalInfo>? LocalsOf(Frame f) => Agent.CurrentOrNull is { } ag ? ag.Diagnose(() => LocalsOfCore(f)) : LocalsOfCore(f);
+
+    private static List<LocalInfo> LocalsOfCore(Frame f)
     {
         var list = new List<LocalInfo>();
         var seen = new HashSet<string>(StringComparer.Ordinal);
@@ -75,7 +77,8 @@ internal static partial class Explain
         switch (v.Ref)
         {
             case null: return "undefined";
-            case string or Rope: return "\"" + Clip(v.AsString, 30) + "\"";
+            case string str: return "\"" + Clip(str, 30) + "\"";
+            case Rope rope: return "\"" + (rope.Length > 30 ? rope.Head(29) + "…" : rope.Head(30)) + "\"";
             case BigInteger b: return b.ToString(NumberFormatInfo.InvariantInfo) + "n";
             case JsSymbol s: return s.ToString();
             case JsArray a: return "Array (" + Items((int)Math.Min(a.Length, int.MaxValue)) + ")";
@@ -585,6 +588,21 @@ internal static partial class Explain
     // ---- the explainer ---------------------------------------------------------------------------
 
     internal static void Apply(Diagnostic d, string headline, TraceState trace)
+    {
+        if (Agent.CurrentOrNull is { } ag)
+        {
+            ag.Diagnose<object?>(() =>
+            {
+                ApplyCore(d, headline, trace);
+                return null;
+            });
+            return;
+        }
+
+        ApplyCore(d, headline, trace);
+    }
+
+    private static void ApplyCore(Diagnostic d, string headline, TraceState trace)
     {
         if (d.Stack.Count == 0 || d.Stack[0].ScopeRealm is null)
         {

@@ -262,7 +262,8 @@ internal static partial class SyntaxHints
         // `value as Type`
         if (d.Headline == "Unexpected identifier 'as'")
         {
-            Match asMatch = Regex.Match(line[col..], @"^as\s+[A-Za-z_$][\w$<>\[\]|. ]*?(?=\s*[;,)]|\s*$)");
+            // A cast names a short type; look only a little way ahead so that one very long line costs the same for every error on it.
+            Match asMatch = AsCast().Match(line.Substring(col, Math.Min(line.Length - col, 200)));
             d.PrimaryLabel = "`" + (asMatch.Success ? asMatch.Value : "as ...") + "` is a TypeScript cast";
             if (asMatch.Success)
             {
@@ -418,6 +419,9 @@ internal static partial class SyntaxHints
 
     [GeneratedRegex(@"\bfor\s+([A-Za-z_$][\w$]*)\s+in\s+range\(\s*(\w+)\s*\)\s*:")]
     private static partial Regex PyFor();
+
+    [GeneratedRegex(@"^as\s+[A-Za-z_$][\w$<>\[\]|. ]{0,80}?(?=\s*[;,)]|\s*$)")]
+    private static partial Regex AsCast();
 
     [GeneratedRegex(@"&(?:lt|gt|amp|quot);")]
     private static partial Regex HtmlEntity();

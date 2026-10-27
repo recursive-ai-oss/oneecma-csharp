@@ -177,6 +177,49 @@ internal sealed class Rope
 
     internal int Length { get; }
 
+    /// <summary>The first <paramref name="max"/> characters (all of them when the rope is shorter), read without flattening. Diagnostics use it so that showing a value never changes what the script is charged for or when its ropes flatten.</summary>
+    internal string Head(int max)
+    {
+        if (_flat is not null)
+        {
+            return _flat.Length <= max ? _flat : _flat[..max];
+        }
+
+        var sb = new System.Text.StringBuilder();
+        Stack<object>? pending = null;
+        object cur = this;
+        while (sb.Length < max)
+        {
+            if (cur is string leaf)
+            {
+                sb.Append(leaf, 0, Math.Min(leaf.Length, max - sb.Length));
+            }
+            else
+            {
+                var r = (Rope)cur;
+                if (r._flat is not null)
+                {
+                    sb.Append(r._flat, 0, Math.Min(r._flat.Length, max - sb.Length));
+                }
+                else
+                {
+                    (pending ??= new Stack<object>()).Push(r._right!);
+                    cur = r._left;
+                    continue;
+                }
+            }
+
+            if (pending is null || pending.Count == 0)
+            {
+                break;
+            }
+
+            cur = pending.Pop();
+        }
+
+        return sb.ToString();
+    }
+
     /// <summary>Flattens with an explicit stack: ropes built in a loop are as deep as the loop ran.</summary>
     internal string Flatten()
     {
@@ -185,7 +228,14 @@ internal sealed class Rope
             return _flat;
         }
 
-        Agent.CurrentOrNull?.Alloc((long)Length * 2);
+        // While diagnostics run, flattening is free and leaves no trace: the script is charged for its own flattening exactly once, when
+        // it happens, so a traced replay spends the same as the recorded run.
+        bool quiet = Agent.CurrentOrNull is { Diagnosing: true };
+        if (!quiet)
+        {
+            Agent.CurrentOrNull?.Alloc((long)Length * 2);
+        }
+
         string result = string.Create(Length, this, static (span, root) =>
         {
             // Fills from the end. Ropes built by a loop lean to the left, so following the left spine needs no stack at all;
@@ -223,6 +273,11 @@ internal sealed class Rope
                 }
             }
         });
+        if (quiet)
+        {
+            return result;
+        }
+
         _flat = result;
         _left = result;
         _right = null;
