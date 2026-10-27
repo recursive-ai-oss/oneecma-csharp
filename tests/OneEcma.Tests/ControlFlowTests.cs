@@ -112,4 +112,19 @@ public class ControlFlowTests
     {
         Assert.Equal("SyntaxError", Run("function f(a, b = eval('var a')) {} try { f(); 'no' } catch (e) { e.constructor.name }"));
     }
+
+    // Fuzzing found loops whose only back edge was a `continue`: nothing charged fuel, so the step limit never fired.
+    [Theory]
+    [InlineData("var c = 0; while (true) { c++; continue; }")]
+    [InlineData("var c = 0; while (c < 2) { try { throw 1; } finally { continue; } }")]
+    [InlineData("var c = 0; while (c < 2) { try { throw 1; } catch (e) { c += v; break; } finally { continue; } }")]
+    [InlineData("for (;;) { continue; }")]
+    [InlineData("do { continue; } while (true);")]
+    [InlineData("a: for (;;) { while (true) { continue a; } }")]
+    public void LoopsThatOnlyContinueEndAtTheStepLimit(string source)
+    {
+        var engine = new ScriptEngine(new ScriptEngineOptions { Limits = new EngineLimits { Fuel = 200_000 } });
+        JsLimitException e = Assert.Throws<JsLimitException>(() => engine.Evaluate(source, cancellationToken: Ct));
+        Assert.Equal(LimitKind.Fuel, e.Kind);
+    }
 }

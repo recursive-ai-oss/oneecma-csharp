@@ -127,11 +127,14 @@ internal sealed partial class Compiler
                 {
                     ResetCompletion();
                     Control c = PushLoop(labels);
-                    Mark(c.Continue!);
+                    // `continue` lands on the back edge (which charges fuel), not on the test, so a loop that only continues still ends.
+                    JumpLabel top = NewLabel();
+                    Mark(top);
                     Expr(ws.Test);
                     Jump(Op.JmpIfFalse, c.Break!);
                     Stmt(ws.Body);
-                    Jump(Op.JmpBack, c.Continue!);
+                    Mark(c.Continue!);
+                    Jump(Op.JmpBack, top);
                     PopControl(c);
                     Mark(c.Break!);
                     break;
