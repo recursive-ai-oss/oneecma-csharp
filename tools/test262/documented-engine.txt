@@ -230,7 +230,6 @@ built-ins/Array/prototype/splice/create-revoked-proxy.js | needs Proxy, which is
 built-ins/Array/prototype/splice/create-species-length-exceeding-integer-limit.js | needs Proxy, which is not implemented yet
 built-ins/Array/prototype/splice/create-species-undef-invalid-len.js | needs Proxy, which is not implemented yet
 built-ins/Array/prototype/splice/property-traps-order-with-species.js | needs Proxy, which is not implemented yet
-built-ins/Array/prototype/toLocaleString/invoke-element-tolocalestring.js | passes arguments through to element toLocaleString as Intl requires; the base-language variant of this test only holds when Intl is absent
 built-ins/Array/prototype/toLocaleString/resizable-buffer.js | needs TypedArray and ArrayBuffer, which are not implemented yet
 built-ins/Array/prototype/toLocaleString/user-provided-tolocalestring-grow.js | needs TypedArray and ArrayBuffer, which are not implemented yet
 built-ins/Array/prototype/toLocaleString/user-provided-tolocalestring-shrink.js | needs TypedArray and ArrayBuffer, which are not implemented yet
@@ -425,3 +424,23 @@ built-ins/TypedArray/prototype/findLastIndex/predicate-is-not-callable-throws.js
 built-ins/TypedArray/prototype/sort/BigInt/comparefn-nonfunction-call-throws.js | needs RegExp literals (RegExp area)
 built-ins/TypedArray/prototype/sort/comparefn-nonfunction-call-throws.js | needs RegExp literals (RegExp area)
 built-ins/TypedArray/prototype/toSorted/comparefn-not-a-function.js | needs RegExp literals (RegExp area)
+
+# intl
+# Intl (ECMA-402) failures that follow from the data the engine carries: Gregorian calendar, Latin digits, six locales, no European Ordering Rules collation.
+intl402/DateTimeFormat/canonicalize-calendar.js | needs the islamic-civil calendar (Gregorian only)
+intl402/DateTimeFormat/prototype/formatToParts/chinese-calendar-dates.js | needs the chinese calendar and relatedYear (Gregorian only)
+intl402/DateTimeFormat/prototype/formatToParts/related-year.js | needs the chinese calendar and relatedYear (Gregorian only)
+intl402/DateTimeFormat/prototype/formatToParts/pattern-on-calendar.js | needs non-Gregorian calendars
+intl402/DateTimeFormat/prototype/formatRangeToParts/chinese-calendar-dates.js | needs the chinese calendar and relatedYear (Gregorian only)
+intl402/DateTimeFormat/prototype/formatRangeToParts/dangi-calendar-dates.js | needs the dangi calendar and relatedYear (Gregorian only)
+intl402/DateTimeFormat/prototype/formatRangeToParts/pattern-on-calendar.js | needs non-Gregorian calendars
+intl402/DateTimeFormat/prototype/resolvedOptions/resolved-calendar-unicode-extensions-and-options.js | needs the iso8601 calendar (Gregorian only)
+intl402/DateTimeFormat/prototype/format/numbering-system.js | needs Arabic-Indic and other non-Latin digits (Latin only)
+intl402/DateTimeFormat/prototype/resolvedOptions/resolved-numbering-system-unicode-extensions-and-options.js | needs the arab numbering system (Latin only)
+intl402/DurationFormat/prototype/resolvedOptions/resolved-numbering-system-unicode-extensions-and-options.js | needs the arab numbering system (Latin only)
+intl402/NumberFormat/prototype/resolvedOptions/resolved-numbering-system-unicode-extensions-and-options.js | needs the arab numbering system (Latin only)
+intl402/RelativeTimeFormat/prototype/resolvedOptions/resolved-numbering-system-unicode-extensions-and-options.js | needs the arab numbering system (Latin only)
+intl402/NumberFormat/prototype/format/numbering-systems.js | needs non-Latin digits (Latin only)
+intl402/Intl/supportedValuesOf/numberingSystems-with-simple-digit-mappings.js | needs non-Latin digits (Latin only)
+intl402/Collator/prototype/resolvedOptions/resolved-collation-unicode-extensions-and-options.js | needs the eor (European Ordering Rules) root collation, which the carried collation data lacks
+intl402/Segmenter/constructor/constructor/locales-valid.js | asks for the sr locale, which is outside the six supported locales

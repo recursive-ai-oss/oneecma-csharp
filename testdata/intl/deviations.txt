@@ -203,3 +203,5 @@ cedd94d4 range whose end precedes its start: the reference drops the weekday com
 22d40aa5 duration with a NaN field: the reference returns an empty string, the specification throws RangeError
 
 # General: Node 24 resolves a timeZone option to its CLDR primary identifier (Asia/Calcutta for Asia/Kolkata); we keep the identifier as asked, in the spelling of the time zone database, as ECMA-402 requires, and look offsets and names up under the primary identifier.
+ab363b3b supportedValuesOf timeZone: ECMA-402 6.5.3 lists UTC and the fixed-offset Etc/GMT+N and Etc/GMT-N zones as primary identifiers (test262 requires them); Node leaves them out
+07bddb33 supportedValuesOf timeZone: ECMA-402 6.5.3 lists UTC and the fixed-offset Etc/GMT+N and Etc/GMT-N zones as primary identifiers (test262 requires them); Node leaves them out

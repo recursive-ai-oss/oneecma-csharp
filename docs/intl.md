@@ -108,3 +108,13 @@ Date-time and duration (same method, 1000 random instants between 2020 and 2033,
 Number formatting, as measured for the first services:
 
 Informal (`ONEECMA_INTL_THROUGHPUT=<file>`, Release build, 1000 random doubles with 0 to 8 integer digits and up to 3 decimals, one thread, loaded shared host): `format` of a double 450 to 1,650 ns for decimal, currency and compact patterns (about 1.1 KB allocated each), `format` of a pre-converted decimal 360 to 610 ns, `PluralRules.select` 113 ns and 137 B. No recursion follows input size: rounding, grouping and pattern assembly are loops over the digit string.
+
+## JavaScript surface
+
+`Builtins/Intl*.cs` exposes the services above as the ECMA-402 objects: the `Intl` namespace (`getCanonicalLocales`, `supportedValuesOf`), every constructor (`Locale`, `Collator`, `NumberFormat`, `PluralRules`, `ListFormat`, `RelativeTimeFormat`, `DisplayNames`, `DateTimeFormat`, `DurationFormat`, `Segmenter`) with `supportedLocalesOf`, `resolvedOptions`, the bound `format`/`compare` getters and the legacy constructor chaining for `NumberFormat` and `DateTimeFormat`, and the locale-sensitive overrides of `String.prototype.localeCompare`/`toLocaleUpperCase`/`toLocaleLowerCase` and `Number`, `BigInt`, `Array` and `Date` `toLocale*String`.
+
+- Options are read in the order ECMA-402 specifies (GetOption, GetNumberOption), so getters observe the same sequence as in the specification.
+- The default locale is `IJsHost.DefaultLocale`; the default time zone is `IJsHost.TimeZoneId`, with offsets from `IJsHost.TryGetTimeZoneOffset`.
+- `Date.prototype.toLocale*String` and `DateTimeFormat.prototype.format` keep U+202F from the CLDR patterns, as the intl402 tests expect; the reference engine prints U+0020 there.
+- test262 `intl402` on the engine: 1104 pass, 0 fail, 17 documented (non-Gregorian calendars, non-Latin numbering systems, one collation and one locale not in the data), 78 skipped for locales outside the supported set.
+- A JavaScript-level differential (`tools/intl-diff/js-surface.js`, 228 rows recorded from the reference engine) has 7 documented differences, listed in `tools/intl-diff/js-surface.deviations.txt`.
