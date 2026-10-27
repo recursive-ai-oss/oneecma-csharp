@@ -73,6 +73,16 @@ public interface IJsHost
     }
 
     /// <summary>
+    /// Asked once the job queue has drained (the end of a macrotask) and the script has created a <c>WeakRef</c> or a
+    /// <c>FinalizationRegistry</c> target at some point: whether to run a weak-reference collection point now. Until a collection point,
+    /// every weak target is held strongly, so a long run that never reaches one keeps all of them alive; the host decides when the cost
+    /// of collecting is worth it, for example once managed memory has grown. The answer is recorded, so a replay reaches the same points
+    /// whatever the live host would say. The default is false (collection points only where a script asks, as <c>$262.gc()</c> does).
+    /// </summary>
+    /// <returns>True to run a collection point; the engine then calls <see cref="WeakTargetsCollected"/> with the dead targets.</returns>
+    bool WantsWeakCollection() => false;
+
+    /// <summary>
     /// Replay hook for <see cref="WeakTargetsCollected"/>: when a replaying host returns a list, the engine does not run
     /// the garbage collector at a collection point and treats exactly those ids as dead, so a recorded run reproduces.
     /// Returns null (the default) to let the collector decide.

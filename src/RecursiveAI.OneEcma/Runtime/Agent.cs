@@ -340,7 +340,7 @@ internal sealed class Agent
     {
         // ClearKeptObjects (9.10.3): the synchronous run that led here has ended, and so has each job below.
         Weak.ClearKept();
-        do
+        while (true)
         {
             while (Jobs.Count > 0)
             {
@@ -349,7 +349,24 @@ internal sealed class Agent
                 job();
                 Weak.ClearKept();
             }
+
+            if (IdleHook is not null && IdleHook())
+            {
+                continue;
+            }
+
+            // A host-defined collection point at the end of the macrotask (9.10.4.1 note): without one a script that only
+            // allocates WeakRef targets in a long run would pin them all. Collecting can queue cleanup jobs, which run next.
+            if (Weak.HasTargets && Host.WantsWeakCollection())
+            {
+                Weak.Collect(this);
+                if (Jobs.Count > 0)
+                {
+                    continue;
+                }
+            }
+
+            break;
         }
-        while (IdleHook is not null && IdleHook());
     }
 }

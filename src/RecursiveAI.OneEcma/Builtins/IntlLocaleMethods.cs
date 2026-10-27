@@ -22,7 +22,7 @@ internal static partial class IntlJs
 
             string s = Ops.ToStr(t);
             string that = Ops.ToStr(A(a, 0));
-            CollatorState c = CreateCollator(Locales(A(a, 1)), A(a, 2));
+            CollatorState c = CreateCollator(Locales(A(a, 1)), A(a, 2), shared: true);
             return Ops.Num(Math.Sign(c.Collator.Compare(s, that)));
         });
 
@@ -39,14 +39,14 @@ internal static partial class IntlJs
         {
             double x = t.IsNumber ? t.Num : t.Ref is JsPrimitiveObject { ClassName: "Number" } p ? p.Value.Num
                 : throw Errors.Type("Number.prototype.toLocaleString requires that 'this' be a Number");
-            NumberFormatService nf = CreateNumberFormat(Locales(A(a, 0)), A(a, 1));
+            NumberFormatService nf = CreateNumberFormat(Locales(A(a, 0)), A(a, 1), shared: true);
             return Ops.Str(Svc(() => nf.Format(DecimalNumber.FromDouble(x))));
         });
         r.Method(r.BigIntPrototype, "toLocaleString", 0, (t, a, nt) =>
         {
             BigInteger x = t.IsBigInt ? (BigInteger)t.Ref! : t.Ref is JsPrimitiveObject { ClassName: "BigInt" } p && p.Value.IsBigInt ? (BigInteger)p.Value.Ref!
                 : throw Errors.Type("BigInt.prototype.toLocaleString requires that 'this' be a BigInt");
-            NumberFormatService nf = CreateNumberFormat(Locales(A(a, 0)), A(a, 1));
+            NumberFormatService nf = CreateNumberFormat(Locales(A(a, 0)), A(a, 1), shared: true);
             return Ops.Str(Svc(() => nf.Format(DecimalNumber.FromBigInteger(x))));
         });
 
@@ -65,7 +65,7 @@ internal static partial class IntlJs
                         return Ops.Str("Invalid Date");
                     }
 
-                    DateTimeFormatService dtf = CreateDateTimeFormat(Locales(A(a, 0)), A(a, 1), req, def);
+                    DateTimeFormatService dtf = CreateDateTimeFormat(Locales(A(a, 0)), A(a, 1), req, def, shared: true);
                     return Ops.Str(Svc(() => dtf.Format(x)));
                 });
             }

@@ -826,7 +826,7 @@ internal static partial class Vm
         bool ok = obj.Delete(key);
         if (!ok && strict)
         {
-            throw obj is ProxyObject ? ProxyObject.Falsish("deleteProperty", Ops.KeyText(key)) : Errors.Type("Cannot delete property '" + Ops.KeyText(key) + "' of " + Ops.DisplayValue(JsValue.FromObject(obj)));
+            throw obj is ProxyObject ? ProxyObject.Falsish("deleteProperty", Ops.KeyText(key)) : Errors.Type("Cannot delete property '" + Ops.KeyText(key) + "' of " + Ops.ObjectLabel(obj));
         }
 
         return ok;
@@ -866,7 +866,7 @@ internal static partial class Vm
 
         if (!p.Set(key, v, thisV) && strict)
         {
-            throw Errors.Type("Cannot assign to read only property '" + Ops.KeyText(key) + "' of object");
+            throw Errors.Type(Ops.SetFailureMessage(p, key));
         }
     }
 
@@ -922,7 +922,13 @@ internal static partial class Vm
         JsValue m = iterable.IsNullish ? default : Ops.GetV(iterable, new PropertyKey(WellKnown.Iterator));
         if (!Ops.IsCallable(m))
         {
-            throw Errors.Type(inCall && !iterable.IsNullish ? "Spread syntax requires ...iterable[Symbol.iterator] to be a function" : text + " is not iterable");
+            if (inCall && iterable.IsNullish)
+            {
+                // V8 words a nullish spread argument of a call as a failed property read.
+                throw Errors.Type(text + " is not iterable (cannot read property " + (iterable.IsNull ? "null" : "undefined") + ")");
+            }
+
+            throw Errors.Type(inCall ? "Spread syntax requires ...iterable[Symbol.iterator] to be a function" : text + " is not iterable");
         }
 
         IteratorRecord rec = Ops.GetIteratorFromMethod(iterable, m);
@@ -1206,10 +1212,7 @@ internal static partial class Vm
 
     // The text names the expression in the source (V8 prints it); a parameter pattern has none, so V8 names the value instead.
     private static string IterErrorText(JsValue v, string text) =>
-        text == "\u0002" ? ValueKind(v) + " is not iterable (cannot read property Symbol(Symbol.iterator))" : text + " is not iterable";
-
-    private static string ValueKind(JsValue v) => v.IsNull ? "object null" : v.IsUndefined ? "undefined" : v.IsNumber ? "number " + Ops.DisplayValue(v)
-        : v.IsBoolean ? "boolean " + Ops.DisplayValue(v) : v.IsString ? "string \"" + v.AsString + "\"" : v.IsObject ? "object" : Ops.DisplayValue(v);
+        text == "\u0002" ? Ops.KindText(v) + " is not iterable (cannot read property Symbol(Symbol.iterator))" : text + " is not iterable";
 
     private static string DestructureError(JsValue v, string? firstKey, string text)
     {

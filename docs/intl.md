@@ -95,11 +95,15 @@ One behavior the specification text does not state but the reference shows, and 
 
 - Numbering systems other than `latn`; calendars other than Gregorian.
 - Locales outside the six (the lookup falls back to the default locale).
-- `Intl.Locale` accessors (`calendars`, `collations`, `hourCycles`, `textInfo`, `weekInfo`, `getTimeZones`) are not provided yet; `LocaleOptions.Apply` covers the constructor.
+- `Intl.Locale` `getCalendars`, `getHourCycles` and `getNumberingSystems` list one entry, the keyword if given and otherwise the region's preference: CLDR carries one for each of the six locales and Node gives the same lists for them. `getCollations` lists only the collation types the Collator can use (the tailorings of the language: `trad` for `es`, `phonebk` for `de`); Node also lists the root types `emoji` and `eor`, which the Collator does not implement (see the text services notes). Outside the six locales the lists follow the default-locale fallback, so Node's longer lists for `ja`, `ar`, `th` and others differ by design.
 - `best fit` is the lookup matcher.
 - DateTimeFormat has no non-Gregorian calendars, no `era` beyond BC/AD, and `Temporal` objects are not accepted (the JS layer converts `Date`s to time values).
 - The JS-facing constructors and `Date` arithmetic are not part of these services.
 - ICU's quirks above are not reproduced.
+
+## Service cache
+
+`String.prototype.localeCompare`, `Number.prototype.toLocaleString`, `BigInt.prototype.toLocaleString` and the three `Date.prototype.toLocale*String` methods read their options exactly as the constructors do (same order, same getters), then look the resulting service up in a per-realm cache keyed by the resolved locale list, the host's default locale and zone, and the option record. A miss builds the service; the cache holds at most 64 entries and is emptied when full. Constructors (`new Intl.NumberFormat(...)`) never share services. A service only reads its options, so reuse cannot be observed.
 
 ## Throughput
 

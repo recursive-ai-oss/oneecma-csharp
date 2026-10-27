@@ -10,15 +10,7 @@ internal static partial class TypedArrays
 
     private static JsValue Num(double d) => JsValue.FromNumber(d);
 
-    private static string KindText(JsValue v) => v.Ref switch
-    {
-        null => "undefined",
-        JsSymbol => "symbol",
-        JsObject o => o.IsCallable ? "function" : "object",
-        _ when v.IsNull => "object null",
-        _ when v.IsString => "string \"" + v.AsString + "\"",
-        _ => v.TypeOf + " " + Ops.DisplayValue(v),
-    };
+    private static string KindText(JsValue v) => Ops.KindText(v);
 
     private static JsException NotFunction(JsValue v) => Errors.Type(Ops.DisplayValue(v) + " is not a function");
 

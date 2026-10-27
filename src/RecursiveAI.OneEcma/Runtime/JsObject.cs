@@ -657,7 +657,15 @@ public class JsObject
     {
         if (!DefineOwnProperty(key, d))
         {
-            throw this is ProxyObject ? ProxyObject.Falsish("defineProperty", Ops.KeyText(key)) : Errors.Type("Cannot redefine property: " + Ops.KeyText(key));
+            if (this is ProxyObject)
+            {
+                throw ProxyObject.Falsish("defineProperty", Ops.KeyText(key));
+            }
+
+            // V8 words a refused new property on a non-extensible object differently from a refused change to an existing one.
+            throw Errors.Type(!GetOwnProperty(key, out _) && !Extensible
+                ? "Cannot define property " + Ops.KeyText(key) + ", object is not extensible"
+                : "Cannot redefine property: " + Ops.KeyText(key));
         }
     }
 
@@ -668,7 +676,7 @@ public class JsObject
     {
         if (!Set(key, v, JsValue.FromObject(this)) && strict)
         {
-            throw Errors.Type("Cannot assign to read only property '" + Ops.KeyText(key) + "' of object");
+            throw Errors.Type(Ops.SetFailureMessage(this, key));
         }
     }
 }
