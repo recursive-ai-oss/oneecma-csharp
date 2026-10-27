@@ -6,6 +6,9 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
+    <EmbeddedResource Include="../inputs/react-ssr-app.js" LogicalName="react-ssr-app.js" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" />
     <!-- Jint is a black-box comparison target. It must not appear in any project that ships. -->
     <PackageReference Include="Jint" />
