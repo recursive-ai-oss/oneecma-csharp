@@ -164,13 +164,17 @@ realm.DefineData(realm.Global, "createOrder", JsValue.FromObject(fn), JsAttribut
 ## The command line
 
 ```
-oneecma run [--module] [--locals] <file>  run a script; report on stderr and exit status 1 on an uncaught error;
-                                         --locals adds the bindings of each frame (`= locals in f: a = 1, ...`)
-oneecma check [--module] [--format text|json] [--source-map <map>] [--repair [--out <path>]] <file>
+oneecma run [--module] [--locals] [--compact] <file>
+                                         run a script; report on stderr and exit status 1 on an uncaught error;
+                                         --locals adds the bindings of each frame (`= locals in f: a = 1, ...`);
+                                         --compact prints the short report
+oneecma check [--module] [--compact] [--format text|json] [--source-map <map>] [--repair [--out <path>]] <file>
 oneecma repl                             multi-line input, top-level await, .exit
 ```
 
 `check` parses and runs the early errors only. Colour is used only on a terminal and never when `NO_COLOR` is set; `--format json` writes the JSON report to stdout.
+
+`--compact` (also `RenderOptions.Compact`) is for readers with limited context, such as language models: headline, `-->` location, the source line with its underline and label, the origin label when the value's source is known, the single most useful `help:`, and a one-line stack only when there is more than one frame. Blank gutter lines, `...` separators, extra helps and notes, locals and source-line context are dropped, and long lines are cut to about 100 columns.
 
 ## Two API layers
 

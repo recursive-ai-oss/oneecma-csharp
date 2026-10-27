@@ -1,0 +1,4 @@
+repair[R001]: removed an extra closing delimiter
+ --> case.js:3:26
+3 | console.log(items.length));
+  |                          ^ removed

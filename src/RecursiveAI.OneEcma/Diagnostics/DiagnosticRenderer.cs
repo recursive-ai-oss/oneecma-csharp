@@ -13,6 +13,15 @@ public sealed class RenderOptions
     /// <summary>Source lines longer than this many display columns are cut to a window around the first label, so a minified file does not flood a report. Default 140.</summary>
     public int MaxLineWidth { get; set; } = 140;
 
+    /// <summary>
+    /// Render the compact style for readers whose context is limited (for example language models): the headline, the location,
+    /// the primary source line and the lines of any other labels, the single most useful <c>help:</c>, and a stack line only when
+    /// there is more than one frame. Blank gutter lines, <c>...</c> separators, context lines, further helps and notes (except
+    /// an unavailable explanation) and locals are dropped, and source lines are cut to about 100 columns around the labels.
+    /// Default false (the full report).
+    /// </summary>
+    public bool Compact { get; set; }
+
     /// <summary>Add one <c>= locals:</c> line per frame that has them (only reports explained by a traced replay carry locals). Default false.</summary>
     public bool ShowLocals { get; set; }
 
@@ -62,7 +71,7 @@ public static class DiagnosticRenderer
         bool allSyntax = true;
         for (int i = 0; i < diagnostics.Count; i++)
         {
-            if (i > 0)
+            if (i > 0 && !options.Compact)
             {
                 sb.Append('\n');
             }
@@ -77,7 +86,11 @@ public static class DiagnosticRenderer
 
         if (errors > 1)
         {
-            sb.Append('\n');
+            if (!options.Compact)
+            {
+                sb.Append('\n');
+            }
+
             string text = "aborting due to " + errors.ToString(NumberFormatInfo.InvariantInfo) + (allSyntax ? " syntax errors" : " errors");
             sb.Append(Paint(options, Red, "error")).Append(Paint(options, Bold, ": " + text)).Append('\n');
         }
@@ -123,7 +136,7 @@ public static class DiagnosticRenderer
         var sb = new StringBuilder();
         foreach (AppliedRepair r in repairs)
         {
-            if (sb.Length > 0)
+            if (sb.Length > 0 && !options.Compact)
             {
                 sb.Append('\n');
             }
@@ -133,7 +146,7 @@ public static class DiagnosticRenderer
 
         if (diagnostics.Count > 0)
         {
-            if (sb.Length > 0)
+            if (sb.Length > 0 && !options.Compact)
             {
                 sb.Append('\n');
             }
@@ -148,7 +161,7 @@ public static class DiagnosticRenderer
     {
         sb.Append(Paint(o, Green, "repair[" + r.Id + "]")).Append(Paint(o, Bold, ": " + r.Title)).Append('\n');
         var labels = new List<Label> { new Label(r.Span, r.Label, true) };
-        AppendBody(sb, o, r.Source, labels, [], [o.RepairOutcome]);
+        AppendBody(sb, o, r.Source, labels, [], o.Compact ? [] : [o.RepairOutcome]);
     }
 
     private static void Append(StringBuilder sb, Diagnostic d, RenderOptions o)
@@ -163,7 +176,7 @@ public static class DiagnosticRenderer
         };
         labels.AddRange(d.SecondaryLabels);
         int gutter = AppendBody(sb, o, d.Source, labels, d.Help, d.Notes, d.Stack.Count > 0);
-        if (d.Stack.Count > 0)
+        if (d.Stack.Count > (o.Compact ? 1 : 0))
         {
             sb.Append(new string(' ', gutter)).Append(" = stack: ");
             for (int i = 0; i < d.Stack.Count; i++)
@@ -196,7 +209,7 @@ public static class DiagnosticRenderer
             }
 
             sb.Append('\n');
-            if (o.ShowLocals)
+            if (o.ShowLocals && !o.Compact)
             {
                 foreach (StackFrameInfo fr in d.Stack)
                 {
@@ -248,12 +261,15 @@ public static class DiagnosticRenderer
           .Append(loc.Line.ToString(NumberFormatInfo.InvariantInfo)).Append(':')
           .Append(loc.Column.ToString(NumberFormatInfo.InvariantInfo)).Append('\n');
         string bar = Paint(o, Blue, "|");
-        sb.Append(pad).Append(' ').Append(bar).Append('\n');
+        if (!o.Compact)
+        {
+            sb.Append(pad).Append(' ').Append(bar).Append('\n');
+        }
 
         int prev = -1;
         foreach (int line in shown)
         {
-            if (prev >= 0 && line - prev >= 2)
+            if (prev >= 0 && line - prev >= 2 && !o.Compact)
             {
                 if (line - prev == 2)
                 {
@@ -267,6 +283,36 @@ public static class DiagnosticRenderer
 
             AppendSourceLine(sb, o, src, line, width, lineLabels[line]);
             prev = line;
+        }
+
+        if (o.Compact)
+        {
+            // The did-you-mean when there is one, else the first help; notes only when the explanation could not be produced.
+            string? best = null;
+            foreach (string h in help)
+            {
+                if (h.StartsWith("did you mean", StringComparison.Ordinal))
+                {
+                    best = h;
+                    break;
+                }
+            }
+
+            best ??= help.Count > 0 ? help[0] : null;
+            if (best is not null)
+            {
+                sb.Append(pad).Append(' ').Append(Paint(o, Blue, "=")).Append(' ').Append(Paint(o, Green, "help")).Append(": ").Append(best).Append('\n');
+            }
+
+            foreach (string n in notes)
+            {
+                if (n.StartsWith("explanation unavailable", StringComparison.Ordinal))
+                {
+                    sb.Append(pad).Append(' ').Append(Paint(o, Blue, "=")).Append(' ').Append(Paint(o, Bold, "note")).Append(": ").Append(n).Append('\n');
+                }
+            }
+
+            return width;
         }
 
         if (help.Count + notes.Count > 0 || stackFollows)
@@ -348,7 +394,7 @@ public static class DiagnosticRenderer
         // A line that fits is shown whole. A longer one is shown through windows: labels that fit together in one window
         // share it, and labels too far apart get a window each (the line is printed again under the same number), so every
         // underline sits under the text it labels. A single span wider than a window is cut at the window edge and says so.
-        int limit = Math.Max(o.MaxLineWidth, 20);
+        int limit = Math.Max(o.Compact ? Math.Min(o.MaxLineWidth, 100) : o.MaxLineWidth, 20);
         var groups = new List<List<(Label Lbl, int S, int E)>>();
         if (col <= limit || spans.Count == 0)
         {

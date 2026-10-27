@@ -1,0 +1,7 @@
+error[TypeError]: users.map is not a function
+ --> case.js:5:13
+4 | const users = loadUsers();
+  |               ----------- `users` comes from here: Promise
+5 | console.log(users.map((u) => u.name));
+  |             ^^^^^^^^^ `users` is a Promise, so it has no `map`
+  = help: `users` is a Promise; `await` it first
