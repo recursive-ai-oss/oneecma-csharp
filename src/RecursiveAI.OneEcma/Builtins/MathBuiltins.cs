@@ -155,8 +155,18 @@ internal static partial class Builtins
     private static double Cbrt(double x)
     {
         double y = Math.Cbrt(x);
-        double rounded = Math.Round(y);
-        return rounded * rounded * rounded == x ? rounded : y; // exact cubes stay exact
+        if (!double.IsFinite(y) || y == 0)
+        {
+            return y;
+        }
+
+        // One Newton step with the residual y^3 - x computed in double-double, so the result is the nearest double.
+        double p = y * y;
+        double pe = Math.FusedMultiplyAdd(y, y, -p);
+        double ph = p * y;
+        double pl = Math.FusedMultiplyAdd(p, y, -ph) + (pe * y);
+        double residual = (ph - x) + pl;
+        return y - (residual / (3 * p));
     }
 
     private static double Expm1(double x)

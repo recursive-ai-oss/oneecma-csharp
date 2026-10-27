@@ -273,11 +273,25 @@ internal static partial class Builtins
         }
         else
         {
-            v = 0;
+            if (i - begin <= 10)
+            {
+                v = 0;
+                for (int k = begin; k < i; k++)
+                {
+                    v = (v * radix) + NumberConv.DigitValue(input[k]);
+                }
+
+                return neg ? -v : v;
+            }
+
+            // Exact accumulation, then one correct rounding.
+            var big = BigInteger.Zero;
             for (int k = begin; k < i; k++)
             {
-                v = (v * radix) + NumberConv.DigitValue(input[k]);
+                big = (big * radix) + NumberConv.DigitValue(input[k]);
             }
+
+            v = BigIntToDouble(big);
         }
 
         return neg ? -v : v;

@@ -238,6 +238,7 @@ internal sealed class JsonParser
                 }
 
                 Frame top = stack[^1];
+                agent.Alloc(16);
                 if (top.IsArray)
                 {
                     ((JsArray)top.Container).Push(value);
@@ -419,6 +420,7 @@ internal sealed class JsonParser
             {
                 string res = _s.Substring(start, _pos - start);
                 _pos++;
+                Agent.Current.Alloc((res.Length * 2L) + 24);
                 return res;
             }
 
@@ -449,6 +451,7 @@ internal sealed class JsonParser
             {
                 _pos++;
                 Agent.Current.Charge(sb.Length >> 6);
+                Agent.Current.Alloc((sb.Length * 2L) + 24);
                 return sb.ToString();
             }
 
