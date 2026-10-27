@@ -30,35 +30,33 @@ Machine: AMD Ryzen 9 7950X3D (16 cores, 32 threads), Linux x64, .NET SDK 10.0.40
 
 ## Results
 
-Second of two runs (quieter; load average 6.0 → 2.1, only single-core background jobs such as a compiler server and a compressor beside it). Time per fresh-engine run; ratio is this engine ÷ Jint.
+One run on the current engine. Load average 4.1 before, 3.4 after, 3.2-3.5 during (sampled every 20 s); the only other work on the machine was single-core background jobs (a compiler server, a compressor and a few `dotnet` processes at about one core each), so the run was not overlapped by a heavy job. Time per fresh-engine run; ratio is this engine / Jint.
 
-| Row | Jint mean | This engine mean | ± error | Ratio | Jint alloc | This engine alloc | Peak RSS Jint / ours |
+| Row | Jint mean | This engine mean | +/- error | Ratio | Jint alloc | This engine alloc | Peak RSS Jint / ours |
 |---|---:|---:|---:|---:|---:|---:|---|
-| lodash | 189.7 ms | 162.1 ms | 3.9 ms | **0.85** | 39.4 MB | 298.7 MB | 93 / 122 MB |
-| preact | 20.7 ms | 24.4 ms | 0.3 ms | **1.18** | 12.7 MB | 38.2 MB | 73 / 103 MB |
-| react-ssr | 53.4 ms | 60.5 ms | 13.4 ms | **1.13** | 17.8 MB | 78.6 MB | 80 / 115 MB |
-| startup | 1.55 µs | 204 µs | 5.5 µs | 132 | 9.7 KB | 741 KB | — |
-| fib25 | 29.8 ms | 40.1 ms | 2.2 ms | 1.34 | 42 KB | 126.7 MB | — |
-| loops | 61.5 ms | 79.1 ms | 1.3 ms | 1.29 | 89.4 MB | 0.74 MB | — |
-| props | 53.8 ms | 51.7 ms | 0.3 ms | 0.96 | 41.7 MB | 0.75 MB | — |
-| closures | 38.6 ms | 85.7 ms | 2.1 ms | **2.22** | 5.3 MB | 138.5 MB | — |
-| strings | 2.80 ms | 5.75 ms | 0.02 ms | **2.05** | 4.5 MB | 4.4 MB | — |
-| vectors | 86.3 ms | 87.6 ms | 1.5 ms | 1.02 | 68.2 MB | 226.6 MB | — |
-| calc | 113.4 ms | 119.0 ms | 3.7 ms | 1.05 | 7.0 MB | 283.6 MB | — |
-| qsort | 103.7 ms | 92.1 ms | 6.2 ms | 0.89 | 27.9 MB | 21.4 MB | — |
-| throws | 32.4 ms | 9.1 ms | 0.02 ms | 0.28 | 14.3 MB | 26.3 MB | — |
-
-First run (a compiler server and an unrelated test run, up to five cores, overlapped for about a minute): the same rows within a few percent, except react-ssr at 78.3 ms (1.40×, ± 16 ms), which is the noisiest row in both runs: its error is large because of garbage-collection pauses, and the 1.13–1.40 spread is the honest range.
+| lodash | 199.2 ms | 123.0 ms | 3.4 ms | **0.62** | 39.4 MB | 36.0 MB | 95 / 98 MB |
+| preact | 21.6 ms | 23.3 ms | 0.3 ms | **1.08** | 12.7 MB | 28.8 MB | 73 / 93 MB |
+| react-ssr | 55.7 ms | 41.5 ms | 0.2 ms | **0.74** | 17.8 MB | 23.5 MB | 80 / 84 MB |
+| startup | 1.65 us | 98.0 us | 1.2 us | 59.5 | 9.7 KB | 272 KB | - |
+| fib25 | 31.9 ms | 23.4 ms | 0.3 ms | 0.73 | 42 KB | 0.29 MB | - |
+| loops | 64.2 ms | 49.9 ms | 0.3 ms | 0.78 | 89.4 MB | 0.28 MB | - |
+| props | 56.7 ms | 46.9 ms | 0.5 ms | 0.83 | 41.7 MB | 0.29 MB | - |
+| closures | 38.2 ms | 53.4 ms | 1.5 ms | 1.40 | 5.3 MB | 5.1 MB | - |
+| strings | 2.97 ms | 3.71 ms | 0.10 ms | 1.25 | 4.5 MB | 2.9 MB | - |
+| vectors | 93.2 ms | 60.8 ms | 0.3 ms | 0.65 | 68.2 MB | 27.8 MB | - |
+| calc | 113.1 ms | 75.3 ms | 1.0 ms | 0.67 | 7.0 MB | 0.77 MB | - |
+| qsort | 108.2 ms | 76.6 ms | 0.4 ms | 0.71 | 27.9 MB | 2.3 MB | - |
+| throws | 34.1 ms | 9.0 ms | 0.2 ms | 0.26 | 14.3 MB | 22.8 MB | - |
 
 **Reading it:**
-- All three bundle rows are inside the floor (0.85–1.40× Jint).
-- Rows above 2× are two kernels, `closures` (2.2×) and `strings` (2.05×), and `startup`.
-- `startup` is engine creation: about 204 µs and 741 KB per realm, against about 1.6 µs for Jint. It matters only to hosts that create many short-lived engines. Realm intrinsics are built eagerly; lazy intrinsics are the fix.
-- This engine allocates far more than Jint on call-heavy rows (a frame per call: `fib25`, `calc`, `closures`) and on the bundles (3–7×); peak RSS is about 30 MB higher on the bundles.
+- Every row except `startup` is inside the 2x floor; the slowest is `closures` at 1.40x, and all three bundle rows are 0.62-1.08x.
+- `startup` is engine creation: about 98 us and 272 KB per realm against about 1.6 us for Jint, whose built-ins are created lazily. It matters only to hosts that create many short-lived engines, and it is reported as it is.
+- Peak resident memory is within 4-20 MB of Jint on the bundles.
+- History: an earlier run on the engine before frame reuse, lazy function prototypes and ropes had `closures` at 2.2x, `strings` at 2.05x, react-ssr at 1.1-1.4x and `startup` at 132x.
 
 ## Caveats
 
-- Absolute numbers depend on the machine; the ratios on the same run are what to compare. The CPU's reported frequency scaling was 63–72 % during both runs.
+- Absolute numbers depend on the machine; the ratios on the same run are what to compare. The CPU's reported frequency scaling was about 70 % during the run.
 - Fresh-engine-per-iteration means the first execution of every piece of code is measured, including JIT effects in the host; steady-state throughput of a long-lived engine is better than these rows suggest for both engines.
 - The preact row uses a serializer of ours rather than a DOM renderer; the React row uses the legacy synchronous renderer, not the streaming one.
-- Eight iterations and two warm-ups give wide errors on GC-heavy rows (`react-ssr`).
+- Eight iterations and two warm-ups can give wide errors on GC-heavy rows.
