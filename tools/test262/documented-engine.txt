@@ -66,143 +66,588 @@ built-ins/Function/15.3.5.4_2-93gs.js | core: the legacy `caller` extension on s
 language/statements/with/get-mutable-binding-binding-deleted-in-get-unscopables-strict-mode.js | core: with-environment GetBindingValue strict-mode ReferenceError after @@unscopables deletes the binding (9.1.1.2.6)
 language/statements/async-generator/yield-star-return-then-getter-ticks.js | core: yield* return(): tick order of the awaited result differs from the spec (27.6.3.8)
 
-# dependent on other units' built-ins (Math, Date, Array, String)
-language/expressions/property-accessors/S11.2.1_A4_T1.js | dependent on other units' built-ins (Math, Date, Array, String)
-language/expressions/property-accessors/S11.2.1_A4_T4.js | dependent on other units' built-ins (Math, Date, Array, String)
-language/expressions/property-accessors/S11.2.1_A4_T5.js | dependent on other units' built-ins (Math, Date, Array, String)
-language/expressions/property-accessors/S11.2.1_A4_T8.js | dependent on other units' built-ins (Math, Date, Array, String)
-language/expressions/typeof/built-in-functions.js | dependent on other units' built-ins (Math, Date, Array, String)
-language/expressions/typeof/native-call.js | dependent on other units' built-ins (Math, Date, Array, String)
+# Array and iterators
+built-ins/Object/prototype/toString/symbol-tag-array-builtin.js | Array and iterators
+built-ins/Object/prototype/toString/symbol-tag-map-builtin.js | Array and iterators
+built-ins/Object/prototype/toString/symbol-tag-override-instances.js | Array and iterators
+built-ins/Object/prototype/toString/symbol-tag-set-builtin.js | Array and iterators
+built-ins/Object/prototype/toString/symbol-tag-string-builtin.js | Array and iterators
+built-ins/Object/prototype/toString/symbol-tag-weakmap-builtin.js | Array and iterators
+built-ins/Object/prototype/toString/symbol-tag-weakset-builtin.js | Array and iterators
+built-ins/Symbol/prototype/Symbol.toPrimitive/removed-symbol-wrapper-ordinary-toprimitive.js | Array and iterators
+language/statements/function/S13.2.1_A5_T1.js | Array and iterators
 
-# dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/freeze/15.2.3.9-2-d-6.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/freeze/15.2.3.9-2-d-7.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/freeze/abrupt-completion.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/freeze/throws-when-false.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/freeze/typedarray-backed-by-resizable-buffer.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-100.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-102.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-103.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-105.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-111.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-113.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-114.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-115.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-116.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-117.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-118.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-120.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-121.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-122.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-123.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-124.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-125.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-126.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-127.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-128.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-129.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-130.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-131.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-132.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-133.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-134.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-135.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-136.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-138.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-139.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-140.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-141.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-142.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-143.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-144.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-145.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-146.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-147.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-148.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-149.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-150.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-151.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-152.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-153.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-154.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-156.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-157.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-158.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-159.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-160.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-161.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-162.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-163.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-165.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-166.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-167.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-177.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-203.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-204.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-205.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-206.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-208.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-209.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-210.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-211.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-212.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-213.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-214.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-215.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-44.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-48.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-49.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-50.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-51.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-53.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-60.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-65.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-67.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-68.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-69.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-70.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-75.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-77.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-79.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-80.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-81.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-82.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-90.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-91.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-92.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-93.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-97.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-98.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-99.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/getOwnPropertyNames/15.2.3.4-4-1.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/seal/abrupt-completion.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/seal/object-seal-o-is-a-date-object.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/seal/object-seal-o-is-a-reg-exp-object.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/seal/object-seal-p-is-own-property-of-a-date-object-that-uses-object-s-get-own-property.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/seal/object-seal-p-is-own-property-of-a-reg-exp-object-that-uses-object-s-get-own-property.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/seal/seal-arraybuffer.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/seal/seal-bigint64array.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/seal/seal-biguint64array.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/seal/seal-dataview.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/seal/seal-date.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/seal/seal-finalizationregistry.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/seal/seal-float32array.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/seal/seal-float64array.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/seal/seal-int16array.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/seal/seal-int32array.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/seal/seal-int8array.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/seal/seal-map.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/seal/seal-regexp.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/seal/seal-set.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/seal/seal-sharedarraybuffer.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/seal/seal-uint16array.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/seal/seal-uint32array.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/seal/seal-uint8array.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/seal/seal-uint8clampedarray.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/seal/seal-weakmap.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/seal/seal-weakref.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/seal/seal-weakset.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
-built-ins/Object/seal/throws-when-false.js | dependent on other units' built-ins (descriptors of Math, Date, Array, String, RegExp)
+# Array and iterators / String, Number, Math, JSON (missing library function)
+built-ins/Object/defineProperty/15.2.3.6-4-613.js | Array and iterators / String, Number, Math, JSON (missing library function)
+built-ins/Object/defineProperty/15.2.3.6-4-620.js | Array and iterators / String, Number, Math, JSON (missing library function)
+built-ins/Object/defineProperty/15.2.3.6-4-621.js | Array and iterators / String, Number, Math, JSON (missing library function)
+
+# Array and iterators / String, Number, Math, JSON (missing library function)
+language/statements/function/S13.2.1_A5_T2.js | Array and iterators / String, Number, Math, JSON (missing library function)
+language/statements/return/S12.9_A4.js | Array and iterators / String, Number, Math, JSON (missing library function)
+
+# Proxy
+built-ins/AggregateError/newtarget-proto-custom.js | Proxy
+built-ins/AggregateError/newtarget-proto-fallback.js | Proxy
+built-ins/Error/cause_abrupt.js | Proxy
+built-ins/Function/internals/Construct/base-ctor-revoked-proxy-realm.js | Proxy
+built-ins/Function/internals/Construct/base-ctor-revoked-proxy.js | Proxy
+built-ins/Function/prototype/Symbol.hasInstance/value-get-prototype-of-err.js | Proxy
+built-ins/Function/prototype/toString/proxy-arrow-function.js | Proxy
+built-ins/Function/prototype/toString/proxy-async-function.js | Proxy
+built-ins/Function/prototype/toString/proxy-async-generator-function.js | Proxy
+built-ins/Function/prototype/toString/proxy-async-generator-method-definition.js | Proxy
+built-ins/Function/prototype/toString/proxy-async-method-definition.js | Proxy
+built-ins/Function/prototype/toString/proxy-bound-function.js | Proxy
+built-ins/Function/prototype/toString/proxy-class.js | Proxy
+built-ins/Function/prototype/toString/proxy-function-expression.js | Proxy
+built-ins/Function/prototype/toString/proxy-generator-function.js | Proxy
+built-ins/Function/prototype/toString/proxy-method-definition.js | Proxy
+built-ins/Function/prototype/toString/proxy-non-callable-throws.js | Proxy
+built-ins/Object/assign/source-own-prop-desc-missing.js | Proxy
+built-ins/Object/assign/source-own-prop-error.js | Proxy
+built-ins/Object/assign/source-own-prop-keys-error.js | Proxy
+built-ins/Object/assign/strings-and-symbol-order-proxy.js | Proxy
+built-ins/Object/defineProperties/proxy-no-ownkeys-returned-keys-order.js | Proxy
+built-ins/Object/entries/observable-operations.js | Proxy
+built-ins/Object/freeze/proxy-no-ownkeys-returned-keys-order.js | Proxy
+built-ins/Object/freeze/proxy-with-defineProperty-handler.js | Proxy
+built-ins/Object/getOwnPropertyDescriptors/observable-operations.js | Proxy
+built-ins/Object/getOwnPropertyDescriptors/proxy-no-ownkeys-returned-keys-order.js | Proxy
+built-ins/Object/getOwnPropertyDescriptors/proxy-undefined-descriptor.js | Proxy
+built-ins/Object/getOwnPropertyNames/proxy-invariant-absent-not-configurable-symbol-key.js | Proxy
+built-ins/Object/getOwnPropertyNames/proxy-invariant-duplicate-symbol-entry.js | Proxy
+built-ins/Object/getOwnPropertyNames/proxy-invariant-not-extensible-absent-symbol-key.js | Proxy
+built-ins/Object/getOwnPropertyNames/proxy-invariant-not-extensible-extra-symbol-key.js | Proxy
+built-ins/Object/getOwnPropertySymbols/proxy-invariant-absent-not-configurable-string-key.js | Proxy
+built-ins/Object/getOwnPropertySymbols/proxy-invariant-duplicate-string-entry.js | Proxy
+built-ins/Object/getOwnPropertySymbols/proxy-invariant-not-extensible-absent-string-key.js | Proxy
+built-ins/Object/getOwnPropertySymbols/proxy-invariant-not-extensible-extra-string-key.js | Proxy
+built-ins/Object/isFrozen/proxy-no-ownkeys-returned-keys-order.js | Proxy
+built-ins/Object/isSealed/proxy-no-ownkeys-returned-keys-order.js | Proxy
+built-ins/Object/keys/property-traps-order-with-proxied-array.js | Proxy
+built-ins/Object/keys/proxy-keys.js | Proxy
+built-ins/Object/keys/proxy-non-enumerable-prop-invariant-1.js | Proxy
+built-ins/Object/keys/proxy-non-enumerable-prop-invariant-2.js | Proxy
+built-ins/Object/keys/proxy-non-enumerable-prop-invariant-3.js | Proxy
+built-ins/Object/preventExtensions/abrupt-completion.js | Proxy
+built-ins/Object/preventExtensions/throws-when-false.js | Proxy
+built-ins/Object/prototype/__defineGetter__/define-abrupt.js | Proxy
+built-ins/Object/prototype/__defineSetter__/define-abrupt.js | Proxy
+built-ins/Object/prototype/__lookupGetter__/lookup-own-get-err.js | Proxy
+built-ins/Object/prototype/__lookupGetter__/lookup-own-proto-err.js | Proxy
+built-ins/Object/prototype/__lookupGetter__/lookup-proto-get-err.js | Proxy
+built-ins/Object/prototype/__lookupGetter__/lookup-proto-proto-err.js | Proxy
+built-ins/Object/prototype/__lookupSetter__/lookup-own-get-err.js | Proxy
+built-ins/Object/prototype/__lookupSetter__/lookup-own-proto-err.js | Proxy
+built-ins/Object/prototype/__lookupSetter__/lookup-proto-get-err.js | Proxy
+built-ins/Object/prototype/__lookupSetter__/lookup-proto-proto-err.js | Proxy
+built-ins/Object/prototype/__proto__/get-abrupt.js | Proxy
+built-ins/Object/prototype/__proto__/set-abrupt.js | Proxy
+built-ins/Object/prototype/__proto__/set-cycle-shadowed.js | Proxy
+built-ins/Object/prototype/isPrototypeOf/arg-is-proxy.js | Proxy
+built-ins/Object/prototype/toString/proxy-array.js | Proxy
+built-ins/Object/prototype/toString/proxy-function-async.js | Proxy
+built-ins/Object/prototype/toString/proxy-function.js | Proxy
+built-ins/Object/prototype/toString/proxy-revoked-during-get-call.js | Proxy
+built-ins/Object/prototype/toString/proxy-revoked.js | Proxy
+built-ins/Object/prototype/toString/symbol-tag-non-str-proxy-function.js | Proxy
+built-ins/Object/seal/proxy-no-ownkeys-returned-keys-order.js | Proxy
+built-ins/Object/seal/proxy-with-defineProperty-handler.js | Proxy
+built-ins/Object/seal/seal-proxy.js | Proxy
+built-ins/Object/setPrototypeOf/set-error.js | Proxy
+built-ins/Object/values/observable-operations.js | Proxy
+built-ins/Object/values/order-after-define-property.js | Proxy
+built-ins/Promise/prototype/finally/this-value-proxy.js | Proxy
+built-ins/Symbol/prototype/description/this-val-non-symbol.js | Proxy
+language/destructuring/binding/keyed-destructuring-property-reference-target-evaluation-order-with-bindings.js | Proxy
+language/expressions/assignment/destructuring/keyed-destructuring-property-reference-target-evaluation-order-with-bindings.js | Proxy
+language/expressions/class/elements/fields-multiple-definitions-static-private-methods-proxy.js | Proxy
+language/expressions/class/elements/private-fields-proxy-default-handler-throws.js | Proxy
+language/expressions/class/elements/static-private-fields-proxy-default-handler-throws.js | Proxy
+language/expressions/class/elements/static-private-methods-proxy-default-handler-throws.js | Proxy
+language/expressions/dynamic-import/import-attributes/2nd-param-with-enumeration-abrupt.js | Proxy
+language/expressions/dynamic-import/import-attributes/2nd-param-with-enumeration-enumerable.js | Proxy
+language/expressions/dynamic-import/import-attributes/2nd-param-with-enumeration.js | Proxy
+language/expressions/object/dstr/object-rest-proxy-get-not-called-on-dontenum-keys.js | Proxy
+language/expressions/object/dstr/object-rest-proxy-gopd-not-called-on-excluded-keys.js | Proxy
+language/expressions/object/dstr/object-rest-proxy-ownkeys-returned-keys-order.js | Proxy
+language/expressions/object/object-spread-proxy-get-not-called-on-dontenum-keys.js | Proxy
+language/expressions/object/object-spread-proxy-no-excluded-keys.js | Proxy
+language/expressions/object/object-spread-proxy-ownkeys-returned-keys-order.js | Proxy
+language/expressions/object/prop-def-id-eval-error-2.js | Proxy
+language/expressions/typeof/proxy.js | Proxy
+language/statements/class/elements/class-field-is-observable-by-proxy.js | Proxy
+language/statements/class/elements/privatefield-on-proxy.js | Proxy
+language/statements/class/elements/privategetter-on-proxy.js | Proxy
+language/statements/class/elements/privatemethods-on-proxy.js | Proxy
+language/statements/class/elements/public-class-field-initialization-is-visible-to-proxy.js | Proxy
+language/statements/class/elements/static-private-fields-proxy-default-handler-throws.js | Proxy
+language/statements/class/subclass/builtin-objects/Proxy/ | Proxy
+language/statements/class/subclass/superclass-arrow-function.js | Proxy
+language/statements/class/subclass/superclass-async-function.js | Proxy
+language/statements/class/subclass/superclass-async-generator-function.js | Proxy
+language/statements/class/subclass/superclass-generator-function.js | Proxy
+language/statements/for-of/iterator-as-proxy.js | Proxy
+language/statements/with/get-binding-value-call-with-proxy-env.js | Proxy
+language/statements/with/get-binding-value-idref-with-proxy-env.js | Proxy
+language/statements/with/has-binding-call-with-proxy-env.js | Proxy
+language/statements/with/has-binding-idref-with-proxy-env.js | Proxy
+language/statements/with/has-property-err.js | Proxy
+language/statements/with/set-mutable-binding-idref-compound-assign-with-proxy-env.js | Proxy
+language/statements/with/set-mutable-binding-idref-with-proxy-env.js | Proxy
+language/types/reference/put-value-prop-base-primitive-realm.js | Proxy
+language/types/reference/put-value-prop-base-primitive.js | Proxy
+
+# Reflect
+built-ins/AggregateError/proto-from-ctor-realm.js | Reflect
+built-ins/AsyncFunction/proto-from-ctor-realm.js | Reflect
+built-ins/AsyncGeneratorFunction/proto-from-ctor-realm-prototype.js | Reflect
+built-ins/AsyncGeneratorFunction/proto-from-ctor-realm.js | Reflect
+built-ins/Boolean/proto-from-ctor-realm.js | Reflect
+built-ins/Error/proto-from-ctor-realm.js | Reflect
+built-ins/Function/proto-from-ctor-realm-prototype.js | Reflect
+built-ins/Function/proto-from-ctor-realm.js | Reflect
+built-ins/Function/prototype/bind/get-fn-realm-recursive.js | Reflect
+built-ins/Function/prototype/bind/get-fn-realm.js | Reflect
+built-ins/Function/prototype/bind/instance-construct-newtarget-boundtarget-bound.js | Reflect
+built-ins/Function/prototype/bind/instance-construct-newtarget-boundtarget.js | Reflect
+built-ins/Function/prototype/bind/instance-construct-newtarget-self-reflect.js | Reflect
+built-ins/Function/prototype/bind/proto-from-ctor-realm.js | Reflect
+built-ins/GeneratorFunction/proto-from-ctor-realm-prototype.js | Reflect
+built-ins/GeneratorFunction/proto-from-ctor-realm.js | Reflect
+built-ins/NativeErrors/EvalError/proto-from-ctor-realm.js | Reflect
+built-ins/NativeErrors/RangeError/proto-from-ctor-realm.js | Reflect
+built-ins/NativeErrors/ReferenceError/proto-from-ctor-realm.js | Reflect
+built-ins/NativeErrors/SyntaxError/proto-from-ctor-realm.js | Reflect
+built-ins/NativeErrors/TypeError/proto-from-ctor-realm.js | Reflect
+built-ins/NativeErrors/URIError/proto-from-ctor-realm.js | Reflect
+built-ins/Object/getOwnPropertyDescriptors/order-after-define-property.js | Reflect
+built-ins/Object/internals/DefineOwnProperty/consistent-value-function-arguments.js | Reflect
+built-ins/Object/internals/DefineOwnProperty/consistent-value-function-caller.js | Reflect
+built-ins/Object/internals/DefineOwnProperty/consistent-value-regexp-dollar1.js | Reflect
+built-ins/Object/internals/DefineOwnProperty/consistent-writable-regexp-dollar1.js | Reflect
+built-ins/Object/proto-from-ctor-realm.js | Reflect
+built-ins/Object/prototype/setPrototypeOf-with-different-values.js | Reflect
+built-ins/Object/prototype/setPrototypeOf-with-non-circular-values-__proto__.js | Reflect
+built-ins/Object/prototype/setPrototypeOf-with-non-circular-values.js | Reflect
+built-ins/Object/prototype/setPrototypeOf-with-same-value.js | Reflect
+built-ins/Object/subclass-object-arg.js | Reflect
+built-ins/Promise/get-prototype-abrupt-executor-not-callable.js | Reflect
+built-ins/Promise/get-prototype-abrupt.js | Reflect
+built-ins/Promise/proto-from-ctor-realm.js | Reflect
+built-ins/Symbol/is-constructor.js | Reflect
+language/expressions/class/elements/private-methods/ | Reflect
+language/expressions/dynamic-import/namespace/await-ns-define-own-property.js | Reflect
+language/expressions/dynamic-import/namespace/await-ns-delete-exported-init-no-strict.js | Reflect
+language/expressions/dynamic-import/namespace/await-ns-delete-exported-init-strict.js | Reflect
+language/expressions/dynamic-import/namespace/await-ns-delete-non-exported-no-strict.js | Reflect
+language/expressions/dynamic-import/namespace/await-ns-delete-non-exported-strict.js | Reflect
+language/expressions/dynamic-import/namespace/await-ns-has-property-str-found-init.js | Reflect
+language/expressions/dynamic-import/namespace/await-ns-has-property-str-not-found.js | Reflect
+language/expressions/dynamic-import/namespace/await-ns-has-property-sym-found.js | Reflect
+language/expressions/dynamic-import/namespace/await-ns-has-property-sym-not-found.js | Reflect
+language/expressions/dynamic-import/namespace/await-ns-own-property-keys-sort.js | Reflect
+language/expressions/dynamic-import/namespace/await-ns-prevent-extensions-object.js | Reflect
+language/expressions/dynamic-import/namespace/await-ns-prevent-extensions-reflect.js | Reflect
+language/expressions/dynamic-import/namespace/await-ns-set-no-strict.js | Reflect
+language/expressions/dynamic-import/namespace/await-ns-set-same-values-no-strict.js | Reflect
+language/expressions/dynamic-import/namespace/await-ns-set-same-values-strict.js | Reflect
+language/expressions/dynamic-import/namespace/await-ns-set-strict.js | Reflect
+language/expressions/dynamic-import/namespace/promise-then-ns-define-own-property.js | Reflect
+language/expressions/dynamic-import/namespace/promise-then-ns-delete-exported-init-no-strict.js | Reflect
+language/expressions/dynamic-import/namespace/promise-then-ns-delete-exported-init-strict.js | Reflect
+language/expressions/dynamic-import/namespace/promise-then-ns-delete-non-exported-no-strict.js | Reflect
+language/expressions/dynamic-import/namespace/promise-then-ns-delete-non-exported-strict.js | Reflect
+language/expressions/dynamic-import/namespace/promise-then-ns-has-property-str-found-init.js | Reflect
+language/expressions/dynamic-import/namespace/promise-then-ns-has-property-str-not-found.js | Reflect
+language/expressions/dynamic-import/namespace/promise-then-ns-has-property-sym-found.js | Reflect
+language/expressions/dynamic-import/namespace/promise-then-ns-has-property-sym-not-found.js | Reflect
+language/expressions/dynamic-import/namespace/promise-then-ns-own-property-keys-sort.js | Reflect
+language/expressions/dynamic-import/namespace/promise-then-ns-prevent-extensions-object.js | Reflect
+language/expressions/dynamic-import/namespace/promise-then-ns-prevent-extensions-reflect.js | Reflect
+language/expressions/dynamic-import/namespace/promise-then-ns-set-no-strict.js | Reflect
+language/expressions/dynamic-import/namespace/promise-then-ns-set-same-values-no-strict.js | Reflect
+language/expressions/dynamic-import/namespace/promise-then-ns-set-same-values-strict.js | Reflect
+language/expressions/dynamic-import/namespace/promise-then-ns-set-strict.js | Reflect
+language/expressions/new.target/value-via-reflect-apply.js | Reflect
+language/expressions/new.target/value-via-reflect-construct.js | Reflect
+language/expressions/optional-chaining/new-target-optional-call.js | Reflect
+language/expressions/super/call-construct-invocation.js | Reflect
+language/expressions/super/realm.js | Reflect
+language/expressions/typeof/built-in-ordinary-objects-no-call.js | Reflect
+language/module-code/export-expname-binding-index.js | Reflect
+language/module-code/namespace/internals/define-own-property.js | Reflect
+language/module-code/namespace/internals/delete-exported-init.js | Reflect
+language/module-code/namespace/internals/delete-exported-uninit.js | Reflect
+language/module-code/namespace/internals/delete-non-exported.js | Reflect
+language/module-code/namespace/internals/has-property-str-found-init.js | Reflect
+language/module-code/namespace/internals/has-property-str-found-uninit.js | Reflect
+language/module-code/namespace/internals/has-property-str-not-found.js | Reflect
+language/module-code/namespace/internals/has-property-sym-found.js | Reflect
+language/module-code/namespace/internals/has-property-sym-not-found.js | Reflect
+language/module-code/namespace/internals/own-property-keys-binding-types.js | Reflect
+language/module-code/namespace/internals/own-property-keys-sort.js | Reflect
+language/module-code/namespace/internals/prevent-extensions.js | Reflect
+language/module-code/namespace/internals/set.js | Reflect
+language/statements/class/elements/private-methods/ | Reflect
+
+# RegExp
+annexB/language/literals/regexp/ | RegExp
+built-ins/Error/isError/non-error-objects-other-realm.js | RegExp
+built-ins/Error/isError/non-error-objects.js | RegExp
+built-ins/Function/prototype/apply/this-not-callable-realm.js | RegExp
+built-ins/Function/prototype/apply/this-not-callable.js | RegExp
+built-ins/Function/prototype/bind/S15.3.4.5_A16.js | RegExp
+built-ins/Function/prototype/call/S15.3.4.4_A16.js | RegExp
+built-ins/Function/prototype/toString/symbol-named-builtins.js | RegExp
+built-ins/Object/create/15.2.3.5-4-119.js | RegExp
+built-ins/Object/create/15.2.3.5-4-12.js | RegExp
+built-ins/Object/create/15.2.3.5-4-144.js | RegExp
+built-ins/Object/create/15.2.3.5-4-172.js | RegExp
+built-ins/Object/create/15.2.3.5-4-198.js | RegExp
+built-ins/Object/create/15.2.3.5-4-223.js | RegExp
+built-ins/Object/create/15.2.3.5-4-250.js | RegExp
+built-ins/Object/create/15.2.3.5-4-286.js | RegExp
+built-ins/Object/create/15.2.3.5-4-35.js | RegExp
+built-ins/Object/create/15.2.3.5-4-66.js | RegExp
+built-ins/Object/create/15.2.3.5-4-91.js | RegExp
+built-ins/Object/defineProperties/15.2.3.7-2-13.js | RegExp
+built-ins/Object/defineProperties/15.2.3.7-5-a-14.js | RegExp
+built-ins/Object/defineProperties/15.2.3.7-5-b-104.js | RegExp
+built-ins/Object/defineProperties/15.2.3.7-5-b-132.js | RegExp
+built-ins/Object/defineProperties/15.2.3.7-5-b-158.js | RegExp
+built-ins/Object/defineProperties/15.2.3.7-5-b-183.js | RegExp
+built-ins/Object/defineProperties/15.2.3.7-5-b-211.js | RegExp
+built-ins/Object/defineProperties/15.2.3.7-5-b-246.js | RegExp
+built-ins/Object/defineProperties/15.2.3.7-5-b-26.js | RegExp
+built-ins/Object/defineProperties/15.2.3.7-5-b-51.js | RegExp
+built-ins/Object/defineProperties/15.2.3.7-5-b-79.js | RegExp
+built-ins/Object/defineProperties/15.2.3.7-6-a-19.js | RegExp
+built-ins/Object/defineProperty/15.2.3.6-3-118.js | RegExp
+built-ins/Object/defineProperty/15.2.3.6-3-146-1.js | RegExp
+built-ins/Object/defineProperty/15.2.3.6-3-146.js | RegExp
+built-ins/Object/defineProperty/15.2.3.6-3-172-1.js | RegExp
+built-ins/Object/defineProperty/15.2.3.6-3-172.js | RegExp
+built-ins/Object/defineProperty/15.2.3.6-3-197.js | RegExp
+built-ins/Object/defineProperty/15.2.3.6-3-225-1.js | RegExp
+built-ins/Object/defineProperty/15.2.3.6-3-225.js | RegExp
+built-ins/Object/defineProperty/15.2.3.6-3-255-1.js | RegExp
+built-ins/Object/defineProperty/15.2.3.6-3-255.js | RegExp
+built-ins/Object/defineProperty/15.2.3.6-3-40-1.js | RegExp
+built-ins/Object/defineProperty/15.2.3.6-3-40.js | RegExp
+built-ins/Object/defineProperty/15.2.3.6-3-65.js | RegExp
+built-ins/Object/defineProperty/15.2.3.6-3-93-1.js | RegExp
+built-ins/Object/defineProperty/15.2.3.6-3-93.js | RegExp
+built-ins/Object/defineProperty/15.2.3.6-4-393.js | RegExp
+built-ins/Object/defineProperty/15.2.3.6-4-40.js | RegExp
+built-ins/Object/defineProperty/15.2.3.6-4-409.js | RegExp
+built-ins/Object/defineProperty/15.2.3.6-4-585.js | RegExp
+built-ins/Object/getPrototypeOf/15.2.3.2-2-10.js | RegExp
+built-ins/Object/getPrototypeOf/15.2.3.2-2-26.js | RegExp
+built-ins/Object/isExtensible/15.2.3.13-2-10.js | RegExp
+built-ins/Object/isExtensible/15.2.3.13-2-20.js | RegExp
+built-ins/Object/isFrozen/15.2.3.12-3-17.js | RegExp
+built-ins/Object/isFrozen/15.2.3.12-3-18.js | RegExp
+built-ins/Object/isSealed/15.2.3.11-4-17.js | RegExp
+built-ins/Object/isSealed/15.2.3.11-4-18.js | RegExp
+built-ins/Object/preventExtensions/15.2.3.10-3-19.js | RegExp
+built-ins/Object/preventExtensions/15.2.3.10-3-9.js | RegExp
+built-ins/Object/prototype/toString/Object.prototype.toString.call-regexp.js | RegExp
+built-ins/Symbol/species/subclassing.js | RegExp
+language/expressions/class/subclass-builtins/subclass-RegExp.js | RegExp
+language/expressions/delete/11.4.1-5-a-28-s.js | RegExp
+language/expressions/delete/S11.4.1_A5.js | RegExp
+language/expressions/optional-chaining/member-expression.js | RegExp
+language/expressions/typeof/null.js | RegExp
+language/expressions/yield/rhs-regexp.js | RegExp
+language/function-code/10.4.3-1-100-s.js | RegExp
+language/function-code/10.4.3-1-100gs.js | RegExp
+language/function-code/10.4.3-1-101-s.js | RegExp
+language/function-code/10.4.3-1-101gs.js | RegExp
+language/function-code/10.4.3-1-102-s.js | RegExp
+language/function-code/10.4.3-1-102gs.js | RegExp
+language/literals/null/S7.8.1_A1_T2.js | RegExp
+language/literals/regexp/7.8.5-2gs.js | RegExp
+language/literals/regexp/S7.8.5_A1.1_T1.js | RegExp
+language/literals/regexp/S7.8.5_A1.1_T2.js | RegExp
+language/literals/regexp/S7.8.5_A1.4_T1.js | RegExp
+language/literals/regexp/S7.8.5_A1.4_T2.js | RegExp
+language/literals/regexp/S7.8.5_A2.1_T1.js | RegExp
+language/literals/regexp/S7.8.5_A2.1_T2.js | RegExp
+language/literals/regexp/S7.8.5_A2.4_T1.js | RegExp
+language/literals/regexp/S7.8.5_A2.4_T2.js | RegExp
+language/literals/regexp/S7.8.5_A3.1_T1.js | RegExp
+language/literals/regexp/S7.8.5_A3.1_T2.js | RegExp
+language/literals/regexp/S7.8.5_A3.1_T3.js | RegExp
+language/literals/regexp/S7.8.5_A3.1_T4.js | RegExp
+language/literals/regexp/S7.8.5_A3.1_T5.js | RegExp
+language/literals/regexp/S7.8.5_A3.1_T6.js | RegExp
+language/literals/regexp/S7.8.5_A4.1.js | RegExp
+language/literals/regexp/S7.8.5_A4.2.js | RegExp
+language/literals/regexp/inequality.js | RegExp
+language/literals/regexp/lastIndex.js | RegExp
+language/literals/regexp/mongolian-vowel-separator-eval.js | RegExp
+language/literals/regexp/mongolian-vowel-separator.js | RegExp
+language/literals/regexp/named-groups/forward-reference.js | RegExp
+language/literals/regexp/u-astral-char-class-invert.js | RegExp
+language/literals/regexp/u-astral.js | RegExp
+language/literals/regexp/u-case-mapping.js | RegExp
+language/literals/regexp/u-null-character-escape.js | RegExp
+language/literals/regexp/u-surrogate-pairs-atom-char-class.js | RegExp
+language/literals/regexp/u-surrogate-pairs-atom-dot.js | RegExp
+language/literals/regexp/u-surrogate-pairs-atom-escape-char-class.js | RegExp
+language/literals/regexp/u-surrogate-pairs-atom-escape-decimal.js | RegExp
+language/literals/regexp/u-surrogate-pairs.js | RegExp
+language/literals/regexp/u-unicode-esc.js | RegExp
+language/literals/regexp/y-assertion-start.js | RegExp
+language/module-code/top-level-await/await-expr-regexp.js | RegExp
+language/module-code/top-level-await/syntax/block-await-expr-regexp.js | RegExp
+language/module-code/top-level-await/syntax/export-class-decl-await-expr-regexp.js | RegExp
+language/module-code/top-level-await/syntax/export-dflt-assign-expr-await-expr-regexp.js | RegExp
+language/module-code/top-level-await/syntax/export-dft-class-decl-await-expr-regexp.js | RegExp
+language/module-code/top-level-await/syntax/export-lex-decl-await-expr-regexp.js | RegExp
+language/module-code/top-level-await/syntax/export-var-await-expr-regexp.js | RegExp
+language/module-code/top-level-await/syntax/for-await-await-expr-regexp.js | RegExp
+language/module-code/top-level-await/syntax/for-await-expr-regexp.js | RegExp
+language/module-code/top-level-await/syntax/for-in-await-expr-regexp.js | RegExp
+language/module-code/top-level-await/syntax/for-of-await-expr-regexp.js | RegExp
+language/module-code/top-level-await/syntax/if-block-await-expr-regexp.js | RegExp
+language/module-code/top-level-await/syntax/if-expr-await-expr-regexp.js | RegExp
+language/module-code/top-level-await/syntax/top-level-await-expr-regexp.js | RegExp
+language/module-code/top-level-await/syntax/try-await-expr-regexp.js | RegExp
+language/module-code/top-level-await/syntax/typeof-await-expr-regexp.js | RegExp
+language/module-code/top-level-await/syntax/void-await-expr-regexp.js | RegExp
+language/module-code/top-level-await/syntax/while-await-expr-regexp.js | RegExp
+language/statementList/block-regexp-literal-flags.js | RegExp
+language/statementList/block-regexp-literal.js | RegExp
+language/statementList/block-with-statment-regexp-literal-flags.js | RegExp
+language/statementList/block-with-statment-regexp-literal.js | RegExp
+language/statementList/class-regexp-literal-flags.js | RegExp
+language/statementList/class-regexp-literal.js | RegExp
+language/statementList/eval-block-regexp-literal-flags.js | RegExp
+language/statementList/eval-block-regexp-literal.js | RegExp
+language/statementList/eval-block-with-statment-regexp-literal-flags.js | RegExp
+language/statementList/eval-block-with-statment-regexp-literal.js | RegExp
+language/statementList/eval-class-regexp-literal-flags.js | RegExp
+language/statementList/eval-class-regexp-literal.js | RegExp
+language/statementList/eval-fn-regexp-literal-flags.js | RegExp
+language/statementList/eval-fn-regexp-literal.js | RegExp
+language/statementList/fn-regexp-literal-flags.js | RegExp
+language/statementList/fn-regexp-literal.js | RegExp
+language/statements/class/subclass-builtins/subclass-RegExp.js | RegExp
+language/statements/class/subclass/builtin-objects/RegExp/ | RegExp
+language/statements/for-of/iterator-next-result-type.js | RegExp
+language/white-space/after-regular-expression-literal-carriage-return.js | RegExp
+language/white-space/after-regular-expression-literal-em-quad.js | RegExp
+language/white-space/after-regular-expression-literal-em-space.js | RegExp
+language/white-space/after-regular-expression-literal-en-quad.js | RegExp
+language/white-space/after-regular-expression-literal-en-space.js | RegExp
+language/white-space/after-regular-expression-literal-figure-space.js | RegExp
+language/white-space/after-regular-expression-literal-form-feed.js | RegExp
+language/white-space/after-regular-expression-literal-four-per-em-space.js | RegExp
+language/white-space/after-regular-expression-literal-hair-space.js | RegExp
+language/white-space/after-regular-expression-literal-ideographic-space.js | RegExp
+language/white-space/after-regular-expression-literal-line-feed.js | RegExp
+language/white-space/after-regular-expression-literal-line-separator.js | RegExp
+language/white-space/after-regular-expression-literal-medium-mathematical-space.js | RegExp
+language/white-space/after-regular-expression-literal-nbsp.js | RegExp
+language/white-space/after-regular-expression-literal-nnbsp.js | RegExp
+language/white-space/after-regular-expression-literal-ogham-space.js | RegExp
+language/white-space/after-regular-expression-literal-paragraph-separator.js | RegExp
+language/white-space/after-regular-expression-literal-punctuation-space.js | RegExp
+language/white-space/after-regular-expression-literal-six-per-em-space.js | RegExp
+language/white-space/after-regular-expression-literal-space.js | RegExp
+language/white-space/after-regular-expression-literal-tab.js | RegExp
+language/white-space/after-regular-expression-literal-thin-space.js | RegExp
+language/white-space/after-regular-expression-literal-three-per-em-space.js | RegExp
+language/white-space/after-regular-expression-literal-vertical-tab.js | RegExp
+language/white-space/after-regular-expression-literal-zwnbsp.js | RegExp
+
+# String, Number, Math, JSON, BigInt
+built-ins/encodeURI/S15.1.3.3_A2.1_T1.js | String, Number, Math, JSON, BigInt
+built-ins/encodeURI/S15.1.3.3_A2.2_T1.js | String, Number, Math, JSON, BigInt
+built-ins/encodeURI/S15.1.3.3_A2.3_T1.js | String, Number, Math, JSON, BigInt
+built-ins/encodeURI/S15.1.3.3_A2.4_T1.js | String, Number, Math, JSON, BigInt
+built-ins/encodeURI/S15.1.3.3_A2.4_T2.js | String, Number, Math, JSON, BigInt
+built-ins/encodeURI/S15.1.3.3_A2.5_T1.js | String, Number, Math, JSON, BigInt
+built-ins/encodeURIComponent/S15.1.3.4_A2.1_T1.js | String, Number, Math, JSON, BigInt
+built-ins/encodeURIComponent/S15.1.3.4_A2.2_T1.js | String, Number, Math, JSON, BigInt
+built-ins/encodeURIComponent/S15.1.3.4_A2.3_T1.js | String, Number, Math, JSON, BigInt
+built-ins/encodeURIComponent/S15.1.3.4_A2.4_T1.js | String, Number, Math, JSON, BigInt
+built-ins/encodeURIComponent/S15.1.3.4_A2.4_T2.js | String, Number, Math, JSON, BigInt
+built-ins/encodeURIComponent/S15.1.3.4_A2.5_T1.js | String, Number, Math, JSON, BigInt
+language/expressions/property-accessors/S11.2.1_A3_T2.js | String, Number, Math, JSON, BigInt
+language/expressions/super/prop-poisoned-underscore-proto.js | String, Number, Math, JSON, BigInt
+language/statements/class/subclass/builtin-objects/Number/regular-subclassing.js | String, Number, Math, JSON, BigInt
+language/statements/class/subclass/builtin-objects/String/regular-subclassing.js | String, Number, Math, JSON, BigInt
+language/statements/function/S13_A18.js | String, Number, Math, JSON, BigInt
+
+# collections
+built-ins/Symbol/species/builtin-getter-name.js | collections
+language/expressions/class/subclass-builtins/subclass-Map.js | collections
+language/expressions/class/subclass-builtins/subclass-Set.js | collections
+language/expressions/class/subclass-builtins/subclass-WeakMap.js | collections
+language/expressions/class/subclass-builtins/subclass-WeakRef.js | collections
+language/expressions/class/subclass-builtins/subclass-WeakSet.js | collections
+language/module-code/top-level-await/new-await-parens.js | collections
+language/statements/class/subclass-builtins/subclass-Map.js | collections
+language/statements/class/subclass-builtins/subclass-Set.js | collections
+language/statements/class/subclass-builtins/subclass-WeakMap.js | collections
+language/statements/class/subclass-builtins/subclass-WeakRef.js | collections
+language/statements/class/subclass-builtins/subclass-WeakSet.js | collections
+language/statements/class/subclass/builtin-objects/Map/ | collections
+language/statements/class/subclass/builtin-objects/Set/ | collections
+language/statements/class/subclass/builtin-objects/WeakMap/ | collections
+language/statements/class/subclass/builtin-objects/WeakSet/ | collections
+language/statements/for-of/map-contract-expand.js | collections
+language/statements/for-of/map-contract.js | collections
+language/statements/for-of/map-expand-contract.js | collections
+language/statements/for-of/map-expand.js | collections
+language/statements/for-of/map.js | collections
+language/statements/for-of/set-contract-expand.js | collections
+language/statements/for-of/set-contract.js | collections
+language/statements/for-of/set-expand-contract.js | collections
+language/statements/for-of/set-expand.js | collections
+language/statements/for-of/set.js | collections
+
+# dependent on other areas' built-ins (Math, Date, Array, String)
+language/expressions/property-accessors/S11.2.1_A4_T1.js | dependent on other areas' built-ins (Math, Date, Array, String)
+language/expressions/property-accessors/S11.2.1_A4_T4.js | dependent on other areas' built-ins (Math, Date, Array, String)
+language/expressions/property-accessors/S11.2.1_A4_T5.js | dependent on other areas' built-ins (Math, Date, Array, String)
+language/expressions/property-accessors/S11.2.1_A4_T8.js | dependent on other areas' built-ins (Math, Date, Array, String)
+language/expressions/typeof/built-in-functions.js | dependent on other areas' built-ins (Math, Date, Array, String)
+language/expressions/typeof/native-call.js | dependent on other areas' built-ins (Math, Date, Array, String)
+
+# dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/freeze/15.2.3.9-2-d-6.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/freeze/15.2.3.9-2-d-7.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/freeze/abrupt-completion.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/freeze/throws-when-false.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/freeze/typedarray-backed-by-resizable-buffer.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-100.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-102.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-103.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-105.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-111.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-113.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-114.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-115.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-116.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-117.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-118.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-120.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-121.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-122.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-123.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-124.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-125.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-126.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-127.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-128.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-129.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-130.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-131.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-132.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-133.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-134.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-135.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-136.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-138.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-139.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-140.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-141.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-142.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-143.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-144.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-145.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-146.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-147.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-148.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-149.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-150.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-151.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-152.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-153.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-154.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-156.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-157.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-158.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-159.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-160.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-161.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-162.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-163.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-165.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-166.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-167.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-177.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-203.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-204.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-205.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-206.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-208.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-209.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-210.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-211.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-212.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-213.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-214.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-215.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-44.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-48.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-49.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-50.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-51.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-53.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-60.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-65.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-67.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-68.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-69.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-70.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-75.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-77.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-79.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-80.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-81.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-82.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-90.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-91.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-92.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-93.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-97.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-98.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyDescriptor/15.2.3.3-4-99.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/getOwnPropertyNames/15.2.3.4-4-1.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/seal/abrupt-completion.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/seal/object-seal-o-is-a-date-object.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/seal/object-seal-o-is-a-reg-exp-object.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/seal/object-seal-p-is-own-property-of-a-date-object-that-uses-object-s-get-own-property.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/seal/object-seal-p-is-own-property-of-a-reg-exp-object-that-uses-object-s-get-own-property.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/seal/seal-arraybuffer.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/seal/seal-bigint64array.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/seal/seal-biguint64array.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/seal/seal-dataview.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/seal/seal-date.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/seal/seal-finalizationregistry.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/seal/seal-float32array.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/seal/seal-float64array.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/seal/seal-int16array.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/seal/seal-int32array.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/seal/seal-int8array.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/seal/seal-map.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/seal/seal-regexp.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/seal/seal-set.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/seal/seal-sharedarraybuffer.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/seal/seal-uint16array.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/seal/seal-uint32array.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/seal/seal-uint8array.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/seal/seal-uint8clampedarray.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/seal/seal-weakmap.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/seal/seal-weakref.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/seal/seal-weakset.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
+built-ins/Object/seal/throws-when-false.js | dependent on other areas' built-ins (descriptors of Math, Date, Array, String, RegExp)
 
 # later: Date, TypedArray, ArrayBuffer, DataView, Atomics
 built-ins/Boolean/S9.2_A6_T1.js | later: Date, TypedArray, ArrayBuffer, DataView, Atomics
@@ -350,472 +795,27 @@ language/statements/for-of/uint8clampedarray.js | later: Date, TypedArray, Array
 language/statements/with/set-mutable-binding-binding-deleted-with-typed-array-in-proto-chain-strict-mode.js | later: Date, TypedArray, ArrayBuffer, DataView, Atomics
 language/statements/with/set-mutable-binding-binding-deleted-with-typed-array-in-proto-chain.js | later: Date, TypedArray, ArrayBuffer, DataView, Atomics
 
-# needs Math.LN2 (u16)
-language/expressions/delete/11.4.1-4.a-9-s.js | needs Math.LN2 (u16)
-language/expressions/delete/11.4.1-4.a-9.js | needs Math.LN2 (u16)
+# needs Math.LN2
+language/expressions/delete/11.4.1-4.a-9-s.js | needs Math.LN2
+language/expressions/delete/11.4.1-4.a-9.js | needs Math.LN2
 
-# needs RegExp or Reflect (u17/u18) in the harness
-built-ins/AggregateError/is-a-constructor.js | needs RegExp or Reflect (u17/u18) in the harness
-built-ins/AsyncFunction/is-a-constructor.js | needs RegExp or Reflect (u17/u18) in the harness
-built-ins/AsyncGeneratorFunction/is-a-constructor.js | needs RegExp or Reflect (u17/u18) in the harness
-built-ins/Boolean/is-a-constructor.js | needs RegExp or Reflect (u17/u18) in the harness
-built-ins/Boolean/prototype/valueOf/S15.6.4.3_A2_T3.js | needs RegExp or Reflect (u17/u18) in the harness
-built-ins/Error/is-a-constructor.js | needs RegExp or Reflect (u17/u18) in the harness
-built-ins/Function/is-a-constructor.js | needs RegExp or Reflect (u17/u18) in the harness
-built-ins/Function/prototype/toString/bound-function.js | needs RegExp or Reflect (u17/u18) in the harness
-built-ins/Function/prototype/toString/built-in-function-object.js | needs RegExp or Reflect (u17/u18) in the harness
-built-ins/Function/prototype/toString/line-terminator-normalisation-CR.js | needs RegExp or Reflect (u17/u18) in the harness
-built-ins/GeneratorFunction/is-a-constructor.js | needs RegExp or Reflect (u17/u18) in the harness
-built-ins/NativeErrors/EvalError/is-a-constructor.js | needs RegExp or Reflect (u17/u18) in the harness
-built-ins/NativeErrors/RangeError/is-a-constructor.js | needs RegExp or Reflect (u17/u18) in the harness
-built-ins/NativeErrors/ReferenceError/is-a-constructor.js | needs RegExp or Reflect (u17/u18) in the harness
-built-ins/NativeErrors/SyntaxError/is-a-constructor.js | needs RegExp or Reflect (u17/u18) in the harness
-built-ins/NativeErrors/TypeError/is-a-constructor.js | needs RegExp or Reflect (u17/u18) in the harness
-built-ins/NativeErrors/URIError/is-a-constructor.js | needs RegExp or Reflect (u17/u18) in the harness
-built-ins/Object/is-a-constructor.js | needs RegExp or Reflect (u17/u18) in the harness
-built-ins/Promise/is-a-constructor.js | needs RegExp or Reflect (u17/u18) in the harness
-
-# u15 Array and iterators
-built-ins/Object/prototype/toString/symbol-tag-array-builtin.js | u15 Array and iterators
-built-ins/Object/prototype/toString/symbol-tag-map-builtin.js | u15 Array and iterators
-built-ins/Object/prototype/toString/symbol-tag-override-instances.js | u15 Array and iterators
-built-ins/Object/prototype/toString/symbol-tag-set-builtin.js | u15 Array and iterators
-built-ins/Object/prototype/toString/symbol-tag-string-builtin.js | u15 Array and iterators
-built-ins/Object/prototype/toString/symbol-tag-weakmap-builtin.js | u15 Array and iterators
-built-ins/Object/prototype/toString/symbol-tag-weakset-builtin.js | u15 Array and iterators
-built-ins/Symbol/prototype/Symbol.toPrimitive/removed-symbol-wrapper-ordinary-toprimitive.js | u15 Array and iterators
-language/statements/function/S13.2.1_A5_T1.js | u15 Array and iterators
-
-# u15 Array and iterators / u16 String, Number, Math, JSON (missing library function)
-built-ins/Object/defineProperty/15.2.3.6-4-613.js | u15 Array and iterators / u16 String, Number, Math, JSON (missing library function)
-built-ins/Object/defineProperty/15.2.3.6-4-620.js | u15 Array and iterators / u16 String, Number, Math, JSON (missing library function)
-built-ins/Object/defineProperty/15.2.3.6-4-621.js | u15 Array and iterators / u16 String, Number, Math, JSON (missing library function)
-
-# u15 Array and iterators / u16 String, Number, Math, JSON (missing library function: f)
-language/statements/function/S13.2.1_A5_T2.js | u15 Array and iterators / u16 String, Number, Math, JSON (missing library function: f)
-language/statements/return/S12.9_A4.js | u15 Array and iterators / u16 String, Number, Math, JSON (missing library function: f)
-
-# u16 String, Number, Math, JSON, BigInt
-built-ins/encodeURI/S15.1.3.3_A2.1_T1.js | u16 String, Number, Math, JSON, BigInt
-built-ins/encodeURI/S15.1.3.3_A2.2_T1.js | u16 String, Number, Math, JSON, BigInt
-built-ins/encodeURI/S15.1.3.3_A2.3_T1.js | u16 String, Number, Math, JSON, BigInt
-built-ins/encodeURI/S15.1.3.3_A2.4_T1.js | u16 String, Number, Math, JSON, BigInt
-built-ins/encodeURI/S15.1.3.3_A2.4_T2.js | u16 String, Number, Math, JSON, BigInt
-built-ins/encodeURI/S15.1.3.3_A2.5_T1.js | u16 String, Number, Math, JSON, BigInt
-built-ins/encodeURIComponent/S15.1.3.4_A2.1_T1.js | u16 String, Number, Math, JSON, BigInt
-built-ins/encodeURIComponent/S15.1.3.4_A2.2_T1.js | u16 String, Number, Math, JSON, BigInt
-built-ins/encodeURIComponent/S15.1.3.4_A2.3_T1.js | u16 String, Number, Math, JSON, BigInt
-built-ins/encodeURIComponent/S15.1.3.4_A2.4_T1.js | u16 String, Number, Math, JSON, BigInt
-built-ins/encodeURIComponent/S15.1.3.4_A2.4_T2.js | u16 String, Number, Math, JSON, BigInt
-built-ins/encodeURIComponent/S15.1.3.4_A2.5_T1.js | u16 String, Number, Math, JSON, BigInt
-language/expressions/property-accessors/S11.2.1_A3_T2.js | u16 String, Number, Math, JSON, BigInt
-language/expressions/super/prop-poisoned-underscore-proto.js | u16 String, Number, Math, JSON, BigInt
-language/statements/class/subclass/builtin-objects/Number/regular-subclassing.js | u16 String, Number, Math, JSON, BigInt
-language/statements/class/subclass/builtin-objects/String/regular-subclassing.js | u16 String, Number, Math, JSON, BigInt
-language/statements/function/S13_A18.js | u16 String, Number, Math, JSON, BigInt
-
-# u17 Proxy
-built-ins/AggregateError/newtarget-proto-custom.js | u17 Proxy
-built-ins/AggregateError/newtarget-proto-fallback.js | u17 Proxy
-built-ins/Error/cause_abrupt.js | u17 Proxy
-built-ins/Function/internals/Construct/base-ctor-revoked-proxy-realm.js | u17 Proxy
-built-ins/Function/internals/Construct/base-ctor-revoked-proxy.js | u17 Proxy
-built-ins/Function/prototype/Symbol.hasInstance/value-get-prototype-of-err.js | u17 Proxy
-built-ins/Function/prototype/toString/proxy-arrow-function.js | u17 Proxy
-built-ins/Function/prototype/toString/proxy-async-function.js | u17 Proxy
-built-ins/Function/prototype/toString/proxy-async-generator-function.js | u17 Proxy
-built-ins/Function/prototype/toString/proxy-async-generator-method-definition.js | u17 Proxy
-built-ins/Function/prototype/toString/proxy-async-method-definition.js | u17 Proxy
-built-ins/Function/prototype/toString/proxy-bound-function.js | u17 Proxy
-built-ins/Function/prototype/toString/proxy-class.js | u17 Proxy
-built-ins/Function/prototype/toString/proxy-function-expression.js | u17 Proxy
-built-ins/Function/prototype/toString/proxy-generator-function.js | u17 Proxy
-built-ins/Function/prototype/toString/proxy-method-definition.js | u17 Proxy
-built-ins/Function/prototype/toString/proxy-non-callable-throws.js | u17 Proxy
-built-ins/Object/assign/source-own-prop-desc-missing.js | u17 Proxy
-built-ins/Object/assign/source-own-prop-error.js | u17 Proxy
-built-ins/Object/assign/source-own-prop-keys-error.js | u17 Proxy
-built-ins/Object/assign/strings-and-symbol-order-proxy.js | u17 Proxy
-built-ins/Object/defineProperties/proxy-no-ownkeys-returned-keys-order.js | u17 Proxy
-built-ins/Object/entries/observable-operations.js | u17 Proxy
-built-ins/Object/freeze/proxy-no-ownkeys-returned-keys-order.js | u17 Proxy
-built-ins/Object/freeze/proxy-with-defineProperty-handler.js | u17 Proxy
-built-ins/Object/getOwnPropertyDescriptors/observable-operations.js | u17 Proxy
-built-ins/Object/getOwnPropertyDescriptors/proxy-no-ownkeys-returned-keys-order.js | u17 Proxy
-built-ins/Object/getOwnPropertyDescriptors/proxy-undefined-descriptor.js | u17 Proxy
-built-ins/Object/getOwnPropertyNames/proxy-invariant-absent-not-configurable-symbol-key.js | u17 Proxy
-built-ins/Object/getOwnPropertyNames/proxy-invariant-duplicate-symbol-entry.js | u17 Proxy
-built-ins/Object/getOwnPropertyNames/proxy-invariant-not-extensible-absent-symbol-key.js | u17 Proxy
-built-ins/Object/getOwnPropertyNames/proxy-invariant-not-extensible-extra-symbol-key.js | u17 Proxy
-built-ins/Object/getOwnPropertySymbols/proxy-invariant-absent-not-configurable-string-key.js | u17 Proxy
-built-ins/Object/getOwnPropertySymbols/proxy-invariant-duplicate-string-entry.js | u17 Proxy
-built-ins/Object/getOwnPropertySymbols/proxy-invariant-not-extensible-absent-string-key.js | u17 Proxy
-built-ins/Object/getOwnPropertySymbols/proxy-invariant-not-extensible-extra-string-key.js | u17 Proxy
-built-ins/Object/isFrozen/proxy-no-ownkeys-returned-keys-order.js | u17 Proxy
-built-ins/Object/isSealed/proxy-no-ownkeys-returned-keys-order.js | u17 Proxy
-built-ins/Object/keys/property-traps-order-with-proxied-array.js | u17 Proxy
-built-ins/Object/keys/proxy-keys.js | u17 Proxy
-built-ins/Object/keys/proxy-non-enumerable-prop-invariant-1.js | u17 Proxy
-built-ins/Object/keys/proxy-non-enumerable-prop-invariant-2.js | u17 Proxy
-built-ins/Object/keys/proxy-non-enumerable-prop-invariant-3.js | u17 Proxy
-built-ins/Object/preventExtensions/abrupt-completion.js | u17 Proxy
-built-ins/Object/preventExtensions/throws-when-false.js | u17 Proxy
-built-ins/Object/prototype/__defineGetter__/define-abrupt.js | u17 Proxy
-built-ins/Object/prototype/__defineSetter__/define-abrupt.js | u17 Proxy
-built-ins/Object/prototype/__lookupGetter__/lookup-own-get-err.js | u17 Proxy
-built-ins/Object/prototype/__lookupGetter__/lookup-own-proto-err.js | u17 Proxy
-built-ins/Object/prototype/__lookupGetter__/lookup-proto-get-err.js | u17 Proxy
-built-ins/Object/prototype/__lookupGetter__/lookup-proto-proto-err.js | u17 Proxy
-built-ins/Object/prototype/__lookupSetter__/lookup-own-get-err.js | u17 Proxy
-built-ins/Object/prototype/__lookupSetter__/lookup-own-proto-err.js | u17 Proxy
-built-ins/Object/prototype/__lookupSetter__/lookup-proto-get-err.js | u17 Proxy
-built-ins/Object/prototype/__lookupSetter__/lookup-proto-proto-err.js | u17 Proxy
-built-ins/Object/prototype/__proto__/get-abrupt.js | u17 Proxy
-built-ins/Object/prototype/__proto__/set-abrupt.js | u17 Proxy
-built-ins/Object/prototype/__proto__/set-cycle-shadowed.js | u17 Proxy
-built-ins/Object/prototype/isPrototypeOf/arg-is-proxy.js | u17 Proxy
-built-ins/Object/prototype/toString/proxy-array.js | u17 Proxy
-built-ins/Object/prototype/toString/proxy-function-async.js | u17 Proxy
-built-ins/Object/prototype/toString/proxy-function.js | u17 Proxy
-built-ins/Object/prototype/toString/proxy-revoked-during-get-call.js | u17 Proxy
-built-ins/Object/prototype/toString/proxy-revoked.js | u17 Proxy
-built-ins/Object/prototype/toString/symbol-tag-non-str-proxy-function.js | u17 Proxy
-built-ins/Object/seal/proxy-no-ownkeys-returned-keys-order.js | u17 Proxy
-built-ins/Object/seal/proxy-with-defineProperty-handler.js | u17 Proxy
-built-ins/Object/seal/seal-proxy.js | u17 Proxy
-built-ins/Object/setPrototypeOf/set-error.js | u17 Proxy
-built-ins/Object/values/observable-operations.js | u17 Proxy
-built-ins/Object/values/order-after-define-property.js | u17 Proxy
-built-ins/Promise/prototype/finally/this-value-proxy.js | u17 Proxy
-built-ins/Symbol/prototype/description/this-val-non-symbol.js | u17 Proxy
-language/destructuring/binding/keyed-destructuring-property-reference-target-evaluation-order-with-bindings.js | u17 Proxy
-language/expressions/assignment/destructuring/keyed-destructuring-property-reference-target-evaluation-order-with-bindings.js | u17 Proxy
-language/expressions/class/elements/fields-multiple-definitions-static-private-methods-proxy.js | u17 Proxy
-language/expressions/class/elements/private-fields-proxy-default-handler-throws.js | u17 Proxy
-language/expressions/class/elements/static-private-fields-proxy-default-handler-throws.js | u17 Proxy
-language/expressions/class/elements/static-private-methods-proxy-default-handler-throws.js | u17 Proxy
-language/expressions/dynamic-import/import-attributes/2nd-param-with-enumeration-abrupt.js | u17 Proxy
-language/expressions/dynamic-import/import-attributes/2nd-param-with-enumeration-enumerable.js | u17 Proxy
-language/expressions/dynamic-import/import-attributes/2nd-param-with-enumeration.js | u17 Proxy
-language/expressions/object/dstr/object-rest-proxy-get-not-called-on-dontenum-keys.js | u17 Proxy
-language/expressions/object/dstr/object-rest-proxy-gopd-not-called-on-excluded-keys.js | u17 Proxy
-language/expressions/object/dstr/object-rest-proxy-ownkeys-returned-keys-order.js | u17 Proxy
-language/expressions/object/object-spread-proxy-get-not-called-on-dontenum-keys.js | u17 Proxy
-language/expressions/object/object-spread-proxy-no-excluded-keys.js | u17 Proxy
-language/expressions/object/object-spread-proxy-ownkeys-returned-keys-order.js | u17 Proxy
-language/expressions/object/prop-def-id-eval-error-2.js | u17 Proxy
-language/expressions/typeof/proxy.js | u17 Proxy
-language/statements/class/elements/class-field-is-observable-by-proxy.js | u17 Proxy
-language/statements/class/elements/privatefield-on-proxy.js | u17 Proxy
-language/statements/class/elements/privategetter-on-proxy.js | u17 Proxy
-language/statements/class/elements/privatemethods-on-proxy.js | u17 Proxy
-language/statements/class/elements/public-class-field-initialization-is-visible-to-proxy.js | u17 Proxy
-language/statements/class/elements/static-private-fields-proxy-default-handler-throws.js | u17 Proxy
-language/statements/class/subclass/builtin-objects/Proxy/ | u17 Proxy
-language/statements/class/subclass/superclass-arrow-function.js | u17 Proxy
-language/statements/class/subclass/superclass-async-function.js | u17 Proxy
-language/statements/class/subclass/superclass-async-generator-function.js | u17 Proxy
-language/statements/class/subclass/superclass-generator-function.js | u17 Proxy
-language/statements/for-of/iterator-as-proxy.js | u17 Proxy
-language/statements/with/get-binding-value-call-with-proxy-env.js | u17 Proxy
-language/statements/with/get-binding-value-idref-with-proxy-env.js | u17 Proxy
-language/statements/with/has-binding-call-with-proxy-env.js | u17 Proxy
-language/statements/with/has-binding-idref-with-proxy-env.js | u17 Proxy
-language/statements/with/has-property-err.js | u17 Proxy
-language/statements/with/set-mutable-binding-idref-compound-assign-with-proxy-env.js | u17 Proxy
-language/statements/with/set-mutable-binding-idref-with-proxy-env.js | u17 Proxy
-language/types/reference/put-value-prop-base-primitive-realm.js | u17 Proxy
-language/types/reference/put-value-prop-base-primitive.js | u17 Proxy
-
-# u17 Reflect
-built-ins/AggregateError/proto-from-ctor-realm.js | u17 Reflect
-built-ins/AsyncFunction/proto-from-ctor-realm.js | u17 Reflect
-built-ins/AsyncGeneratorFunction/proto-from-ctor-realm-prototype.js | u17 Reflect
-built-ins/AsyncGeneratorFunction/proto-from-ctor-realm.js | u17 Reflect
-built-ins/Boolean/proto-from-ctor-realm.js | u17 Reflect
-built-ins/Error/proto-from-ctor-realm.js | u17 Reflect
-built-ins/Function/proto-from-ctor-realm-prototype.js | u17 Reflect
-built-ins/Function/proto-from-ctor-realm.js | u17 Reflect
-built-ins/Function/prototype/bind/get-fn-realm-recursive.js | u17 Reflect
-built-ins/Function/prototype/bind/get-fn-realm.js | u17 Reflect
-built-ins/Function/prototype/bind/instance-construct-newtarget-boundtarget-bound.js | u17 Reflect
-built-ins/Function/prototype/bind/instance-construct-newtarget-boundtarget.js | u17 Reflect
-built-ins/Function/prototype/bind/instance-construct-newtarget-self-reflect.js | u17 Reflect
-built-ins/Function/prototype/bind/proto-from-ctor-realm.js | u17 Reflect
-built-ins/GeneratorFunction/proto-from-ctor-realm-prototype.js | u17 Reflect
-built-ins/GeneratorFunction/proto-from-ctor-realm.js | u17 Reflect
-built-ins/NativeErrors/EvalError/proto-from-ctor-realm.js | u17 Reflect
-built-ins/NativeErrors/RangeError/proto-from-ctor-realm.js | u17 Reflect
-built-ins/NativeErrors/ReferenceError/proto-from-ctor-realm.js | u17 Reflect
-built-ins/NativeErrors/SyntaxError/proto-from-ctor-realm.js | u17 Reflect
-built-ins/NativeErrors/TypeError/proto-from-ctor-realm.js | u17 Reflect
-built-ins/NativeErrors/URIError/proto-from-ctor-realm.js | u17 Reflect
-built-ins/Object/getOwnPropertyDescriptors/order-after-define-property.js | u17 Reflect
-built-ins/Object/internals/DefineOwnProperty/consistent-value-function-arguments.js | u17 Reflect
-built-ins/Object/internals/DefineOwnProperty/consistent-value-function-caller.js | u17 Reflect
-built-ins/Object/internals/DefineOwnProperty/consistent-value-regexp-dollar1.js | u17 Reflect
-built-ins/Object/internals/DefineOwnProperty/consistent-writable-regexp-dollar1.js | u17 Reflect
-built-ins/Object/proto-from-ctor-realm.js | u17 Reflect
-built-ins/Object/prototype/setPrototypeOf-with-different-values.js | u17 Reflect
-built-ins/Object/prototype/setPrototypeOf-with-non-circular-values-__proto__.js | u17 Reflect
-built-ins/Object/prototype/setPrototypeOf-with-non-circular-values.js | u17 Reflect
-built-ins/Object/prototype/setPrototypeOf-with-same-value.js | u17 Reflect
-built-ins/Object/subclass-object-arg.js | u17 Reflect
-built-ins/Promise/get-prototype-abrupt-executor-not-callable.js | u17 Reflect
-built-ins/Promise/get-prototype-abrupt.js | u17 Reflect
-built-ins/Promise/proto-from-ctor-realm.js | u17 Reflect
-built-ins/Symbol/is-constructor.js | u17 Reflect
-language/expressions/class/elements/private-methods/ | u17 Reflect
-language/expressions/dynamic-import/namespace/await-ns-define-own-property.js | u17 Reflect
-language/expressions/dynamic-import/namespace/await-ns-delete-exported-init-no-strict.js | u17 Reflect
-language/expressions/dynamic-import/namespace/await-ns-delete-exported-init-strict.js | u17 Reflect
-language/expressions/dynamic-import/namespace/await-ns-delete-non-exported-no-strict.js | u17 Reflect
-language/expressions/dynamic-import/namespace/await-ns-delete-non-exported-strict.js | u17 Reflect
-language/expressions/dynamic-import/namespace/await-ns-has-property-str-found-init.js | u17 Reflect
-language/expressions/dynamic-import/namespace/await-ns-has-property-str-not-found.js | u17 Reflect
-language/expressions/dynamic-import/namespace/await-ns-has-property-sym-found.js | u17 Reflect
-language/expressions/dynamic-import/namespace/await-ns-has-property-sym-not-found.js | u17 Reflect
-language/expressions/dynamic-import/namespace/await-ns-own-property-keys-sort.js | u17 Reflect
-language/expressions/dynamic-import/namespace/await-ns-prevent-extensions-object.js | u17 Reflect
-language/expressions/dynamic-import/namespace/await-ns-prevent-extensions-reflect.js | u17 Reflect
-language/expressions/dynamic-import/namespace/await-ns-set-no-strict.js | u17 Reflect
-language/expressions/dynamic-import/namespace/await-ns-set-same-values-no-strict.js | u17 Reflect
-language/expressions/dynamic-import/namespace/await-ns-set-same-values-strict.js | u17 Reflect
-language/expressions/dynamic-import/namespace/await-ns-set-strict.js | u17 Reflect
-language/expressions/dynamic-import/namespace/promise-then-ns-define-own-property.js | u17 Reflect
-language/expressions/dynamic-import/namespace/promise-then-ns-delete-exported-init-no-strict.js | u17 Reflect
-language/expressions/dynamic-import/namespace/promise-then-ns-delete-exported-init-strict.js | u17 Reflect
-language/expressions/dynamic-import/namespace/promise-then-ns-delete-non-exported-no-strict.js | u17 Reflect
-language/expressions/dynamic-import/namespace/promise-then-ns-delete-non-exported-strict.js | u17 Reflect
-language/expressions/dynamic-import/namespace/promise-then-ns-has-property-str-found-init.js | u17 Reflect
-language/expressions/dynamic-import/namespace/promise-then-ns-has-property-str-not-found.js | u17 Reflect
-language/expressions/dynamic-import/namespace/promise-then-ns-has-property-sym-found.js | u17 Reflect
-language/expressions/dynamic-import/namespace/promise-then-ns-has-property-sym-not-found.js | u17 Reflect
-language/expressions/dynamic-import/namespace/promise-then-ns-own-property-keys-sort.js | u17 Reflect
-language/expressions/dynamic-import/namespace/promise-then-ns-prevent-extensions-object.js | u17 Reflect
-language/expressions/dynamic-import/namespace/promise-then-ns-prevent-extensions-reflect.js | u17 Reflect
-language/expressions/dynamic-import/namespace/promise-then-ns-set-no-strict.js | u17 Reflect
-language/expressions/dynamic-import/namespace/promise-then-ns-set-same-values-no-strict.js | u17 Reflect
-language/expressions/dynamic-import/namespace/promise-then-ns-set-same-values-strict.js | u17 Reflect
-language/expressions/dynamic-import/namespace/promise-then-ns-set-strict.js | u17 Reflect
-language/expressions/new.target/value-via-reflect-apply.js | u17 Reflect
-language/expressions/new.target/value-via-reflect-construct.js | u17 Reflect
-language/expressions/optional-chaining/new-target-optional-call.js | u17 Reflect
-language/expressions/super/call-construct-invocation.js | u17 Reflect
-language/expressions/super/realm.js | u17 Reflect
-language/expressions/typeof/built-in-ordinary-objects-no-call.js | u17 Reflect
-language/module-code/export-expname-binding-index.js | u17 Reflect
-language/module-code/namespace/internals/define-own-property.js | u17 Reflect
-language/module-code/namespace/internals/delete-exported-init.js | u17 Reflect
-language/module-code/namespace/internals/delete-exported-uninit.js | u17 Reflect
-language/module-code/namespace/internals/delete-non-exported.js | u17 Reflect
-language/module-code/namespace/internals/has-property-str-found-init.js | u17 Reflect
-language/module-code/namespace/internals/has-property-str-found-uninit.js | u17 Reflect
-language/module-code/namespace/internals/has-property-str-not-found.js | u17 Reflect
-language/module-code/namespace/internals/has-property-sym-found.js | u17 Reflect
-language/module-code/namespace/internals/has-property-sym-not-found.js | u17 Reflect
-language/module-code/namespace/internals/own-property-keys-binding-types.js | u17 Reflect
-language/module-code/namespace/internals/own-property-keys-sort.js | u17 Reflect
-language/module-code/namespace/internals/prevent-extensions.js | u17 Reflect
-language/module-code/namespace/internals/set.js | u17 Reflect
-language/statements/class/elements/private-methods/ | u17 Reflect
-
-# u17 collections
-built-ins/Symbol/species/builtin-getter-name.js | u17 collections
-language/expressions/class/subclass-builtins/subclass-Map.js | u17 collections
-language/expressions/class/subclass-builtins/subclass-Set.js | u17 collections
-language/expressions/class/subclass-builtins/subclass-WeakMap.js | u17 collections
-language/expressions/class/subclass-builtins/subclass-WeakRef.js | u17 collections
-language/expressions/class/subclass-builtins/subclass-WeakSet.js | u17 collections
-language/module-code/top-level-await/new-await-parens.js | u17 collections
-language/statements/class/subclass-builtins/subclass-Map.js | u17 collections
-language/statements/class/subclass-builtins/subclass-Set.js | u17 collections
-language/statements/class/subclass-builtins/subclass-WeakMap.js | u17 collections
-language/statements/class/subclass-builtins/subclass-WeakRef.js | u17 collections
-language/statements/class/subclass-builtins/subclass-WeakSet.js | u17 collections
-language/statements/class/subclass/builtin-objects/Map/ | u17 collections
-language/statements/class/subclass/builtin-objects/Set/ | u17 collections
-language/statements/class/subclass/builtin-objects/WeakMap/ | u17 collections
-language/statements/class/subclass/builtin-objects/WeakSet/ | u17 collections
-language/statements/for-of/map-contract-expand.js | u17 collections
-language/statements/for-of/map-contract.js | u17 collections
-language/statements/for-of/map-expand-contract.js | u17 collections
-language/statements/for-of/map-expand.js | u17 collections
-language/statements/for-of/map.js | u17 collections
-language/statements/for-of/set-contract-expand.js | u17 collections
-language/statements/for-of/set-contract.js | u17 collections
-language/statements/for-of/set-expand-contract.js | u17 collections
-language/statements/for-of/set-expand.js | u17 collections
-language/statements/for-of/set.js | u17 collections
-
-# u18 RegExp
-annexB/language/literals/regexp/ | u18 RegExp
-built-ins/Error/isError/non-error-objects-other-realm.js | u18 RegExp
-built-ins/Error/isError/non-error-objects.js | u18 RegExp
-built-ins/Function/prototype/apply/this-not-callable-realm.js | u18 RegExp
-built-ins/Function/prototype/apply/this-not-callable.js | u18 RegExp
-built-ins/Function/prototype/bind/S15.3.4.5_A16.js | u18 RegExp
-built-ins/Function/prototype/call/S15.3.4.4_A16.js | u18 RegExp
-built-ins/Function/prototype/toString/symbol-named-builtins.js | u18 RegExp
-built-ins/Object/create/15.2.3.5-4-119.js | u18 RegExp
-built-ins/Object/create/15.2.3.5-4-12.js | u18 RegExp
-built-ins/Object/create/15.2.3.5-4-144.js | u18 RegExp
-built-ins/Object/create/15.2.3.5-4-172.js | u18 RegExp
-built-ins/Object/create/15.2.3.5-4-198.js | u18 RegExp
-built-ins/Object/create/15.2.3.5-4-223.js | u18 RegExp
-built-ins/Object/create/15.2.3.5-4-250.js | u18 RegExp
-built-ins/Object/create/15.2.3.5-4-286.js | u18 RegExp
-built-ins/Object/create/15.2.3.5-4-35.js | u18 RegExp
-built-ins/Object/create/15.2.3.5-4-66.js | u18 RegExp
-built-ins/Object/create/15.2.3.5-4-91.js | u18 RegExp
-built-ins/Object/defineProperties/15.2.3.7-2-13.js | u18 RegExp
-built-ins/Object/defineProperties/15.2.3.7-5-a-14.js | u18 RegExp
-built-ins/Object/defineProperties/15.2.3.7-5-b-104.js | u18 RegExp
-built-ins/Object/defineProperties/15.2.3.7-5-b-132.js | u18 RegExp
-built-ins/Object/defineProperties/15.2.3.7-5-b-158.js | u18 RegExp
-built-ins/Object/defineProperties/15.2.3.7-5-b-183.js | u18 RegExp
-built-ins/Object/defineProperties/15.2.3.7-5-b-211.js | u18 RegExp
-built-ins/Object/defineProperties/15.2.3.7-5-b-246.js | u18 RegExp
-built-ins/Object/defineProperties/15.2.3.7-5-b-26.js | u18 RegExp
-built-ins/Object/defineProperties/15.2.3.7-5-b-51.js | u18 RegExp
-built-ins/Object/defineProperties/15.2.3.7-5-b-79.js | u18 RegExp
-built-ins/Object/defineProperties/15.2.3.7-6-a-19.js | u18 RegExp
-built-ins/Object/defineProperty/15.2.3.6-3-118.js | u18 RegExp
-built-ins/Object/defineProperty/15.2.3.6-3-146-1.js | u18 RegExp
-built-ins/Object/defineProperty/15.2.3.6-3-146.js | u18 RegExp
-built-ins/Object/defineProperty/15.2.3.6-3-172-1.js | u18 RegExp
-built-ins/Object/defineProperty/15.2.3.6-3-172.js | u18 RegExp
-built-ins/Object/defineProperty/15.2.3.6-3-197.js | u18 RegExp
-built-ins/Object/defineProperty/15.2.3.6-3-225-1.js | u18 RegExp
-built-ins/Object/defineProperty/15.2.3.6-3-225.js | u18 RegExp
-built-ins/Object/defineProperty/15.2.3.6-3-255-1.js | u18 RegExp
-built-ins/Object/defineProperty/15.2.3.6-3-255.js | u18 RegExp
-built-ins/Object/defineProperty/15.2.3.6-3-40-1.js | u18 RegExp
-built-ins/Object/defineProperty/15.2.3.6-3-40.js | u18 RegExp
-built-ins/Object/defineProperty/15.2.3.6-3-65.js | u18 RegExp
-built-ins/Object/defineProperty/15.2.3.6-3-93-1.js | u18 RegExp
-built-ins/Object/defineProperty/15.2.3.6-3-93.js | u18 RegExp
-built-ins/Object/defineProperty/15.2.3.6-4-393.js | u18 RegExp
-built-ins/Object/defineProperty/15.2.3.6-4-40.js | u18 RegExp
-built-ins/Object/defineProperty/15.2.3.6-4-409.js | u18 RegExp
-built-ins/Object/defineProperty/15.2.3.6-4-585.js | u18 RegExp
-built-ins/Object/getPrototypeOf/15.2.3.2-2-10.js | u18 RegExp
-built-ins/Object/getPrototypeOf/15.2.3.2-2-26.js | u18 RegExp
-built-ins/Object/isExtensible/15.2.3.13-2-10.js | u18 RegExp
-built-ins/Object/isExtensible/15.2.3.13-2-20.js | u18 RegExp
-built-ins/Object/isFrozen/15.2.3.12-3-17.js | u18 RegExp
-built-ins/Object/isFrozen/15.2.3.12-3-18.js | u18 RegExp
-built-ins/Object/isSealed/15.2.3.11-4-17.js | u18 RegExp
-built-ins/Object/isSealed/15.2.3.11-4-18.js | u18 RegExp
-built-ins/Object/preventExtensions/15.2.3.10-3-19.js | u18 RegExp
-built-ins/Object/preventExtensions/15.2.3.10-3-9.js | u18 RegExp
-built-ins/Object/prototype/toString/Object.prototype.toString.call-regexp.js | u18 RegExp
-built-ins/Symbol/species/subclassing.js | u18 RegExp
-language/expressions/class/subclass-builtins/subclass-RegExp.js | u18 RegExp
-language/expressions/delete/11.4.1-5-a-28-s.js | u18 RegExp
-language/expressions/delete/S11.4.1_A5.js | u18 RegExp
-language/expressions/optional-chaining/member-expression.js | u18 RegExp
-language/expressions/typeof/null.js | u18 RegExp
-language/expressions/yield/rhs-regexp.js | u18 RegExp
-language/function-code/10.4.3-1-100-s.js | u18 RegExp
-language/function-code/10.4.3-1-100gs.js | u18 RegExp
-language/function-code/10.4.3-1-101-s.js | u18 RegExp
-language/function-code/10.4.3-1-101gs.js | u18 RegExp
-language/function-code/10.4.3-1-102-s.js | u18 RegExp
-language/function-code/10.4.3-1-102gs.js | u18 RegExp
-language/literals/null/S7.8.1_A1_T2.js | u18 RegExp
-language/literals/regexp/7.8.5-2gs.js | u18 RegExp
-language/literals/regexp/S7.8.5_A1.1_T1.js | u18 RegExp
-language/literals/regexp/S7.8.5_A1.1_T2.js | u18 RegExp
-language/literals/regexp/S7.8.5_A1.4_T1.js | u18 RegExp
-language/literals/regexp/S7.8.5_A1.4_T2.js | u18 RegExp
-language/literals/regexp/S7.8.5_A2.1_T1.js | u18 RegExp
-language/literals/regexp/S7.8.5_A2.1_T2.js | u18 RegExp
-language/literals/regexp/S7.8.5_A2.4_T1.js | u18 RegExp
-language/literals/regexp/S7.8.5_A2.4_T2.js | u18 RegExp
-language/literals/regexp/S7.8.5_A3.1_T1.js | u18 RegExp
-language/literals/regexp/S7.8.5_A3.1_T2.js | u18 RegExp
-language/literals/regexp/S7.8.5_A3.1_T3.js | u18 RegExp
-language/literals/regexp/S7.8.5_A3.1_T4.js | u18 RegExp
-language/literals/regexp/S7.8.5_A3.1_T5.js | u18 RegExp
-language/literals/regexp/S7.8.5_A3.1_T6.js | u18 RegExp
-language/literals/regexp/S7.8.5_A4.1.js | u18 RegExp
-language/literals/regexp/S7.8.5_A4.2.js | u18 RegExp
-language/literals/regexp/inequality.js | u18 RegExp
-language/literals/regexp/lastIndex.js | u18 RegExp
-language/literals/regexp/mongolian-vowel-separator-eval.js | u18 RegExp
-language/literals/regexp/mongolian-vowel-separator.js | u18 RegExp
-language/literals/regexp/named-groups/forward-reference.js | u18 RegExp
-language/literals/regexp/u-astral-char-class-invert.js | u18 RegExp
-language/literals/regexp/u-astral.js | u18 RegExp
-language/literals/regexp/u-case-mapping.js | u18 RegExp
-language/literals/regexp/u-null-character-escape.js | u18 RegExp
-language/literals/regexp/u-surrogate-pairs-atom-char-class.js | u18 RegExp
-language/literals/regexp/u-surrogate-pairs-atom-dot.js | u18 RegExp
-language/literals/regexp/u-surrogate-pairs-atom-escape-char-class.js | u18 RegExp
-language/literals/regexp/u-surrogate-pairs-atom-escape-decimal.js | u18 RegExp
-language/literals/regexp/u-surrogate-pairs.js | u18 RegExp
-language/literals/regexp/u-unicode-esc.js | u18 RegExp
-language/literals/regexp/y-assertion-start.js | u18 RegExp
-language/module-code/top-level-await/await-expr-regexp.js | u18 RegExp
-language/module-code/top-level-await/syntax/block-await-expr-regexp.js | u18 RegExp
-language/module-code/top-level-await/syntax/export-class-decl-await-expr-regexp.js | u18 RegExp
-language/module-code/top-level-await/syntax/export-dflt-assign-expr-await-expr-regexp.js | u18 RegExp
-language/module-code/top-level-await/syntax/export-dft-class-decl-await-expr-regexp.js | u18 RegExp
-language/module-code/top-level-await/syntax/export-lex-decl-await-expr-regexp.js | u18 RegExp
-language/module-code/top-level-await/syntax/export-var-await-expr-regexp.js | u18 RegExp
-language/module-code/top-level-await/syntax/for-await-await-expr-regexp.js | u18 RegExp
-language/module-code/top-level-await/syntax/for-await-expr-regexp.js | u18 RegExp
-language/module-code/top-level-await/syntax/for-in-await-expr-regexp.js | u18 RegExp
-language/module-code/top-level-await/syntax/for-of-await-expr-regexp.js | u18 RegExp
-language/module-code/top-level-await/syntax/if-block-await-expr-regexp.js | u18 RegExp
-language/module-code/top-level-await/syntax/if-expr-await-expr-regexp.js | u18 RegExp
-language/module-code/top-level-await/syntax/top-level-await-expr-regexp.js | u18 RegExp
-language/module-code/top-level-await/syntax/try-await-expr-regexp.js | u18 RegExp
-language/module-code/top-level-await/syntax/typeof-await-expr-regexp.js | u18 RegExp
-language/module-code/top-level-await/syntax/void-await-expr-regexp.js | u18 RegExp
-language/module-code/top-level-await/syntax/while-await-expr-regexp.js | u18 RegExp
-language/statementList/block-regexp-literal-flags.js | u18 RegExp
-language/statementList/block-regexp-literal.js | u18 RegExp
-language/statementList/block-with-statment-regexp-literal-flags.js | u18 RegExp
-language/statementList/block-with-statment-regexp-literal.js | u18 RegExp
-language/statementList/class-regexp-literal-flags.js | u18 RegExp
-language/statementList/class-regexp-literal.js | u18 RegExp
-language/statementList/eval-block-regexp-literal-flags.js | u18 RegExp
-language/statementList/eval-block-regexp-literal.js | u18 RegExp
-language/statementList/eval-block-with-statment-regexp-literal-flags.js | u18 RegExp
-language/statementList/eval-block-with-statment-regexp-literal.js | u18 RegExp
-language/statementList/eval-class-regexp-literal-flags.js | u18 RegExp
-language/statementList/eval-class-regexp-literal.js | u18 RegExp
-language/statementList/eval-fn-regexp-literal-flags.js | u18 RegExp
-language/statementList/eval-fn-regexp-literal.js | u18 RegExp
-language/statementList/fn-regexp-literal-flags.js | u18 RegExp
-language/statementList/fn-regexp-literal.js | u18 RegExp
-language/statements/class/subclass-builtins/subclass-RegExp.js | u18 RegExp
-language/statements/class/subclass/builtin-objects/RegExp/ | u18 RegExp
-language/statements/for-of/iterator-next-result-type.js | u18 RegExp
-language/white-space/after-regular-expression-literal-carriage-return.js | u18 RegExp
-language/white-space/after-regular-expression-literal-em-quad.js | u18 RegExp
-language/white-space/after-regular-expression-literal-em-space.js | u18 RegExp
-language/white-space/after-regular-expression-literal-en-quad.js | u18 RegExp
-language/white-space/after-regular-expression-literal-en-space.js | u18 RegExp
-language/white-space/after-regular-expression-literal-figure-space.js | u18 RegExp
-language/white-space/after-regular-expression-literal-form-feed.js | u18 RegExp
-language/white-space/after-regular-expression-literal-four-per-em-space.js | u18 RegExp
-language/white-space/after-regular-expression-literal-hair-space.js | u18 RegExp
-language/white-space/after-regular-expression-literal-ideographic-space.js | u18 RegExp
-language/white-space/after-regular-expression-literal-line-feed.js | u18 RegExp
-language/white-space/after-regular-expression-literal-line-separator.js | u18 RegExp
-language/white-space/after-regular-expression-literal-medium-mathematical-space.js | u18 RegExp
-language/white-space/after-regular-expression-literal-nbsp.js | u18 RegExp
-language/white-space/after-regular-expression-literal-nnbsp.js | u18 RegExp
-language/white-space/after-regular-expression-literal-ogham-space.js | u18 RegExp
-language/white-space/after-regular-expression-literal-paragraph-separator.js | u18 RegExp
-language/white-space/after-regular-expression-literal-punctuation-space.js | u18 RegExp
-language/white-space/after-regular-expression-literal-six-per-em-space.js | u18 RegExp
-language/white-space/after-regular-expression-literal-space.js | u18 RegExp
-language/white-space/after-regular-expression-literal-tab.js | u18 RegExp
-language/white-space/after-regular-expression-literal-thin-space.js | u18 RegExp
-language/white-space/after-regular-expression-literal-three-per-em-space.js | u18 RegExp
-language/white-space/after-regular-expression-literal-vertical-tab.js | u18 RegExp
-language/white-space/after-regular-expression-literal-zwnbsp.js | u18 RegExp
+# needs RegExp or Reflect in the harness
+built-ins/AggregateError/is-a-constructor.js | needs RegExp or Reflect in the harness
+built-ins/AsyncFunction/is-a-constructor.js | needs RegExp or Reflect in the harness
+built-ins/AsyncGeneratorFunction/is-a-constructor.js | needs RegExp or Reflect in the harness
+built-ins/Boolean/is-a-constructor.js | needs RegExp or Reflect in the harness
+built-ins/Boolean/prototype/valueOf/S15.6.4.3_A2_T3.js | needs RegExp or Reflect in the harness
+built-ins/Error/is-a-constructor.js | needs RegExp or Reflect in the harness
+built-ins/Function/is-a-constructor.js | needs RegExp or Reflect in the harness
+built-ins/Function/prototype/toString/bound-function.js | needs RegExp or Reflect in the harness
+built-ins/Function/prototype/toString/built-in-function-object.js | needs RegExp or Reflect in the harness
+built-ins/Function/prototype/toString/line-terminator-normalisation-CR.js | needs RegExp or Reflect in the harness
+built-ins/GeneratorFunction/is-a-constructor.js | needs RegExp or Reflect in the harness
+built-ins/NativeErrors/EvalError/is-a-constructor.js | needs RegExp or Reflect in the harness
+built-ins/NativeErrors/RangeError/is-a-constructor.js | needs RegExp or Reflect in the harness
+built-ins/NativeErrors/ReferenceError/is-a-constructor.js | needs RegExp or Reflect in the harness
+built-ins/NativeErrors/SyntaxError/is-a-constructor.js | needs RegExp or Reflect in the harness
+built-ins/NativeErrors/TypeError/is-a-constructor.js | needs RegExp or Reflect in the harness
+built-ins/NativeErrors/URIError/is-a-constructor.js | needs RegExp or Reflect in the harness
+built-ins/Object/is-a-constructor.js | needs RegExp or Reflect in the harness
+built-ins/Promise/is-a-constructor.js | needs RegExp or Reflect in the harness
