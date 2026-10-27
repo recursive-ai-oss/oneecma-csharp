@@ -29,8 +29,30 @@ internal sealed class Recorder
 
     internal bool TaskStarted;
 
+    /// <summary>
+    /// Log writes that belong after the entry of the host call being recorded (the settlement of a task that was already complete);
+    /// null outside a recorded host call.
+    /// </summary>
+    internal List<Action>? Deferred;
+
+    /// <summary>Runs <paramref name="write"/> now, or after the current host call's entry when one is being recorded.</summary>
+    internal void Emit(Action write)
+    {
+        if (Deferred is not null)
+        {
+            Deferred.Add(write);
+        }
+        else
+        {
+            write();
+        }
+    }
+
     /// <summary>Promises of replayed host tasks that have not settled, by call id.</summary>
     internal readonly Dictionary<long, PromiseObject> PendingTasks = [];
+
+    /// <summary>The host member and the script frames at the call of each pending replayed task, so a failure of the task is reported at the call, as in the recording.</summary>
+    internal readonly Dictionary<long, (string Member, List<StackFrameInfo> Frames)> PendingSites = [];
 
     internal string? Divergence;
 
@@ -155,9 +177,10 @@ internal sealed class Recorder
             r.Tag();
             long id = (long)r.Varint();
             PendingTasks.Remove(id);
+            PendingSites.Remove(id, out (string Member, List<StackFrameInfo> Frames) site);
             try
             {
-                JsValue v = ReadOutcome(r, "task", Agent.Current.Realm, out bool opaque, out _);
+                JsValue v = ReadOutcome(r, site.Member ?? "task", Agent.Current.Realm, out bool opaque, out _, site.Frames);
                 if (opaque)
                 {
                     throw Diverged("a settled task value", LogTag.Settle);
@@ -379,6 +402,13 @@ internal sealed class LoggedHost(IJsHost inner, Recorder rec) : IJsHost
         }
 
         inner.WeakTargetsCollected(ids);
+    }
+
+    public bool WantsWeakCollection()
+    {
+        // The decision itself is not logged: a policy point that says yes is followed by a Weak event (written by the collection
+        // point), and every other event after the end of a job drain is the tag of the next entry call, never a Weak.
+        return rec.Replaying ? rec.Reader!.Peek == LogTag.Weak : inner.WantsWeakCollection();
     }
 
     public IReadOnlyList<long>? ReplayWeakCollection()

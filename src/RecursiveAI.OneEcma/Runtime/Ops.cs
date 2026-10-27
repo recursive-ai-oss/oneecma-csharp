@@ -828,6 +828,12 @@ internal static class Ops
         bool ok = proto.Set(key, value, baseValue);
         if (!ok && strict)
         {
+            // A string's length and index properties exist (read-only); V8 words that differently from creating a new one.
+            if (baseValue.IsString && (key.String == "length" || (key.TryGetIndex(out uint si) && si < baseValue.AsString.Length)))
+            {
+                throw Errors.Type("Cannot assign to read only property '" + KeyText(key) + "' of string '" + ToStr(baseValue) + "'");
+            }
+
             throw Errors.Type("Cannot create property '" + KeyText(key) + "' on " + baseValue.TypeOf + " '" + ToStr(baseValue) + "'");
         }
     }
@@ -850,7 +856,7 @@ internal static class Ops
                     return "Cannot set property " + KeyText(key) + " of " + ObjectLabel(o) + " which has only a getter";
                 }
 
-                return "Cannot assign to read only property '" + KeyText(key) + "' of object '" + ObjectLabel(o) + "'";
+                return ReadOnlyMessage(o, key);
             }
 
             p = p.GetPrototypeOf();
@@ -859,37 +865,99 @@ internal static class Ops
         return "Cannot add property " + KeyText(key) + ", object is not extensible";
     }
 
+    /// <summary>V8's message for a store to a read-only data property: a function is shown by its source text, any other object by its label.</summary>
+    internal static string ReadOnlyMessage(JsObject o, PropertyKey key) =>
+        "Cannot assign to read only property '" + KeyText(key) + "' of " + (o.IsCallable && o is not ProxyObject ? "function '" : "object '") + ObjectLabel(o) + "'";
+
+    /// <summary>
+    /// How V8 names an object in "Cannot delete property 'x' of ..." and the other store failures. A function shows its source text;
+    /// an Error its "Name: message" header; arrays, wrappers, dates, regular expressions and typed arrays "[object Class]";
+    /// anything else "#&lt;Constructor&gt;", or "[object Object]" when no constructor function is reachable (null prototype).
+    /// </summary>
     internal static string ObjectLabel(JsObject o)
     {
-        if (o is JsArray)
+        if (o is ProxyObject)
         {
-            return "[object Array]";
+            return "#<Object>";
         }
 
         if (o.IsCallable)
         {
-            return "function";
+            return FunctionText(o);
         }
 
-        return "#<" + ConstructorName(o) + ">";
+        if (o is JsError)
+        {
+            return Errors.Header(o);
+        }
+
+        if (o is JsArray or JsStringObject or JsPrimitiveObject or JsTypedArray || o.ClassName is "Date" or "RegExp")
+        {
+            return "[object " + o.ClassName + "]";
+        }
+
+        string name = ConstructorName(o);
+        return name.Length == 0 ? "[object Object]" : "#<" + name + ">";
     }
 
+    /// <summary>The text Function.prototype.toString gives (20.2.3.5): the source of a script function, otherwise a NativeFunction form.</summary>
+    internal static string FunctionText(JsObject f)
+    {
+        if (f is ScriptFunction sf)
+        {
+            return sf.Code.SourceText;
+        }
+
+        // A bound function, a Proxy and the revoker have no name that fits the NativeFunction grammar (20.2.3.5).
+        if (f is BoundFunction or ProxyObject)
+        {
+            return "function () { [native code] }";
+        }
+
+        string name = f is NativeFunction nf ? nf.InitialName : f.GetOwnProperty("name", out PropertyDescriptor d) && d.Value.IsString ? d.Value.AsString : string.Empty;
+        return "function " + name + "() { [native code] }";
+    }
+
+    /// <summary>The name of the constructor function an object reaches through "constructor", read without running script; empty when there is none.</summary>
     internal static string ConstructorName(JsObject o)
     {
-        try
+        JsValue c = default;
+        for (JsObject? q = o; q is not null && q is not ProxyObject; q = q.Proto)
         {
-            JsValue c = o.Get("constructor");
-            if (c.Ref is JsObject co && co.GetOwnProperty("name", out PropertyDescriptor d) && d.Value.IsString && d.Value.AsString.Length > 0)
+            if (q.GetOwnProperty("constructor", out PropertyDescriptor cd))
+            {
+                c = cd.IsAccessor ? default : cd.Value;
+                break;
+            }
+        }
+
+        if (c.Ref is JsObject co && co.IsCallable)
+        {
+            if (co is ScriptFunction sf && sf.Code.Name.Length > 0)
+            {
+                return sf.Code.Name;
+            }
+
+            if (co.GetOwnProperty("name", out PropertyDescriptor d) && d.Value.IsString)
             {
                 return d.Value.AsString;
             }
         }
-        catch (JsException)
-        {
-        }
 
-        return "Object";
+        return string.Empty;
     }
+
+    /// <summary>How V8 names a value in messages from built-ins and the iteration protocol: the type, then the value for primitives.</summary>
+    internal static string KindText(JsValue v) => v.Ref switch
+    {
+        null => "undefined",
+        JsSymbol => "symbol",
+        BigInteger => "bigint",
+        JsObject o => o.IsCallable ? "function" : "object",
+        _ when v.IsNull => "object null",
+        _ when v.IsString => "string \"" + v.AsString + "\"",
+        _ => v.TypeOf + " " + DisplayValue(v),
+    };
 
     /// <summary>GetMethod (7.3.11).</summary>
     internal static JsValue GetMethod(JsValue v, PropertyKey key)
@@ -902,7 +970,7 @@ internal static class Ops
 
         if (!IsCallable(f))
         {
-            throw Errors.Type(DisplayValue(f) + " is not a function");
+            throw Errors.Type(KindText(f) + " is not a function");
         }
 
         return f;
@@ -1153,10 +1221,11 @@ internal static class Ops
             return GetIteratorFromMethod(obj, am);
         }
 
-        JsValue m = GetMethod(obj, new PropertyKey(WellKnown.Iterator));
-        if (m.IsUndefined)
+        // V8 words every failure to find an iterator here the same way, including a Symbol.iterator that is not callable.
+        JsValue m = obj.IsNullish ? default : GetV(obj, new PropertyKey(WellKnown.Iterator));
+        if (!IsCallable(m))
         {
-            throw Errors.Type(DisplayValue(obj) + " is not iterable");
+            throw Errors.Type(KindText(obj) + " is not iterable (cannot read property Symbol(Symbol.iterator))");
         }
 
         return GetIteratorFromMethod(obj, m);
@@ -1261,7 +1330,7 @@ internal static class Ops
                     return "[object Array]";
                 }
 
-                return "#<" + ConstructorName(o) + ">";
+                return ConstructorName(o) is { Length: > 0 } cn ? "#<" + cn + ">" : "#<Object>";
             default:
                 return v.IsNumber ? NumberToStr(v.Num) : v.IsNull ? "null" : v.IsTrue ? "true" : "false";
         }

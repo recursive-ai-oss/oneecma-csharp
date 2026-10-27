@@ -9,7 +9,7 @@ namespace RecursiveAI.OneEcma.Cli;
 internal static class Program
 {
     private const string UsageText =
-        "usage: oneecma run <file>\n" +
+        "usage: oneecma run [--module] [--locals] <file>\n" +
         "       oneecma check [--module] [--format text|json] [--source-map <map>] [--repair [--out <path>]] <file>\n" +
         "       oneecma repl      (multi-line input, top-level await, .exit)\n";
 
@@ -157,8 +157,37 @@ internal static class Program
 
     private static int Run(ScriptEngine engine, string[] args)
     {
-        bool module = args.Length == 3 && args[1] == "--module";
-        string path = args[^1];
+        bool module = false;
+        bool locals = false;
+        string? path = null;
+        for (int i = 1; i < args.Length; i++)
+        {
+            switch (args[i])
+            {
+                case "--module":
+                    module = true;
+                    break;
+                case "--locals":
+                    locals = true;
+                    break;
+                default:
+                    if (path is not null || args[i].StartsWith("--", StringComparison.Ordinal))
+                    {
+                        return Usage();
+                    }
+
+                    path = args[i];
+                    break;
+            }
+        }
+
+        if (path is null)
+        {
+            return Usage();
+        }
+
+        bool ansi = !Console.IsErrorRedirected && Environment.GetEnvironmentVariable("NO_COLOR") is null;
+        var render = new RenderOptions { Ansi = ansi, ShowLocals = locals };
         engine.DefineGlobalFunction("print", 1, (_, a) =>
         {
             var parts = new string[a.Length];
@@ -186,12 +215,12 @@ internal static class Program
         }
         catch (JsException e)
         {
-            Console.Error.Write(e.Report is { } r ? r.ToString() : e.Message);
+            Console.Error.Write(e.Report is { } r ? DiagnosticRenderer.Render(r, render) : e.Message);
             return 1;
         }
         catch (JsLimitException e)
         {
-            Console.Error.Write(e.Report is { } r ? r.ToString() : e.Message);
+            Console.Error.Write(e.Report is { } r ? DiagnosticRenderer.Render(r, render) : e.Message);
             return 1;
         }
         catch (InvalidOperationException e)
@@ -226,7 +255,7 @@ internal static class Program
         return 2;
     }
 
-    private static int Main(string[] args)
+    internal static int Main(string[] args)
     {
         if (args.Length == 0 || args[0] is "-h" or "--help")
         {
@@ -245,7 +274,7 @@ internal static class Program
         {
             switch (args[0])
             {
-                case "run" when args.Length is 2 or 3:
+                case "run" when args.Length >= 2:
                     return Run(engine, args);
                 case "check" when args.Length >= 2:
                     return Check(engine, args);

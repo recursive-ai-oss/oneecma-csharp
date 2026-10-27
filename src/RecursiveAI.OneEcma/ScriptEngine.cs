@@ -146,6 +146,53 @@ public sealed partial class ScriptEngine
         }, cancellationToken, realm);
     }
 
+    /// <summary>
+    /// Runs <paramref name="source"/> as the body of an anonymous async function (ECMA-262 <c>AsyncFunctionBody</c>, as <c>new AsyncFunction(body)</c> parses it)
+    /// and returns the promise it completes, after draining the job queue. <c>await</c> and <c>return</c> work at the top level, the value
+    /// of <c>return</c> fulfils the promise, and a thrown error rejects it. Line and column numbers in reports and in <c>err.stack</c> are those of
+    /// <paramref name="source"/> itself, with no wrapper and no source map.
+    /// </summary>
+    /// <remarks>
+    /// Every declaration (<c>let</c>, <c>const</c>, <c>var</c>, <c>function</c>, <c>class</c>) is local to the call, so two calls never collide and nothing is added
+    /// to the global object. Free names resolve against the global object, <c>this</c> is the global object, and the body is sloppy unless it begins with
+    /// <c>"use strict"</c>. The call is recorded and replayed like <see cref="Evaluate"/>, so an uncaught rejection is explained the same way.
+    /// With <see cref="ScriptEngineOptions.ThrowOnUnhandledRejection"/> (the default), a rejection nobody handled by the time the queue is empty is
+    /// thrown as a <see cref="JsException"/> instead of being returned. The returned promise is still pending when the body waits on a host task that has
+    /// not finished; the host settles it by calling <see cref="RunJobs"/> as host work completes. Use <see cref="CheckAsyncBody"/> to find every syntax error without running.
+    /// </remarks>
+    /// <param name="source">The body text.</param>
+    /// <param name="fileName">The name reports and <c>err.stack</c> use for the code.</param>
+    /// <param name="cancellationToken">Cancels the run; the call then throws <see cref="OperationCanceledException"/>.</param>
+    /// <returns>The promise for the body's completion (fulfilled with the <c>return</c> value, or undefined).</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="fileName"/> is <see langword="null"/>.</exception>
+    /// <exception cref="JsException">The body has a syntax error, or threw or rejected without being handled; <see cref="JsException.Report"/> explains it.</exception>
+    /// <exception cref="JsLimitException">A resource limit ended the run.</exception>
+    public JsValue EvaluateAsyncBody(string source, string fileName = "<anonymous>", CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(fileName);
+        return Entry(LogTag.AsyncBody, source, fileName, () => Guard(() =>
+        {
+            ParseResult pr = JsParser.Parse(source, new ParseOptions { Goal = ParseGoal.AsyncFunctionBody, FileName = fileName });
+            if (pr.HasErrors)
+            {
+                throw SyntaxFailure(pr.Diagnostics[0]);
+            }
+
+            FunctionCode code = Compiler.CompileAsyncBody(pr);
+            var frame = new Frame(code, _realm) { Env = null, This = JsValue.FromObject(_realm.Global) };
+            JsValue fn = Vm.RunEntry(_agent, frame);
+            if (fn.Ref is ScriptFunction sf)
+            {
+                sf.Code.IsBody = true;
+            }
+
+            JsValue promise = Ops.Call(fn, JsValue.FromObject(_realm.Global), []);
+            DrainJobs();
+            return promise;
+        }, cancellationToken));
+    }
+
     /// <summary>Loads, links and evaluates the module the host resolves for <paramref name="specifier"/>, then drains the job queue.</summary>
     /// <param name="specifier">The module specifier, resolved through <see cref="IJsHost.ResolveModule"/> with no referrer.</param>
     /// <param name="cancellationToken">Cancels the run.</param>
@@ -378,5 +425,40 @@ public sealed partial class ScriptEngine
     {
         ArgumentNullException.ThrowIfNull(source);
         return SyntaxRepair.Repair(source, options, repair, cancellationToken);
+    }
+
+    /// <summary>
+    /// Parses <paramref name="source"/> as the body of an async function, as <see cref="EvaluateAsyncBody"/> would, without running it, and returns
+    /// every syntax and early error (empty when the body is valid). Positions are those of <paramref name="source"/>.
+    /// </summary>
+    /// <param name="source">The body text.</param>
+    /// <param name="fileName">The name reports use.</param>
+    /// <param name="cancellationToken">Cancels the parse.</param>
+    /// <returns>The diagnostics, in source order of discovery.</returns>
+    /// <exception cref="ArgumentNullException">An argument is <see langword="null"/>.</exception>
+    /// <exception cref="OperationCanceledException">Cancelled.</exception>
+    public static IReadOnlyList<Diagnostic> CheckAsyncBody(string source, string fileName = "<anonymous>", CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(fileName);
+        return JsParser.Parse(source, new ParseOptions { Goal = ParseGoal.AsyncFunctionBody, FileName = fileName }, cancellationToken).Diagnostics;
+    }
+
+    /// <summary>
+    /// Like <see cref="CheckAsyncBody"/>, but when the body does not parse it tries the syntax-only repairs of the repair table (see
+    /// <see cref="CheckAndRepair"/>). The repaired source is the one to pass to <see cref="EvaluateAsyncBody"/>.
+    /// </summary>
+    /// <param name="source">The body text.</param>
+    /// <param name="fileName">The name reports use.</param>
+    /// <param name="repair">Repair limits; <see langword="null"/> means the defaults.</param>
+    /// <param name="cancellationToken">Cancels the repair.</param>
+    /// <returns>The repaired source, the repairs applied and the diagnostics that remain.</returns>
+    /// <exception cref="ArgumentNullException">An argument is <see langword="null"/>.</exception>
+    /// <exception cref="OperationCanceledException">Cancelled.</exception>
+    public static RepairResult CheckAndRepairAsyncBody(string source, string fileName = "<anonymous>", RepairOptions? repair = null, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(fileName);
+        return SyntaxRepair.Repair(source, new ParseOptions { Goal = ParseGoal.AsyncFunctionBody, FileName = fileName }, repair, cancellationToken);
     }
 }

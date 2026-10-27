@@ -1,0 +1,8 @@
+error[ReferenceError]: conosle is not defined
+ --> case.js:2:1
+  |
+2 | conosle.log(items.length);
+  | ^^^^^^^ `conosle` is not declared in this scope
+  |
+  = help: did you mean `console`? (Object)
+  = stack: <top-level> (case.js:2)

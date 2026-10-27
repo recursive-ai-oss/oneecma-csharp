@@ -182,6 +182,32 @@ catch (JsException e) when (e.InnerException is InvalidOperationException)
 {
 }
 
+// An async function body: top-level await and return with positions from the text itself, then a rejection after the awaited host task.
+JsValue bodyPromise = hostEngine.EvaluateAsyncBody(
+    "const planned = scheduler.plan({ name: 'b', cost: 4, mode: 'slow' });\nconst n = await scheduler.runAsync(job => job.cost, planned);\nreturn n + '|' + planned.cost;", "body.js");
+string bodyText = hostEngine.ToDisplayString(await hostEngine.AwaitAsync(bodyPromise));
+if (bodyText.Split('|') is not [var first, var second] || !int.TryParse(first, out _) || !int.TryParse(second, out _))
+{
+    Console.Error.WriteLine("smoke: async body gave " + bodyText);
+    return 1;
+}
+
+try
+{
+    JsValue failing = hostEngine.EvaluateAsyncBody("const n = await scheduler.runAsync(job => job.cost, scheduler.plan({ name: 'b', cost: 4 }));\nreturn n.items.length;", "body.js");
+    await hostEngine.AwaitAsync(failing);
+    Console.Error.WriteLine("smoke: expected the async body to fail");
+    return 1;
+}
+catch (JsException e) when (e.Report is { Kind: "TypeError" } r && r.Position.Line == 2 && r.ToString().Contains("explanation unavailable", StringComparison.Ordinal))
+{
+}
+catch (JsException e)
+{
+    Console.Error.WriteLine("smoke: unexpected report for the failing async body\n" + e.Report);
+    return 1;
+}
+
 // An explained runtime report: the traced replay says where the value came from and what the object holds.
 try
 {

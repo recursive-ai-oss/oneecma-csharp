@@ -8,14 +8,20 @@ internal sealed class HostFixture
 {
     internal HostFixture()
     {
-        Engine = new ScriptEngine(new ScriptEngineOptions { Limits = new EngineLimits { Fuel = 50_000_000, MaxAllocatedBytes = 128L << 20 } });
+        Engine = new ScriptEngine(new ScriptEngineOptions { Limits = new EngineLimits { Fuel = 50_000_000, MaxAllocatedBytes = 128L << 20 }, Configure = Setup });
         Realm = Engine.MainRealm;
-        JsExports.InstallAll(Realm);
-        Api = new OrderApi();
-        Realm.DefineData(Realm.Global, "api", Realm.Wrap(Api));
-        Engine.DefineGlobalFunction("print", 1, (_, a) =>
+    }
+
+    /// <summary>Builds the host world; it is the engine's Configure step, so a replay of a failed run rebuilds it and can explain the failure.</summary>
+    private void Setup(ScriptEngine engine)
+    {
+        JsRealm realm = engine.MainRealm;
+        JsExports.InstallAll(realm);
+        Api ??= new OrderApi();
+        realm.DefineData(realm.Global, "api", realm.Wrap(Api));
+        engine.DefineGlobalFunction("print", 1, (_, a) =>
         {
-            Output.Add(Engine.ToDisplayString(a.Length > 0 ? a[0] : default));
+            Output.Add(engine.ToDisplayString(a.Length > 0 ? a[0] : default));
             return JsValue.Undefined;
         });
     }
@@ -24,7 +30,7 @@ internal sealed class HostFixture
 
     internal JsRealm Realm { get; }
 
-    internal OrderApi Api { get; }
+    internal OrderApi Api { get; private set; } = null!;
 
     internal List<string> Output { get; } = [];
 

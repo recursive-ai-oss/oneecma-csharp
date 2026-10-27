@@ -586,3 +586,662 @@ e.name = "";
 throw e;
 //// misc-error-object-message
 throw new Error({ a: 1 });
+//// iter-for-of-number
+for (const x of 5) {}
+//// iter-for-of-object
+for (const x of {}) {}
+//// iter-for-of-var
+var o = { a: 1 };
+for (const x of o) {}
+//// iter-for-of-undefined
+for (const x of undefined) {}
+//// iter-for-of-null
+for (const x of null) {}
+//// iter-for-of-bool
+for (const x of true) {}
+//// iter-for-of-fn
+for (const x of function f() {}) {}
+//// iter-spread-empty-object
+var r = [...{}];
+//// iter-spread-number
+var n = 7;
+var r = [...n];
+//// iter-spread-call-object
+var o = {};
+Math.max(...o);
+//// iter-spread-call-undefined
+Math.max(...undefined);
+//// iter-new-map-number
+new Map(1);
+//// iter-new-set-number
+new Set(1);
+//// iter-new-set-object
+new Set({});
+//// iter-new-weakmap-bool
+new WeakMap(true);
+//// iter-map-entry-number
+new Map([1]);
+//// iter-destructure-object
+const [a] = {};
+//// iter-destructure-number
+const [a] = 5;
+//// iter-destructure-null
+const [a] = null;
+//// iter-destructure-undefined
+const [a] = undefined;
+//// iter-destructure-var
+var src = { x: 1 };
+var [a, b] = src;
+//// iter-destructure-param
+function f([a]) {}
+f(3);
+//// iter-destructure-assign
+var a;
+[a] = 9;
+//// iter-array-from-iter-not-callable
+Array.from({ [Symbol.iterator]: 1 });
+//// iter-symbol-iterator-number
+var o = { [Symbol.iterator]: 1 };
+for (const x of o) {}
+//// iter-symbol-iterator-spread
+var o = { [Symbol.iterator]: 1 };
+var r = [...o];
+//// iter-symbol-iterator-set
+new Set({ [Symbol.iterator]: 1 });
+//// iter-symbol-iterator-destructure
+var o = { [Symbol.iterator]: 1 };
+var [a] = o;
+//// iter-symbol-iterator-returns-number
+var o = { [Symbol.iterator]() { return 1; } };
+for (const x of o) {}
+//// iter-next-not-object
+var o = { [Symbol.iterator]() { return { next() { return 1; } }; } };
+for (const x of o) {}
+//// iter-yield-star-number
+function* g() { yield* 5; }
+g().next();
+//// iter-object-from-entries
+Object.fromEntries(5);
+//// iter-object-from-entries-entry
+Object.fromEntries([1]);
+//// iter-promise-all-reject
+Promise.all(5).catch(e => { globalThis.__e = e; });
+//// iter-array-from-async
+Array.fromAsync(5).catch(e => { globalThis.__e = e; });
+//// iter-toprimitive-number
+var o = { [Symbol.toPrimitive]: 1 };
+o + 1;
+//// iter-toprimitive-returns-object
+var o = { [Symbol.toPrimitive]() { return {}; } };
+o + 1;
+//// iter-toprimitive-string
+var o = { [Symbol.toPrimitive]: "x" };
+`${o}`;
+//// iter-valueof-tostring-objects
+var o = { valueOf() { return {}; }, toString() { return {}; } };
+o + 1;
+//// iter-then-getter-throws
+var p = Promise.resolve({ get then() { throw new RangeError("g"); } });
+p.catch(e => { globalThis.__e = e; });
+//// iter-hasinstance-number
+var C = { [Symbol.hasInstance]: 1 };
+1 instanceof C;
+//// iter-instanceof-nonobject
+1 instanceof 5;
+//// iter-instanceof-object-nocall
+1 instanceof {};
+//// iter-species-ctor-number
+var a = [1];
+a.constructor = { [Symbol.species]: 1 };
+a.map(x => x);
+//// iter-tojson-string
+var o = { toJSON: 1 };
+globalThis.__e = JSON.stringify(o);
+//// iter-async-iterator-number
+(async () => { for await (const x of { [Symbol.asyncIterator]: 1 }) {} })().catch(e => { globalThis.__e = e; });
+//// iter-async-for-await-number
+(async () => { for await (const x of 5) {} })().catch(e => { globalThis.__e = e; });
+//// iter-regexp-exec-number
+var r = /a/;
+r.exec = 1;
+r.test("a");
+//// iter-proxy-handler-trap-number
+var p = new Proxy({}, { get: 1 });
+p.x;
+//// iter-reflect-apply-nonfn
+Reflect.apply(1, null, []);
+//// iter-label-delete-frozen-array
+"use strict";
+var a = Object.freeze([1, 2]);
+delete a[0];
+//// iter-label-delete-frozen-object
+"use strict";
+var o = Object.freeze({ x: 1 });
+delete o.x;
+//// iter-label-delete-fn
+"use strict";
+function f() {}
+delete f.prototype;
+//// iter-label-delete-class-instance
+"use strict";
+class Foo {}
+var o = new Foo();
+Object.defineProperty(o, "x", { value: 1 });
+delete o.x;
+//// iter-label-delete-null-proto
+"use strict";
+var o = Object.create(null);
+Object.defineProperty(o, "x", { value: 1 });
+delete o.x;
+//// iter-label-delete-string-index
+"use strict";
+delete "abc"[0];
+//// iter-label-delete-array-length
+"use strict";
+delete [].length;
+//// iter-label-assign-frozen-array
+"use strict";
+var a = Object.freeze([1]);
+a[0] = 2;
+//// iter-label-assign-frozen-array-push
+"use strict";
+var a = Object.freeze([1]);
+a.push(2);
+//// iter-label-assign-frozen-object
+"use strict";
+var o = Object.freeze({ x: 1 });
+o.x = 2;
+//// iter-label-assign-class-instance
+"use strict";
+class Foo {}
+var o = new Foo();
+Object.defineProperty(o, "x", { value: 1 });
+o.x = 2;
+//// iter-label-assign-fn
+"use strict";
+function f() {}
+f.name = "g";
+//// iter-label-assign-null-proto
+"use strict";
+var o = Object.create(null);
+Object.defineProperty(o, "x", { value: 1 });
+o.x = 2;
+//// iter-label-assign-string-length
+"use strict";
+"abc".length = 1;
+//// iter-label-assign-string-index
+"use strict";
+var s = "abc";
+s[0] = "z";
+//// iter-label-assign-string-wrapper
+"use strict";
+var s = new String("abc");
+s[0] = "z";
+//// iter-label-assign-number-prop
+"use strict";
+(5).x = 1;
+//// iter-label-assign-boolean-wrapper
+"use strict";
+var b = Object(true);
+Object.defineProperty(b, "x", { value: 1 });
+b.x = 2;
+//// iter-label-getter-only
+"use strict";
+var o = { get x() { return 1; } };
+o.x = 2;
+//// iter-label-getter-only-array
+"use strict";
+var a = [];
+Object.defineProperty(a, "x", { get() { return 1; } });
+a.x = 2;
+//// iter-label-getter-only-class
+"use strict";
+class Foo { get x() { return 1; } }
+new Foo().x = 2;
+//// iter-label-getter-only-fn
+"use strict";
+function f() {}
+Object.defineProperty(f, "x", { get() { return 1; } });
+f.x = 2;
+//// iter-label-getter-only-null-proto
+"use strict";
+var o = Object.create(null);
+Object.defineProperty(o, "x", { get() { return 1; } });
+o.x = 2;
+//// iter-label-getter-only-static
+"use strict";
+class Foo { static get x() { return 1; } }
+Foo.x = 2;
+//// iter-label-nonextensible
+"use strict";
+var o = Object.preventExtensions({});
+o.y = 1;
+//// iter-label-nonextensible-array
+"use strict";
+var a = Object.preventExtensions([]);
+a[0] = 1;
+//// iter-label-define-nonextensible
+Object.defineProperty(Object.preventExtensions({}), "x", { value: 1 });
+//// iter-label-define-frozen
+Object.defineProperty(Object.freeze({x:1}), "x", { value: 2 });
+//// iter-label-array-length-frozen
+"use strict";
+var a = Object.freeze([1]);
+a.length = 0;
+//// iter-label-pop-frozen
+Object.freeze([1]).pop();
+//// iter-label-shift-frozen
+Object.freeze([1, 2]).shift();
+//// iter-label-splice-frozen
+Object.freeze([1, 2]).splice(0, 1);
+//// iter-label-sort-frozen
+Object.freeze([2, 1]).sort();
+//// iter-label-reverse-frozen
+Object.freeze([2, 1]).reverse();
+//// iter-label-fill-frozen
+Object.freeze([2, 1]).fill(0);
+//// iter-label-unshift-frozen
+Object.freeze([2, 1]).unshift(0);
+//// iter-label-copywithin-frozen
+Object.freeze([2, 1]).copyWithin(0, 1);
+//// iter-label-object-assign-frozen
+Object.assign(Object.freeze({ a: 1 }), { a: 2 });
+//// iter-label-typedarray
+"use strict";
+var t = new Uint8Array(2);
+Object.freeze(new Uint8Array(0));
+Object.defineProperty(t, "x", { value: 1 });
+t.x = 3;
+//// iter-label-map
+"use strict";
+var m = new Map();
+Object.defineProperty(m, "x", { value: 1 });
+m.x = 3;
+//// iter-label-date
+"use strict";
+var m = new Date(0);
+Object.defineProperty(m, "x", { value: 1 });
+m.x = 3;
+//// iter-label-error
+"use strict";
+var m = new TypeError("q");
+Object.defineProperty(m, "x", { value: 1 });
+m.x = 3;
+//// iter-label-regexp
+"use strict";
+var m = /a/;
+Object.defineProperty(m, "x", { value: 1 });
+m.x = 3;
+//// iter-label-arrow
+"use strict";
+var m = () => 1;
+Object.defineProperty(m, "x", { value: 1 });
+m.x = 3;
+//// iter-label-class-ctor
+"use strict";
+class K {}
+K.prototype = 1;
+//// iter-label-anon-class-instance
+"use strict";
+var K = class {};
+var m = new K();
+Object.defineProperty(m, "x", { value: 1 });
+m.x = 3;
+//// iter-label-object-create-proto-chain
+"use strict";
+var base = Object.freeze({ x: 1 });
+var o = Object.create(base);
+o.x = 2;
+//// iter-label-symbol-key
+"use strict";
+var o = Object.freeze({ [Symbol("s")]: 1 });
+var k = Object.getOwnPropertySymbols(o)[0];
+o[k] = 2;
+//// iter-label-promise
+"use strict";
+var m = Promise.resolve(1);
+Object.defineProperty(m, "x", { value: 1 });
+m.x = 3;
+//// iter-label-args
+"use strict";
+function f() { Object.defineProperty(arguments, "x", { value: 1 }); arguments.x = 3; }
+f();
+//// iter-label-ctor-name-getter
+"use strict";
+class Foo { static get name() { return "Zed"; } }
+var o = new Foo();
+Object.defineProperty(o, "x", { value: 1 });
+o.x = 3;
+//// iter-label-ctor-overwritten
+"use strict";
+var o = { constructor: 5 };
+Object.defineProperty(o, "x", { value: 1 });
+o.x = 3;
+//// iter-label-tostringtag
+"use strict";
+var o = { [Symbol.toStringTag]: "Tagged" };
+Object.defineProperty(o, "x", { value: 1 });
+o.x = 3;
+//// fnstr-proxy-function
+globalThis.__e = Function.prototype.toString.call(new Proxy(function foo() {}, {}));
+//// fnstr-proxy-class
+globalThis.__e = Function.prototype.toString.call(new Proxy(class A {}, {}));
+//// fnstr-proxy-arrow-string
+globalThis.__e = String(new Proxy(() => 1, {}));
+//// fnstr-proxy-nested
+globalThis.__e = Function.prototype.toString.call(new Proxy(new Proxy(function g() {}, {}), {}));
+//// fnstr-proxy-revoked-function
+const r = Proxy.revocable(function r() {}, {});
+r.revoke();
+globalThis.__e = Function.prototype.toString.call(r.proxy);
+//// fnstr-proxy-object
+Function.prototype.toString.call(new Proxy({}, {}));
+//// fnstr-proxy-revoked-object
+const r = Proxy.revocable({}, {});
+r.revoke();
+Function.prototype.toString.call(r.proxy);
+//// fnstr-proxy-object-with-apply
+Function.prototype.toString.call(new Proxy({}, { apply() {} }));
+//// fnstr-bound
+function foo(a, b) { return 1; }
+globalThis.__e = Function.prototype.toString.call(foo.bind(null));
+//// fnstr-bound-bound-native
+globalThis.__e = Function.prototype.toString.call(Math.max.bind(null).bind(null));
+//// fnstr-bound-proxy
+globalThis.__e = Function.prototype.toString.call(new Proxy(function f() {}, {}).bind(null));
+//// fnstr-native
+globalThis.__e = Function.prototype.toString.call(Math.max);
+//// fnstr-native-getter
+globalThis.__e = Function.prototype.toString.call(Object.getOwnPropertyDescriptor(Map.prototype, "size").get);
+//// fnstr-native-symbol-named
+globalThis.__e = Function.prototype.toString.call(RegExp.prototype[Symbol.replace]);
+//// fnstr-native-species-getter
+globalThis.__e = Function.prototype.toString.call(Object.getOwnPropertyDescriptor(Map, Symbol.species).get);
+//// fnstr-native-has-instance
+globalThis.__e = Function.prototype.toString.call(Function.prototype[Symbol.hasInstance]);
+//// fnstr-native-renamed
+const f = Math.max;
+Object.defineProperty(f, "name", { value: "zz" });
+globalThis.__e = Function.prototype.toString.call(f);
+//// fnstr-native-values-alias
+globalThis.__e = Function.prototype.toString.call(Array.prototype[Symbol.iterator]);
+//// fnstr-new-function
+globalThis.__e = Function.prototype.toString.call(new Function("a", "return a"));
+//// fnstr-async-method-getter
+globalThis.__e = [Function.prototype.toString.call(async function () {}), Function.prototype.toString.call({ m() {} }.m), Function.prototype.toString.call(Object.getOwnPropertyDescriptor({ get x() { return 1; } }, "x").get)].join("|");
+//// fnstr-not-function
+Function.prototype.toString.call({});
+//// fnstr-revoker
+globalThis.__e = Function.prototype.toString.call(Proxy.revocable({}, {}).revoke);
+//// order-obj-computed-key-then-get
+const log = [];
+const src = { get a() { log.push("get a"); return undefined; }, get b() { log.push("get b"); return 2; } };
+const k = (n) => { log.push("key " + n); return n; };
+const { [k("a")]: x = (log.push("default x"), 1), [k("b")]: y = (log.push("default y"), 9) } = src;
+globalThis.__e = log.join(",") + "|" + x + y;
+//// order-obj-assign-target-before-get
+const log = [];
+const src = { get a() { log.push("get a"); return 1; } };
+const target = { set t(v) { log.push("set t " + v); } };
+const t = () => { log.push("target"); return target; };
+const k = () => { log.push("key"); return "a"; };
+({ [k()]: t().t } = src);
+globalThis.__e = log.join(",");
+//// order-obj-assign-target-two
+const log = [];
+const src = { get a() { log.push("get a"); return 1; }, get b() { log.push("get b"); return 2; } };
+const tgt = (n) => { log.push("tgt " + n); return { set v(x) { log.push("set " + n + "=" + x); } }; };
+({ a: tgt(1).v, b: tgt(2).v } = src);
+globalThis.__e = log.join(",");
+//// order-obj-assign-default-after-target
+const log = [];
+const src = { get a() { log.push("get a"); return undefined; } };
+const tgt = () => { log.push("tgt"); return { set v(x) { log.push("set " + x); } }; };
+({ a: tgt().v = (log.push("default"), 5) } = src);
+globalThis.__e = log.join(",");
+//// order-obj-rest-key-order
+const log = [];
+const src = new Proxy({ a: 1, b: 2, c: 3 }, {
+  ownKeys(t) { log.push("ownKeys"); return Reflect.ownKeys(t); },
+  getOwnPropertyDescriptor(t, k) { log.push("gopd " + String(k)); return Reflect.getOwnPropertyDescriptor(t, k); },
+  get(t, k) { log.push("get " + String(k)); return t[k]; },
+});
+const { b, ...rest } = src;
+globalThis.__e = log.join(",") + "|" + Object.keys(rest);
+//// order-obj-rest-target-before-ownkeys
+const log = [];
+const src = new Proxy({ a: 1, b: 2 }, {
+  ownKeys(t) { log.push("ownKeys"); return Reflect.ownKeys(t); },
+  getOwnPropertyDescriptor(t, k) { log.push("gopd " + String(k)); return Reflect.getOwnPropertyDescriptor(t, k); },
+  get(t, k) { log.push("get " + String(k)); return t[k]; },
+});
+const tgt = () => { log.push("tgt"); return {}; };
+({ a: tgt().x, ...tgt().rest } = src);
+globalThis.__e = log.join(",");
+//// order-obj-computed-key-tostring
+const log = [];
+const key = { toString() { log.push("toString"); return "a"; } };
+const src = { get a() { log.push("get a"); return 1; } };
+const { [key]: v } = src;
+globalThis.__e = log.join(",") + v;
+//// order-obj-null-source-before-key
+const log = [];
+try { const { [(log.push("key"), "a")]: v } = null; } catch (e) { log.push(e.constructor.name); }
+globalThis.__e = log.join(",");
+//// order-obj-params-default-order
+const log = [];
+function f({ a = log.push("da"), b = log.push("db") } = (log.push("dflt"), {}), c = log.push("dc")) { log.push("body"); }
+f();
+globalThis.__e = log.join(",");
+//// order-arr-assign-target-before-step
+const log = [];
+const it = { [Symbol.iterator]() { return { next() { log.push("next"); return { done: false, value: undefined }; }, return() { log.push("return"); return {}; } }; } };
+const tgt = (n) => { log.push("tgt " + n); return { set v(x) { log.push("set " + n); } }; };
+[tgt(1).v, tgt(2).v] = it;
+globalThis.__e = log.join(",");
+//// order-arr-default-after-step
+const log = [];
+const it = { [Symbol.iterator]() { return { next() { log.push("next"); return { done: false, value: undefined }; }, return() { log.push("return"); return {}; } }; } };
+const [a = (log.push("d1"), 1), b = (log.push("d2"), 2)] = it;
+globalThis.__e = log.join(",");
+//// order-arr-close-on-default-throw
+const log = [];
+const it = { [Symbol.iterator]() { return { next() { log.push("next"); return { done: false, value: undefined }; }, return() { log.push("return"); return {}; } }; } };
+try { const [a = (() => { throw new Error("boom"); })()] = it; } catch (e) { log.push(e.message); }
+globalThis.__e = log.join(",");
+//// order-arr-close-on-target-throw
+const log = [];
+const it = { [Symbol.iterator]() { return { next() { log.push("next"); return { done: false, value: 1 }; }, return() { log.push("return"); return {}; } }; } };
+const tgt = () => { log.push("tgt"); throw new Error("tt"); };
+try { [tgt().v] = it; } catch (e) { log.push(e.message); }
+globalThis.__e = log.join(",");
+//// order-arr-no-close-when-next-throws
+const log = [];
+const it = { [Symbol.iterator]() { return { next() { log.push("next"); throw new Error("nx"); }, return() { log.push("return"); return {}; } }; } };
+try { const [a] = it; } catch (e) { log.push(e.message); }
+globalThis.__e = log.join(",");
+//// order-arr-no-close-when-done
+const log = [];
+const it = { [Symbol.iterator]() { return { next() { log.push("next"); return { done: true }; }, return() { log.push("return"); return {}; } }; } };
+const [a, b] = it;
+globalThis.__e = log.join(",");
+//// order-arr-close-after-elision-and-end
+const log = [];
+const it = { [Symbol.iterator]() { let n = 0; return { next() { log.push("next"); return { done: false, value: n++ }; }, return() { log.push("return"); return {}; } }; } };
+const [, , c] = it;
+globalThis.__e = log.join(",") + c;
+//// order-arr-rest-drains-no-close
+const log = [];
+const it = { [Symbol.iterator]() { let n = 0; return { next() { log.push("next"); return n < 2 ? { done: false, value: n++ } : { done: true }; }, return() { log.push("return"); return {}; } }; } };
+const [a, ...r] = it;
+globalThis.__e = log.join(",") + r;
+//// order-arr-rest-target-before-drain
+const log = [];
+const it = { [Symbol.iterator]() { let n = 0; return { next() { log.push("next"); return n < 1 ? { done: false, value: n++ } : { done: true }; }, return() { log.push("return"); return {}; } }; } };
+const tgt = () => { log.push("tgt"); return {}; };
+[...tgt().r] = it;
+globalThis.__e = log.join(",");
+//// order-arr-return-result-not-object
+const log = [];
+const it = { [Symbol.iterator]() { return { next() { return { done: false, value: 1 }; }, return() { log.push("return"); return 1; } }; } };
+try { const [a] = it; } catch (e) { log.push(e.constructor.name); }
+globalThis.__e = log.join(",");
+//// order-arr-return-throws-vs-body-throw
+const log = [];
+const it = { [Symbol.iterator]() { return { next() { return { done: false, value: undefined }; }, return() { log.push("return"); throw new Error("from return"); } }; } };
+try { const [a = (() => { throw new Error("body"); })()] = it; } catch (e) { log.push(e.message); }
+globalThis.__e = log.join(",");
+//// order-arr-getter-next-read-once
+const log = [];
+const it = { [Symbol.iterator]() { return { get next() { log.push("get next"); return () => ({ done: true }); } }; } };
+const [a, b] = it;
+globalThis.__e = log.join(",");
+//// order-arr-nested-obj-in-arr
+const log = [];
+const it = { [Symbol.iterator]() { let n = 0; return { next() { log.push("next"); return { done: false, value: { get p() { log.push("get p"); return 7; } } }; }, return() { log.push("return"); return {}; } }; } };
+const [{ p }, { p: q }] = it;
+globalThis.__e = log.join(",") + p + q;
+//// order-for-of-destructure-close
+const log = [];
+const it = { [Symbol.iterator]() { return { next() { log.push("next"); return { done: false, value: [1] }; }, return() { log.push("return"); return {}; } }; } };
+for (const [a = (log.push("d"), 0)] of it) { log.push("body"); break; }
+globalThis.__e = log.join(",");
+//// order-param-array-default-eval
+const log = [];
+function f([a = log.push("da")] = (log.push("dflt"), [])) { log.push("body"); }
+f();
+f([1]);
+globalThis.__e = log.join(",");
+//// order-assign-obj-nested-target-eval
+const log = [];
+const src = { a: { get b() { log.push("get b"); return 1; } }, get c() { log.push("get c"); return 2; } };
+const t = (n) => { log.push("t" + n); return { set v(x) { log.push("set " + n); } }; };
+({ a: { b: t(1).v }, c: t(2).v } = src);
+globalThis.__e = log.join(",");
+//// order-assign-array-computed-member-key
+const log = [];
+const it = [1, 2];
+const o = {};
+const k = (n) => { log.push("k" + n); return n; };
+[o[k("a")], o[k("b")]] = it;
+globalThis.__e = log.join(",") + JSON.stringify(o);
+//// order-obj-rest-computed-key-once
+const log = [];
+const key = { toString() { log.push("toString"); return "a"; } };
+const src = { a: 1, b: 2 };
+const { [key]: v, ...rest } = src;
+globalThis.__e = log.join(",") + Object.keys(rest);
+//// order-arr-put-value-null-base-closes
+const log = [];
+const it = { [Symbol.iterator]() { return { next() { log.push("next"); return { done: false, value: 1 }; }, return() { log.push("return"); return {}; } }; } };
+let n = null;
+try { [n.x] = it; } catch (e) { log.push(e.constructor.name); }
+globalThis.__e = log.join(",");
+//// order-arr-target-setter-throws-closes
+const log = [];
+const it = { [Symbol.iterator]() { return { next() { log.push("next"); return { done: false, value: 1 }; }, return() { log.push("return"); return {}; } }; } };
+const o = { set x(v) { log.push("set"); throw new Error("set boom"); } };
+try { [o.x, o.y] = it; } catch (e) { log.push(e.message); }
+globalThis.__e = log.join(",");
+//// order-obj-assign-rest-proxy-target
+const log = [];
+const src = { a: 1, b: 2, c: 3 };
+const t = new Proxy({}, { set(o, k, v) { log.push("set " + String(k)); o[k] = v; return true; }, defineProperty(o, k, d) { log.push("define " + String(k)); return Reflect.defineProperty(o, k, d); } });
+({ a: t.a, ...t.rest } = src);
+globalThis.__e = log.join(",") + JSON.stringify(t.rest);
+//// order-arr-hole-and-defaults-mixed
+const log = [];
+const it = { [Symbol.iterator]() { let n = 0; return { next() { log.push("next" + n); return n < 3 ? { done: false, value: n++ === 1 ? undefined : n } : { done: true }; }, return() { log.push("return"); return {}; } }; } };
+const [a = (log.push("da"), 10), b = (log.push("db"), 20), , c = (log.push("dc"), 30)] = it;
+globalThis.__e = log.join(",") + [a, b, c];
+//// locale-info-en-us
+const x = new Intl.Locale("en-US");
+globalThis.__e = JSON.stringify([x.getCalendars(), x.getHourCycles(), x.getNumberingSystems()]);
+//// locale-info-en-gb
+const x = new Intl.Locale("en-GB");
+globalThis.__e = JSON.stringify([x.getCalendars(), x.getHourCycles(), x.getNumberingSystems()]);
+//// locale-info-es
+const x = new Intl.Locale("es");
+globalThis.__e = JSON.stringify([x.getCalendars(), x.getHourCycles(), x.getNumberingSystems()]);
+//// locale-info-es-us
+const x = new Intl.Locale("es-US");
+globalThis.__e = JSON.stringify([x.getCalendars(), x.getHourCycles(), x.getNumberingSystems()]);
+//// locale-info-fr
+const x = new Intl.Locale("fr");
+globalThis.__e = JSON.stringify([x.getCalendars(), x.getHourCycles(), x.getNumberingSystems()]);
+//// locale-info-de
+const x = new Intl.Locale("de");
+globalThis.__e = JSON.stringify([x.getCalendars(), x.getHourCycles(), x.getNumberingSystems()]);
+//// locale-info-pt-br
+const x = new Intl.Locale("pt-BR");
+globalThis.__e = JSON.stringify([x.getCalendars(), x.getHourCycles(), x.getNumberingSystems()]);
+//// locale-info-en
+const x = new Intl.Locale("en");
+globalThis.__e = JSON.stringify([x.getCalendars(), x.getHourCycles(), x.getNumberingSystems()]);
+//// locale-info-es-mx
+const x = new Intl.Locale("es-MX");
+globalThis.__e = JSON.stringify([x.getCalendars(), x.getHourCycles(), x.getNumberingSystems()]);
+//// locale-info-en-u-ca-buddhist
+const x = new Intl.Locale("en-u-ca-buddhist");
+globalThis.__e = JSON.stringify([x.getCalendars(), x.getHourCycles(), x.getNumberingSystems()]);
+//// locale-info-en-u-hc-h23
+const x = new Intl.Locale("en-u-hc-h23");
+globalThis.__e = JSON.stringify([x.getCalendars(), x.getHourCycles(), x.getNumberingSystems()]);
+//// locale-info-en-u-nu-arab
+const x = new Intl.Locale("en-u-nu-arab");
+globalThis.__e = JSON.stringify([x.getCalendars(), x.getHourCycles(), x.getNumberingSystems()]);
+//// locale-info-de-ch
+const x = new Intl.Locale("de-CH");
+globalThis.__e = JSON.stringify([x.getCalendars(), x.getHourCycles(), x.getNumberingSystems()]);
+//// locale-info-und
+const x = new Intl.Locale("und");
+globalThis.__e = JSON.stringify([x.getCalendars(), x.getHourCycles(), x.getNumberingSystems()]);
+//// order-with-var-object-pattern
+var log = [];
+var sourceKey = { toString: () => { log.push("sourceKey"); return "p"; } };
+var source = { get p() { log.push("get source"); return undefined; } };
+var env = new Proxy({}, { has(t, pk) { log.push("binding::" + String(pk)); return false; } });
+var defaultValue = 0;
+var varTarget;
+with (env) {
+  var { [sourceKey]: varTarget = defaultValue } = source;
+}
+globalThis.__e = log.join(",");
+//// order-with-var-array-pattern
+var log = [];
+var it = { [Symbol.iterator]() { return { next() { log.push("next"); return { done: false, value: undefined }; }, return() { log.push("return"); return {}; } }; } };
+var env = new Proxy({}, { has(t, pk) { log.push("binding::" + String(pk)); return false; } });
+var defaultValue = 0;
+var varTarget;
+with (env) {
+  var [varTarget = defaultValue] = it;
+}
+globalThis.__e = log.join(",");
+//// order-with-assign-object-pattern
+var log = [];
+var source = { get p() { log.push("get source"); return 1; }, get q() { log.push("get q"); return 2; } };
+var env = new Proxy({}, { has(t, pk) { log.push("binding::" + String(pk)); return false; } });
+var a, b;
+with (env) {
+  ({ p: a, q: b } = source);
+}
+globalThis.__e = log.join(",");
+//// order-with-assign-array-rest
+var log = [];
+var it = { [Symbol.iterator]() { let n = 0; return { next() { log.push("next"); return n < 1 ? { done: false, value: n++ } : { done: true }; } }; } };
+var env = new Proxy({}, { has(t, pk) { log.push("binding::" + String(pk)); return false; } });
+var a, r;
+with (env) {
+  [a, ...r] = it;
+}
+globalThis.__e = log.join(",");
+//// order-with-assign-unresolvable-strict-fn
+var log = [];
+var env = new Proxy({}, { has(t, pk) { log.push("binding::" + String(pk)); return false; } });
+var src = { get p() { log.push("get p"); return 1; } };
+try {
+  with (env) {
+    (function () { "use strict"; ({ p: undeclared } = src); })();
+  }
+} catch (e) { log.push(e.name); }
+globalThis.__e = log.join(",");

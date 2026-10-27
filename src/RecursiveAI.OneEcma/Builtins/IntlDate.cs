@@ -7,7 +7,7 @@ internal static partial class IntlJs
     // ---- Intl.DateTimeFormat (11) -----------------------------------------------------------------------------------
 
     /// <summary>CreateDateTimeFormat (ECMA-402 11.1.2): reads the options in the observable order, then hands them to the service.</summary>
-    internal static DateTimeFormatService CreateDateTimeFormat(List<string> requested, JsValue optionsArg, string required, string defaults)
+    internal static DateTimeFormatService CreateDateTimeFormat(List<string> requested, JsValue optionsArg, string required, string defaults, bool shared = false)
     {
         var o = new Opts(CoerceOptions(optionsArg), "DateTimeFormat");
         string? matcher = o.Str("localeMatcher", "lookup", "best fit");
@@ -59,7 +59,10 @@ internal static partial class IntlJs
             DateStyle = dateStyle,
             TimeStyle = timeStyle,
         };
-        return Svc(() => DateTimeFormatService.Create(requested, options, DefaultLocale(), DefaultTimeZone(), Zones, required, defaults));
+        string defaultLocale = DefaultLocale();
+        string defaultZone = DefaultTimeZone();
+        return Cached(shared, "date", requested, defaultLocale + "\u0001" + defaultZone + "\u0001" + required + "\u0001" + defaults, options,
+            () => Svc(() => DateTimeFormatService.Create(requested, options, defaultLocale, defaultZone, Zones, required, defaults)));
     }
 
     private static double TimeArg(JsValue v) => v.IsUndefined ? Agent.Current.Host.CurrentTimeMs() : Ops.ToNumber(v);

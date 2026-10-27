@@ -1898,7 +1898,12 @@ internal static partial class Vm
                                 if (f.IsEntry)
                                 {
                                     ag.Frame = f.Caller;
-                                    return default;
+
+                                    // Native code that called an async function (Array.prototype.map, a host call, ScriptEngine) gets its promise at the
+                                    // first suspension, as a call from script does. When the job queue resumes the frame the value is ignored.
+                                    return f.Owner is PromiseObject own && f.Code.IsAsync && !f.Code.IsGenerator && f.Code.Kind != FunctionKind.Module
+                                        ? JsValue.FromObject(own)
+                                        : default;
                                 }
 
                                 // First suspension of an async function called from script: hand the promise to the caller.

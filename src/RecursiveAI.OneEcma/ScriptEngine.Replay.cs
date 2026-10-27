@@ -138,6 +138,28 @@ public sealed partial class ScriptEngine
                         break;
                     }
 
+                case LogTag.AsyncBody:
+                    {
+                        r.Tag();
+                        string source = r.Str();
+                        string file = r.Str();
+                        Finish(rec, result, () => EvaluateAsyncBody(source, file, token), options);
+                        break;
+                    }
+
+                case LogTag.Await:
+                    {
+                        // The host marked the promise of an earlier entry call as handled before waiting for it (ScriptEngine.Await).
+                        r.Tag();
+                        int awaited = (int)r.Varint();
+                        if (EntryPromise(awaited) is { } awaitedPromise)
+                        {
+                            awaitedPromise.IsHandled = true;
+                        }
+
+                        break;
+                    }
+
                 case LogTag.Module:
                     {
                         r.Tag();
@@ -216,7 +238,9 @@ public sealed partial class ScriptEngine
         int index = _recorder.EntryCount++;
         if (_recorder.Replaying)
         {
-            return body();
+            T replayed = body();
+            TrackEntryPromise(index, replayed);
+            return replayed;
         }
 
         _recorder.Log.Tag(tag);
@@ -234,6 +258,7 @@ public sealed partial class ScriptEngine
         {
             T value = body();
             EndEntry(null);
+            TrackEntryPromise(index, value);
             return value;
         }
         catch (JsException e)
@@ -264,34 +289,168 @@ public sealed partial class ScriptEngine
         }
     }
 
-    /// <summary>Replays the run up to the failed entry with full tracing and, when it fails the same way, swaps in its richer report.</summary>
-    private void Explain(JsException e, int index)
+    private const int MaxTrackedPromises = 64;
+
+    private readonly List<(int Index, PromiseObject Promise)> _entryPromises = [];
+
+    /// <summary>Remembers the promise an entry call returned, so a later wait on it can be logged by entry number and explained.</summary>
+    private void TrackEntryPromise<T>(int index, T value)
     {
-        if (!(_options?.ExplainErrors ?? true) || !_recorder.Log.IsReplayable || e.Report is not { Code: "runtime" } plain)
+        if (value is JsValue { Ref: PromiseObject p })
+        {
+            if (_entryPromises.Count >= MaxTrackedPromises)
+            {
+                _entryPromises.RemoveAt(0);
+            }
+
+            _entryPromises.Add((index, p));
+        }
+    }
+
+    internal PromiseObject? EntryPromise(int index)
+    {
+        foreach ((int i, PromiseObject p) in _entryPromises)
+        {
+            if (i == index)
+            {
+                return p;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Called when the host starts waiting for a promise (<see cref="Await"/>): the wait marks the promise as handled, which changes
+    /// what the job queue reports, so a recording notes it for the replay.
+    /// </summary>
+    private void NoteAwaited(PromiseObject promise)
+    {
+        if (_recorder.Replaying)
         {
             return;
         }
 
+        foreach ((int i, PromiseObject p) in _entryPromises)
+        {
+            if (ReferenceEquals(p, promise))
+            {
+                _recorder.Log.Tag(LogTag.Await);
+                _recorder.Log.Varint((ulong)i);
+                return;
+            }
+        }
+    }
+
+    /// <summary>
+    /// A rejection the host observed through <see cref="Await"/>: replays the whole log with tracing and swaps the traced report of the
+    /// same rejection into <paramref name="e"/>, or notes why that was not possible.
+    /// </summary>
+    private void ExplainRejection(JsException e, PromiseObject promise)
+    {
+        if (!(_options?.ExplainErrors ?? true) || e.Report is not { Code: "runtime" } plain)
+        {
+            return;
+        }
+
+        int entry = -1;
+        foreach ((int i, PromiseObject p) in _entryPromises)
+        {
+            if (ReferenceEquals(p, promise))
+            {
+                entry = i;
+            }
+        }
+
+        if (entry < 0)
+        {
+            plain.Notes.Add("explanation unavailable: the rejected promise was not the result of an entry call, so the replay cannot find it");
+            return;
+        }
+
+        ExplainBy(e, plain, -1, r =>
+        {
+            if (r.Engine.EntryPromise(entry) is not { State: 2 } rejected)
+            {
+                return null;
+            }
+
+            JsValue reason = rejected.Result;
+            try
+            {
+                r.Engine.Guard<JsValue>(() => throw new JsException(reason), default);
+            }
+            catch (JsException replayed)
+            {
+                return replayed;
+            }
+
+            return null;
+        });
+    }
+
+    /// <summary>Replays the run up to the failed entry with full tracing and, when it fails the same way, swaps in its richer report.</summary>
+    private void Explain(JsException e, int index)
+    {
+        if (!(_options?.ExplainErrors ?? true) || e.Report is not { Code: "runtime" } plain)
+        {
+            return;
+        }
+
+        ExplainBy(e, plain, index, static r => r.Exception);
+    }
+
+    /// <summary>
+    /// Replays the log (up to entry <paramref name="stopAfter"/>, -1 for all) and takes the exception <paramref name="pick"/> finds in the result.
+    /// When it is the same failure its report replaces the plain one. When the explanation is lost for any reason, the plain report stays
+    /// and gains a <c>note:</c> line naming the reason.
+    /// </summary>
+    private void ExplainBy(JsException e, Diagnostic plain, int stopAfter, Func<ReplayResult, JsException?> pick)
+    {
+        string lost;
         try
         {
-            ReplayResult r = Replay(_recorder.Log, new ReplayOptions
+            if (!_recorder.Log.IsReplayable)
             {
-                Limits = _agent.Limits,
-                ThrowOnUnhandledRejection = _throwOnUnhandled,
-                ProperTailCalls = _agent.ProperTailCalls,
-                InstallTest262Host = _agent.InstallTest262Host,
-                Configure = _options?.Configure,
-                StopAfterEntry = index,
-            });
-            if (r.Divergence is null && r.Exception?.Report is { } rich && rich.Headline == plain.Headline && rich.Kind == plain.Kind)
+                lost = "the run cannot be replayed: " + _recorder.Log.NotReplayableReason;
+            }
+            else
             {
-                e.Report = rich;
+                ReplayResult r = Replay(_recorder.Log, new ReplayOptions
+                {
+                    Limits = _agent.Limits,
+                    ThrowOnUnhandledRejection = _throwOnUnhandled,
+                    ProperTailCalls = _agent.ProperTailCalls,
+                    InstallTest262Host = _agent.InstallTest262Host,
+                    Configure = _options?.Configure,
+                    StopAfterEntry = stopAfter,
+                });
+                if (r.Divergence is not null)
+                {
+                    lost = "the replay diverged from the recorded run: " + r.Divergence;
+                }
+                else if (pick(r)?.Report is not { } rich)
+                {
+                    lost = "the replay did not fail again";
+                }
+                else if (rich.Headline != plain.Headline || rich.Kind != plain.Kind)
+                {
+                    lost = "the replay failed differently (" + rich.Kind + ": " + rich.Headline + ")";
+                }
+                else
+                {
+                    e.Report = rich;
+                    return;
+                }
             }
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             // The plain report stands: an explanation is a bonus and must never replace the error.
+            lost = "the replay failed with " + ex.GetType().Name + ": " + ex.Message;
         }
+
+        plain.Notes.Add("explanation unavailable: " + lost);
     }
 
     internal JsValue EvaluateFrom(Realm realm, string source, string fileName, CancellationToken token)

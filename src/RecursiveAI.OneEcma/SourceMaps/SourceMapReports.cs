@@ -22,8 +22,8 @@ public static class SourceMapReports
     /// <returns>
     /// A new diagnostic. When the primary span has no mapping, <paramref name="diagnostic"/> itself, unchanged. When it maps but
     /// the original text is unavailable, a copy that is still about the generated source with an <c>original position</c> note and
-    /// <see cref="Diagnostic.Mapping"/> set. When the text is available, a diagnostic over the original source: spans mapped, secondary labels
-    /// that fall in other sources turned into notes, and suggested fixes and recovery steps dropped because their offsets belong to the generated text.
+    /// <see cref="Diagnostic.Mapping"/> set. When the text is available, a diagnostic over the original source: spans mapped (primary, secondary labels, provenance steps and the span and reported position of every stack frame, with locals,
+    /// suggestions and notes carried over), labels and provenance steps that fall in other sources turned into notes, frames of other sources and host frames kept as they are, and suggested fixes and recovery steps dropped because their offsets belong to the generated text.
     /// </returns>
     /// <exception cref="ArgumentNullException">An argument is null.</exception>
     public static Diagnostic Remap(Diagnostic diagnostic, SourceMap map, SourceMapFetcher? sourceContent = null)
@@ -83,6 +83,9 @@ public static class SourceMapReports
                 copy.Help.AddRange(d.Help);
                 copy.Fixes.AddRange(d.Fixes);
                 copy.Recovery.AddRange(d.Recovery);
+                copy.Provenance.AddRange(d.Provenance);
+                copy.Suggestions.AddRange(d.Suggestions);
+                copy.Stack = d.Stack;
                 copy.Notes.Add("original position: " + Format(original) + " (the original source text is not available)");
                 copy.Mapping = new SourceMapping(generated, d.PrimarySpan, original, false);
                 return copy;
@@ -107,6 +110,33 @@ public static class SourceMapReports
                 }
             }
 
+            foreach (ProvenanceStep step in d.Provenance)
+            {
+                Mapped? m = MapSpan(d.Source, step.Span);
+                if (m is { } ms && ms.SourceIndex == p.SourceIndex)
+                {
+                    result.Provenance.Add(new ProvenanceStep(ToSpan(text, ms), step.Description));
+                }
+                else if (m is { } other)
+                {
+                    result.Notes.Add(step.Description + " (" + NameOf(other.SourceIndex) + ":" + Pos(other) + ")");
+                }
+                else
+                {
+                    LinePosition lp = d.Source.GetPosition(step.Span.Start);
+                    result.Notes.Add(step.Description + " (generated code at " + genName + ":" + lp.Line.ToString(NumberFormatInfo.InvariantInfo) + ":" + lp.Column.ToString(NumberFormatInfo.InvariantInfo) + ")");
+                }
+            }
+
+            result.Suggestions.AddRange(d.Suggestions);
+            var frames = new List<StackFrameInfo>(d.Stack.Count);
+            foreach (StackFrameInfo f in d.Stack)
+            {
+                frames.Add(MapFrame(d.Source, f));
+            }
+
+            result.Stack = frames;
+
             // Help that quotes code quotes the generated code, which is not what the author wrote.
             foreach (string h in d.Help)
             {
@@ -117,6 +147,26 @@ public static class SourceMapReports
             result.Notes.Add("generated position: " + Format(generated));
             result.Mapping = new SourceMapping(generated, d.PrimarySpan, original, true);
             return result;
+        }
+
+        /// <summary>
+        /// Moves a frame of the generated source to the original source (span and the position V8 reports); a host frame, a frame of
+        /// another source and a frame with no mapping or no original text stay as they are. Locals travel with the frame.
+        /// </summary>
+        private StackFrameInfo MapFrame(SourceText gen, StackFrameInfo f)
+        {
+            if (f.IsHost || !(ReferenceEquals(f.Source, gen) || f.Source.Name == gen.Name) || MapSpan(gen, f.Span) is not { } m || TextOf(m.SourceIndex) is not { } t)
+            {
+                return f;
+            }
+
+            int pos = -1;
+            if (f.Pos >= 0 && MapSpan(gen, new Span(f.Pos, f.Pos)) is { } pm && pm.SourceIndex == m.SourceIndex)
+            {
+                pos = Offset(t, pm.StartLine, pm.StartColumn);
+            }
+
+            return f with { Source = t, Span = ToSpan(t, m), Pos = pos };
         }
 
         private static string Pos(Mapped m) => (m.StartLine + 1).ToString(NumberFormatInfo.InvariantInfo) + ":" + (m.StartColumn + 1).ToString(NumberFormatInfo.InvariantInfo);

@@ -1,7 +1,8 @@
 error[SyntaxError]: Expected property name or '}' in JSON at position 1 (line 1 column 2)
- --> case.js:1:25
+ --> case.js:1:27
   |
 1 | const data = JSON.parse("{'a': 1}");
-  |                         ^^^^^^^^^^ `JSON.parse` rejected this argument
+  |                           ^ JSON.parse stops at `'` here
   |
+  = help: JSON strings and keys use double quotes `"`, not single quotes
   = stack: <top-level> (case.js:1)

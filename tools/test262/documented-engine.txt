@@ -1,7 +1,7 @@
 # Known failures of the engine backend, each with a reason. Format: <path> | <reason>.
 # Directory prefixes end in '/', '*' is a glob.
 
-# core
+# Language and core built-ins
 annexB/language/expressions/assignmenttargettype/callexpression-as-for-in-lhs.js | core: Annex B call expression as for-in/of target must throw ReferenceError at runtime after evaluating the call
 annexB/language/expressions/assignmenttargettype/callexpression-as-for-of-lhs.js | core: Annex B call expression as for-in/of target must throw ReferenceError at runtime after evaluating the call
 annexB/language/function-code/block-decl-func-skip-arguments.js | core: Annex B.3.2.1 block function named arguments is not hoisted over the arguments object
@@ -31,9 +31,6 @@ language/import/import-attributes/json-value-string.js | core: module evaluation
 language/import/import-attributes/json-via-namespace.js | core: module evaluation is sequential (no async-module graph ordering) and JSON modules are not supported
 language/module-code/import-attributes/allow-nlt-before-with.js | core: module evaluation is sequential (no async-module graph ordering) and JSON modules are not supported
 language/module-code/top-level-await/async-module-does-not-block-sibling-modules.js | core: module evaluation is sequential (no async-module graph ordering) and JSON modules are not supported
-language/expressions/dynamic-import/assignment-expression/this.js | core: needs async test harness behaviour not yet supported (promise result handling in the test)
-language/expressions/in/private-field-rhs-await-present.js | core: needs async test harness behaviour not yet supported (promise result handling in the test)
-language/expressions/optional-chaining/member-expression-async-this.js | core: needs async test harness behaviour not yet supported (promise result handling in the test)
 language/identifier-resolution/assign-to-global-undefined.js | core: strict assignment to the non-writable global `undefined` through a property assignment target must throw
 language/expressions/super/prop-expr-getsuperbase-before-topropertykey-getvalue.js | core: super[key] must capture the super base before ToPropertyKey (13.3.7.1 steps 2-7); the VM converts the key first
 language/expressions/super/prop-expr-getsuperbase-before-topropertykey-putvalue-compound-assign.js | core: super[key] must capture the super base before ToPropertyKey (13.3.7.1 steps 2-7); the VM converts the key first
@@ -65,15 +62,13 @@ built-ins/Function/15.3.5.4_2-93gs.js | core: the legacy `caller` extension on s
 language/statements/with/get-mutable-binding-binding-deleted-in-get-unscopables-strict-mode.js | core: with-environment GetBindingValue strict-mode ReferenceError after @@unscopables deletes the binding (9.1.1.2.6)
 language/statements/async-generator/yield-star-return-then-getter-ticks.js | core: yield* return(): tick order of the awaited result differs from the spec (27.6.3.8)
 
-# core (found after the built-in areas landed)
-language/destructuring/binding/keyed-destructuring-property-reference-target-evaluation-order-with-bindings.js | core: binding-pattern evaluation order with a reference target reads the source before resolving the target (8.6.3)
+# Language and core built-ins (continued)
 language/expressions/dynamic-import/import-attributes/2nd-param-with-enumeration-enumerable.js | core: dynamic import does not read the import attributes object through its enumerable own properties (13.3.10.1)
 
 built-ins/Function/prototype/toString/built-in-function-object.js | core: legacy RegExp accessor names such as `$&` are not valid NativeFunction syntax in Function.prototype.toString
 built-ins/Function/prototype/toString/line-terminator-normalisation-CR.js | runner: the harness include nativeFunctionMatcher.js is not loaded for this test
 
 # array-iterators
-built-ins/Iterator/from/return-method-throws-for-invalid-this.js | iterators: Iterator.from reads `constructor` of the original iterator, which the spec does not
 
 # binary-data
 # ArrayBuffer, SharedArrayBuffer, TypedArrays, Uint8Array base64/hex, DataView and Atomics. Every entry is a test that needs something outside this area or a host feature the engine does not have; none is a binary-data defect.

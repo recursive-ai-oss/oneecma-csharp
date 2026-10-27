@@ -88,10 +88,7 @@ public sealed partial class DiagnosticJsonTests
             Assert.Equal(line, span.GetProperty("endLine").GetInt32());
             Assert.Equal(column, span.GetProperty("endColumn").GetInt32());
             Assert.True(start <= end && end <= source.Length);
-            if (!TextArrowDiffers.Contains(id))
-            {
-                Assert.Equal(arrows[i], span.GetProperty("line").GetInt32() + ":" + span.GetProperty("column").GetInt32());
-            }
+            Assert.Equal(arrows[i], span.GetProperty("line").GetInt32() + ":" + span.GetProperty("column").GetInt32());
 
             Assert.Equal("SyntaxError", d.GetProperty("kind").GetString());
             Assert.Equal("error", d.GetProperty("severity").GetString());
@@ -117,9 +114,6 @@ public sealed partial class DiagnosticJsonTests
             i++;
         }
     }
-
-    // Corpus expectations the renderer cannot reproduce exactly (see the syntax golden tests).
-    private static readonly HashSet<string> TextArrowDiffers = ["syn-012-missing-comma-arguments", "syn-027-backtick-in-template"];
 
     [Fact]
     public void RepairsComeFirstWithTheRepairedSource()

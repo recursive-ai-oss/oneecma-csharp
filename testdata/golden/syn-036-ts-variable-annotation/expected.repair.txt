@@ -1,0 +1,7 @@
+repair[R007]: removed TypeScript type syntax
+ --> case.js:1:12
+  |
+1 | const names: string[] = ["ada", "grace"];
+  |            ^ removed
+  |
+  = note: the repaired source ran to completion and is returned with this report

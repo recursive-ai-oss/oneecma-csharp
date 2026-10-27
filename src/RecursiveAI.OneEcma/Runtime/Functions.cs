@@ -28,11 +28,15 @@ internal sealed class NativeFunction : JsFunction
     private readonly NativeFn _fn;
     private readonly bool _ctor;
 
+    /// <summary>The name the function was created with; Function.prototype.toString shows it even after the "name" property is redefined.</summary>
+    internal readonly string InitialName;
+
     internal NativeFunction(Realm realm, string name, int length, NativeFn fn, bool isConstructor = false, JsObject? proto = null)
         : base(realm.FunctionShape(proto ?? realm.FunctionPrototype, 0), realm)
     {
         _fn = fn;
         _ctor = isConstructor;
+        InitialName = name;
         Slots[0] = JsValue.FromNumber(length);
         Slots[1] = JsValue.FromString(name);
     }

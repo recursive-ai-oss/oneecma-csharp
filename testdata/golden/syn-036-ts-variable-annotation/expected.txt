@@ -1,0 +1,16 @@
+error[SyntaxError]: Missing initializer in const declaration
+ --> case.js:1:7
+  |
+1 | const names: string[] = ["ada", "grace"];
+  |       ^^^^^ `const` needs a value here
+  |
+  = help: write `const names = <value>;`, or use `let names;` if it is assigned later
+  = note: a second error follows: both are reported from one parse
+
+error[SyntaxError]: Unexpected token ':'
+ --> case.js:1:12
+  |
+1 | const names: string[] = ["ada", "grace"];
+  |            ^
+
+error: aborting due to 2 syntax errors

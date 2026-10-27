@@ -6,3 +6,14 @@ syntax-new-function | V8 words a parameter list that closes early as "Arg string
 async-promise-all | V8 stitches an "async Promise.all (index 0)" frame between async frames when an async function awaits Promise.all; the engine stitches only direct awaits of a promise made by an async function.
 async-for-await | V8 reports a for-await loop at its binding (the position of x in for await (const x of ...)); the engine reports at the for statement.
 strict-undefined-assign | Assigning to undefined in strict code names the receiver as '[object Object]' (the global object's string form in V8's vm context) where the engine says '#<Object>'.
+iter-destructure-param | The message matches; V8 points at the opening parenthesis of the parameter list, the engine at the pattern.
+iter-destructure-assign | The message matches; V8 points at the "=" of an assignment pattern, the engine at its right-hand side.
+iter-next-not-object | The message matches; V8 points at the end of the loop head, the engine at the for statement.
+iter-then-getter-throws | The message matches; V8 shows a "Promise.resolve (<anonymous>)" frame under a getter run by it, the engine shows no frame for built-ins that call into script this way.
+iter-async-iterator-number | The message matches; V8 points at the iterable expression of for await, the engine at the statement.
+iter-reflect-apply-nonfn | The message matches; the engine shows a "Reflect.apply (<anonymous>)" frame that V8 leaves out.
+order-with-var-object-pattern | V8 resolves a name target (here through a with object) after reading the source value; ECMA-262 8.6.3 KeyedBindingInitialization resolves it first, as test262 requires, and the engine follows the specification.
+order-with-var-array-pattern | V8 resolves the name target after the iterator step; ECMA-262 8.6.2 IteratorBindingInitialization resolves it first, and the engine follows the specification.
+order-with-assign-object-pattern | V8 resolves each name target after reading its property; ECMA-262 13.15.5.6 evaluates the target reference first, and the engine follows the specification.
+order-with-assign-array-rest | V8 resolves the name targets after the iterator steps; ECMA-262 13.15.5.5 evaluates the target reference first, and the engine follows the specification.
+order-with-assign-unresolvable-strict-fn | V8 resolves the name target after reading the property; the engine resolves it first (ECMA-262 13.15.5.6), so the with object's has trap runs before the getter.

@@ -1,0 +1,10 @@
+error[TypeError]: prices.map is not a function
+ --> case.js:2:17
+  |
+1 | const prices = { apple: 3, pear: 4 };
+  |                --------------------- `prices` comes from here: { apple, pear }
+2 | const doubled = prices.map((p) => p * 2);
+  |                 ^^^^^^^^^^ `prices` is an Object, so it has no `map`
+  |
+  = help: `prices` is a plain object, not an array; to use `map` on its values call `Object.values(prices).map(...)`, or on its [key, value] pairs `Object.entries(prices).map(...)`
+  = stack: <top-level> (case.js:2)
