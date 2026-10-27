@@ -38,7 +38,6 @@ internal sealed class AccessorPair
 /// </summary>
 internal sealed class Shape
 {
-    private static readonly Shape NullProtoRoot = new(null, default, 0, null, false);
 
     private Dictionary<PropertyKey, int>? _map;
     private Dictionary<(PropertyKey, byte), Shape>? _transitions;
@@ -46,7 +45,7 @@ internal sealed class Shape
     private Dictionary<PropertyKey, int>? _dictIndex;
     private int _live;
 
-    private Shape(Shape? parent, PropertyKey key, PropFlags flags, JsObject? proto, bool dict)
+    internal Shape(Shape? parent, PropertyKey key, PropFlags flags, JsObject? proto, bool dict)
     {
         Parent = parent;
         Key = key;
@@ -78,7 +77,7 @@ internal sealed class Shape
 
     internal int LiveCount => IsDictionary ? _live : Count;
 
-    internal static Shape RootFor(JsObject? proto) => proto is null ? NullProtoRoot : proto.ChildRoot ??= new Shape(null, default, 0, proto, false);
+    internal static Shape RootFor(JsObject? proto) => proto is null ? (Agent.CurrentOrNull?.NullProtoRoot ?? new Shape(null, default, 0, null, false)) : proto.ChildRoot ??= new Shape(null, default, 0, proto, false);
 
     internal int Lookup(PropertyKey key, out PropFlags flags)
     {

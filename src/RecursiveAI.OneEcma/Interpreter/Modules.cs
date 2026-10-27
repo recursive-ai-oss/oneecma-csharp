@@ -190,7 +190,9 @@ internal static class ModuleLoader
         ParseResult pr = JsParser.Parse(hm.Source, new ParseOptions { Goal = ParseGoal.Module, FileName = hm.Id });
         if (pr.HasErrors)
         {
-            throw Errors.Syntax(pr.Diagnostics[0].Headline);
+            JsException pe = Errors.Syntax(pr.Diagnostics[0].Headline);
+            pe.Report = pr.Diagnostics[0];
+            throw pe;
         }
 
         var m = new ModuleRecord { Id = hm.Id, Realm = realm };
@@ -495,12 +497,12 @@ internal static class ModuleLoader
                 ImportRef? res = ResolveExport(target, ie.ImportName, []);
                 if (res is null)
                 {
-                    throw Errors.Syntax("The requested module '" + ie.Request + "' does not provide an export named '" + ie.ImportName + "'");
+                    throw LinkError("The requested module '" + ie.Request + "' does not provide an export named '" + ie.ImportName + "'");
                 }
 
                 if (ReferenceEquals(res, Ambiguous))
                 {
-                    throw Errors.Syntax("The requested module '" + ie.Request + "' contains conflicting star exports for name '" + ie.ImportName + "'");
+                    throw LinkError("The requested module '" + ie.Request + "' contains conflicting star exports for name '" + ie.ImportName + "'");
                 }
 
                 r = res;
@@ -512,6 +514,13 @@ internal static class ModuleLoader
     }
 
     private static readonly ImportRef Ambiguous = new();
+
+    private static JsException LinkError(string message)
+    {
+        JsException e = Errors.Syntax(message);
+        e.Report = Diagnostics.ErrorReport.ForException(e, "link");
+        return e;
+    }
 
     /// <summary>ResolveExport (16.2.1.6.3). Returns null when not found and <see cref="Ambiguous"/> when conflicting.</summary>
     internal static ImportRef? ResolveExport(ModuleRecord m, string name, List<(ModuleRecord, string)> resolveSet)

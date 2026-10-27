@@ -115,6 +115,9 @@ internal sealed class Agent
 
     internal Realm Realm = null!;
 
+    /// <summary>The root of shapes for objects with a null prototype; per agent so engines on different threads share no mutable shape state.</summary>
+    internal readonly Shape NullProtoRoot = new(null, default, 0, null, false);
+
     internal Frame? Frame;
 
     /// <summary>When set, new realms get the test-harness globals (<c>print</c>, <c>$262</c>).</summary>

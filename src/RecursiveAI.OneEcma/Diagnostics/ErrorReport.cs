@@ -5,7 +5,7 @@ internal static class ErrorReport
 {
     private static readonly Text.SourceText Empty = new(string.Empty, "<unknown>");
 
-    internal static Diagnostic ForException(JsException e)
+    internal static Diagnostic ForException(JsException e, string code = "runtime")
     {
         JsValue v = e.Value;
         IReadOnlyList<StackFrameInfo> frames = e.Frames;
@@ -18,11 +18,11 @@ internal static class ErrorReport
         }
         else
         {
-            kind = "Error";
+            kind = ThrownTypeName(v);
             headline = "Uncaught " + Describe(v);
         }
 
-        return Build(kind, "runtime", headline, frames);
+        return Build(kind, code, headline, frames);
     }
 
     internal static Diagnostic ForLimit(JsLimitException e) => Build("Limit", "limit:" + e.Kind.ToString().ToLowerInvariant(), e.Message, e.Frames);
@@ -32,6 +32,24 @@ internal static class ErrorReport
         Text.SourceText src = frames.Count > 0 ? frames[0].Source : Empty;
         Text.Span span = frames.Count > 0 ? frames[0].Span : new Text.Span(0, 0);
         return new Diagnostic(kind, code, headline, src, span) { Stack = frames };
+    }
+
+    /// <summary>The constructor name of a thrown non-Error object (for example a harness-defined error class), else "Error".</summary>
+    private static string ThrownTypeName(JsValue v)
+    {
+        try
+        {
+            if (v.Ref is JsObject o && o.Get("constructor").Ref is JsObject c && c.Get("name") is { IsString: true } n && n.AsString.Length > 0)
+            {
+                return n.AsString;
+            }
+        }
+        catch (JsException)
+        {
+            // A throwing getter: fall back to the generic kind.
+        }
+
+        return "Error";
     }
 
     private static string ErrorName(JsError e)
