@@ -119,6 +119,7 @@ internal sealed class ScriptFunction : JsFunction
     {
         Code = code;
         Env = env;
+        env?.MarkCaptured();
         Slots[0] = JsValue.FromNumber(code.Length);
         Slots[1] = JsValue.FromString(code.Name);
     }

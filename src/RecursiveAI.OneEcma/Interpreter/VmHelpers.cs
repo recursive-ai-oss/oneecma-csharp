@@ -612,6 +612,7 @@ internal static partial class Vm
         if (map is not null)
         {
             a.MapEnv = f.Env;
+            f.Env?.MarkCaptured();
             a.Map = new int[n];
             for (int i = 0; i < n; i++)
             {
@@ -1186,7 +1187,10 @@ internal static partial class Vm
         var fn = new ScriptFunction(r, code, f.Env, proto, hasProto);
         if (code.Kind == FunctionKind.Arrow)
         {
+            // The arrow reads this, new.target and super through the frame, so neither may be reused while it lives.
             fn.OuterFrame = f;
+            f.Escaped = true;
+            f.ThisFrame.Escaped = true;
         }
 
         fn.Module = f.Func?.Module ?? f.Owner as ModuleRecord;
