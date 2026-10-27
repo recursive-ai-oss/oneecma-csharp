@@ -8,6 +8,9 @@ internal sealed record DisplayNamesOptions
     /// <summary><c>style</c>: <c>long</c> (default), <c>short</c>, <c>narrow</c>.</summary>
     internal string? Style { get; init; }
 
+    /// <summary><c>localeMatcher</c>: <c>lookup</c> or <c>best fit</c>.</summary>
+    internal string? LocaleMatcher { get; init; }
+
     /// <summary><c>type</c>: <c>language</c>, <c>region</c>, <c>script</c>, <c>currency</c>, <c>calendar</c>, <c>dateTimeField</c>; required.</summary>
     internal string? Type { get; init; }
 
@@ -58,6 +61,7 @@ internal sealed class DisplayNamesService
     /// <exception cref="IntlException">A missing type (TypeError) or an option out of range (RangeError).</exception>
     internal static DisplayNamesService Create(IReadOnlyList<string> locales, DisplayNamesOptions o, string defaultLocale)
     {
+        LocaleResolver.ValidateLocaleMatcher(o.LocaleMatcher, "DisplayNames");
         string style = o.Style ?? "long";
         if (style is not ("long" or "short" or "narrow"))
         {

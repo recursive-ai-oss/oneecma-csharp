@@ -123,7 +123,15 @@ public class IntlTest262Tests
         try
         {
             List<string> canon = LocaleResolver.CanonicalizeLocaleList(requested);
-            return LocaleResolver.Match(canon).Locale is not null;
+            string? found = LocaleResolver.Match(canon).Locale;
+            if (found is null)
+            {
+                return false;
+            }
+
+            // A tag that names a region must find that region's data (a bare language is served by any of its locales).
+            LocaleId? first = LocaleId.Parse(LocaleResolver.SplitUnicodeExtension(canon[0]).WithoutExtension);
+            return first?.Region is null || string.Equals(first.ToString(), found, StringComparison.Ordinal);
         }
         catch (IntlException)
         {
@@ -136,8 +144,15 @@ public class IntlTest262Tests
         string svc = c.GetProperty("svc").GetString()!;
         string method = c.GetProperty("method").GetString()!;
         JsonElement expect = c.GetProperty("expect");
-        string[] req = Locales(c);
         string tExpect = expect.GetProperty("t").GetString()!;
+        // Abrupt completions from user-defined getters and non-string locale arguments belong to the JS-facing layer.
+        if ((tExpect == "err" && expect.GetProperty("v").GetString() == "Test262Error")
+            || (c.GetProperty("loc").ValueKind == JsonValueKind.Object))
+        {
+            return "skip";
+        }
+
+        string[] req = Locales(c);
         if (tExpect != "err" && !Supported(req))
         {
             return "skip";
@@ -232,7 +247,7 @@ public class IntlTest262Tests
 
             case "pr":
             {
-                PluralRulesService p = PluralRulesService.Create(locales, new PluralRulesOptions { Type = o.Str("type"), Digits = IntlNumberDifferentialTests.Digits(o) }, "en-US");
+                PluralRulesService p = PluralRulesService.Create(locales, new PluralRulesOptions { LocaleMatcher = o.Str("localeMatcher"), Notation = o.Str("notation"), Type = o.Str("type"), Digits = IntlNumberDifferentialTests.Digits(o) }, "en-US");
                 switch (method)
                 {
                     case "ctor":
@@ -261,7 +276,7 @@ public class IntlTest262Tests
 
             case "lf":
             {
-                ListFormatService l = ListFormatService.Create(locales, o.Str("type"), o.Str("style"), "en-US");
+                ListFormatService l = ListFormatService.Create(locales, o.Str("type"), o.Str("style"), "en-US", o.Str("localeMatcher"));
                 switch (method)
                 {
                     case "ctor":
@@ -282,7 +297,7 @@ public class IntlTest262Tests
 
             case "rtf":
             {
-                RelativeTimeFormatService r = RelativeTimeFormatService.Create(locales, o.Str("style"), o.Str("numeric"), "en-US");
+                RelativeTimeFormatService r = RelativeTimeFormatService.Create(locales, o.Str("style"), o.Str("numeric"), "en-US", o.Str("localeMatcher"), o.Str("numberingSystem"));
                 switch (method)
                 {
                     case "ctor":
@@ -303,7 +318,7 @@ public class IntlTest262Tests
 
             case "dn":
             {
-                var dopt = new DisplayNamesOptions { Style = o.Str("style"), Type = o.Str("type"), Fallback = o.Str("fallback"), LanguageDisplay = o.Str("languageDisplay") };
+                var dopt = new DisplayNamesOptions { LocaleMatcher = o.Str("localeMatcher"), Style = o.Str("style"), Type = o.Str("type"), Fallback = o.Str("fallback"), LanguageDisplay = o.Str("languageDisplay") };
                 DisplayNamesService n = DisplayNamesService.Create(locales, dopt, "en-US");
                 switch (method)
                 {

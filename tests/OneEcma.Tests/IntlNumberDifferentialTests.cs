@@ -18,12 +18,14 @@ public class IntlNumberDifferentialTests
             }
             else
             {
-                ug = g.GetString();
+                ug = g.ValueKind == JsonValueKind.String ? g.GetString() : g.GetRawText();
             }
         }
 
         return new NumberFormatOptions
         {
+            LocaleMatcher = o.Str("localeMatcher"),
+            NumberingSystem = o.Str("numberingSystem"),
             Style = o.Str("style"),
             Currency = o.Str("currency"),
             CurrencyDisplay = o.Str("currencyDisplay"),

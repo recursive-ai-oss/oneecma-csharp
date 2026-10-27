@@ -8,6 +8,12 @@ internal sealed record PluralRulesOptions
     /// <summary><c>type</c>: <c>cardinal</c> (default) or <c>ordinal</c>.</summary>
     internal string? Type { get; init; }
 
+    /// <summary><c>localeMatcher</c>: <c>lookup</c> or <c>best fit</c>.</summary>
+    internal string? LocaleMatcher { get; init; }
+
+    /// <summary><c>notation</c>: <c>standard</c> (default) or <c>compact</c>; compact reports the exponent as the plural operand <c>c</c>.</summary>
+    internal string? Notation { get; init; }
+
     /// <summary>The digit options that shape the number whose plural form is chosen.</summary>
     internal DigitOptionInputs Digits { get; init; } = new();
 }
@@ -24,8 +30,11 @@ internal sealed class PluralRulesService
     private readonly PluralType _type;
     private readonly DataTree _supplemental = CldrData.Supplemental;
 
-    private PluralRulesService(string locale, string dataLocale, PluralType type, DigitOptions digits)
+    private readonly NumberFormatService? _compact;
+
+    private PluralRulesService(string locale, string dataLocale, PluralType type, DigitOptions digits, NumberFormatService? compact)
     {
+        _compact = compact;
         Locale = locale;
         _ruleLocale = dataLocale;
         _type = type;
@@ -51,6 +60,7 @@ internal sealed class PluralRulesService
     /// <exception cref="IntlException">An option is out of range.</exception>
     internal static PluralRulesService Create(IReadOnlyList<string> locales, PluralRulesOptions options, string defaultLocale)
     {
+        LocaleResolver.ValidateLocaleMatcher(options.LocaleMatcher, "PluralRules");
         string type = options.Type ?? "cardinal";
         if (type is not ("cardinal" or "ordinal"))
         {
@@ -58,8 +68,18 @@ internal sealed class PluralRulesService
         }
 
         ResolvedLocale r = LocaleResolver.Resolve(locales, [], new Dictionary<string, string?>(), (_, _) => [], defaultLocale);
-        DigitOptions digits = DigitOptions.Resolve(options.Digits, 0, 3, compactNotation: false);
-        return new PluralRulesService(r.Locale, r.DataLocale, type == "cardinal" ? PluralType.Cardinal : PluralType.Ordinal, digits);
+        string notation = options.Notation ?? "standard";
+        if (notation is not ("standard" or "compact"))
+        {
+            throw IntlException.Range($"Value {notation} out of range for Intl.PluralRules options property notation");
+        }
+
+        // Compact notation scales the number the way NumberFormat does; that service supplies the exponent.
+        NumberFormatService? compact = notation == "compact"
+            ? NumberFormatService.Create(locales, new NumberFormatOptions { Notation = "compact", Digits = options.Digits }, defaultLocale)
+            : null;
+        DigitOptions digits = compact?.Digits ?? DigitOptions.Resolve(options.Digits, 0, 3, compactNotation: false);
+        return new PluralRulesService(r.Locale, r.DataLocale, type == "cardinal" ? PluralType.Cardinal : PluralType.Ordinal, digits, compact);
     }
 
     /// <summary>The category name for a number (PluralRuleSelect after FormatNumericToString).</summary>
@@ -68,6 +88,11 @@ internal sealed class PluralRulesService
         if (!n.IsFinite)
         {
             return "other";
+        }
+
+        if (_compact is not null)
+        {
+            return CategoryNames[(int)_compact.CompactCategory(n, _ruleLocale, _type)];
         }
 
         RoundedDigits d = Digits.Round(n.Abs(), n.IsNegative);
@@ -81,10 +106,11 @@ internal sealed class PluralRulesService
     internal PluralCategory SelectDigits(RoundedDigits d, int compactExponent) =>
         SelectDigits(CldrData.Plurals, _ruleLocale, _type, d, compactExponent);
 
-    internal static PluralCategory SelectDigits(PluralData data, string locale, PluralType type, RoundedDigits d, int compactExponent)
+    internal static PluralCategory SelectDigits(PluralData data, string locale, PluralType type, RoundedDigits d, int compactExponent, bool shift = false)
     {
-        // Compact notation keeps the displayed digits (1.2 for 1.2M) and reports the exponent in the c/e operand only.
-        PluralOperands ops = PluralOperands.FromDigits(d.Integer, d.Fraction, compactExponent, shift: false);
+        // NumberFormat keeps the displayed digits (1.2 for 1.2M) and reports the exponent in the c/e operand only,
+        // which is how it picks the compact pattern. PluralRules.select shifts the digits as UTS 35 defines (1200000).
+        PluralOperands ops = PluralOperands.FromDigits(d.Integer, d.Fraction, compactExponent, shift);
         return data.Select(locale, type, ops);
     }
 

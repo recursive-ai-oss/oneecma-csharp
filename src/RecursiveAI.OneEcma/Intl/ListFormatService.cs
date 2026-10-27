@@ -37,9 +37,11 @@ internal sealed class ListFormatService
     /// <param name="type"><c>type</c> option or null (conjunction).</param>
     /// <param name="style"><c>style</c> option or null (long).</param>
     /// <param name="defaultLocale">The host's default locale.</param>
+    /// <param name="localeMatcher"><c>localeMatcher</c> option or null.</param>
     /// <exception cref="IntlException">An option is out of range.</exception>
-    internal static ListFormatService Create(IReadOnlyList<string> locales, string? type, string? style, string defaultLocale)
+    internal static ListFormatService Create(IReadOnlyList<string> locales, string? type, string? style, string defaultLocale, string? localeMatcher = null)
     {
+        LocaleResolver.ValidateLocaleMatcher(localeMatcher, "ListFormat");
         type ??= "conjunction";
         style ??= "long";
         if (type is not ("conjunction" or "disjunction" or "unit"))

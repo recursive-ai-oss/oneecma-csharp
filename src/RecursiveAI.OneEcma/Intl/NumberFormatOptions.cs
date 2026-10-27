@@ -9,6 +9,9 @@ internal readonly record struct NumberPart(string Type, string Value, string? So
 /// <summary>Inputs for <see cref="NumberFormatService"/> (the Intl.NumberFormat constructor options). Null means undefined.</summary>
 internal sealed record NumberFormatOptions
 {
+    /// <summary><c>localeMatcher</c>: <c>lookup</c> or <c>best fit</c>; both use the lookup matcher.</summary>
+    internal string? LocaleMatcher { get; init; }
+
     /// <summary><c>numberingSystem</c>; only <c>latn</c> is supported, others fall back to it.</summary>
     internal string? NumberingSystem { get; init; }
 

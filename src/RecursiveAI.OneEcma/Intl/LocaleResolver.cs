@@ -261,6 +261,64 @@ internal static class LocaleResolver
     }
 
     /// <summary>
+    /// GetOption for <c>localeMatcher</c> (ECMA-402 9.2.?): only <c>lookup</c> and <c>best fit</c> are allowed;
+    /// both resolve with the lookup matcher here.
+    /// </summary>
+    /// <exception cref="IntlException">Any other value (RangeError).</exception>
+    internal static void ValidateLocaleMatcher(string? value, string service)
+    {
+        if (value is not null and not ("lookup" or "best fit"))
+        {
+            throw IntlException.Range($"Value {value} out of range for Intl.{service} options property localeMatcher");
+        }
+    }
+
+    /// <summary>
+    /// The <c>numberingSystem</c> option check (ECMA-402 15.1.2 step: the value must match the Unicode locale
+    /// <c>type</c> production, one or more groups of 3 to 8 alphanumerics joined by hyphens).
+    /// </summary>
+    /// <exception cref="IntlException">The value is not well formed (RangeError).</exception>
+    internal static void ValidateNumberingSystem(string? value, string service)
+    {
+        if (value is null)
+        {
+            return;
+        }
+
+        int start = 0;
+        while (true)
+        {
+            int end = value.IndexOf('-', start);
+            if (end < 0)
+            {
+                end = value.Length;
+            }
+
+            int len = end - start;
+            if (len is < 3 or > 8)
+            {
+                throw IntlException.Range($"Invalid numberingSystem : {value}");
+            }
+
+            for (int i = start; i < end; i++)
+            {
+                char c = value[i];
+                if (!(c is >= 'a' and <= 'z' or >= 'A' and <= 'Z' or >= '0' and <= '9'))
+                {
+                    throw IntlException.Range($"Invalid numberingSystem : {value}");
+                }
+            }
+
+            if (end == value.Length)
+            {
+                return;
+            }
+
+            start = end + 1;
+        }
+    }
+
+    /// <summary>
     /// SupportedLocales (9.2.10) with the lookup matcher: the requested locales an available locale serves.
     /// </summary>
     internal static List<string> SupportedLocales(IReadOnlyList<string> requested)

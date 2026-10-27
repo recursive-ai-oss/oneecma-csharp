@@ -37,9 +37,17 @@ internal sealed class RelativeTimeFormatService
     internal static string NumberingSystem => "latn";
 
     /// <summary>Creates the service (17.1.1).</summary>
+    /// <param name="locales">Requested locales, already canonicalized.</param>
+    /// <param name="style"><c>style</c> option or null (long).</param>
+    /// <param name="numeric"><c>numeric</c> option or null (always).</param>
+    /// <param name="defaultLocale">The host's default locale.</param>
+    /// <param name="localeMatcher"><c>localeMatcher</c> option or null.</param>
+    /// <param name="numberingSystem"><c>numberingSystem</c> option or null; only <c>latn</c> is supported.</param>
     /// <exception cref="IntlException">An option is out of range.</exception>
-    internal static RelativeTimeFormatService Create(IReadOnlyList<string> locales, string? style, string? numeric, string defaultLocale)
+    internal static RelativeTimeFormatService Create(IReadOnlyList<string> locales, string? style, string? numeric, string defaultLocale, string? localeMatcher = null, string? numberingSystem = null)
     {
+        LocaleResolver.ValidateLocaleMatcher(localeMatcher, "RelativeTimeFormat");
+        LocaleResolver.ValidateNumberingSystem(numberingSystem, "RelativeTimeFormat");
         style ??= "long";
         numeric ??= "always";
         if (style is not ("long" or "short" or "narrow"))
@@ -52,7 +60,7 @@ internal sealed class RelativeTimeFormatService
             throw IntlException.Range($"Value {numeric} out of range for Intl.RelativeTimeFormat options property numeric");
         }
 
-        ResolvedLocale r = LocaleResolver.Resolve(locales, ["nu"], new Dictionary<string, string?>(), (_, _) => ["latn"], defaultLocale);
+        ResolvedLocale r = LocaleResolver.Resolve(locales, ["nu"], new Dictionary<string, string?> { ["nu"] = numberingSystem }, (_, _) => ["latn"], defaultLocale);
         return new RelativeTimeFormatService(r.Locale, r.DataLocale, style, numeric);
     }
 

@@ -139,6 +139,8 @@ internal sealed partial class NumberFormatService
     /// <exception cref="IntlException">An option is invalid (RangeError) or missing (TypeError).</exception>
     internal static NumberFormatService Create(IReadOnlyList<string> locales, NumberFormatOptions options, string defaultLocale)
     {
+        LocaleResolver.ValidateLocaleMatcher(options.LocaleMatcher, "NumberFormat");
+        LocaleResolver.ValidateNumberingSystem(options.NumberingSystem, "NumberFormat");
         ResolvedLocale r = LocaleResolver.Resolve(
             locales,
             ["nu"],
@@ -162,11 +164,10 @@ internal sealed partial class NumberFormatService
             throw IntlException.Type("Currency code is required with currency style.");
         }
 
-        if (style == "currency")
-        {
-            Choice(options.CurrencyDisplay, "currencyDisplay", "code", "symbol", "narrowSymbol", "name");
-            Choice(options.CurrencySign, "currencySign", "standard", "accounting");
-        }
+        // The display options are read (and validated) whatever the style is.
+        Choice(options.CurrencyDisplay, "currencyDisplay", "code", "symbol", "narrowSymbol", "name");
+        Choice(options.CurrencySign, "currencySign", "standard", "accounting");
+        Choice(options.UnitDisplay, "unitDisplay", "short", "narrow", "long");
 
         if (options.Unit is not null && !IsWellFormedUnit(options.Unit))
         {
@@ -179,8 +180,6 @@ internal sealed partial class NumberFormatService
             {
                 throw IntlException.Type("Unit is required with unit style.");
             }
-
-            Choice(options.UnitDisplay, "unitDisplay", "short", "narrow", "long");
         }
 
         string notation = Choice(options.Notation, "notation", "standard", "scientific", "engineering", "compact");
@@ -621,6 +620,13 @@ internal sealed partial class NumberFormatService
             default:
                 return negative ? SignKind.Minus : SignKind.None;
         }
+    }
+
+    /// <summary>The plural category of <paramref name="n"/> in compact notation (the compact exponent is the <c>c</c> operand).</summary>
+    internal PluralCategory CompactCategory(DecimalNumber n, string ruleLocale, PluralType type)
+    {
+        Scaled s = ScaleAndRound(n.Abs(), n.IsNegative);
+        return PluralRulesService.SelectDigits(CldrData.Plurals, ruleLocale, type, s.Digits, s.Exponent, shift: true);
     }
 
     // The category of the displayed digits with the compact exponent as the c/e operand only (picks the compact pattern).
