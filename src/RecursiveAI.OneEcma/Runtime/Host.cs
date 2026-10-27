@@ -35,7 +35,7 @@ public interface IJsHost
     /// <param name="epochMs">The instant, in milliseconds since the Unix epoch.</param>
     /// <param name="offsetMs">Milliseconds east of UTC at that instant.</param>
     /// <param name="isDaylight">Whether daylight saving time is in effect.</param>
-    /// <returns>False when the zone is unknown, in which case the engine treats local time as UTC.</returns>
+    /// <returns>False when the zone is unknown. Local-time operations of <c>Date</c> then throw a <c>RangeError</c> naming the zone, rather than reading it as UTC.</returns>
     bool TryGetTimeZoneOffset(string zoneId, double epochMs, out int offsetMs, out bool isDaylight)
     {
         bool known = RecursiveAI.OneEcma.Intl.BclTimeZoneSource.Shared.TryGetOffset(zoneId, epochMs, out RecursiveAI.OneEcma.Intl.TimeZoneOffset o);

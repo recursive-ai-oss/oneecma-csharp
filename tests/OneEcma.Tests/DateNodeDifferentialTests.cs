@@ -38,7 +38,10 @@ public class DateNodeDifferentialTests
 
     // Before 1900 a zone's offset is local mean time with seconds and the reference ICU names it differently; the BCL zone rules the
     // default host reads round the offset to minutes. Lines whose instant is before 1900 (or at the ends of the range) are compared only in UTC.
-    private const double Era1900 = -2208988800000;
+    // On Windows the OS zone rules are all the default host has, and they differ from tzdata before 1970 (Berlin's 1945 double summer time),
+    // so there the cut is the epoch; instants from 1970 on are compared everywhere.
+    private static readonly double Era1900 = OperatingSystem.IsWindows() ? 0 : -2208988800000;
+    private static readonly double EraYear = OperatingSystem.IsWindows() ? 1970 : 1900;
 
     private static bool IsEarly(string expectedLine)
     {
@@ -54,7 +57,7 @@ public class DateNodeDifferentialTests
         {
             string g = m.Groups[1].Success ? m.Groups[1].Value : m.Groups[2].Value;
             double v = double.Parse(g, System.Globalization.CultureInfo.InvariantCulture);
-            return m.Groups[2].Success ? v < 1900 : v < Era1900 || v > 8e15;
+            return m.Groups[2].Success ? v < EraYear : v < Era1900 || v > 8e15;
         }
 
         return label.StartsWith("P ", StringComparison.Ordinal) && double.TryParse(value, System.Globalization.CultureInfo.InvariantCulture, out double ms) && ms < Era1900;

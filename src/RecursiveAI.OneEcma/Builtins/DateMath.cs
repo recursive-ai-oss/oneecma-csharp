@@ -149,7 +149,10 @@ internal static class DateMath
             epochMs -= CycleMs;
         }
 
-        return host.TryGetTimeZoneOffset(host.TimeZoneId, epochMs, out int ms, out bool dst) ? new TimeZoneOffset(ms, dst) : new TimeZoneOffset(0, false);
+        // A host zone nobody can resolve is a host mistake; reading it as UTC would give wrong local times without a word.
+        return host.TryGetTimeZoneOffset(host.TimeZoneId, epochMs, out int ms, out bool dst)
+            ? new TimeZoneOffset(ms, dst)
+            : throw Errors.Range("Invalid time zone specified: " + host.TimeZoneId);
     }
 
     /// <summary>The offset in milliseconds of the host zone at the UTC instant <paramref name="t"/>.</summary>

@@ -149,13 +149,68 @@ internal static class TimeZoneData
 /// <summary>
 /// An <see cref="ITimeZoneSource"/> over the BCL <c>TimeZoneInfo</c> rules of the machine (for tests and host wiring; the formatting
 /// services never construct it). <c>TimeZoneInfo</c> only covers years 1 to 9999, so instants outside that range use the offset at the nearest end.
+/// On Windows without ICU the BCL knows zones only by Windows id (<c>W. Europe Standard Time</c>), so an IANA id it does not find is
+/// looked up again through CLDR's windowsZones mapping; an id neither way resolves is reported as unknown, never as UTC.
 /// </summary>
 internal sealed class BclTimeZoneSource : ITimeZoneSource
 {
     private readonly Dictionary<string, TimeZoneInfo?> _zones = new(StringComparer.Ordinal);
+    private readonly Func<string, TimeZoneInfo?> _find;
+
+    internal BclTimeZoneSource() : this(FindInSystem)
+    {
+    }
+
+    /// <summary>A source over <paramref name="find"/>, which returns the zone for an id or null; tests pass one that knows only Windows ids.</summary>
+    internal BclTimeZoneSource(Func<string, TimeZoneInfo?> find) => _find = find;
 
     /// <summary>The instance behind the default of the host's offset lookup.</summary>
     internal static BclTimeZoneSource Shared { get; } = new();
+
+    private static TimeZoneInfo? FindInSystem(string id) => TimeZoneInfo.FindSystemTimeZoneById(id);
+
+    // Whatever a finder throws (not found, invalid data, no permission, a platform without the id) means "not found" here: the
+    // caller then tries the Windows id and finally reports the zone unknown, which the engine turns into an ordinary RangeError.
+    private TimeZoneInfo? Find(string id)
+    {
+        try
+        {
+            return _find(id);
+        }
+        catch (Exception e) when (e is not (OutOfMemoryException or StackOverflowException or OperationCanceledException))
+        {
+            return null;
+        }
+    }
+
+    /// <summary>The Windows zone id CLDR maps an IANA id to, or null.</summary>
+    internal static string? WindowsIdOf(string zoneId)
+    {
+        Data.DataTree sup = Data.CldrData.Supplemental;
+        if (sup.GetString("windowsZones", zoneId) is { } direct)
+        {
+            return direct;
+        }
+
+        // A link name (Asia/Kolkata) maps through the canonical id CLDR lists.
+        return TimeZoneData.Canonicalize(zoneId) is { } canonical && canonical != zoneId ? sup.GetString("windowsZones", canonical) : null;
+    }
+
+    private TimeZoneInfo? Resolve(string zoneId)
+    {
+        if (zoneId == "UTC")
+        {
+            return TimeZoneInfo.Utc;
+        }
+
+        TimeZoneInfo? tz = Find(zoneId);
+        if (tz is null && WindowsIdOf(zoneId) is { } windows)
+        {
+            tz = Find(windows);
+        }
+
+        return tz;
+    }
 
     /// <inheritdoc/>
     public bool TryGetOffset(string zoneId, double epochMs, out TimeZoneOffset offset)
@@ -166,15 +221,7 @@ internal sealed class BclTimeZoneSource : ITimeZoneSource
         {
             if (!_zones.TryGetValue(zoneId, out tz))
             {
-                try
-                {
-                    tz = zoneId == "UTC" ? TimeZoneInfo.Utc : TimeZoneInfo.FindSystemTimeZoneById(zoneId);
-                }
-                catch (Exception e) when (e is TimeZoneNotFoundException or InvalidTimeZoneException)
-                {
-                    tz = null;
-                }
-
+                tz = Resolve(zoneId);
                 _zones[zoneId] = tz;
             }
         }
