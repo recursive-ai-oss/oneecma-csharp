@@ -401,7 +401,8 @@ internal static partial class Vm
             case DynKind.With:
                 {
                     var key = new PropertyKey(name);
-                    if (strict && !d.Obj!.HasProperty(key))
+                    // 9.1.1.2.5 SetMutableBinding step 2: HasProperty is observable (a proxy trap) even in sloppy code.
+                    if (!d.Obj!.HasProperty(key) && strict)
                     {
                         throw Errors.Reference(name + " is not defined");
                     }
@@ -786,7 +787,7 @@ internal static partial class Vm
         bool ok = obj.Delete(key);
         if (!ok && strict)
         {
-            throw Errors.Type("Cannot delete property '" + Ops.KeyText(key) + "' of " + Ops.DisplayValue(JsValue.FromObject(obj)));
+            throw obj is ProxyObject ? ProxyObject.Falsish("deleteProperty", Ops.KeyText(key)) : Errors.Type("Cannot delete property '" + Ops.KeyText(key) + "' of " + Ops.DisplayValue(JsValue.FromObject(obj)));
         }
 
         return ok;

@@ -832,6 +832,11 @@ internal static class Ops
 
     internal static string SetFailureMessage(JsObject o, PropertyKey key)
     {
+        if (o is ProxyObject)
+        {
+            return "'set' on proxy: trap returned falsish for property '" + KeyText(key) + "'";
+        }
+
         // V8 distinguishes a read-only data property, a getter-only accessor and a non-extensible object.
         JsObject? p = o;
         while (p is not null)
