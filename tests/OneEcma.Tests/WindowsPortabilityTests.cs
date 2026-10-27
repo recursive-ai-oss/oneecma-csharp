@@ -21,10 +21,29 @@ public class WindowsPortabilityTests
         ["India Standard Time"] = "Asia/Calcutta",
     };
 
+    private static TimeZoneInfo ReferenceZone(string iana)
+    {
+        foreach (var (windows, ianaId) in WindowsToIana)
+        {
+            if (ianaId == iana)
+            {
+                try
+                {
+                    return TimeZoneInfo.FindSystemTimeZoneById(windows);
+                }
+                catch (TimeZoneNotFoundException)
+                {
+                }
+            }
+        }
+
+        return TimeZoneInfo.FindSystemTimeZoneById(iana);
+    }
+
     private static BclTimeZoneSource WindowsOnly(List<string>? asked = null) => new(id =>
     {
         asked?.Add(id);
-        return WindowsToIana.TryGetValue(id, out string? iana) ? TimeZoneInfo.FindSystemTimeZoneById(iana) : null;
+        return WindowsToIana.TryGetValue(id, out string? iana) ? ReferenceZone(iana) : null;
     });
 
     [Fact]
@@ -50,11 +69,49 @@ public class WindowsPortabilityTests
         foreach (double t in new[] { 1_700_000_000_000.0, 1_720_000_000_000.0, 0, -2_000_000_000_000.0 })
         {
             Assert.True(windows.TryGetOffset(id, t, out TimeZoneOffset got), id);
-            Assert.True(new BclTimeZoneSource().TryGetOffset(native, t, out TimeZoneOffset want));
+            // The reference reads the same rules directly, by an id every OS has (Windows has no IANA ids without ICU).
+            TimeZoneInfo reference = ReferenceZone(native);
+            DateTimeOffset at = DateTimeOffset.FromUnixTimeMilliseconds((long)Math.Max(t, -62135596800000.0 + 86400000.0));
+            var want = new TimeZoneOffset((int)reference.GetUtcOffset(at).TotalMilliseconds, reference.IsDaylightSavingTime(at));
             Assert.Equal(want, got);
         }
 
         Assert.Contains(asked, a => !a.Contains('/'));
+    }
+
+    [Theory]
+    [InlineData(typeof(TimeZoneNotFoundException))]
+    [InlineData(typeof(InvalidTimeZoneException))]
+    [InlineData(typeof(System.Security.SecurityException))]
+    [InlineData(typeof(UnauthorizedAccessException))]
+    [InlineData(typeof(InvalidOperationException))]
+    public void AFinderThatThrowsMeansNotFound(Type exception)
+    {
+        var source = new BclTimeZoneSource(id => throw (Exception)Activator.CreateInstance(exception)!);
+        Assert.False(source.TryGetOffset("Europe/Berlin", 0, out _));
+    }
+
+    [Fact]
+    public void AHostWhoseFinderThrowsGivesARangeErrorNotAnInternalError()
+    {
+        var engine = new ScriptEngine(new ScriptEngineOptions { Host = new ThrowingHost() });
+        JsException e = Assert.Throws<JsException>(() => engine.Evaluate("new Date(0).getHours()", "t.js", TestContext.Current.CancellationToken));
+        Assert.Contains("Invalid time zone specified: Europe/Berlin", e.Message);
+    }
+
+    private sealed class ThrowingHost : DefaultHost
+    {
+        private readonly BclTimeZoneSource _source = new(id => throw new TimeZoneNotFoundException(id));
+
+        public override string TimeZoneId => "Europe/Berlin";
+
+        public override bool TryGetTimeZoneOffset(string zoneId, double epochMs, out int offsetMs, out bool isDaylight)
+        {
+            bool known = _source.TryGetOffset(zoneId, epochMs, out TimeZoneOffset o);
+            offsetMs = o.OffsetMs;
+            isDaylight = o.IsDaylight;
+            return known;
+        }
     }
 
     [Fact]

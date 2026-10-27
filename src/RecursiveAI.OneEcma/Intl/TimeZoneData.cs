@@ -167,13 +167,17 @@ internal sealed class BclTimeZoneSource : ITimeZoneSource
     /// <summary>The instance behind the default of the host's offset lookup.</summary>
     internal static BclTimeZoneSource Shared { get; } = new();
 
-    private static TimeZoneInfo? FindInSystem(string id)
+    private static TimeZoneInfo? FindInSystem(string id) => TimeZoneInfo.FindSystemTimeZoneById(id);
+
+    // Whatever a finder throws (not found, invalid data, no permission, a platform without the id) means "not found" here: the
+    // caller then tries the Windows id and finally reports the zone unknown, which the engine turns into an ordinary RangeError.
+    private TimeZoneInfo? Find(string id)
     {
         try
         {
-            return TimeZoneInfo.FindSystemTimeZoneById(id);
+            return _find(id);
         }
-        catch (Exception e) when (e is TimeZoneNotFoundException or InvalidTimeZoneException)
+        catch (Exception e) when (e is not (OutOfMemoryException or StackOverflowException or OperationCanceledException))
         {
             return null;
         }
@@ -199,10 +203,10 @@ internal sealed class BclTimeZoneSource : ITimeZoneSource
             return TimeZoneInfo.Utc;
         }
 
-        TimeZoneInfo? tz = _find(zoneId);
+        TimeZoneInfo? tz = Find(zoneId);
         if (tz is null && WindowsIdOf(zoneId) is { } windows)
         {
-            tz = _find(windows);
+            tz = Find(windows);
         }
 
         return tz;
