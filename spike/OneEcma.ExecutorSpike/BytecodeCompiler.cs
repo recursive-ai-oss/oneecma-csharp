@@ -853,7 +853,20 @@ internal sealed class BytecodeCompiler
         }
     }
 
+    private int _depth;
+
     private void ExprTo(Expression e, int dst)
+    {
+        if (++_depth > CompileUtil.MaxNesting || !System.Runtime.CompilerServices.RuntimeHelpers.TryEnsureSufficientExecutionStack())
+        {
+            throw CompileUtil.TooNested();
+        }
+
+        ExprToCore(e, dst);
+        _depth--;
+    }
+
+    private void ExprToCore(Expression e, int dst)
     {
         int mark = _fs.TempTop;
         switch (e)

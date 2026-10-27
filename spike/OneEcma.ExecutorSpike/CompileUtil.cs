@@ -5,6 +5,14 @@ namespace RecursiveAI.OneEcma.ExecutorSpike;
 /// <summary>Small pieces both compilers need.</summary>
 internal static class CompileUtil
 {
+    /// <summary>
+    /// How deeply non-flat expression and statement nesting may go before a compiler pass stops with a limit.
+    /// The front end bounds nesting at 512 but accepts 100,000-link member and call chains, so each pass needs its own guard.
+    /// </summary>
+    internal const int MaxNesting = 1000;
+
+    internal static SpikeLimitException TooNested() => new("source nested too deeply");
+
     internal static BinaryOp ToBinary(AssignOp op) => op switch
     {
         AssignOp.AddAssign => BinaryOp.Add,

@@ -253,7 +253,20 @@ internal sealed class Analysis
         _curFunc = savedFunc;
     }
 
+    private int _depth;
+
     private void Visit(Node? n)
+    {
+        if (++_depth > CompileUtil.MaxNesting || !System.Runtime.CompilerServices.RuntimeHelpers.TryEnsureSufficientExecutionStack())
+        {
+            throw CompileUtil.TooNested();
+        }
+
+        VisitCore(n);
+        _depth--;
+    }
+
+    private void VisitCore(Node? n)
     {
         switch (n)
         {

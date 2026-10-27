@@ -326,7 +326,21 @@ internal sealed class ClosureCompiler
         return res;
     }
 
+    private int _depth;
+
     private XNode CompileExpr(Expression e)
+    {
+        if (++_depth > CompileUtil.MaxNesting || !System.Runtime.CompilerServices.RuntimeHelpers.TryEnsureSufficientExecutionStack())
+        {
+            throw CompileUtil.TooNested();
+        }
+
+        XNode r = CompileExprCore(e);
+        _depth--;
+        return r;
+    }
+
+    private XNode CompileExprCore(Expression e)
     {
         switch (e)
         {
