@@ -133,11 +133,14 @@ to a flat basic-block form, which is a bytecode compiler plus the interpreter fo
 
 - Lean run: spans only. Bytecode keeps the pc-to-span table (two ints per instruction); the closure tree keeps start and
   end on each node.
-- Traced run (bytecode): `Run<TTrace>` with `TTrace : struct, ITracer`; `After(fn, pc, op, stack, base, a)` is called
-  once per instruction. `NoTrace` is empty and inlined away; `RecordingTrace` records `(span, value)` for every
-  value-producing instruction (test: the value behind the span `o.a` is `1,2`). Provenance chains, frame locals and
-  did-you-mean are built from this stream and from the live `Fr` records and register stack, which remain intact after an
-  unwind until overwritten; the report is built at the throw point, before the handler search discards anything.
+- Traced run (bytecode): `Run<TTrace>` with `TTrace : struct, ITracer`; `OnOp(frame, instruction, pc, stack, sp)` is called
+  before every instruction. `NoTrace` is empty and inlined away. `RecordingTrace` acts on the stores only (`InitSlot`,
+  `StoreSlot`, `StoreSlotChecked`, `InitGlobalLexical`, `StoreGlobal`, `DefineField`): the compiler keeps a side table
+  (`FunctionCode.ValueSpans`, instruction index to the span of the value written) and the tracer records, per binding
+  (environment and slot, or global name) and per object-literal property, the span the value was written from; an object
+  that is stored again keeps the chain of earlier places (cap 8). The explainer (`Diagnostics/Explain.cs`) reads that
+  state and the live environments of the failing frames (captured on `StackFrameInfo` while the error is created) to build
+  labels, "did you mean" and locals. It reads data properties only and never runs script.
 - The traced run is a replay: the record log supplies clock, randomness and host results, so the same instructions run in
   the same order. Because both instantiations come from one source, they cannot drift apart.
 - Closure tree: a decorating node factory for the second tree; fused nodes need to be disabled in it (see the table).

@@ -103,11 +103,11 @@ public sealed class RecordReplayTests
                 return n * 2;
             }, (_, v) => JsValue.FromNumber(v));
         });
-        const string src = "globalThis.out = []; later(5).then(v => out.push('a' + v)); later(30).catch(e => out.push('b ' + e.message)); Promise.resolve().then(() => out.push('first'));";
+        const string src = "globalThis.out = []; later(5).then(v => out.push('a' + v)); later(250).catch(e => out.push('b ' + e.message)); Promise.resolve().then(() => out.push('first'));";
         engine.Evaluate(src, "t.js", TestContext.Current.CancellationToken);
         await engine.RunUntilIdleAsync(TestContext.Current.CancellationToken);
         string recorded = Show(engine, engine.Evaluate("out.join('|')", cancellationToken: TestContext.Current.CancellationToken));
-        Assert.Equal("first|a10|b InvalidOperationException: too slow: 30", recorded);
+        Assert.Equal("first|a10|b InvalidOperationException: too slow: 250", recorded);
         Assert.True(engine.RecordLog.IsReplayable);
 
         ReplayResult r = ScriptEngine.Replay(engine.RecordLog, new ReplayOptions { Trace = false }, TestContext.Current.CancellationToken);

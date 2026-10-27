@@ -56,7 +56,7 @@ internal static class Program
 
         if (args.Length == 2 && args[0] == "replay-file")
         {
-            string? failure = ReplayFuzz.RunOne(File.ReadAllText(args[1]), 60);
+            string? failure = ReplayFuzz.RunOne(args[1].EndsWith(".json", StringComparison.Ordinal) ? System.Text.Json.JsonSerializer.Deserialize<string>(File.ReadAllText(args[1]))! : File.ReadAllText(args[1]), 60);
             Console.WriteLine(failure ?? "ok");
             return failure is null ? 0 : 1;
         }

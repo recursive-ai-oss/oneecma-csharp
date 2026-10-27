@@ -27,7 +27,7 @@ Values are copied by structure: undefined, null, booleans, numbers (double), str
 
 ## Encoding
 
-Header: the four bytes `OERL`, then the version byte. Events follow back to back: one tag byte, then the payload. Integers are LEB128 varints (zigzag for signed), doubles are 8 bytes little-endian, strings are a varint byte count and UTF-8. A reader refuses another version, unknown tags, truncation and values nested deeper than 64 levels with `FormatException`.
+Header: the four bytes `OERL`, then the version byte. Events follow back to back: one tag byte, then the payload. Integers are LEB128 varints (zigzag for signed), doubles are 8 bytes little-endian, strings are a varint (byte count shifted left by one, low bit set when the string holds a lone surrogate) and UTF-8, or WTF-8 (each lone surrogate as its own three bytes) when the low bit is set. A reader refuses another version, unknown tags, truncation and values nested deeper than 64 levels with `FormatException`.
 
 ## Replay
 

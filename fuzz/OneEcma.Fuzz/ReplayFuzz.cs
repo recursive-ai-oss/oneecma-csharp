@@ -161,10 +161,11 @@ internal static class ReplayFuzz
             if (failure is not null)
             {
                 findings++;
-                string path = Path.Combine(outDir, "replay-" + findings.ToString(CultureInfo.InvariantCulture) + ".js");
-                File.WriteAllText(path, m);
-                File.WriteAllText(path + ".txt", failure);
-                Console.Error.WriteLine("finding " + findings + ": " + failure.Split('\n')[0]);
+                // The input may hold lone surrogates, which a UTF-8 file cannot carry: keep it as a JSON string.
+                string path = Path.Combine(outDir, "replay-" + findings.ToString(CultureInfo.InvariantCulture) + ".json");
+                File.WriteAllText(path, System.Text.Json.JsonSerializer.Serialize(m));
+                File.WriteAllText(path + ".txt", failure, new System.Text.UTF8Encoding(false, false));
+                Console.Error.WriteLine("finding " + findings + ": " + System.Text.Json.JsonSerializer.Serialize(failure.Length > 3000 ? failure[..3000] : failure));
                 if (failure.StartsWith("hang", StringComparison.Ordinal))
                 {
                     Console.WriteLine($"replay: executions={executions} findings={findings} (stopped on a hang)");

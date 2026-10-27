@@ -137,8 +137,24 @@ public sealed class RecordLog
 
     internal void Str(string s)
     {
+        // A JavaScript string may hold lone surrogates, which UTF-8 cannot carry: those strings are written as WTF-8
+        // (each lone surrogate as its own three bytes) and flagged in the low bit of the length.
+        if (!Wtf8.IsWellFormed(s))
+        {
+            byte[] w = Wtf8.Encode(s);
+            Varint(((ulong)w.Length << 1) | 1);
+            while (_len + w.Length > _buf.Length)
+            {
+                Array.Resize(ref _buf, _buf.Length * 2);
+            }
+
+            w.CopyTo(_buf, _len);
+            _len += w.Length;
+            return;
+        }
+
         int n = Encoding.UTF8.GetByteCount(s);
-        Varint((ulong)n);
+        Varint((ulong)n << 1);
         while (_len + n > _buf.Length)
         {
             Array.Resize(ref _buf, _buf.Length * 2);
@@ -251,13 +267,14 @@ internal sealed class LogReader
 
     internal string Str()
     {
-        int n = checked((int)Varint());
+        ulong head = Varint();
+        int n = checked((int)(head >> 1));
         if (Pos + n > _end)
         {
             throw new FormatException("The record log ends in the middle of an event.");
         }
 
-        string s = Encoding.UTF8.GetString(_buf, Pos, n);
+        string s = (head & 1) == 0 ? Encoding.UTF8.GetString(_buf, Pos, n) : Wtf8.Decode(_buf.AsSpan(Pos, n));
         Pos += n;
         return s;
     }
@@ -323,5 +340,101 @@ internal sealed class LogReader
             case 4: Varint(); break;
             default: throw new FormatException("Bad host call outcome in the record log.");
         }
+    }
+}
+
+/// <summary>UTF-8 that also carries lone surrogates (WTF-8), so any JavaScript string survives the record log.</summary>
+internal static class Wtf8
+{
+    /// <summary>True when every surrogate in the string is half of a pair.</summary>
+    internal static bool IsWellFormed(string s)
+    {
+        for (int i = 0; i < s.Length; i++)
+        {
+            if (char.IsHighSurrogate(s[i]) && i + 1 < s.Length && char.IsLowSurrogate(s[i + 1]))
+            {
+                i++;
+            }
+            else if (char.IsSurrogate(s[i]))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    internal static byte[] Encode(string s)
+    {
+        var o = new List<byte>(s.Length + 8);
+        for (int i = 0; i < s.Length; i++)
+        {
+            int c = s[i];
+            if (char.IsHighSurrogate(s[i]) && i + 1 < s.Length && char.IsLowSurrogate(s[i + 1]))
+            {
+                int cp = char.ConvertToUtf32(s[i], s[i + 1]);
+                i++;
+                o.Add((byte)(0xF0 | (cp >> 18)));
+                o.Add((byte)(0x80 | ((cp >> 12) & 0x3F)));
+                o.Add((byte)(0x80 | ((cp >> 6) & 0x3F)));
+                o.Add((byte)(0x80 | (cp & 0x3F)));
+            }
+            else if (c < 0x80)
+            {
+                o.Add((byte)c);
+            }
+            else if (c < 0x800)
+            {
+                o.Add((byte)(0xC0 | (c >> 6)));
+                o.Add((byte)(0x80 | (c & 0x3F)));
+            }
+            else
+            {
+                o.Add((byte)(0xE0 | (c >> 12)));
+                o.Add((byte)(0x80 | ((c >> 6) & 0x3F)));
+                o.Add((byte)(0x80 | (c & 0x3F)));
+            }
+        }
+
+        return [.. o];
+    }
+
+    internal static string Decode(ReadOnlySpan<byte> b)
+    {
+        var sb = new StringBuilder(b.Length);
+        int i = 0;
+        while (i < b.Length)
+        {
+            int x = b[i];
+            int len = x < 0x80 ? 1 : (x >> 5) == 6 ? 2 : (x >> 4) == 14 ? 3 : (x >> 3) == 30 ? 4 : 0;
+            if (len == 0 || i + len > b.Length)
+            {
+                throw new FormatException("The record log holds a damaged string.");
+            }
+
+            int cp = len == 1 ? x : x & (0xFF >> (len + 1));
+            for (int k = 1; k < len; k++)
+            {
+                cp = (cp << 6) | (b[i + k] & 0x3F);
+            }
+
+            if (len == 4 && (cp < 0x10000 || cp > 0x10FFFF))
+            {
+                throw new FormatException("The record log holds a damaged string.");
+            }
+
+            if (len == 4)
+            {
+                sb.Append(char.ConvertFromUtf32(cp));
+            }
+            else
+            {
+                sb.Append((char)cp);
+            }
+
+            i += len;
+        }
+
+        return sb.ToString();
     }
 }
