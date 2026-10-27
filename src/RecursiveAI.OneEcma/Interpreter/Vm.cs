@@ -1674,12 +1674,12 @@ internal static partial class Vm
                             }
 
                         case Op.IterClose:
-                            Ops.IteratorClose(new IteratorRecord((JsObject)st[sp - 2].Ref!, st[sp - 1]));
+                            Ops.IteratorClose(new IteratorRecord((JsObject)st[sp - 2 - ins.B].Ref!, st[sp - 1 - ins.B]));
                             break;
                         case Op.IterCloseIfNotDone:
                             if (!st[ins.A].IsTrue)
                             {
-                                Ops.IteratorClose(new IteratorRecord((JsObject)st[sp - 2].Ref!, st[sp - 1]));
+                                Ops.IteratorClose(new IteratorRecord((JsObject)st[sp - 2 - ins.B].Ref!, st[sp - 1 - ins.B]));
                             }
 
                             break;

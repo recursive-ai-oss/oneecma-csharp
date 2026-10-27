@@ -580,7 +580,7 @@ internal sealed partial class Compiler
         SetSpan(fo.Right);
         Emit(Op.GetIterator, isAwait ? 1 : 0, TextConst(fo.Right));
         SetSpan(fo);
-        Control c = new() { Kind = Control.K.IterLoop, Labels = labels, Break = NewLabel(), Continue = NewLabel(), StackItems = 2, Async = isAwait };
+        Control c = new() { Kind = Control.K.IterLoop, Labels = labels, Break = NewLabel(), Continue = NewLabel(), StackItems = 2, Async = isAwait, RecordDepth = _f.Depth };
         _f.Controls.Add(c);
         JumpLabel top = NewLabel();
         JumpLabel exit = NewLabel();
@@ -800,6 +800,12 @@ internal sealed partial class Compiler
                 break;
             case Control.K.Try:
                 Emit(Op.TryLeave);
+                if (c.DoneTemp >= 0)
+                {
+                    // Iterator of an array destructuring: its record sits StackItems deep; operands above it are still live.
+                    Emit(Op.IterCloseIfNotDone, c.DoneTemp, _f.Depth - c.StackItems);
+                }
+
                 if (c.Finalizer is not null)
                 {
                     BlockStatement fin = c.Finalizer;
@@ -814,7 +820,8 @@ internal sealed partial class Compiler
                 }
                 else
                 {
-                    Emit(Op.IterClose);
+                    // Operands above the record (an array destructuring in the loop head) are still on the stack.
+                    Emit(Op.IterClose, 0, forReturn ? _f.Depth - c.RecordDepth : 0);
                 }
 
                 if (!forReturn)
@@ -840,7 +847,7 @@ internal sealed partial class Compiler
         bool needsCleanup = false;
         foreach (Control c in _f.Controls)
         {
-            if (c.Kind == Control.K.Try && c.Finalizer is not null || c.Kind == Control.K.IterLoop)
+            if (c.Kind == Control.K.Try && (c.Finalizer is not null || c.DoneTemp >= 0) || c.Kind == Control.K.IterLoop)
             {
                 needsCleanup = true;
             }

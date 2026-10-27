@@ -27,6 +27,27 @@ internal sealed partial class Compiler
         _nameHint = null;
     }
 
+    /// <summary>13.15.2 step 1.c: the anonymous function takes the target's name only when the target is an IdentifierRef, which a parenthesized identifier is not.</summary>
+    private void ExprNamedUnlessParenthesized(Node e, Identifier target)
+    {
+        if (target.IsParenthesized)
+        {
+            Expr(e);
+        }
+        else
+        {
+            ExprNamed(e, target.Name);
+        }
+    }
+
+    /// <summary>13.3.7.1 SuperProperty : super [ Expression ]: the this binding is read (and may throw) before the key expression runs.</summary>
+    private void SuperKeyExpr(MemberExpression sm)
+    {
+        Emit(Op.LoadThis);
+        Emit(Op.Pop);
+        Expr(sm.Property);
+    }
+
     private void ExprDiscard(Node n)
     {
         int s = _f.CurS;
@@ -643,7 +664,7 @@ internal sealed partial class Compiler
         {
             if (m.Computed)
             {
-                Expr(m.Property);
+                SuperKeyExpr(m);
                 Emit(Op.GetSuperElem);
             }
             else
@@ -801,7 +822,7 @@ internal sealed partial class Compiler
             case MemberExpression { Object: SuperExpression } sm:
                 if (sm.Computed)
                 {
-                    Expr(sm.Property);
+                    SuperKeyExpr(sm);
                     Emit(Op.GetSuperElem);
                 }
                 else

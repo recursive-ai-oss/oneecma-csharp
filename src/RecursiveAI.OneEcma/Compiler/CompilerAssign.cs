@@ -17,14 +17,14 @@ internal sealed partial class Compiler
             case Identifier id:
                 if (a.Operator == AssignOp.Assign)
                 {
-                    ExprNamed(a.Right, id.Name);
+                    ExprNamedUnlessParenthesized(a.Right, id);
                 }
                 else if (logical)
                 {
                     LoadIdent(id.Name);
                     JumpLabel end = NewLabel();
                     Jump(LogicalJump(a.Operator), end);
-                    ExprNamed(a.Right, id.Name);
+                    ExprNamedUnlessParenthesized(a.Right, id);
                     if (!discard)
                     {
                         Emit(Op.Dup);
@@ -101,7 +101,7 @@ internal sealed partial class Compiler
         Emit(Op.ResolveDynRef, nm);
         if (a.Operator == AssignOp.Assign)
         {
-            ExprNamed(a.Right, id.Name);
+            ExprNamedUnlessParenthesized(a.Right, id);
         }
         else if (logical)
         {
@@ -110,7 +110,7 @@ internal sealed partial class Compiler
             JumpLabel shortCircuit = NewLabel();
             JumpLabel done = NewLabel();
             Jump(LogicalJump(a.Operator), shortCircuit);
-            ExprNamed(a.Right, id.Name);
+            ExprNamedUnlessParenthesized(a.Right, id);
             Emit(Op.PutDynRef, nm, strictBit | 2);
             Jump(Op.Jmp, done);
             _f.Depth++;
@@ -150,8 +150,12 @@ internal sealed partial class Compiler
         string? name = computed ? null : ((Identifier)sm.Property).Name;
         if (computed)
         {
-            Expr(sm.Property);
-            Emit(Op.ToPropKey);
+            SuperKeyExpr(sm);
+            if (a.Operator != AssignOp.Assign)
+            {
+                // For plain assignment the key is converted after the right-hand side (13.15.2, PutValue).
+                Emit(Op.ToPropKey);
+            }
         }
 
         if (a.Operator == AssignOp.Assign)
@@ -383,7 +387,7 @@ internal sealed partial class Compiler
                     string? name = computed ? null : ((Identifier)sm.Property).Name;
                     if (computed)
                     {
-                        Expr(sm.Property);
+                        SuperKeyExpr(sm);
                         Emit(Op.ToPropKey);
                         Emit(Op.Dup);
                         Emit(Op.GetSuperElem);
@@ -474,7 +478,7 @@ internal sealed partial class Compiler
     // ---- destructuring and binding --------------------------------------------------------------
 
     /// <summary>Binds or assigns the value on top of the stack to <paramref name="t"/> (consuming it).</summary>
-    private void BindTarget(Node t, BindMode mode)
+    private void BindTarget(Node t, BindMode mode, PreRef? pre = null)
     {
         switch (t)
         {
@@ -494,7 +498,16 @@ internal sealed partial class Compiler
                 {
                     int tv = NewTemp();
                     Emit(Op.StoreLocal, tv);
-                    Expr(sm.Property);
+                    if (pre is not null)
+                    {
+                        Emit(Op.LoadLocal, pre.Key);
+                        FreeTemp(pre.Key);
+                    }
+                    else
+                    {
+                        SuperKeyExpr(sm);
+                    }
+
                     Emit(Op.LoadLocal, tv);
                     Emit(Op.SetSuperElem);
                     FreeTemp(tv);
@@ -510,16 +523,43 @@ internal sealed partial class Compiler
                 {
                     int tv = NewTemp();
                     Emit(Op.StoreLocal, tv);
-                    Expr(m.Object);
+                    if (pre is not null)
+                    {
+                        Emit(Op.LoadLocal, pre.Obj);
+                        FreeTemp(pre.Obj);
+                    }
+                    else
+                    {
+                        Expr(m.Object);
+                    }
+
                     if (m.Property is PrivateIdentifier pi)
                     {
-                        LoadPrivateName(pi.Name);
+                        if (pre is not null)
+                        {
+                            Emit(Op.LoadLocal, pre.Key);
+                            FreeTemp(pre.Key);
+                        }
+                        else
+                        {
+                            LoadPrivateName(pi.Name);
+                        }
+
                         Emit(Op.LoadLocal, tv);
                         Emit(Op.PrivateSet);
                     }
                     else if (m.Computed)
                     {
-                        Expr(m.Property);
+                        if (pre is not null)
+                        {
+                            Emit(Op.LoadLocal, pre.Key);
+                            FreeTemp(pre.Key);
+                        }
+                        else
+                        {
+                            Expr(m.Property);
+                        }
+
                         Emit(Op.LoadLocal, tv);
                         Emit(Op.SetElem);
                     }
@@ -548,7 +588,7 @@ internal sealed partial class Compiler
                     }
 
                     Mark(have);
-                    BindTarget(ap.Left, mode);
+                    BindTarget(ap.Left, mode, pre);
                     break;
                 }
 
@@ -565,6 +605,62 @@ internal sealed partial class Compiler
             default:
                 throw new NotSupportedException("binding target " + t.Kind);
         }
+    }
+
+    /// <summary>The parts of an assignment target's reference, evaluated ahead of the value they will receive.</summary>
+    private sealed class PreRef
+    {
+        internal int Obj = -1;
+        internal int Key = -1;
+    }
+
+    /// <summary>
+    /// ECMA-262 13.15.5.5-13.15.5.6 (DestructuringAssignmentEvaluation): for a property-reference target the reference is evaluated
+    /// before the value is read from the iterator or object, so its side effects and errors come first.
+    /// </summary>
+    private PreRef? PreEvalTarget(Node? t, BindMode mode)
+    {
+        if (mode == BindMode.Init)
+        {
+            return null;
+        }
+
+        Node? target = t is AssignmentPattern ap ? ap.Left : t;
+        if (target is not MemberExpression m)
+        {
+            return null;
+        }
+
+        var p = new PreRef();
+        if (m.Object is SuperExpression)
+        {
+            if (m.Computed)
+            {
+                p.Key = NewTemp();
+                SuperKeyExpr(m);
+                Emit(Op.StoreLocal, p.Key);
+            }
+
+            return p;
+        }
+
+        p.Obj = NewTemp();
+        Expr(m.Object);
+        Emit(Op.StoreLocal, p.Obj);
+        if (m.Property is PrivateIdentifier pi)
+        {
+            p.Key = NewTemp();
+            LoadPrivateName(pi.Name);
+            Emit(Op.StoreLocal, p.Key);
+        }
+        else if (m.Computed)
+        {
+            p.Key = NewTemp();
+            Expr(m.Property);
+            Emit(Op.StoreLocal, p.Key);
+        }
+
+        return p;
     }
 
     private void ArrayPatternBind(ArrayPattern arr, BindMode mode)
@@ -585,7 +681,9 @@ internal sealed partial class Compiler
         JumpLabel end = NewLabel();
         Jump(Op.TryEnter, handler);
         int depth = _f.Depth;
-        var tc = new Control { Kind = Control.K.Try };
+        // A generator resumed with a return completion inside the pattern leaves through this entry and closes the iterator
+        // (13.15.5.5 step 6 / IteratorClose with a return completion).
+        var tc = new Control { Kind = Control.K.Try, DoneTemp = done, StackItems = depth };
         _f.Controls.Add(tc);
         foreach (Node? el in arr.Elements)
         {
@@ -596,13 +694,15 @@ internal sealed partial class Compiler
             }
             else if (el is RestElement re)
             {
+                PreRef? pre = PreEvalTarget(re.Argument, mode);
                 Emit(Op.IterRest, done);
-                BindTarget(re.Argument, mode);
+                BindTarget(re.Argument, mode, pre);
             }
             else
             {
+                PreRef? pre = PreEvalTarget(el, mode);
                 Emit(Op.IterStep, done);
-                BindTarget(el, mode);
+                BindTarget(el, mode, pre);
             }
         }
 
@@ -658,15 +758,17 @@ internal sealed partial class Compiler
         {
             if (p is RestElement re)
             {
+                PreRef? restPre = PreEvalTarget(re.Argument, mode);
                 Emit(Op.LoadLocal, keys);
                 Emit(Op.ObjectRest);
-                BindTarget(re.Argument, mode);
+                BindTarget(re.Argument, mode, restPre);
                 FreeTemp(keys);
                 return;
             }
 
             var prop = (Property)p;
             string? name = StaticKeyName(prop.Key, prop.Computed);
+            PreRef? keyPre = null;
             Emit(Op.Dup);
             if (name is not null)
             {
@@ -678,6 +780,7 @@ internal sealed partial class Compiler
                     Emit(Op.Pop);
                 }
 
+                keyPre = PreEvalTarget(prop.Value, mode);
                 Emit(Op.GetProp, NameConst(name), NewCache());
             }
             else
@@ -693,10 +796,11 @@ internal sealed partial class Compiler
                     Emit(Op.Pop);
                 }
 
+                keyPre = PreEvalTarget(prop.Value, mode);
                 Emit(Op.GetElem);
             }
 
-            BindTarget(prop.Value, mode);
+            BindTarget(prop.Value, mode, keyPre);
         }
 
         Emit(Op.Pop);

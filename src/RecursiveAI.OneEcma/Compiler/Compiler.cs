@@ -65,6 +65,9 @@ internal sealed class Control
     internal BlockStatement? Finalizer;
     internal bool Async;
     internal int StackItems;
+
+    /// <summary>Compile-time stack depth right after the iterator record of a for-of loop was pushed.</summary>
+    internal int RecordDepth;
     internal int DoneTemp = -1;
 }
 
