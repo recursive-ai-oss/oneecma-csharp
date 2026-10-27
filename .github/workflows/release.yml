@@ -6,8 +6,8 @@ name: release
 #
 # Jobs, each with only the permissions it needs:
 #   verify    the tag is well formed, on main, CI passed on that commit, the changelog has the version
-#   publish   build, test, pack, attest, push to nuget.org
 #   binaries  NativeAOT `oneecma` for four platforms, archived with checksums
+#   publish   after the binaries: build, test, pack, attest, push to nuget.org
 #   release   create the GitHub release with the changelog section as notes, packages and binaries attached
 on:
   push:
@@ -64,7 +64,8 @@ jobs:
             || { echo "::error::CHANGELOG.md has no \"## [$version]\" section"; exit 1; }
 
   publish:
-    needs: verify
+    # Nothing reaches nuget.org unless all four NativeAOT binaries build.
+    needs: [verify, binaries]
     runs-on: ubuntu-latest
     environment: nuget
     permissions:
@@ -213,7 +214,7 @@ jobs:
           if-no-files-found: error
 
   release:
-    needs: [publish, binaries]
+    needs: publish
     runs-on: ubuntu-latest
     permissions:
       contents: write       # create the release
