@@ -1,2 +1,51 @@
 # Known failures of the engine backend, each with a reason. Format: <path> | <reason>.
 # Directory prefixes end in '/', '*' is a glob.
+
+# u16 string-number-json
+# The six String.prototype methods that dispatch through the RegExp protocol belong to the RegExp built-in; until it lands they are absent or minimal.
+built-ins/String/prototype/match/ | needs the RegExp built-in (Symbol.match dispatch)
+built-ins/String/prototype/matchAll/ | needs the RegExp built-in (Symbol.matchAll dispatch)
+built-ins/String/prototype/replace/ | needs the RegExp built-in (Symbol.replace dispatch)
+built-ins/String/prototype/replaceAll/ | needs the RegExp built-in (Symbol.replace dispatch)
+built-ins/String/prototype/search/ | needs the RegExp built-in (Symbol.search dispatch)
+built-ins/String/prototype/split/ | needs the RegExp built-in (Symbol.split dispatch)
+annexB/built-ins/String/prototype/match/ | needs the RegExp built-in (IsHTMLDDA matcher)
+annexB/built-ins/String/prototype/matchAll/ | needs the RegExp built-in (IsHTMLDDA matcher)
+annexB/built-ins/String/prototype/replace/ | needs the RegExp built-in (IsHTMLDDA replacer)
+annexB/built-ins/String/prototype/replaceAll/ | needs the RegExp built-in (IsHTMLDDA replacer)
+annexB/built-ins/String/prototype/search/ | needs the RegExp built-in (IsHTMLDDA searcher)
+annexB/built-ins/String/prototype/split/ | needs the RegExp built-in (IsHTMLDDA splitter)
+# Tests that use another area's built-in as their fixture; each passes once that area lands.
+built-ins/String/is-a-constructor.js | uses Reflect.construct
+built-ins/Number/is-a-constructor.js | uses Reflect.construct
+built-ins/BigInt/is-a-constructor.js | uses Reflect.construct
+built-ins/String/proto-from-ctor-realm.js | uses Reflect.construct
+built-ins/Number/proto-from-ctor-realm.js | uses Reflect.construct
+built-ins/Number/prototype/toString/S15.7.4.2_A4_T03.js | uses Date
+built-ins/Number/prototype/valueOf/S15.7.4.4_A2_T03.js | uses Date
+built-ins/BigInt/wrapper-object-ordinary-toprimitive.js | uses Date
+built-ins/String/prototype/lastIndexOf/S15.5.4.8_A1_T12.js | uses Array.prototype.lastIndexOf
+built-ins/String/prototype/endsWith/return-abrupt-from-searchstring-regexp-test.js | uses RegExp
+built-ins/String/prototype/endsWith/searchstring-is-regexp-throws.js | uses RegExp
+built-ins/String/prototype/includes/return-abrupt-from-searchstring-regexp-test.js | uses RegExp
+built-ins/String/prototype/includes/searchstring-is-regexp-throws.js | uses RegExp
+built-ins/String/prototype/startsWith/return-abrupt-from-searchstring-regexp-test.js | uses RegExp
+built-ins/String/prototype/startsWith/searchstring-is-regexp-throws.js | uses RegExp
+built-ins/String/prototype/toLocaleLowerCase/S15.5.4.17_A1_T14.js | uses RegExp
+built-ins/String/prototype/toLocaleUpperCase/S15.5.4.19_A1_T14.js | uses RegExp
+built-ins/String/prototype/toLowerCase/S15.5.4.16_A1_T14.js | uses RegExp
+built-ins/String/prototype/toUpperCase/S15.5.4.18_A1_T14.js | uses RegExp
+built-ins/String/prototype/trim/15.5.4.20-2-49.js | uses RegExp
+built-ins/JSON/parse/reviver-object-own-keys-err.js | uses Proxy
+built-ins/JSON/stringify/replacer-array-abrupt.js | uses Proxy
+built-ins/JSON/stringify/replacer-array-proxy-revoked-realm.js | uses Proxy
+built-ins/JSON/stringify/replacer-array-proxy-revoked.js | uses Proxy
+built-ins/JSON/stringify/replacer-array-proxy.js | uses Proxy
+built-ins/JSON/stringify/replacer-array-wrong-type.js | uses Proxy
+built-ins/JSON/stringify/value-array-abrupt.js | uses Proxy
+built-ins/JSON/stringify/value-array-proxy-revoked.js | uses Proxy
+built-ins/JSON/stringify/value-array-proxy.js | uses Proxy
+built-ins/JSON/stringify/value-object-proxy-revoked.js | uses Proxy
+built-ins/JSON/stringify/value-object-proxy.js | uses Proxy
+built-ins/JSON/rawJSON/returns-expected-object.js | uses Object.hasOwn
+built-ins/JSON/stringify/value-tojson-not-function.js | uses RegExp

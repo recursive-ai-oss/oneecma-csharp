@@ -182,7 +182,10 @@ internal sealed class JsArray : JsObject
                             }
 
                             Dense[idx] = desc.Value;
-                            Count = (int)idx + 1;
+                            if (idx >= (uint)Count)
+                            {
+                                Count = (int)idx + 1;
+                            }
                         }
 
                         if (idx >= Length)
