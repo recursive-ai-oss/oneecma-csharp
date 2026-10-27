@@ -193,14 +193,14 @@ internal struct RecordingTrace : ITracer
 internal sealed class Vm
 {
     private readonly Realm _realm;
-    private JsValue[] _stack = new JsValue[4096];
-    private readonly Fr[] _frames;
+    private JsValue[] _stack = new JsValue[256];
+    private Fr[] _frames;
     private int _fp;
 
     internal Vm(Realm realm)
     {
         _realm = realm;
-        _frames = new Fr[realm.MaxDepth + 2];
+        _frames = new Fr[Math.Min(realm.MaxDepth + 2, 64)];
     }
 
     internal JsValue RunProgram<TTrace>(BcFunc program)
@@ -255,6 +255,7 @@ internal sealed class Vm
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static ref JsValue V(JsValue[] st, int bas, JsValue[] k, int x) => ref (x >= 0 ? ref st[bas + x] : ref k[~x]);
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private JsValue Run<TTrace>(int entryFp)
         where TTrace : struct, ITracer
     {
@@ -793,6 +794,11 @@ internal sealed class Vm
                                     Array.Clear(stack, from, end - from);
                                     fr.Pc = pc;
                                     fr.Env = env;
+                                    if (_fp + 1 >= _frames.Length)
+                                    {
+                                        Array.Resize(ref _frames, Math.Min(r.MaxDepth + 2, _frames.Length * 2));
+                                    }
+
                                     Fr nf = _frames[++_fp] ??= new Fr();
                                     nf.Fn = c;
                                     nf.Pc = 0;

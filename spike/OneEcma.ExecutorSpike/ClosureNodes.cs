@@ -141,6 +141,11 @@ internal static class Calls
 
         r.Depth = d;
         FuncCodeA c = fn.Code;
+        if (d >= r.Frames.Length)
+        {
+            Array.Resize(ref r.Frames, Math.Min(r.MaxDepth + 2, r.Frames.Length * 2));
+        }
+
         Frame nf = r.Frames[d] ?? NewFrame(r, d);
         JsValue[] regs = nf.R;
         if (regs.Length < c.NumRegs)

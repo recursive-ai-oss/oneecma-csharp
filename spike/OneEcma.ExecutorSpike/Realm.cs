@@ -14,7 +14,7 @@ internal sealed class Realm
     internal int MaxDepth;
 
     /// <summary>Argument stack shared by call sites of the closure executor and by native calls.</summary>
-    internal JsValue[] ArgStack = new JsValue[1024];
+    internal JsValue[] ArgStack = new JsValue[128];
     internal int Sp;
 
     /// <summary>Pooled activations of the closure executor, one per call depth.</summary>
@@ -24,7 +24,7 @@ internal sealed class Realm
     {
         Fuel = fuel;
         MaxDepth = maxDepth;
-        Frames = new Closure.Frame?[maxDepth + 2];
+        Frames = new Closure.Frame?[Math.Min(maxDepth + 2, 64)];
         ObjectProto = new JsObject(null);
         FunctionProto = new JsObject(ObjectProto);
         ArrayProto = new JsObject(ObjectProto);

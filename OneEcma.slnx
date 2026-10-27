@@ -13,6 +13,7 @@
   </Folder>
   <Folder Name="/spike/">
     <Project Path="spike/OneEcma.ExecutorSpike/OneEcma.ExecutorSpike.csproj" />
+    <Project Path="spike/OneEcma.ExecutorSpike.AotCheck/OneEcma.ExecutorSpike.AotCheck.csproj" />
   </Folder>
   <Folder Name="/bench/">
     <Project Path="bench/OneEcma.Benchmarks/OneEcma.Benchmarks.csproj" />
