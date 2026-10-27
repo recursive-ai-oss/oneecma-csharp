@@ -2,6 +2,11 @@ error[TypeError]: Cannot destructure property 'a' of 'undefined' as it is undefi
  --> case.js:1:12
   |
 1 | function f({ a }) {
-  |            ^^^^^
+  |            ^^^^^ this parameter expects an object, but `f` received undefined
+...
+4 | f();
+  | --- called here without an argument
   |
+  = help: give the parameter a default so a missing argument is allowed: `{ a } = {}`
+  = help: or pass an object with the properties it reads: `f({ a: … })`
   = stack: f (case.js:1) ← <top-level> (case.js:4)

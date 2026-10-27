@@ -162,4 +162,57 @@ public class RepairTests
         RepairResult r = Repair(source);
         Assert.False(r.Changed);
     }
+
+    [Theory]
+    [InlineData("console.log(1)));\n", "console.log(1);\n")]
+    [InlineData("function f() {\n  return 1;\n}}}\nf();\n", "function f() {\n  return 1;\n}\nf();\n")]
+    public void ARunOfExtraClosersIsRemovedTogether(string source, string expected)
+    {
+        RepairResult r = Repair(source);
+        AssertRepairedParses(r);
+        Assert.Equal(expected, r.RepairedSource);
+        Assert.Equal("R001", Assert.Single(r.Repairs).Id);
+    }
+
+    [Fact]
+    public void ARunOfExtraBracketsIsOnlyASuggestionBecauseAnOpenerCouldBeMissing()
+    {
+        RepairResult r = Repair("const o = { a: [1, 2]]];\n");
+        Assert.False(r.Changed);
+        Assert.NotEmpty(r.Diagnostics);
+    }
+
+    [Theory]
+    [InlineData("const v = foo(1;\n", "const v = foo(1);\n")]
+    [InlineData("console.log(foo(1;\nconsole.log(2);\n", "console.log(foo(1));\nconsole.log(2);\n")]
+    [InlineData("const a = [1, 2;\n", "const a = [1, 2];\n")]
+    [InlineData("const v = foo(1; // note\n", "const v = foo(1); // note\n")]
+    public void AClosingParenBeforeASemicolonThatEndsTheLineIsInserted(string source, string expected)
+    {
+        RepairResult r = Repair(source);
+        AssertRepairedParses(r);
+        Assert.Equal(expected, r.RepairedSource);
+        Assert.Equal("R012", Assert.Single(r.Repairs).Id);
+    }
+
+    [Theory]
+    [InlineData("const v = foo(1; bar(2));\n")]
+    [InlineData("foo(1,\n  bar(2;\n")]
+    [InlineData("const v = foo({ a: 1;\n")]
+    public void AMissingParenIsOnlyASuggestionWhenTheCloserPositionIsAGuess(string source)
+    {
+        RepairResult r = Repair(source);
+        Assert.DoesNotContain(r.Repairs, x => x.Id == "R012");
+        Assert.False(r.Changed);
+    }
+
+    [Theory]
+    [InlineData("const names: string[] = [];\nlet n: number = 0;\nvar f: boolean;\nconst m: Map<string, number> = new Map();\n", "const names = [];\nlet n = 0;\nvar f;\nconst m = new Map();\n")]
+    public void VariableAnnotationsAreErased(string source, string expected)
+    {
+        RepairResult r = Repair(source);
+        AssertRepairedParses(r);
+        Assert.Equal(expected, r.RepairedSource);
+        Assert.All(r.Repairs, x => Assert.Equal("R007", x.Id));
+    }
 }

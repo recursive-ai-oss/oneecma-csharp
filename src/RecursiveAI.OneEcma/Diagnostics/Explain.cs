@@ -10,7 +10,7 @@ namespace RecursiveAI.OneEcma.Diagnostics;
 /// object actually holds and what the name was probably meant to be. It reads the live objects of the failing frame and never
 /// runs script (no getters, no proxy traps), so an explanation cannot change the outcome of the run.
 /// </summary>
-internal static class Explain
+internal static partial class Explain
 {
     /// <summary>At most this many bindings are listed for a frame.</summary>
     internal const int MaxLocals = 24;
@@ -81,6 +81,7 @@ internal static class Explain
             case JsArray a: return "Array (" + Items((int)Math.Min(a.Length, int.MaxValue)) + ")";
             case JsFunction fn: return (fn is ScriptFunction { IsClassConstructor: true } ? "class " : "function ") + FunctionName(fn);
             case PromiseObject: return "Promise";
+            case JsDate { Tv: double tv } when double.IsNaN(tv): return "Invalid Date";
             case JsError e: return (SafeData(e, "name") is { IsString: true } nm ? nm.AsString : "Error") + ": " + (SafeData(e, "message") is { IsString: true } ms ? Clip(ms.AsString, 30) : string.Empty);
             case JsObject o:
                 {
@@ -603,6 +604,22 @@ internal static class Explain
         {
             ReadOfNullish(d, frame, trace, headline, expr, primary, rest);
         }
+        else if (headline == "Reduce of empty array with no initial value")
+        {
+            ReduceOfEmpty(d, frame, trace, expr, primary);
+        }
+        else if (headline == "Cannot mix BigInt and other types, use explicit conversions")
+        {
+            BigIntMix(d, frame, trace, expr);
+        }
+        else if (headline.StartsWith("Cannot destructure ", StringComparison.Ordinal))
+        {
+            Destructure(d, frame, trace, headline, expr, primary);
+        }
+        else if (headline == "Invalid time value")
+        {
+            InvalidDate(d, frame, trace, expr, primary);
+        }
         else if (headline.EndsWith(" is not a function", StringComparison.Ordinal))
         {
             NotAFunction(d, frame, trace, headline[..^" is not a function".Length], expr);
@@ -879,6 +896,11 @@ internal static class Explain
             }
         }
 
+        if (!found && ov.Ref is not JsObject && SuggestMember(d, ownerText, member, ov, realm))
+        {
+            return;
+        }
+
         if (ov.Ref is JsObject owner)
         {
             // A property that holds the thing being called (items.map for result.map)?
@@ -891,18 +913,14 @@ internal static class Explain
                 }
             }
 
-            var cands = new List<(string, JsValue)>();
-            foreach (string k in OwnKeys(owner))
+            if (!found && SuggestMember(d, ownerText, member, ov, realm))
             {
-                if (TryData(owner, k, out JsValue kv, out _) && kv.Ref is JsFunction)
-                {
-                    cands.Add((k, kv));
-                }
+                return;
             }
 
-            if (Closest(member, cands, null, realm) is { } best)
+            if (!found && owner is not JsArray && ConstructorNameOf(owner) == "Object" && HasMethod(JsValue.FromObject(realm.ArrayPrototype), member, realm))
             {
-                Suggest(d, ownerText + "." + best.Name, Short(best.Value));
+                d.Help.Add("`" + ownerText + "` is a plain object, not an array; to use `" + member + "` on its values call `Object.values(" + ownerText + ")." + member + "(...)`, or on its [key, value] pairs `Object.entries(" + ownerText + ")." + member + "(...)`");
             }
             else if (OwnKeys(owner).Count == 0 && owner is not PromiseObject && owner is not JsArray)
             {
@@ -1037,6 +1055,11 @@ internal static class Explain
         if (p is null || ev is null)
         {
             d.PrimaryLabel = "`" + (callee.StartsWith("new ", StringComparison.Ordinal) ? callee[4..] : callee) + "` rejected this argument";
+            if (callee == "JSON.parse" && ReadStringLiteral(t, start, end) is { } literal)
+            {
+                ExplainJsonText(d, frame, trace, arg, new Span(start, end), null, null, literal.Value);
+            }
+
             return;
         }
 
@@ -1044,6 +1067,11 @@ internal static class Explain
         if (p.Keys.Count == 0)
         {
             AddOrigin(d, p.Root, ev.RootOrigin, ev.Root, true);
+        }
+
+        if (callee == "JSON.parse" && ev.Value.IsString)
+        {
+            ExplainJsonText(d, frame, trace, arg, new Span(start, end), p, ev, ev.Value.AsString);
         }
     }
 

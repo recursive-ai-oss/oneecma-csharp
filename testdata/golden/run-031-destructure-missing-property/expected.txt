@@ -1,0 +1,11 @@
+error[TypeError]: Cannot destructure property 'host' of 'config.db' as it is undefined.
+ --> case.js:2:18
+  |
+1 | const config = { server: { port: 80 } };
+  |                ------------------------ `config` comes from here: { server }
+2 | const { host } = config.db;
+  |                  ^^^^^^^^^ `config.db` is undefined, so `host` cannot be taken from it
+  |
+  = help: `config` has `server` but no `db`
+  = help: fall back to an empty object when it can be missing: `config.db ?? {}`
+  = stack: <top-level> (case.js:2)

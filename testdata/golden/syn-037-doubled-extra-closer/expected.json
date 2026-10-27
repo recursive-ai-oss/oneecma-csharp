@@ -1,0 +1,75 @@
+{
+  "version": 1,
+  "format": "oneecma.report",
+  "summary": {
+    "errors": 1,
+    "warnings": 0,
+    "repairs": 0
+  },
+  "diagnostics": [
+    {
+      "kind": "SyntaxError",
+      "code": "unexpected-token",
+      "severity": "error",
+      "headline": "Unexpected token ')'",
+      "source": {
+        "name": "case.js",
+        "length": 60
+      },
+      "span": {
+        "start": 56,
+        "end": 57,
+        "line": 2,
+        "column": 32,
+        "endLine": 2,
+        "endColumn": 33
+      },
+      "label": "this `)` closes nothing: the call already ended",
+      "secondary": [
+        {
+          "span": {
+            "start": 25,
+            "end": 55,
+            "line": 2,
+            "column": 1,
+            "endLine": 2,
+            "endColumn": 31
+          },
+          "message": "this call is already complete after the first `)`"
+        }
+      ],
+      "notes": [],
+      "help": [
+        "remove the extra `)`"
+      ],
+      "fixes": [
+        {
+          "description": "remove the extra `)`",
+          "edits": [
+            {
+              "start": 56,
+              "length": 1,
+              "line": 2,
+              "column": 32,
+              "text": ""
+            }
+          ]
+        }
+      ],
+      "recovery": [
+        {
+          "action": "insertedToken",
+          "span": {
+            "start": 56,
+            "end": 56,
+            "line": 2,
+            "column": 32,
+            "endLine": 2,
+            "endColumn": 32
+          },
+          "text": ";"
+        }
+      ]
+    }
+  ]
+}

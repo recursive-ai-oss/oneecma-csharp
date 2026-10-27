@@ -2,6 +2,8 @@ error[TypeError]: Cannot mix BigInt and other types, use explicit conversions
  --> case.js:1:11
   |
 1 | const n = 10n + 1;
-  |           ^^^^^^^
+  |           ^^^^^^^ `10n` is a BigInt but `1` is a Number; arithmetic needs both to be the same type
   |
+  = help: make both BigInt: `10n + BigInt(1)`
+  = help: or make both Number (precision is lost above 2^53): `Number(10n) + 1`
   = stack: <top-level> (case.js:1)

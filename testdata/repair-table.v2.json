@@ -1,5 +1,5 @@
 {
- "version": 1,
+ "version": 2,
  "entries": [
   {
    "id": "S-BACKTICK",
@@ -48,15 +48,16 @@
   },
   {
    "id": "R001",
-   "mistake": "extra closing delimiter `)` `]` `}` after a complete expression or statement",
+   "mistake": "extra closing delimiter `)` `]` `}` after a complete expression or statement; a run of several in a row is removed together",
    "rank": 4,
    "evidence": "observed",
    "action": "apply",
-   "rule": "delete the one closing token the parser reports as unexpected",
-   "guard": "apply only if (a) the token is a closer with no matching opener, (b) deleting it parses and the first error moves past it, and (c) no rival reading parses: inserting the matching opener at the start of the statement (for `)` only when the wrapping would change the meaning, since parenthesising a whole expression statement means the same thing; for `]` always) or, for `}`, where a body without braces could begin (after `)`, `else`, `=>`, `do`, `try`, `finally`); otherwise suggest",
+   "rule": "delete the one closing token the parser reports as unexpected; for a run of adjacent unmatched closers (`))`, `}}}`), delete the whole run in one repair",
+   "guard": "apply only if (a) the token is a closer with no matching opener, (b) deleting it parses and the first error moves past it, and (c) no rival reading parses: inserting the matching opener at the start of the statement (for `)` only when the wrapping would change the meaning, since parenthesising a whole expression statement means the same thing; for `]` always) or, for `}`, where a body without braces could begin (after `)`, `else`, `=>`, `do`, `try`, `finally`); otherwise suggest; for a run, only the length that makes the source parse is plausible, and the opener rival is tried only for the first closer",
    "seed_cases": [
     "syn-001-extra-close-paren",
-    "syn-002-extra-close-bracket"
+    "syn-002-extra-close-bracket",
+    "syn-037-doubled-extra-closer"
    ],
    "example_before": "console.log(items.length));",
    "example_after": "console.log(items.length);",
@@ -88,16 +89,33 @@
    "seed_cases": [
     "syn-019-ts-parameter-types",
     "syn-020-ts-as-cast",
-    "syn-021-ts-interface"
+    "syn-021-ts-interface",
+    "syn-036-ts-variable-annotation"
    ],
    "example_before": "function add(a: number, b: number) {",
    "example_after": "function add(a, b) {",
    "note": "type annotations appear in code meant for a plain JavaScript host"
   },
   {
+   "id": "R012",
+   "mistake": "`)` or `]` missing right before a `;` that ends the line (`foo(1;`)",
+   "rank": 7,
+   "evidence": "observed",
+   "action": "apply",
+   "rule": "insert the closers of every group opened on that line and still open at the `;`, innermost first, directly after the last token before the `;`",
+   "guard": "apply only if the `;` is the last thing on its line (a trailing comment is fine), every group to close was opened on that same line and is a `(` or `[` that is not a `for (` header, and the result parses; text after the `;` on the line, or an opener on an earlier line, means the closer position is a guess and the mistake stays a suggestion (S-CLOSE)",
+   "seed_cases": [
+    "syn-038-missing-paren-before-semicolon",
+    "syn-039-two-missing-parens-before-semicolon"
+   ],
+   "example_before": "const result = double(21;",
+   "example_after": "const result = double(21);",
+   "note": "the narrow, unambiguous case of the observed missing `)` in the middle of a call"
+  },
+  {
    "id": "R002",
    "mistake": "closing brackets missing at the very end of the input (truncated output)",
-   "rank": 7,
+   "rank": 8,
    "evidence": "prior",
    "action": "apply",
    "rule": "append the closers for the open-bracket stack, innermost first, at end of input",
@@ -111,7 +129,7 @@
   {
    "id": "R003",
    "mistake": "markdown code fence lines around the program",
-   "rank": 8,
+   "rank": 9,
    "evidence": "prior",
    "action": "apply",
    "rule": "remove lines that consist only of ``` or ```<language> at the start or end of the input",
@@ -126,7 +144,7 @@
   {
    "id": "R004",
    "mistake": "typographic quotes used as string delimiters",
-   "rank": 9,
+   "rank": 10,
    "evidence": "prior",
    "action": "apply",
    "rule": "replace U+2018/U+2019 with ' and U+201C/U+201D with \" when they open or close a string where the parser expects a token",
@@ -135,13 +153,13 @@
     "syn-008-smart-double-quotes",
     "syn-009-smart-single-quotes"
    ],
-   "example_before": "console.log(“hello”);",
+   "example_before": "console.log(\u201chello\u201d);",
    "example_after": "console.log(\"hello\");"
   },
   {
    "id": "R005",
    "mistake": "missing comma between elements, properties or arguments on separate lines",
-   "rank": 10,
+   "rank": 11,
    "evidence": "prior",
    "action": "apply",
    "rule": "insert `,` after the previous element when the next line starts a new element",
@@ -157,7 +175,7 @@
   {
    "id": "R006",
    "mistake": "Python keyword or operator in place of the JavaScript one: `elif`, `and`, `or`",
-   "rank": 11,
+   "rank": 12,
    "evidence": "prior",
    "action": "apply",
    "rule": "`elif` -> `else if`; `and` -> `&&`; `or` -> `||`",
@@ -172,7 +190,7 @@
   {
    "id": "R008",
    "mistake": "comma between class members",
-   "rank": 12,
+   "rank": 13,
    "evidence": "prior",
    "action": "apply",
    "rule": "delete the comma",
@@ -186,7 +204,7 @@
   {
    "id": "R009",
    "mistake": "backslash before a quote outside a string (JSON-escaped code pasted raw)",
-   "rank": 13,
+   "rank": 14,
    "evidence": "prior",
    "action": "apply",
    "rule": "remove the backslash",
@@ -200,7 +218,7 @@
   {
    "id": "R010",
    "mistake": "HTML entities in code: `&amp;`, `&lt;`, `&gt;`, `&quot;`",
-   "rank": 14,
+   "rank": 15,
    "evidence": "prior",
    "action": "apply",
    "rule": "decode the entity",
@@ -214,7 +232,7 @@
   {
    "id": "R011",
    "mistake": "literal backslash-n between statements",
-   "rank": 15,
+   "rank": 16,
    "evidence": "prior",
    "action": "apply",
    "rule": "replace the two characters `\\n` with a line break",
@@ -228,7 +246,7 @@
   {
    "id": "S-RETURN",
    "mistake": "top-level `return`",
-   "rank": 16,
+   "rank": 17,
    "evidence": "prior",
    "action": "suggest",
    "rule": "put the code in a function, or end with the value as an expression",
@@ -242,7 +260,7 @@
   {
    "id": "S-STRING",
    "mistake": "unterminated string, or a literal line break inside a string",
-   "rank": 17,
+   "rank": 18,
    "evidence": "prior",
    "action": "suggest",
    "rule": "close the string, use `\\n`, or use a template literal",
@@ -257,7 +275,7 @@
   {
    "id": "S-PY",
    "mistake": "other Python-isms: `def`, `for x in range()`, f-strings, `None/True/False`",
-   "rank": 18,
+   "rank": 19,
    "evidence": "prior",
    "action": "suggest",
    "rule": "translate by hand",
@@ -274,7 +292,7 @@
   {
    "id": "S-MODULE",
    "mistake": "`import`/`export` in a script",
-   "rank": 19,
+   "rank": 20,
    "evidence": "prior",
    "action": "suggest",
    "rule": "run as a module",
@@ -288,7 +306,7 @@
   {
    "id": "S-TRY",
    "mistake": "`try` without `catch`/`finally`",
-   "rank": 20,
+   "rank": 21,
    "evidence": "prior",
    "action": "suggest",
    "rule": "add a catch clause",

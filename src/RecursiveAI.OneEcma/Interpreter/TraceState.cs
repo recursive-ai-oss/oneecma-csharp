@@ -39,6 +39,12 @@ internal sealed class TraceState
     {
         if (f.Code.ValueSpans is not { } spans || !spans.TryGetValue(pc, out (int Start, int End) span) || sp < 1)
         {
+            // A write whose source is not tracked (compound assignment, destructuring) replaces the value, so an older origin would mislead.
+            if (ins.Op == Op.SetProp && sp >= 2 && st[sp - 2].Ref is JsObject stale && _props.TryGetValue(stale, out Dictionary<string, Origin>? staleProps))
+            {
+                staleProps.Remove(f.Code.Names[ins.A]);
+            }
+
             return;
         }
 
@@ -80,10 +86,20 @@ internal sealed class TraceState
                 _globals[fc.Names[ins.A]] = origin;
                 break;
             case Op.DefineField:
+            case Op.SetProp:
                 if (sp >= 2 && st[sp - 2].Ref is JsObject target)
                 {
                     Dictionary<string, Origin> d = _props.GetOrCreateValue(target);
                     d[fc.Names[ins.A]] = origin;
+                }
+
+                break;
+            case Op.SetElem:
+                // Stack before the store: object, key, value.
+                if (sp >= 3 && st[sp - 3].Ref is JsObject elemTarget && (st[sp - 2].IsString || st[sp - 2].IsNumber))
+                {
+                    Dictionary<string, Origin> d = _props.GetOrCreateValue(elemTarget);
+                    d[st[sp - 2].IsString ? st[sp - 2].AsString : Ops.NumberToStr(st[sp - 2].Num)] = origin;
                 }
 
                 break;
@@ -116,6 +132,8 @@ internal struct RecordingTrace : ITracer
             case Op.InitGlobalLexical:
             case Op.StoreGlobal:
             case Op.DefineField:
+            case Op.SetProp:
+            case Op.SetElem:
                 Agent.CurrentOrNull?.Trace?.OnStore(frame, ins, pc, st, sp);
                 break;
         }

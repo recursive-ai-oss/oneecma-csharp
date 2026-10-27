@@ -1,0 +1,16 @@
+{
+  "id": "run-027-method-typo-array",
+  "category": "rt:not-a-function",
+  "kind": "runtime",
+  "repair": null,
+  "node": {
+    "name": "TypeError",
+    "message": "queue.lenght is not a function",
+    "line": 2,
+    "column": 20,
+    "stack_head": [
+      "at case.js:2:20",
+      "at Object.<anonymous> (/work/node-probe.js:5:51)"
+    ]
+  }
+}

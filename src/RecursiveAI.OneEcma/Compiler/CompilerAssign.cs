@@ -278,7 +278,11 @@ internal sealed partial class Compiler
 
             SetSpan(m.Object);
             _f.CurP = OperatorPos(a.Left.End);
+            // A traced replay points at this write when the stored value later turns out to be the problem.
+            _f.ValS = a.Start;
+            _f.ValE = a.End;
             StoreMember(m, name, isPrivate);
+            _f.ValS = -1;
         }
         else
         {

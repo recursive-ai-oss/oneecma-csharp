@@ -1,0 +1,7 @@
+repair[R012]: closed 2 groups before the `;`
+ --> case.js:2:22
+  |
+2 | console.log(double(21;
+  |                      ^ inserted `))` before this
+  |
+  = note: the repaired source ran to completion and is returned with this report

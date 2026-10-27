@@ -164,7 +164,8 @@ realm.DefineData(realm.Global, "createOrder", JsValue.FromObject(fn), JsAttribut
 ## The command line
 
 ```
-oneecma run <file>                       run a script; report on stderr and exit status 1 on an uncaught error
+oneecma run [--module] [--locals] <file>  run a script; report on stderr and exit status 1 on an uncaught error;
+                                         --locals adds the bindings of each frame (`= locals in f: a = 1, ...`)
 oneecma check [--module] [--format text|json] [--source-map <map>] [--repair [--out <path>]] <file>
 oneecma repl                             multi-line input, top-level await, .exit
 ```

@@ -1,0 +1,13 @@
+{
+  "id": "syn-037-doubled-extra-closer",
+  "category": "syn:extra-closing-delimiter",
+  "kind": "syntax",
+  "repair": "R001",
+  "node": {
+    "name": "SyntaxError",
+    "message": "Unexpected token ')'",
+    "line": 2,
+    "column": 32
+  },
+  "repaired_runs_clean": true
+}

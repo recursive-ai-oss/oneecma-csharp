@@ -35,7 +35,14 @@ The prose of a runtime report comes from the traced replay (value provenance, "d
 - A read or write of `undefined`/`null` underlines the property name that produced it (`items` of `order.items`), and the label names the whole expression.
 - A binding's origin is labelled `` `x` comes from here: { keys } `` at the expression that was written to it; a nullish value is `` `x` is set to null here ``. Objects stored again show the earlier places, up to 8.
 - A call that fails inside a built-in with one argument (`JSON.parse`, `Object.keys`, `new Array`) underlines the argument.
-- Cases whose error the engine has no explanation for (`Reduce of empty array`, BigInt mixing, destructuring a missing parameter, `Invalid Date`, string length) show the plain report: headline, location, underline and stack.
+- A property write is an origin too: `cart.items = saved;` is labelled `` `items` is set to undefined here `` when `cart.items` is read later.
+- `Reduce of empty array with no initial value` underlines the callee, says the array is empty, shows where it was made and suggests the initial value.
+- `Cannot mix BigInt and other types` names which operand is the BigInt and which is not, with both origins and the `BigInt(x)` / `Number(x)` rewrites (`BigInt(x)` only when `x` is a whole number).
+- `Cannot destructure property` on a path (`const { host } = config.db`) shows the parent's origin and what the parent does hold; on a parameter pattern it marks the call site and suggests a `= {}` default.
+- `Invalid time value` shows where the Date was made and from what text, and says what is wrong with an ISO-looking text.
+- `x.lenght is not a function` / `title.toUppercase` look at every member the receiver answers to, own or inherited; a near-miss data property is offered with a note that it is not called. A plain object asked for an array method gets the `Object.values(o).map(...)` form.
+- A `JSON.parse` error is located by parsing the text again; when the text is a string literal in the source (directly, or through the binding it was set from) the underline sits on the offending character, otherwise a note shows the text before it.
+- Cases whose error the engine still has no explanation for (string length) show the plain report: headline, location, underline and stack.
 
 ### Expected files rewritten for the explained report
 
@@ -51,6 +58,9 @@ The prose of a runtime report comes from the traced replay (value provenance, "d
 | `run-012` | origin label reads `matches is set to null here` |
 | `run-014`, `run-015` | shorter labels generated from the callee's kind |
 | `run-018` | repeated frames collapse to `down (case.js:2) ×10`; the label says the function keeps calling itself |
-| `run-020`, `run-021`, `run-023`, `run-024`, `run-026` | no explanation exists for these errors yet; the report is the plain one |
+| `run-020`, `run-021`, `run-023`, `run-024` | explained: empty reduce, BigInt mixing, destructured parameter, Invalid Date |
+| `run-026` | no explanation exists for this error yet; the report is the plain one |
+| `run-027`…`run-035` | added with the explanations above (method typos, a property write as origin, JSON text, a missing destructured property, a global typo, a plain object used as an array, an empty reduce after `filter`) |
+| `syn-036`…`syn-039` | repair cases: a `const` annotation, a run of extra closers, one and two missing `)` before a `;` |
 | every case with a `= stack:` line and no help or note | a `|` line now separates the source from `= stack:`, as in the reference report |
 | `syn-012`, `syn-027` | the original expectation drew an underline longer than the token (`---` under one character, six dashes under a backtick); the engine's one-character underline is right |
