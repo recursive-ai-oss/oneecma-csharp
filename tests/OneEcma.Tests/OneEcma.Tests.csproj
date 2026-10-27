@@ -5,6 +5,8 @@
     <RootNamespace>$(PackagePrefix).OneEcma.Tests</RootNamespace>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+    <!-- With profile-guided tiering on, the test host crashes intermittently (a silent SIGSEGV) in the hostile-input regression tests on .NET 10.0.11. -->
+    <TieredPGO>false</TieredPGO>
   </PropertyGroup>
   <ItemGroup>
     <Using Include="Xunit" />

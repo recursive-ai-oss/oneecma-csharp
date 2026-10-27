@@ -71,10 +71,10 @@ The same reports are available as versioned JSON ([docs/diagnostic-json.md](docs
 ```
 dotnet add package RecursiveAI.OneEcma              # the engine, Intl included
 dotnet add package RecursiveAI.OneEcma.Generators   # [JsExport] host bindings (analyzer only)
-dotnet tool install --global RecursiveAI.OneEcma.Cli   # the `oneecma` command
+dotnet tool install -g RecursiveAI.OneEcma.Cli      # the `oneecma` command
 ```
 
-The packages are not published yet; until they are, build from source (below) and reference the projects.
+All three packages are on nuget.org (1.0.0). `RecursiveAI.OneEcma.Generators` is an analyzer: it is referenced like any package but adds nothing to your output or dependencies. NativeAOT `oneecma` binaries for win-x64, linux-x64, linux-arm64 and osx-arm64, with sha256 files, are attached to each [GitHub release](https://github.com/recursive-ai-oss/oneecma-csharp/releases). To work on the library itself, build from source (below).
 
 ## Use the library
 

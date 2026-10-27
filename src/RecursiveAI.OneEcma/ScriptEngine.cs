@@ -66,7 +66,7 @@ public sealed class ScriptEngineOptions
 public sealed partial class ScriptEngine
 {
     /// <summary>The library version, as a constant so reading it needs no reflection.</summary>
-    public const string Version = "0.0.0-dev";
+    public const string Version = "1.0.0";
 
     private readonly Agent _agent;
     private readonly bool _throwOnUnhandled;
