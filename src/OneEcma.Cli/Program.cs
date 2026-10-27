@@ -72,13 +72,13 @@ internal static class Program
         RepairResult? result = null;
         if (repair)
         {
-            result = engine.CheckAndRepair(source, options);
+            result = ScriptEngine.CheckAndRepair(source, options);
             diagnostics = result.Diagnostics;
             repairs = result.Repairs;
         }
         else
         {
-            diagnostics = engine.Check(source, options);
+            diagnostics = ScriptEngine.Check(source, options);
         }
 
         // Only a file that has something to report needs its source map.
@@ -155,6 +155,47 @@ internal static class Program
 
     private static string? ReadFile(string path) => File.Exists(path) ? File.ReadAllText(path) : null;
 
+    private static int Run(ScriptEngine engine, string[] args)
+    {
+        bool module = args.Length == 3 && args[1] == "--module";
+        string path = args[^1];
+        engine.DefineGlobalFunction("print", 1, (_, a) =>
+        {
+            var parts = new string[a.Length];
+            for (int i = 0; i < a.Length; i++)
+            {
+                parts[i] = engine.ToDisplayString(a[i]);
+            }
+
+            Console.Out.WriteLine(string.Join(' ', parts));
+            return JsValue.Undefined;
+        });
+        engine.Evaluate("globalThis.console = { log: print, error: print, warn: print, info: print, debug: print };");
+        try
+        {
+            if (module)
+            {
+                engine.EvaluateModule(Path.GetFullPath(path));
+            }
+            else
+            {
+                engine.Evaluate(File.ReadAllText(path), Path.GetFileName(path));
+            }
+
+            return 0;
+        }
+        catch (JsException e)
+        {
+            Console.Error.Write(e.Report is { } r ? r.ToString() : e.Message);
+            return 1;
+        }
+        catch (JsLimitException e)
+        {
+            Console.Error.Write(e.Report is { } r ? r.ToString() : e.Message);
+            return 1;
+        }
+    }
+
     private static int Usage()
     {
         Console.Error.Write(UsageText);
@@ -175,14 +216,13 @@ internal static class Program
             return 0;
         }
 
-        var engine = new ScriptEngine();
+        var engine = new ScriptEngine(new ScriptEngineOptions { Host = new FileHost() });
         try
         {
             switch (args[0])
             {
-                case "run" when args.Length == 2:
-                    Console.Out.WriteLine(engine.Evaluate(File.ReadAllText(args[1])));
-                    return 0;
+                case "run" when args.Length is 2 or 3:
+                    return Run(engine, args);
                 case "check" when args.Length >= 2:
                     return Check(engine, args);
                 case "repl" when args.Length == 1:

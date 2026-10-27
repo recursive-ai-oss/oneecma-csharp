@@ -181,6 +181,22 @@ public static class DiagnosticJson
 
         w.WriteEndArray();
 
+        if (d.Stack.Count > 0)
+        {
+            w.WriteStartArray("stack");
+            foreach (StackFrameInfo fr in d.Stack)
+            {
+                w.WriteStartObject();
+                Str(w, "function", fr.Function);
+                WriteSourceRef(w, "source", fr.Source);
+                WriteSpan(w, "span", fr.Source, fr.Span);
+                w.WriteBoolean("async", fr.IsAsync);
+                w.WriteEndObject();
+            }
+
+            w.WriteEndArray();
+        }
+
         if (d.Mapping is { } m)
         {
             w.WriteStartObject("mapping");

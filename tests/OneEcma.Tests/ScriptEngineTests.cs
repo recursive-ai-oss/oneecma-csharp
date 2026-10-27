@@ -11,7 +11,7 @@ public class ScriptEngineTests
     [Fact]
     public void NullSourceIsAnArgumentError()
     {
-        Assert.Throws<ArgumentNullException>(() => new ScriptEngine().Check(null!, null, TestContext.Current.CancellationToken));
+        Assert.Throws<ArgumentNullException>(() => ScriptEngine.Check(null!, null, TestContext.Current.CancellationToken));
     }
 
     [Fact]
