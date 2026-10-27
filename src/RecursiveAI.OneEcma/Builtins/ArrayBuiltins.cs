@@ -156,41 +156,51 @@ internal static class ArrayProto
             throw Errors.Type("%Array%.from requires that the property of the first argument, items[Symbol.iterator], when exists, be a function");
         }
 
-        if (!usingIterator.IsNullish)
+        return !usingIterator.IsNullish
+            ? FromIterable(t, items, usingIterator, mapping, mapper, thisArg)
+            : FromArrayLike(t, items, mapping, mapper, thisArg);
+    }
+
+    // The two loops of Array.from live in their own methods. A single method holding both, with a try block inside the first loop,
+    // made the runtime's JIT (.NET 10.0.11) fault with a null dereference while it compiled the on-stack-replacement version
+    // of that method under dynamic PGO, which takes the whole process down. One loop per method avoids that shape.
+    private static JsValue FromIterable(JsValue t, JsValue items, JsValue usingIterator, bool mapping, JsValue mapper, JsValue thisArg)
+    {
+        JsObject arr = Ops.IsConstructor(t) ? Ops.Construct((JsObject)t.Ref!, default) : Alg.ArrayCreate(0);
+        IteratorRecord rec = Ops.GetIteratorFromMethod(items, usingIterator);
+        long k = 0;
+        while (true)
         {
-            JsObject arr = Ops.IsConstructor(t) ? Ops.Construct((JsObject)t.Ref!, default) : Alg.ArrayCreate(0);
-            IteratorRecord rec = Ops.GetIteratorFromMethod(items, usingIterator);
-            long k = 0;
-            while (true)
+            if (k >= Alg.MaxSafeInteger)
             {
-                if (k >= Alg.MaxSafeInteger)
-                {
-                    Ops.IteratorCloseSilently(rec);
-                    throw Errors.Type("Invalid array length");
-                }
-
-                Agent.Current.Tick();
-                if (!Ops.IteratorStepValue(rec, out JsValue next))
-                {
-                    Alg.SetLength(arr, k);
-                    return JsValue.FromObject(arr);
-                }
-
-                try
-                {
-                    JsValue mapped = mapping ? Ops.Call(mapper, thisArg, [next, Ops.Num(k)]) : next;
-                    Alg.Create(arr, k, mapped);
-                }
-                catch (JsException)
-                {
-                    Ops.IteratorCloseSilently(rec);
-                    throw;
-                }
-
-                k++;
+                Ops.IteratorCloseSilently(rec);
+                throw Errors.Type("Invalid array length");
             }
-        }
 
+            Agent.Current.Tick();
+            if (!Ops.IteratorStepValue(rec, out JsValue next))
+            {
+                Alg.SetLength(arr, k);
+                return JsValue.FromObject(arr);
+            }
+
+            try
+            {
+                JsValue mapped = mapping ? Ops.Call(mapper, thisArg, [next, Ops.Num(k)]) : next;
+                Alg.Create(arr, k, mapped);
+            }
+            catch (JsException)
+            {
+                Ops.IteratorCloseSilently(rec);
+                throw;
+            }
+
+            k++;
+        }
+    }
+
+    private static JsValue FromArrayLike(JsValue t, JsValue items, bool mapping, JsValue mapper, JsValue thisArg)
+    {
         // The source is not iterable: treat it as an array-like.
         JsObject arrayLike = Ops.ToObject(items);
         long len = Ops.LengthOfArrayLike(arrayLike);
