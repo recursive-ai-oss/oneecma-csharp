@@ -1,8 +1,36 @@
-# Auto-repair table (v0)
+# Auto-repair table (v1)
 
 Auto-repair is off by default and syntax-only. It runs only on source that fails to parse. A fix is applied only when it is the single plausible one and the repaired source parses; any fix that could change meaning is reported as a suggestion instead. Applied repairs are listed first in the report and the repaired source is returned.
 
-**Ranking.** Entries are ranked by how often code written by LLMs makes each mistake. Entries marked `observed` have been seen in such code; entries marked `prior` have not been seen yet and are kept because they are cheap, unambiguous and commonly expected. Priors rank below observed entries and are revisited when evidence arrives. The machine-readable form is `testdata/repair-table.v0.json`; the test cases are under `testdata/golden/`.
+**Ranking.** Entries are ranked by how often code written by LLMs makes each mistake. Entries marked `observed` have been seen in such code; entries marked `prior` have not been seen yet and are kept because they are cheap, unambiguous and commonly expected. Priors rank below observed entries and are revisited when evidence arrives. The machine-readable form is `testdata/repair-table.v1.json`; the test cases are under `testdata/golden/`.
+
+## How a repair runs
+
+Entry point: `SyntaxRepair.Repair(source, parseOptions, repairOptions, ct)` (also `ScriptEngine.CheckAndRepair`); the CLI is `oneecma check --repair [--out <path>] <file>`. Nothing in the parser repairs anything: `JsParser.Parse` and `ScriptEngine.Check` report errors only.
+
+1. If the first or last non-blank line is only a fence (R003), the fence is stripped provisionally. A source that parsed is kept stripped only if the rest parses too.
+2. While the text has errors, take the first one (by position) and ask every apply rule for candidate fixes near it (its line and the line before). Each candidate is applied to a copy and parsed. It is plausible when the copy parses or its first error lies beyond the edit and the token after it.
+3. A candidate is applied only if it is the single distinct plausible result. Rival readings (R001 "insert an opener instead") count against it but are never applied. No candidate, or more than one, ends the search.
+4. Repeat, to `MaxRepairs` (default 16) repairs and `MaxParses` (default 400) trial parses. Hitting either ends the search with a `repair-limit` warning.
+5. All or nothing: if the final text still has an error, nothing is returned repaired; the result carries the original diagnostics with their suggestions. If the text parses, the result lists the repairs in the order applied (offsets in the original source) and the repaired source.
+
+A repair is one rule application. Rules that fix a recurring mistake at once (R007 on a signature, R009, R010, R011) make all their edits in one repair; the report block points at the first. Block layout:
+
+```
+repair[R001]: removed an extra closing delimiter
+ --> case.js:3:26
+  |
+3 | console.log(items.length));
+  |                          ^ removed
+  |
+  = note: the repaired source parses and is returned with this report
+```
+
+The closing note is `RenderOptions.RepairOutcome`; a host that goes on to run the repaired source may word it differently. The library only parses.
+
+Suggest-only entries are ordinary diagnostics: the explanation as `help:`, the reason as `= note: not repaired automatically: <reason>`, and where a mechanical edit exists a `SuggestedFix` in `Diagnostic.Fixes` (S-CLOSE, S-STRING, S-AWAIT, S-REDECL for `let`/`var`, S-PY, S-TRY, S-BACKTICK). S-TRY carries no note (the author writes the handler), S-RETURN and S-MODULE carry none because no edit is mechanical.
+
+## Table
 
 | rank | id | mistake | action | evidence | seed cases |
 |---:|---|---|---|---|---|
@@ -54,7 +82,7 @@ Auto-repair is off by default and syntax-only. It runs only on source that fails
 
 - Mistake: extra closing delimiter `)` `]` `}` after a complete expression or statement.
 - Rule: delete the one closing token the parser reports as unexpected.
-- Guard: apply only if (a) the token is a closer with no matching opener, (b) deleting it parses, and (c) no other single-token edit (inserting an opener earlier) also parses; otherwise suggest.
+- Guard: apply only if (a) the token is a closer with no matching opener, (b) deleting it parses and the first error moves past it, and (c) no rival reading parses: inserting the matching opener at the start of the statement (for `)` only when the wrapping would change the meaning, since parenthesising a whole expression statement means the same thing; for `]` always) or, for `}`, where a body without braces could begin (after `)`, `else`, `=>`, `do`, `try`, `finally`); otherwise suggest
 - Example: `console.log(items.length));` -> `console.log(items.length);`
 - Observation: extra closing delimiters are the one syntax mistake seen repeatedly; only some are fixed by deleting the reported token.
 
@@ -69,7 +97,7 @@ Auto-repair is off by default and syntax-only. It runs only on source that fails
 
 - Mistake: TypeScript type syntax in JavaScript: parameter/variable annotations, `as T`, `interface`/`type` declarations.
 - Rule: erase the type syntax (annotations, `as` casts, interface and type-alias declarations); runtime meaning is unchanged.
-- Guard: only for the erasable subset (no enum, valueful namespace, parameter properties, decorators); apply only if the erased source parses; report each erased span; code that is meant to be TypeScript is out of scope.
+- Guard: only for the erasable subset (no enum, valueful namespace, parameter properties, decorators); apply only if the erased source parses; the annotations of one parameter list and its return type are one repair, and a chain `x as A as B` is one repair; code that is meant to be TypeScript is out of scope
 - Example: `function add(a: number, b: number) {` -> `function add(a, b) {`
 - Observation: type annotations appear in code meant for a plain JavaScript host.
 
@@ -77,14 +105,14 @@ Auto-repair is off by default and syntax-only. It runs only on source that fails
 
 - Mistake: closing brackets missing at the very end of the input (truncated output).
 - Rule: append the closers for the open-bracket stack, innermost first, at end of input.
-- Guard: apply only if every parse error is "end of input inside open brackets" and the stack is non-empty; indentation of the last lines is evidence (a dedent to column 0 that is followed by nothing means the closer belongs there); never close an open string or template literal.
+- Guard: apply only if every parse error is at the end of the input (end of input inside open brackets, including a call or array cut off mid-list) and the stack is non-empty; never close an open string or template literal; indentation is evidence: if a later line is indented no deeper than the line of an open `{` and is not itself a closer, that `{` was left open in the middle of the file and nothing is applied; closers go innermost first, a `}` on its own line at the indentation of its opener's line, `)` and `]` directly after the last token
 - Example: `function f() { ⏎   return 1;` -> `function f() { ⏎   return 1; ⏎ }`
 
 ### R003 (apply)
 
 - Mistake: markdown code fence lines around the program.
 - Rule: remove lines that consist only of ``` or ```<language> at the start or end of the input.
-- Guard: a fully fenced block already parses (the backticks form template literals), so this check runs before parsing: if the first or last non-blank line is only a fence, strip it and parse the rest; apply only if the result parses.
+- Guard: a fully fenced block already parses (the backticks form template literals), so this check runs before parsing: if the first or last non-blank line is only a fence, strip it; apply only if the result parses (when the source did not parse to begin with, the other rules may finish the job and the whole repair must parse)
 - Example: ````js ⏎ const n = 5; ⏎ ```` -> `const n = 5;`
 
 ### R004 (apply)
@@ -98,7 +126,7 @@ Auto-repair is off by default and syntax-only. It runs only on source that fails
 
 - Mistake: missing comma between elements, properties or arguments on separate lines.
 - Rule: insert `,` after the previous element when the next line starts a new element.
-- Guard: inside an array literal, object literal or argument list; previous token ends a value, next token starts a value or property; inserting there parses and no other position does.
+- Guard: the innermost open bracket is `[`, the `(` of a call or the `{` of an object literal (not a block); the previous token ends a value and the next one, on a new line, starts a value or property; inserting there makes the first error move on
 - Example: `host: "x" ⏎   port: 1` -> `host: "x", ⏎   port: 1`
 
 ### R006 (apply)
@@ -119,21 +147,21 @@ Auto-repair is off by default and syntax-only. It runs only on source that fails
 
 - Mistake: backslash before a quote outside a string (JSON-escaped code pasted raw).
 - Rule: remove the backslash.
-- Guard: only when the backslash precedes a quote at token position, and the result parses.
+- Guard: only when the lexer rejects a backslash that precedes a quote; every escaped quote from there to the end of that line is unescaped in one repair; apply only if the result parses
 - Example: `console.log(\"hi\");` -> `console.log("hi");`
 
 ### R010 (apply)
 
 - Mistake: HTML entities in code: `&amp;`, `&lt;`, `&gt;`, `&quot;`.
 - Rule: decode the entity.
-- Guard: only outside strings and comments; apply only if the decoded source parses.
+- Guard: only outside strings, comments and template text; every entity in code is decoded in one repair; apply only if the decoded source parses
 - Example: `a &amp;&amp; b` -> `a && b`
 
 ### R011 (apply)
 
 - Mistake: literal backslash-n between statements.
 - Rule: replace the two characters `\n` with a line break.
-- Guard: only outside strings, where `\` cannot start a token; result parses.
+- Guard: only outside strings, templates, regular expressions and comments, where `\` cannot start a token; every such `\n` is replaced in one repair; apply only if the result parses
 - Example: `const a = 1;\nconst b = 2;` -> `const a = 1; ⏎ const b = 2;`
 
 ### S-RETURN (suggest)
