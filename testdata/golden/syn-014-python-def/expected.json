@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "format": "oneecma.report",
+  "summary": {
+    "errors": 1,
+    "warnings": 0,
+    "repairs": 0
+  },
+  "diagnostics": [
+    {
+      "kind": "SyntaxError",
+      "code": "unexpected-token",
+      "severity": "error",
+      "headline": "Unexpected identifier 'double'",
+      "source": {
+        "name": "case.js",
+        "length": 30
+      },
+      "span": {
+        "start": 0,
+        "end": 3,
+        "line": 1,
+        "column": 1,
+        "endLine": 1,
+        "endColumn": 4
+      },
+      "label": "`def` is Python; JavaScript declares functions with `function`",
+      "secondary": [],
+      "notes": [
+        "not repaired automatically: the body needs braces and the colon form has no JavaScript equivalent"
+      ],
+      "help": [
+        "write `function double(x) { return x * 2; }`"
+      ],
+      "fixes": [
+        {
+          "description": "write the function in JavaScript",
+          "edits": [
+            {
+              "start": 0,
+              "length": 29,
+              "line": 1,
+              "column": 1,
+              "text": "function double(x) { return x * 2; }"
+            }
+          ]
+        }
+      ],
+      "recovery": [
+        {
+          "action": "insertedToken",
+          "span": {
+            "start": 3,
+            "end": 3,
+            "line": 1,
+            "column": 4,
+            "endLine": 1,
+            "endColumn": 4
+          },
+          "text": ";"
+        }
+      ]
+    }
+  ]
+}

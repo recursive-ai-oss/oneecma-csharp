@@ -38,6 +38,20 @@ internal static class Program
             return RegExpFuzz.RunRandom(int.Parse(args[1], System.Globalization.CultureInfo.InvariantCulture), args.Length > 2 ? int.Parse(args[2], System.Globalization.CultureInfo.InvariantCulture) : 1, args.Length > 3 ? args[3] : null) == 0 ? 0 : 1;
         }
 
+        // sourcemap <seconds> [seed] [dir-of-.map-seeds]: seeded generation and mutation of source map text.
+        // sourcemap-file <path>: one finding, for replaying.
+        if (args.Length >= 2 && args[0] == "sourcemap")
+        {
+            return SourceMapFuzz.RunRandom(int.Parse(args[1], System.Globalization.CultureInfo.InvariantCulture), args.Length > 2 ? int.Parse(args[2], System.Globalization.CultureInfo.InvariantCulture) : 1, args.Length > 3 ? args[3] : null) == 0 ? 0 : 1;
+        }
+
+        if (args.Length == 2 && args[0] == "sourcemap-file")
+        {
+            string? failure = SourceMapFuzz.Check(File.ReadAllText(args[1]));
+            Console.WriteLine(failure ?? "ok");
+            return failure is null ? 0 : 1;
+        }
+
         if (args.Length == 1 && args[0] == "regexp-throughput")
         {
             RegExpFuzz.Throughput();

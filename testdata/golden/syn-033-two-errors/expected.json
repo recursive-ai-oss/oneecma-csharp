@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "format": "oneecma.report",
+  "summary": {
+    "errors": 2,
+    "warnings": 0,
+    "repairs": 0
+  },
+  "diagnostics": [
+    {
+      "kind": "SyntaxError",
+      "code": "unexpected-token",
+      "severity": "error",
+      "headline": "Unexpected token ')'",
+      "source": {
+        "name": "case.js",
+        "length": 69
+      },
+      "span": {
+        "start": 31,
+        "end": 32,
+        "line": 2,
+        "column": 15,
+        "endLine": 2,
+        "endColumn": 16
+      },
+      "label": "expected an expression before `)`",
+      "secondary": [],
+      "notes": [
+        "a second error follows: both are reported from one parse"
+      ],
+      "help": [
+        "complete the expression after `+`"
+      ],
+      "fixes": [],
+      "recovery": []
+    },
+    {
+      "kind": "SyntaxError",
+      "code": "unexpected-token",
+      "severity": "error",
+      "headline": "Unexpected token ';'",
+      "source": {
+        "name": "case.js",
+        "length": 69
+      },
+      "span": {
+        "start": 65,
+        "end": 66,
+        "line": 5,
+        "column": 13,
+        "endLine": 5,
+        "endColumn": 14
+      },
+      "label": "expected an expression before `;`",
+      "secondary": [],
+      "notes": [],
+      "help": [
+        "give `x` a value, or remove the declaration"
+      ],
+      "fixes": [],
+      "recovery": []
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "format": "oneecma.report",
+  "summary": {
+    "errors": 1,
+    "warnings": 0,
+    "repairs": 0
+  },
+  "diagnostics": [
+    {
+      "kind": "SyntaxError",
+      "code": "unexpected-token",
+      "severity": "error",
+      "headline": "Unexpected token '{'",
+      "source": {
+        "name": "case.js",
+        "length": 89
+      },
+      "span": {
+        "start": 50,
+        "end": 54,
+        "line": 4,
+        "column": 3,
+        "endLine": 4,
+        "endColumn": 7
+      },
+      "label": "`elif` is Python; JavaScript writes `else if`",
+      "secondary": [],
+      "notes": [],
+      "help": [
+        "replace `elif` with `else if`"
+      ],
+      "fixes": [],
+      "recovery": [
+        {
+          "action": "insertedToken",
+          "span": {
+            "start": 62,
+            "end": 62,
+            "line": 4,
+            "column": 15,
+            "endLine": 4,
+            "endColumn": 15
+          },
+          "text": ";"
+        }
+      ]
+    }
+  ]
+}

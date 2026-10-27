@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "format": "oneecma.report",
+  "summary": {
+    "errors": 1,
+    "warnings": 0,
+    "repairs": 0
+  },
+  "diagnostics": [
+    {
+      "kind": "SyntaxError",
+      "code": "unexpected-token",
+      "severity": "error",
+      "headline": "Unexpected token ':'",
+      "source": {
+        "name": "case.js",
+        "length": 79
+      },
+      "span": {
+        "start": 14,
+        "end": 15,
+        "line": 1,
+        "column": 15,
+        "endLine": 1,
+        "endColumn": 16
+      },
+      "label": "type annotations are TypeScript, not JavaScript",
+      "secondary": [],
+      "notes": [],
+      "help": [
+        "remove the annotations: `function add(a, b)`"
+      ],
+      "fixes": [],
+      "recovery": [
+        {
+          "action": "insertedToken",
+          "span": {
+            "start": 14,
+            "end": 14,
+            "line": 1,
+            "column": 15,
+            "endLine": 1,
+            "endColumn": 15
+          },
+          "text": ","
+        },
+        {
+          "action": "skippedTokens",
+          "span": {
+            "start": 14,
+            "end": 22,
+            "line": 1,
+            "column": 15,
+            "endLine": 1,
+            "endColumn": 23
+          },
+          "text": ""
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "format": "oneecma.report",
+  "summary": {
+    "errors": 1,
+    "warnings": 0,
+    "repairs": 0
+  },
+  "diagnostics": [
+    {
+      "kind": "SyntaxError",
+      "code": "missing-paren-after-args",
+      "severity": "error",
+      "headline": "missing ) after argument list",
+      "source": {
+        "name": "case.js",
+        "length": 52
+      },
+      "span": {
+        "start": 29,
+        "end": 30,
+        "line": 1,
+        "column": 30,
+        "endLine": 1,
+        "endColumn": 31
+      },
+      "label": "expected `,` or `)` before this `;`",
+      "secondary": [
+        {
+          "span": {
+            "start": 14,
+            "end": 23,
+            "line": 1,
+            "column": 15,
+            "endLine": 1,
+            "endColumn": 24
+          },
+          "message": "the argument list opened here is never closed"
+        }
+      ],
+      "notes": [
+        "not repaired automatically: `)` could also belong after a later argument"
+      ],
+      "help": [
+        "add `)` before `;`: `Math.max(1, 2, 3);`"
+      ],
+      "fixes": [
+        {
+          "description": "add the missing `)`",
+          "edits": [
+            {
+              "start": 30,
+              "length": 0,
+              "line": 1,
+              "column": 31,
+              "text": ")"
+            }
+          ]
+        }
+      ],
+      "recovery": [
+        {
+          "action": "insertedToken",
+          "span": {
+            "start": 30,
+            "end": 30,
+            "line": 1,
+            "column": 31,
+            "endLine": 1,
+            "endColumn": 31
+          },
+          "text": ")"
+        }
+      ]
+    }
+  ]
+}

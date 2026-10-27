@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "format": "oneecma.report",
+  "summary": {
+    "errors": 1,
+    "warnings": 0,
+    "repairs": 0
+  },
+  "diagnostics": [
+    {
+      "kind": "SyntaxError",
+      "code": "unexpected-token",
+      "severity": "error",
+      "headline": "Unexpected identifier 'i'",
+      "source": {
+        "name": "case.js",
+        "length": 37
+      },
+      "span": {
+        "start": 0,
+        "end": 17,
+        "line": 1,
+        "column": 1,
+        "endLine": 1,
+        "endColumn": 18
+      },
+      "label": "Python loop syntax; JavaScript writes `for (let i = 0; i < 3; i++)`",
+      "secondary": [],
+      "notes": [
+        "not repaired automatically: no mechanical rewrite keeps the meaning"
+      ],
+      "help": [
+        "write `for (let i = 0; i < 3; i++) { console.log(i); }`"
+      ],
+      "fixes": [
+        {
+          "description": "write the loop in JavaScript",
+          "edits": [
+            {
+              "start": 0,
+              "length": 36,
+              "line": 1,
+              "column": 1,
+              "text": "for (let i = 0; i < 3; i++) { console.log(i); }"
+            }
+          ]
+        }
+      ],
+      "recovery": [
+        {
+          "action": "insertedToken",
+          "span": {
+            "start": 4,
+            "end": 4,
+            "line": 1,
+            "column": 5,
+            "endLine": 1,
+            "endColumn": 5
+          },
+          "text": "("
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "version": 1,
+  "format": "oneecma.report",
+  "summary": {
+    "errors": 1,
+    "warnings": 0,
+    "repairs": 0
+  },
+  "diagnostics": [
+    {
+      "kind": "SyntaxError",
+      "code": "await-outside-async",
+      "severity": "error",
+      "headline": "await is only valid in async functions and the top level bodies of modules",
+      "source": {
+        "name": "case.js",
+        "length": 64
+      },
+      "span": {
+        "start": 12,
+        "end": 17,
+        "line": 1,
+        "column": 13,
+        "endLine": 1,
+        "endColumn": 18
+      },
+      "label": "`await` is only allowed in async functions and modules",
+      "secondary": [],
+      "notes": [
+        "not repaired automatically: wrapping changes the scope of every declaration"
+      ],
+      "help": [
+        "wrap the code in `async function main() { ... }` and call it, or run it as a module"
+      ],
+      "fixes": [
+        {
+          "description": "run the code inside an async function",
+          "edits": [
+            {
+              "start": 0,
+              "length": 0,
+              "line": 1,
+              "column": 1,
+              "text": "(async () => {\n"
+            },
+            {
+              "start": 64,
+              "length": 0,
+              "line": 3,
+              "column": 1,
+              "text": "\n})();"
+            }
+          ]
+        }
+      ],
+      "recovery": [
+        {
+          "action": "insertedToken",
+          "span": {
+            "start": 17,
+            "end": 17,
+            "line": 1,
+            "column": 18,
+            "endLine": 1,
+            "endColumn": 18
+          },
+          "text": ";"
+        }
+      ]
+    }
+  ]
+}

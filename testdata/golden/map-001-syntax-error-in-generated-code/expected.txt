@@ -1,0 +1,10 @@
+error[SyntaxError]: missing ) after argument list
+ --> original.ts:5:42
+  |
+5 | console.log(greet({ name: "Ada" } as User);
+  | ------------ the argument list opened here is never closed
+  |                                          ^ expected `,` or `)` before this `;`
+  |
+  = help: add `)` before `;`: `console.log(greet({ name: "Ada" }));` (in the generated code)
+  = note: not repaired automatically: `)` could also belong after a later argument
+  = note: generated position: case.js:5:34

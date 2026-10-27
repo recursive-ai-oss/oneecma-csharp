@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "format": "oneecma.report",
+  "summary": {
+    "errors": 1,
+    "warnings": 0,
+    "repairs": 0
+  },
+  "diagnostics": [
+    {
+      "kind": "SyntaxError",
+      "code": "unexpected-token",
+      "severity": "error",
+      "headline": "Unexpected token ';'",
+      "source": {
+        "name": "case.js",
+        "length": 79
+      },
+      "span": {
+        "start": 26,
+        "end": 30,
+        "line": 2,
+        "column": 7,
+        "endLine": 2,
+        "endColumn": 11
+      },
+      "label": "`&lt;` is an HTML entity, not `<`",
+      "secondary": [],
+      "notes": [],
+      "help": [
+        "decode the entities: `a < b && b > 0`"
+      ],
+      "fixes": [],
+      "recovery": [
+        {
+          "action": "insertedToken",
+          "span": {
+            "start": 29,
+            "end": 29,
+            "line": 2,
+            "column": 10,
+            "endLine": 2,
+            "endColumn": 10
+          },
+          "text": ")"
+        },
+        {
+          "action": "skippedTokens",
+          "span": {
+            "start": 29,
+            "end": 53,
+            "line": 2,
+            "column": 10,
+            "endLine": 2,
+            "endColumn": 34
+          },
+          "text": ""
+        }
+      ]
+    }
+  ]
+}

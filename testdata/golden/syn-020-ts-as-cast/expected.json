@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "format": "oneecma.report",
+  "summary": {
+    "errors": 1,
+    "warnings": 0,
+    "repairs": 0
+  },
+  "diagnostics": [
+    {
+      "kind": "SyntaxError",
+      "code": "unexpected-token",
+      "severity": "error",
+      "headline": "Unexpected identifier 'as'",
+      "source": {
+        "name": "case.js",
+        "length": 53
+      },
+      "span": {
+        "start": 26,
+        "end": 28,
+        "line": 1,
+        "column": 27,
+        "endLine": 1,
+        "endColumn": 29
+      },
+      "label": "`as number` is a TypeScript cast",
+      "secondary": [],
+      "notes": [],
+      "help": [
+        "remove ` as number`"
+      ],
+      "fixes": [],
+      "recovery": [
+        {
+          "action": "insertedToken",
+          "span": {
+            "start": 25,
+            "end": 25,
+            "line": 1,
+            "column": 26,
+            "endLine": 1,
+            "endColumn": 26
+          },
+          "text": ";"
+        }
+      ]
+    }
+  ]
+}
