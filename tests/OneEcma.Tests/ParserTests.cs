@@ -107,10 +107,59 @@ public class ParserTests
         Assert.True(r.Diagnostics.Count >= 3);
     }
 
+    // ECMA-262 15.3: ConciseBody[?In] keeps the In parameter of the arrow function, so in a for-loop head the
+    // body of an arrow function cannot contain a bare 'in'. Expected results recorded from Node.
+    [Theory]
+    [InlineData("for (f = x => x in y;;) break;", false)]
+    [InlineData("for (f = () => {} in y;;) break;", false)]
+    [InlineData("for (var f = () => a in b;;) break;", false)]
+    [InlineData("for (var f = async x => x in b;;) break;", false)]
+    [InlineData("for (x => x in y;;) break;", false)]
+    [InlineData("for (f = x => a ? b : c in d;;) break;", false)]
+    [InlineData("for (f = x => (x in y);;) break;", true)]
+    [InlineData("for (f = x => a ? b in c : d;;) break;", true)]
+    [InlineData("for (f = x => { return 'a' in y; };;) break;", true)]
+    [InlineData("for (f = (x = 'a' in y) => x;;) break;", true)]
+    [InlineData("f = x => x in y;", true)]
+    public void ArrowBodyInheritsTheInParameter(string src, bool valid) => Assert.Equal(valid, !Parse(src).HasErrors);
+
+    // ECMA-262 15.7.1: ClassStaticBlockBody is parsed with [+Await] and it is an error for it to contain 'await' as an
+    // identifier. An arrow function's parameters inherit that, its concise body is [~Await] (15.3), as are nested
+    // ordinary functions. Expected results recorded from Node.
+    [Theory]
+    [InlineData("class C { static { (await => 0); } }", false)]
+    [InlineData("class C { static { (async await => 0); } }", false)]
+    [InlineData("class C { static { (x = await) => 0; } }", false)]
+    [InlineData("class C { static { ((x = await) => 0); } }", false)]
+    [InlineData("class C { static { var await; } }", false)]
+    [InlineData("class C { static { await; } }", false)]
+    [InlineData("class C { static { ({ await }); } }", false)]
+    [InlineData("class C { static { class D { [await] = 1 } } }", false)]
+    [InlineData("class C { static { (() => await); } }", true)]
+    [InlineData("class C { static { (() => { await; }); } }", true)]
+    [InlineData("class C { static { (() => { class await {} }); } }", true)]
+    [InlineData("class C { static { function f() { await; } } }", true)]
+    [InlineData("class C { static { (function await() {}); } }", true)]
+    [InlineData("class C { static { (async () => await 1); } }", true)]
+    public void AwaitInsideClassStaticBlock(string src, bool valid) => Assert.Equal(valid, !Parse(src).HasErrors);
+
+    [Theory]
+    [InlineData("/(/", "Invalid regular expression: /(/: Unterminated group", 1, 2)]
+    [InlineData("x = /a/g; y = /(?<n>a)(?<n>b)/", "Invalid regular expression: /(?<n>a)(?<n>b)/: Duplicate capture group name", 24, 27)]
+    [InlineData("/[b-a]/u", "Invalid regular expression: /[b-a]/u: Range out of order in character class", 2, 5)]
+    public void RegExpPatternErrorsAreEarlyErrorsWithTheirExactSpan(string src, string headline, int start, int end)
+    {
+        var r = Parse(src);
+        Assert.True(r.HasErrors);
+        Assert.Equal(headline, r.Diagnostics[0].Headline);
+        Assert.Equal(start, r.Diagnostics[0].PrimarySpan.Start);
+        Assert.Equal(end, r.Diagnostics[0].PrimarySpan.End);
+    }
+
     [Fact]
     public void RegExpValidatorHookIsCalledForLiterals()
     {
-        var r = Parse("/a/g", new ParseOptions { RegExpValidator = (p, f) => p == "a" ? "Invalid regular expression: bad" : null });
+        var r = Parse("/a/g", new ParseOptions { RegExpValidator = (p, f, at) => p == "a" ? [new RecursiveAI.OneEcma.RegExp.RegExpDiagnostic(0, 1, "bad", "Invalid regular expression: /a/g: bad")] : [] });
         Assert.True(r.HasErrors);
     }
 

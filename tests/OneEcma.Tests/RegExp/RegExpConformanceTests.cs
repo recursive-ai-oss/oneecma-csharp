@@ -9,16 +9,6 @@ namespace RecursiveAI.OneEcma.Tests.RegExp;
 /// </summary>
 public class RegExpConformanceTests
 {
-    // These literals fail in the lexer, not in pattern validation: line terminators inside a literal, a '/' inside the
-    // body that ends it early, and escaped flag letters. The pattern validator is never reached for them.
-    private static readonly string[] LexerOwned =
-    [
-        "S7.8.5_A1.2_T1.js", "S7.8.5_A1.2_T3.js", "S7.8.5_A1.2_T4.js", "S7.8.5_A1.5_T1.js", "S7.8.5_A1.5_T3.js",
-        "S7.8.5_A2.2_T2.js", "S7.8.5_A2.5_T1.js", "S7.8.5_A2.5_T3.js", "early-err-flags-unicode-escape.js",
-        "regexp-first-char-no-line-separator.js", "regexp-first-char-no-paragraph-separator.js",
-        "regexp-source-char-no-line-separator.js", "regexp-source-char-no-paragraph-separator.js",
-    ];
-
     private static string Test262Root()
     {
         string? root = Environment.GetEnvironmentVariable("ONEECMA_TEST262_ROOT");
@@ -51,7 +41,7 @@ public class RegExpConformanceTests
     public void LiteralValidationTestsPass(string dir)
     {
         var failed = Harness.RunLiterals(Test262Root(), dir)
-            .Where(r => !r.Passed && !LexerOwned.Contains(Path.GetFileName(r.Path)))
+            .Where(r => !r.Passed)
             .Select(r => r.Path + ": " + r.Detail)
             .ToList();
         Assert.Empty(failed);

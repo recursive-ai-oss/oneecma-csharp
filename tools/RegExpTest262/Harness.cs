@@ -68,32 +68,29 @@ public static partial class Harness
         return head.Contains("negative:", StringComparison.Ordinal) && head.Contains("phase: parse", StringComparison.Ordinal);
     }
 
+    // The whole file goes through the parser with its default RegExp validator, so the lexer rules for literals
+    // (12.9.5: line terminators, a '/' ending the body, escaped flags) are covered along with the pattern grammar.
     private static FileResult CheckNegative(string rel, string src)
     {
-        var literals = ExtractLiterals(src);
-        foreach (var (body, flags) in literals)
-        {
-            if (RegExpValidator.Validate(body, flags).Count > 0)
-            {
-                return new FileResult(rel, true, "");
-            }
-        }
-
-        return new FileResult(rel, false, $"no regex literal was rejected ({literals.Count} literal(s))");
+        var r = Syntax.JsParser.Parse(src, ParseOptionsFor(src));
+        return r.HasErrors ? new FileResult(rel, true, "") : new FileResult(rel, false, "no syntax error reported");
     }
 
     private static FileResult CheckAllValid(string rel, string src)
     {
-        foreach (var (body, flags) in ExtractLiterals(src))
-        {
-            var d = RegExpValidator.Validate(body, flags);
-            if (d.Count > 0)
-            {
-                return new FileResult(rel, false, $"/{body}/{flags}: {d[0].Reason}");
-            }
-        }
+        var r = Syntax.JsParser.Parse(src, ParseOptionsFor(src));
+        return r.HasErrors ? new FileResult(rel, false, r.Diagnostics[0].Headline) : new FileResult(rel, true, "");
+    }
 
-        return new FileResult(rel, true, "");
+    private static Syntax.ParseOptions ParseOptionsFor(string src)
+    {
+        int end = src.IndexOf("---*/", StringComparison.Ordinal);
+        string head = end < 0 ? string.Empty : src[..end];
+        return new Syntax.ParseOptions
+        {
+            Goal = head.Contains("module", StringComparison.Ordinal) && head.Contains("flags:", StringComparison.Ordinal) ? Syntax.ParseGoal.Module : Syntax.ParseGoal.Script,
+            Strict = head.Contains("onlyStrict", StringComparison.Ordinal),
+        };
     }
 
     // ---- generated positive tests -------------------------------------------------------------------------

@@ -16,7 +16,7 @@ It never throws for malformed input; every problem is a `Diagnostic`. `ParseOpti
 | `MaxDepth` | 512 | nesting limit; exceeding it reports `depth-limit` and stops |
 | `MaxErrors` | 100 | parsing stops after this many errors |
 | `AllowReturnOutsideFunction`, `AllowNewTarget`, `AllowSuperProperty`, `AllowSuperCall`, `InClassFieldInitializer`, `PrivateNames` | off | context for direct `eval` code and hosts that wrap source in a function body |
-| `RegExpValidator` | accepts all | `(pattern, flags) -> string?`: an error message for a bad pattern body, or null |
+| `RegExpValidator` | the engine's `RegExpValidator.ValidateLiteral` | `(body, flags, bodyStart) -> IReadOnlyList<RegExpDiagnostic>`: problems with source-offset spans, empty when valid; the first becomes the SyntaxError (headline = its V8 message, span = its token); null accepts all patterns |
 
 ## Positions
 
