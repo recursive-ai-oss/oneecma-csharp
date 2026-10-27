@@ -2,7 +2,7 @@
 
 This is the contract for code under `Builtins/`. You can write a built-in area (a constructor, its prototype and its static functions) from this page and the spec alone, without reading the VM. Everything here is `internal` to `RecursiveAI.OneEcma` unless marked public.
 
-**Frozen** means: do not change the shape of it. Additions that old code ignores are fine. A change that breaks a caller needs the owner of the core to agree first.
+**Frozen** means: do not change the shape of it. Additions that old code ignores are fine. A change that breaks a caller needs the maintainers of the core to agree first.
 
 | Frozen | Not frozen |
 |---|---|
