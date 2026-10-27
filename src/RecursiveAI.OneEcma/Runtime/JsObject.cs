@@ -657,7 +657,7 @@ public class JsObject
     {
         if (!DefineOwnProperty(key, d))
         {
-            throw Errors.Type("Cannot redefine property: " + Ops.KeyText(key));
+            throw this is ProxyObject ? ProxyObject.Falsish("defineProperty", Ops.KeyText(key)) : Errors.Type("Cannot redefine property: " + Ops.KeyText(key));
         }
     }
 

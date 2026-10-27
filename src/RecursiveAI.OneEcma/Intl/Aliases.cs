@@ -206,8 +206,10 @@ internal static class KeywordAliases
                         continue;
                     }
 
+                    // A deprecated type's alias is its replacement (islamicc: islamic-civil), not a spelling of it.
+                    string? preferred = sup.GetString("bcp47", file, key, type, "_preferred");
                     string? alias = sup.GetString("bcp47", file, key, type, "_alias");
-                    if (alias is not null)
+                    if (alias is not null && preferred is null)
                     {
                         foreach (string a in alias.Split(' '))
                         {
@@ -215,7 +217,6 @@ internal static class KeywordAliases
                         }
                     }
 
-                    string? preferred = sup.GetString("bcp47", file, key, type, "_preferred");
                     if (preferred is not null)
                     {
                         m[type] = preferred;

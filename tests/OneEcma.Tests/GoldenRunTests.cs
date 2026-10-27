@@ -23,21 +23,18 @@ public sealed partial class GoldenRunTests
     }
 
     // Cases that need something outside the interpreter core: library functions that arrive with the built-in areas
-    // (JSON.parse, Date, Number.prototype.toFixed, RegExp matching, String.prototype.match), or a mode of running
+    // (JSON.parse, Number.prototype.toFixed), or a mode of running
     // code (top-level await) the core does not offer. Each one must still fail until its feature lands.
     private static readonly Dictionary<string, string> NeedsLibrary = new()
     {
-        ["run-010-json-single-quotes"] = "JSON.parse",
-        ["run-011-json-parse-undefined"] = "JSON.parse",
-        ["run-012-match-returns-null"] = "RegExp and String.prototype.match",
-        ["run-024-invalid-date"] = "Date",
-        ["run-026-string-too-long"] = "String.prototype.repeat",
     };
 
     // The error is the right one but a native function raised it, so the span is the call; the corpus points at the
     // offending argument, which needs the value provenance the diagnostics work adds.
     private static readonly HashSet<string> SpanIsTheArgument =
     [
+        "run-010-json-single-quotes",
+        "run-011-json-parse-undefined",
         "run-017-invalid-array-length",
         "run-022-keys-of-null",
     ];

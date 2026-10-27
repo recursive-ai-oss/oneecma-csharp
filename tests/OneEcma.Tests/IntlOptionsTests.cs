@@ -57,7 +57,8 @@ public class IntlOptionsTests
         var pr = PluralRulesService.Create(["fr"], new PluralRulesOptions { Notation = "compact" }, "en-US");
         Assert.Equal("many", pr.Select(DecimalNumber.FromDouble(1.5e6)));
         Assert.Equal("one", pr.Select(DecimalNumber.FromDouble(1)));
-        Assert.Throws<IntlException>(() => PluralRulesService.Create(["fr"], new PluralRulesOptions { Notation = "scientific" }, "en-US"));
+        Assert.Equal("one", PluralRulesService.Create(["fr"], new PluralRulesOptions { Notation = "scientific" }, "en-US").Select(DecimalNumber.FromDouble(1)));
+        Assert.Throws<IntlException>(() => PluralRulesService.Create(["fr"], new PluralRulesOptions { Notation = "bogus" }, "en-US"));
     }
 
     [Fact]
