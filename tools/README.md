@@ -23,3 +23,7 @@ The three fetch/install scripts take their destination from `ONEECMA_HOME` (defa
 ## locale data
 
 `tools/locale-data/fetch.sh` downloads the pinned CLDR 48.0 and UCD 17.0.0 inputs (SHA-256 verified) to `~/oneecma/locale-data/` (override with `ONEECMA_LOCALE_DATA`). `tools/LocaleDataGen` turns them into the embedded blobs under `src/RecursiveAI.OneEcma/Intl/Data/Generated/`; the output is deterministic. Format, pins and how to add a locale: `docs/locale-data.md`.
+
+## RegExp tools
+
+`tools/RegExpUnicodeGen` turns the UCD 17.0.0 files pinned in its `pin.txt` (fetch with `tools/RegExpUnicodeGen/fetch.sh`) into the embedded `regexp-unicode.bin`. `tools/RegExpTest262` (`oneecma-regexp-test262 <test262-root>`) runs the test262 RegExp data tests and regex-literal validation through the engine, and `oneecma-regexp-test262 diff testdata/regexp/expected.json` replays the recorded Node differential (`testdata/regexp/` holds the cases and the recorder). Details: `docs/regexp.md`.

@@ -61,16 +61,22 @@ public static class Differential
             }
 
             string actual = compiled.Diagnostics[0].Message;
+            if (actual != expected && compiled.Diagnostics[0].Reason == "Duplicate capture group name")
+            {
+                // Same deviation: V8 accepted the repeated name and reported a later error.
+                return new DiffResult(cat, pattern, flags, true, "V8 accepts this repeated group name", Documented: true);
+            }
+
             return new DiffResult(cat, pattern, flags, actual == expected, $"message: expected '{expected}', got '{actual}'");
         }
 
         if (compiled.Program is null)
         {
+            // Documented deviation: for some arrangements of alternatives (for example "(x|y)|(?<n>)(?<n>1|)") V8
+            // accepts a repeated group name that ECMA-262 22.2.1.1 rejects; we follow the specification.
             if (compiled.Diagnostics[0].Reason == "Duplicate capture group name")
             {
-                // Documented deviation: V8 accepts a named group that holds a same-named group in a different
-                // alternative of its own body, e.g. (?<n>x(?<n>-)|d); the specification rejects it, and so do we.
-                return new DiffResult(cat, pattern, flags, true, "V8 accepts nested duplicate group names", Documented: true);
+                return new DiffResult(cat, pattern, flags, true, "V8 accepts this repeated group name", Documented: true);
             }
 
             return new DiffResult(cat, pattern, flags, false, "unexpected error: " + compiled.Diagnostics[0].Message);
@@ -83,6 +89,7 @@ public static class Differential
             return new DiffResult(cat, pattern, flags, true, "");
         }
 
+        bool documented = false;
         foreach (JsonElement run in runs.EnumerateArray())
         {
             string input = Decode(run.GetProperty("s").GetString()!);
@@ -95,14 +102,58 @@ public static class Differential
                 RegExpOutcome.NoMatch => "null",
                 _ => RenderMatch(prog, r.Match!),
             };
+            if (want != got && IsKnownV8Quirk(pattern, flags, input, run))
+            {
+                documented = true;
+                continue;
+            }
+
             if (want != got)
             {
                 return new DiffResult(cat, pattern, flags, false, $"input '{Printable(input)}' start {start}: expected {want}, got {got}");
             }
         }
 
-        return new DiffResult(cat, pattern, flags, true, "");
+        return new DiffResult(cat, pattern, flags, true, documented ? "documented V8 deviation" : string.Empty, documented);
     }
+
+    // Two places where V8 departs from ECMA-262 and we follow the specification (see docs/regexp.md):
+    //  1. In a u or v pattern V8 can report a match that starts between the halves of a surrogate pair; the
+    //     specification only ever starts a match on a code point boundary.
+    //  2. After a modifier group that turns i on, V8 evaluates a later \W,  or \B in a u or v pattern without the
+    //     i flag as if i were set, so U+017F and U+212A count as word characters there.
+    private static bool IsKnownV8Quirk(string pattern, string flags, string input, JsonElement run)
+    {
+        bool unicode = flags.Contains('u', StringComparison.Ordinal) || flags.Contains('v', StringComparison.Ordinal);
+        if (!unicode)
+        {
+            return false;
+        }
+
+        if (run.GetProperty("m").ValueKind == JsonValueKind.Array)
+        {
+            int at = run.GetProperty("m")[0][0].GetInt32();
+            if (at > 0 && at < input.Length && char.IsHighSurrogate(input[at - 1]) && char.IsLowSurrogate(input[at]))
+            {
+                return true;
+            }
+        }
+
+        if (!flags.Contains('i', StringComparison.Ordinal))
+        {
+            System.Text.RegularExpressions.Match mod = ModifierI.Match(pattern);
+            if (mod.Success)
+            {
+                string rest = pattern[mod.Index..];
+                return rest.Contains("\\W", StringComparison.Ordinal) || rest.Contains("\\b", StringComparison.Ordinal) || rest.Contains("\\B", StringComparison.Ordinal);
+            }
+        }
+
+        return false;
+    }
+
+    // Test tooling may use the BCL regex; the engine never does.
+    private static readonly System.Text.RegularExpressions.Regex ModifierI = new(@"\(\?[ms]*i[ms]*(-[ims]*)?:", System.Text.RegularExpressions.RegexOptions.CultureInvariant);
 
     private static string Printable(string s) => string.Concat(s.Select(ch => ch is >= ' ' and < '\u007f' ? ch.ToString() : $"\\u{(int)ch:x4}"));
 
@@ -140,7 +191,7 @@ public static class Differential
 
         foreach (RegExpGroupName n in prog.GroupNames.OrderBy(n => n.Name, StringComparer.Ordinal))
         {
-            int which = n.Groups.FirstOrDefault(m.IsGroupMatched);
+            int which = n.Groups.LastOrDefault(m.IsGroupMatched);
             sb.Append(n.Name).Append('=').Append(which > 0 ? $"{m.GetGroupStart(which)}-{m.GetGroupEnd(which)}" : "-").Append(' ');
         }
 

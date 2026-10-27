@@ -46,6 +46,7 @@ internal sealed class RegExpParser
     private int _groupCount;
     private int _depth;
     private int _disjunctions;
+    private int _lastAlternative;
 
     private RegExpParser(string pattern, bool unicode, bool unicodeSets)
     {
@@ -74,7 +75,7 @@ internal sealed class RegExpParser
             p.ResolveNamedReferences();
             var names = new List<(string, List<int>)>();
             var seen = new Dictionary<string, int>(StringComparer.Ordinal);
-            foreach (var (name, index, _, _, _) in p._named)
+            foreach (var (name, index, _, _, _) in p._named.OrderBy(n => n.Index))
             {
                 if (seen.TryGetValue(name, out int at))
                 {
@@ -164,6 +165,7 @@ internal sealed class RegExpParser
         }
 
         _path.RemoveRange(_path.Count - 2, 2);
+        _lastAlternative = altIndex;
         if (alts is null)
         {
             return current;
@@ -455,8 +457,9 @@ internal sealed class RegExpParser
                 _i++; // '?'
                 string name = ParseGroupName(out int nameStart, out int nameLength);
                 int index = ++_groupCount;
-                _named.Add((name, index, [.. _path], nameStart, nameLength));
+                int bodyId = _disjunctions + 1;
                 Node body2 = ParseGroupBody(open);
+                RegisterName(name, index, bodyId, nameStart, nameLength);
                 return ParseQuantifier(new GroupNode(index, body2), groupsBefore);
             }
 
@@ -639,37 +642,30 @@ internal sealed class RegExpParser
         return sb.ToString();
     }
 
-    // Duplicate names are reported once the whole pattern has parsed, after any other syntax error (as V8 does).
-    private void CheckDuplicateNames()
+    // ECMA-262 22.2.1.1 allows a name to repeat only in different alternatives. V8 (observed, not in the spec text)
+    // registers a named group when it closes and treats it as sitting in the last alternative of its own body, so
+    // '(?<n>a(?<n>b)|c)' is accepted and '(?<n>a|c(?<n>b))' is not. The error is reported at that moment, so it
+    // precedes any syntax error later in the pattern.
+    private void RegisterName(string name, int index, int bodyId, int nameStart, int nameLength)
     {
-        var byName = new Dictionary<string, List<int>>(StringComparer.Ordinal);
-        for (int i = 0; i < _named.Count; i++)
+        int[] path = [.. _path, bodyId, _lastAlternative];
+        foreach (var earlier in _named)
         {
-            if (!byName.TryGetValue(_named[i].Name, out var earlier))
+            if (earlier.Name == name && MightBothParticipate(path, earlier.Path))
             {
-                byName[_named[i].Name] = [i];
-                continue;
+                throw Err(nameStart, nameLength, "Duplicate capture group name");
             }
-
-            foreach (int j in earlier)
-            {
-                if (MightBothParticipate(_named[i].Path, _named[j].Path))
-                {
-                    throw Err(_named[i].Start, _named[i].Length, "Duplicate capture group name");
-                }
-            }
-
-            earlier.Add(i);
         }
+
+        _named.Add((name, index, path, nameStart, nameLength));
     }
 
     private void ResolveNamedReferences()
     {
-        CheckDuplicateNames();
         foreach (var (node, start, length) in _namedRefs)
         {
             var list = new List<int>();
-            foreach (var (name, index, _, _, _) in _named)
+            foreach (var (name, index, _, _, _) in _named.OrderBy(n => n.Index))
             {
                 if (name == node.Name)
                 {
@@ -1178,6 +1174,7 @@ internal sealed class RegExpParser
         var operands = new List<ClassExpr>();
         int mode = 0; // 0 union, 1 intersection, 2 subtraction
         bool hasRange = false;
+        bool afterRange = false;
         while (true)
         {
             if (_i >= _s.Length)
@@ -1225,6 +1222,13 @@ internal sealed class RegExpParser
                 throw Err(_i, 1, "Invalid set operation in character class");
             }
 
+            if (c == '-' && afterRange)
+            {
+                // A '-' right after a completed range, as in [a-z-]; V8 words it as a bad class, not a bad character.
+                throw Err(_i, 1, "Invalid character class");
+            }
+
+            afterRange = false;
             ClassExpr first = ParseClassSetOperand(out int single);
             if (single >= 0 && _i + 1 < _s.Length && _s[_i] == '-' && _s[_i + 1] != '-')
             {
@@ -1243,6 +1247,7 @@ internal sealed class RegExpParser
 
                 operands.Add(new ClassRange(single, single2));
                 hasRange = true;
+                afterRange = true;
                 _ = second;
                 continue;
             }
