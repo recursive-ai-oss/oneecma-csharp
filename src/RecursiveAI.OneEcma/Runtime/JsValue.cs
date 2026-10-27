@@ -32,7 +32,7 @@ public sealed class JsSymbol
 /// zeroed stacks and slot arrays correct. Kinds: undefined (null reference), null, boolean, number,
 /// string (<see cref="string"/> or a lazily flattened <see cref="Rope"/>), symbol, bigint, object.
 /// </summary>
-public readonly struct JsValue : IEquatable<JsValue>
+public readonly partial struct JsValue : IEquatable<JsValue>
 {
     internal static readonly Tag NumberTag = new("number");
     internal static readonly Tag NullTag = new("null");
@@ -122,12 +122,13 @@ public readonly struct JsValue : IEquatable<JsValue>
     /// <summary>Wraps an object.</summary>
     public static JsValue FromObject(JsObject o) => new(o, 0);
 
-    internal static JsValue FromSymbol(JsSymbol s) => new(s, 0);
+    /// <summary>Wraps a symbol (create one with <see cref="JsRealm.NewSymbol"/>).</summary>
+    public static JsValue FromSymbol(JsSymbol s) => new(s, 0);
 
     internal static JsValue FromRope(Rope r) => new(r, 0);
 
-    /// <summary>The string content. Only meaningful when <see cref="IsString"/>.</summary>
-    internal string AsString => Ref as string ?? ((Rope)Ref!).Flatten();
+    /// <summary>The string content. Only meaningful when <see cref="IsString"/>; any other value throws <see cref="InvalidCastException"/>.</summary>
+    public string AsString => Ref as string ?? ((Rope)Ref!).Flatten();
 
     /// <summary>The ECMAScript <c>typeof</c> result.</summary>
     public string TypeOf => Ref switch

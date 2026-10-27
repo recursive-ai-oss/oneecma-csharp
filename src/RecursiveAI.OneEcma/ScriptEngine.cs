@@ -33,7 +33,7 @@ public sealed class ScriptEngineOptions
 /// use one per thread. Errors leave as <see cref="JsException"/> or <see cref="JsLimitException"/>, each carrying a
 /// <see cref="Diagnostic"/> in <c>Report</c>.
 /// </summary>
-public sealed class ScriptEngine
+public sealed partial class ScriptEngine
 {
     /// <summary>The library version, as a constant so reading it needs no reflection.</summary>
     public const string Version = "0.0.0-dev";
@@ -78,6 +78,9 @@ public sealed class ScriptEngine
     /// <exception cref="JsException">The script has a syntax error or threw; <see cref="JsException.Report"/> explains it.</exception>
     /// <exception cref="JsLimitException">A resource limit ended the run.</exception>
     public JsValue Evaluate(string source, string fileName = "<anonymous>", CancellationToken cancellationToken = default)
+        => EvaluateIn(_realm, source, fileName, cancellationToken);
+
+    internal JsValue EvaluateIn(Realm realm, string source, string fileName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(source);
         return Guard(() =>
@@ -89,11 +92,11 @@ public sealed class ScriptEngine
             }
 
             FunctionCode code = Compiler.CompileScript(pr.Program, pr.Source);
-            var frame = new Frame(code, _realm) { Env = null, This = JsValue.FromObject(_realm.Global) };
+            var frame = new Frame(code, realm) { Env = null, This = JsValue.FromObject(realm.Global) };
             JsValue v = Vm.RunEntry(_agent, frame);
             DrainJobs();
             return v;
-        }, cancellationToken);
+        }, cancellationToken, realm);
     }
 
     /// <summary>Loads, links and evaluates the module the host resolves for <paramref name="specifier"/>, then drains the job queue.</summary>
@@ -202,17 +205,7 @@ public sealed class ScriptEngine
     {
         ArgumentNullException.ThrowIfNull(name);
         ArgumentNullException.ThrowIfNull(function);
-        var f = _realm.Fn(name, length, (t, a, nt) =>
-        {
-            try
-            {
-                return function(t, a);
-            }
-            catch (Exception e) when (e is not (JsException or JsLimitException or OperationCanceledException))
-            {
-                throw Errors.Make("Error", e.GetType().Name + ": " + e.Message);
-            }
-        });
+        var f = _realm.Fn(name, length, HostCalls.Wrap(function, name));
         _realm.Global.DefineDirect(name, JsValue.FromObject(f), PropFlags.Hidden);
     }
 
@@ -239,7 +232,7 @@ public sealed class ScriptEngine
 
     private int _active;
 
-    private T Guard<T>(Func<T> body, CancellationToken token)
+    internal T Guard<T>(Func<T> body, CancellationToken token, Realm? realm = null)
     {
         if (_active > 0)
         {
@@ -253,7 +246,7 @@ public sealed class ScriptEngine
         _agent.Frame = null;
         _agent.CallDepth = 0;
         _agent.NativeDepth = 0;
-        _agent.Realm = _realm;
+        _agent.Realm = realm ?? _realm;
         try
         {
             return body();
@@ -261,6 +254,12 @@ public sealed class ScriptEngine
         catch (JsException e)
         {
             e.Report ??= ErrorReport.ForException(e);
+            if (e.InnerException is null && HostErrors.CauseOf(e.Value) is Exception cause)
+            {
+                // A .NET exception became this script error at the host boundary; hand it back to C# as the inner exception.
+                throw new JsException(e.Value, cause) { Report = e.Report };
+            }
+
             throw;
         }
         catch (JsLimitException e) when (e.Kind == LimitKind.Cancelled)

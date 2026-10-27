@@ -163,6 +163,8 @@
               "source": { "$ref": "#/$defs/sourceRef" },
               "span": { "$ref": "#/$defs/span" },
               "async": { "type": "boolean" },
+              "host": { "description": "True for a .NET frame; then source names the file when known and hostLine is its line (0 when unknown).", "type": "boolean" },
+              "hostLine": { "type": "integer", "minimum": 0 },
               "locals": {
                 "type": "array",
                 "items": {

@@ -191,6 +191,12 @@ public static class DiagnosticJson
                 WriteSourceRef(w, "source", fr.Source);
                 WriteSpan(w, "span", fr.Source, fr.Span);
                 w.WriteBoolean("async", fr.IsAsync);
+                if (fr.IsHost)
+                {
+                    w.WriteBoolean("host", true);
+                    w.WriteNumber("hostLine", fr.HostLine);
+                }
+
                 w.WriteEndObject();
             }
 

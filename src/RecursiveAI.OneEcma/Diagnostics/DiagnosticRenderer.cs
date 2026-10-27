@@ -171,6 +171,12 @@ public static class DiagnosticRenderer
                     sb.Append(" ← ");
                 }
 
+                if (fr.IsHost)
+                {
+                    sb.Append(fr.Function).Append(fr.HostLine > 0 ? " (" + fr.Source.Name + ":" + fr.HostLine.ToString(NumberFormatInfo.InvariantInfo) + ")" : " [.NET]");
+                    continue;
+                }
+
                 sb.Append(fr.IsAsync ? "async " : "").Append(fr.Function.Length == 0 ? "<anonymous>" : fr.Function).Append(" (").Append(fr.Source.Name).Append(':').Append(fr.Position.Line).Append(')');
             }
 
