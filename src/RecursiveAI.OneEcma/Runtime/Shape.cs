@@ -41,9 +41,13 @@ internal sealed class Shape
 
     private Dictionary<PropertyKey, int>? _map;
     private Dictionary<(PropertyKey, byte), Shape>? _transitions;
+
+    // Most shapes have one successor, so the first one is kept inline and the dictionary is only built for a second.
+    private Shape? _firstNext;
     private List<DictEntry>? _entries;
     private Dictionary<PropertyKey, int>? _dictIndex;
     private int _live;
+    private byte _lookups;
 
     internal Shape(Shape? parent, PropertyKey key, PropFlags flags, JsObject? proto, bool dict)
     {
@@ -93,7 +97,9 @@ internal sealed class Shape
             return -1;
         }
 
-        if (Count <= 8)
+        // A large shape builds its key index only once it is looked up repeatedly. Built-in objects add dozens of keys one at a
+        // time and look each shape up once, so indexing every intermediate shape costs far more than the walk it saves.
+        if (Count <= 8 || (_map is null && _lookups++ < 4))
         {
             for (Shape? s = this; s is not null && s.Parent is not null; s = s.Parent)
             {
@@ -157,8 +163,22 @@ internal sealed class Shape
             return ToDictionary().Add(key, flags);
         }
 
-        _transitions ??= new Dictionary<(PropertyKey, byte), Shape>();
-        if (_transitions.TryGetValue((key, (byte)flags), out Shape? next))
+        Shape? next;
+        if (_transitions is null)
+        {
+            if (_firstNext is null)
+            {
+                return _firstNext = new Shape(this, key, flags, null, false);
+            }
+
+            if (_firstNext.Flags == flags && _firstNext.Key.Equals(key))
+            {
+                return _firstNext;
+            }
+
+            _transitions = new Dictionary<(PropertyKey, byte), Shape> { [(_firstNext.Key, (byte)_firstNext.Flags)] = _firstNext };
+        }
+        else if (_transitions.TryGetValue((key, (byte)flags), out next))
         {
             return next;
         }

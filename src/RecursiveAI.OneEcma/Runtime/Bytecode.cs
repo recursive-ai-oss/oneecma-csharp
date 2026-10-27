@@ -78,6 +78,10 @@ internal sealed class ScopeInfo
     internal bool IsStrict;
     private Dictionary<string, int>? _index;
 
+    internal const int MaxFree = 32;
+    internal Env[]? FreeEnvs;
+    internal int FreeCount;
+
     internal const byte KVar = 0;
     internal const byte KLet = 1;
     internal const byte KConst = 2;
@@ -110,11 +114,58 @@ internal sealed class Cell
 /// <summary>A runtime environment record: declarative slots, or an object environment for <c>with</c>.</summary>
 internal sealed class Env
 {
-    internal readonly Env? Parent;
+    internal Env? Parent;
     internal readonly JsValue[] Slots;
     internal readonly ScopeInfo? Info;
     internal readonly JsObject? WithObject;
     internal Dictionary<string, Cell>? Extra;
+
+    /// <summary>
+    /// Set once something that outlives the call (a closure, a mapped arguments object) holds this environment. It is set on every
+    /// ancestor too, because holding an environment holds its chain. Only environments never captured are reused after the call.
+    /// </summary>
+    internal bool Captured;
+
+    internal void MarkCaptured()
+    {
+        for (Env? e = this; e is not null && !e.Captured; e = e.Parent)
+        {
+            e.Captured = true;
+        }
+    }
+
+    /// <summary>A fresh environment for <paramref name="info"/>, taken from the scope's free list when one is there.</summary>
+    internal static Env Obtain(Env? parent, ScopeInfo info)
+    {
+        if (info.FreeCount > 0)
+        {
+            Env e = info.FreeEnvs![--info.FreeCount];
+            e.Parent = parent;
+            Array.Copy(info.Template, e.Slots, e.Slots.Length);
+            return e;
+        }
+
+        return new Env(parent, info);
+    }
+
+    /// <summary>Puts the environments a finished call created, innermost first, on their scopes' free lists, stopping at the first one a closure holds.</summary>
+    internal static void Release(Env? e)
+    {
+        while (e is not null && !e.Captured && e.Info is { } info)
+        {
+            Env? parent = e.Parent;
+            if (info.FreeCount < ScopeInfo.MaxFree)
+            {
+                e.Extra = null;
+                Array.Clear(e.Slots);
+                e.Parent = null;
+                info.FreeEnvs ??= new Env[ScopeInfo.MaxFree];
+                info.FreeEnvs[info.FreeCount++] = e;
+            }
+
+            e = parent;
+        }
+    }
 
     internal Env(Env? parent, ScopeInfo info)
     {
@@ -222,6 +273,10 @@ internal sealed class FunctionCode
 
     internal bool IsArrow => Kind == FunctionKind.Arrow;
 
+    /// <summary>Finished plain-call frames of this code, ready for the next call; see <see cref="Frame.Recycle"/>.</summary>
+    internal Frame[]? FreeFrames;
+    internal int FreeCount;
+
     internal string SourceText => Source.Text.Substring(SrcStart, SrcEnd - SrcStart);
 }
 
@@ -281,6 +336,9 @@ internal sealed class Frame
     internal ResumeMode StarMode;
     internal bool RawYield;
 
+    /// <summary>Set once something outside the call chain can reach this frame (an arrow function keeps its defining frame for <c>this</c>), which forbids reuse.</summary>
+    internal bool Escaped;
+
     internal Frame(FunctionCode code, Realm realm)
     {
         Code = code;
@@ -289,6 +347,65 @@ internal sealed class Frame
         Base = code.NumLocals;
         Sp = Base;
         ThisFrame = this;
+    }
+
+    private const int MaxFreePerCode = 64;
+
+    /// <summary>
+    /// Returns a finished frame to its code's free list. Only a frame of a plain function that returned normally and that nothing
+    /// else references qualifies: generator, async and module frames are suspended and resumed, and an arrow function created in
+    /// the frame holds it, so those are never reused.
+    /// </summary>
+    internal static void Recycle(Frame f)
+    {
+        FunctionCode c = f.Code;
+        // Eval code runs in its caller's environment, which it does not own, so its frame must never release it.
+        if (f.Escaped || c.IsAsync || c.IsGenerator || f.IsEntry || c.Kind is FunctionKind.Eval or FunctionKind.Script or FunctionKind.Module || c.FreeCount >= MaxFreePerCode)
+        {
+            return;
+        }
+
+        Env.Release(f.Env);
+        Array.Clear(f.Stack);
+        f.Handlers?.Clear();
+        f.Func = null;
+        f.Caller = null;
+        f.Env = null;
+        f.This = default;
+        f.NewTarget = null;
+        f.ArgArr = null;
+        f.Owner = null;
+        f.Sent = default;
+        f.Completion = default;
+        f.NativeCaller = null;
+        f.NativeCallerThis = default;
+        f.CallReceiver = default;
+        f.ThisFrame = f;
+        c.FreeFrames ??= new Frame[MaxFreePerCode];
+        c.FreeFrames[c.FreeCount++] = f;
+    }
+
+    /// <summary>A frame for <paramref name="code"/>: a recycled one when available, else a new one.</summary>
+    internal static Frame Obtain(FunctionCode code, Realm realm)
+    {
+        if (code.FreeCount > 0)
+        {
+            Frame f = code.FreeFrames![--code.FreeCount];
+            f.Realm = realm;
+            f.Sp = f.Base;
+            f.Pc = 0;
+            f.State = FrameState.Running;
+            f.Mode = ResumeMode.Next;
+            f.IsConstruct = false;
+            f.NativeCallerNew = false;
+            f.AwaitedInStar = false;
+            f.RawYield = false;
+            f.ArgOff = 0;
+            f.ArgCount = 0;
+            return f;
+        }
+
+        return new Frame(code, realm);
     }
 
     /// <summary>The built-in function that called into this frame (an entry frame), with its receiver, so traces show it between the two script frames.</summary>

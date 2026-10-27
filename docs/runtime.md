@@ -53,6 +53,8 @@ Helpers on `JsObject` that are the spec's abstract operations: `CreateDataProper
 
 To make an exotic object, subclass `JsObject` (or `JsArray` for array-likes that store elements densely), pass the prototype to the base constructor, override the internal methods your spec section lists, and set `ClassName`. Internal slots are plain C# fields on your subclass: an `IsMyThing(this)` check is `thisValue.Ref is MyThing`. Do not use shape slots for internal state.
 
+Large objects are cheap to build one property at a time: a `Shape` indexes its keys only after it has been looked up several times, so a built-in prototype with dozens of `DefineDirect` calls does not index every intermediate shape. Code that holds a `Frame` or an `Env` past the call that created it must mark it (`Frame.Escaped`, `Env.MarkCaptured`), because finished frames and uncaptured environments are reused; see `executor.md`.
+
 ## Native functions
 
 ```csharp
