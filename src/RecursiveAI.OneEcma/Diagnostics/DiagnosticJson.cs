@@ -125,7 +125,7 @@ public static class DiagnosticJson
     private static string ToString(JsonRenderOptions? options, Action<Utf8JsonWriter> body)
     {
         var buffer = new ArrayBufferWriter<byte>(1024);
-        var wo = new JsonWriterOptions { Indented = options?.Indented ?? false, Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
+        var wo = new JsonWriterOptions { Indented = options?.Indented ?? false, NewLine = "\n", Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
         using (var w = new Utf8JsonWriter(buffer, wo))
         {
             body(w);

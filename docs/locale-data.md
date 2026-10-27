@@ -28,7 +28,7 @@ The output is a pure function of the pinned inputs: two runs give identical byte
 
 | File | Content | Bytes |
 |---|---|---:|
-| `supplemental.bin` | tree (collation tailoring rule text also covers the root `search` collation): likely subtags, aliases, parent locales, default content, currency data (digits, regions), week data, time data, calendar preferences, numbering systems, metazone mapping, plural ranges, day period rules, territory containment, right-to-left scripts, BCP 47 keyword data (calendar, collation, currency, measure, number, timezone including IANA aliases), collation tailoring rule text, list of stored locales | 351,918 |
+| `supplemental.bin` | tree (collation tailoring rule text also covers the root `search` collation): likely subtags, aliases, parent locales, default content, currency data (digits, regions), week data, time data, calendar preferences, numbering systems, metazone mapping, plural ranges, day period rules, territory containment, right-to-left scripts, BCP 47 keyword data (calendar, collation, currency, measure, number, timezone including IANA aliases), collation tailoring rule text, list of stored locales | 373,342 |
 | `locale-<id>.bin` | tree per stored locale, delta against its parent | und 31,520; en 148,874; en-001 15,736; en-GB 4,192; es 125,352; es-419 17,439; es-US 13,955; fr 133,642; de 130,050; pt 125,568 |
 | `plurals.bin` | cardinal and ordinal plural rule ASTs for every CLDR language | 6,968 |
 | `collation.bin` | CLDR root collation table, contractions, implicit-weight ranges, decimal digit zeros | 282,838 |
@@ -82,6 +82,7 @@ Varint property count; per property: UTF-8 name (`Grapheme_Cluster_Break`, `Word
 Date-time formatting needs the display names of time zones and the country of each zone. `supplemental.bin` carries, besides the CLDR metazone mapping:
 
 - `zoneRegions`: CLDR canonical zone id to the ISO 3166 region of the `zone.tab` line that names it or one of its aliases (tzdata 2025b, public domain; `fetch.sh` extracts `zone.tab` from the pinned archive).
+- `windowsZones`: IANA zone id to Windows zone id (every id in the type lists of CLDR 48 `windowsZones.json`; the first mapZone naming an id wins). A host on Windows without ICU only knows zones by Windows id, so the BCL time-zone source retries an unknown IANA id through this table (an alias goes through its canonical id first). An id that neither lookup resolves is unknown: Intl throws a RangeError and Date local time throws one too, never reading it as UTC.
 - `primaryZones`: region to the zone CLDR names as that region's primary zone (a zone whose location name is the bare country name).
 - `metaZoneInfo`: per zone, a list of periods `usesMetazone` with `_mzone` and optional `_from` and `_to` (`yyyy-MM-dd HH:mm`, UTC; a missing `_from` is 1970-01-01).
 - `metaZoneMap`: the reference ("golden") zone of each metazone per territory, `001` for the world.

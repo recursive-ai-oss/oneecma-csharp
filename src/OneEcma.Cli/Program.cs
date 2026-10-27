@@ -265,6 +265,9 @@ internal static class Program
 
     internal static int Main(string[] args)
     {
+        // Output is the same bytes on every platform: JSON reports and the repaired source are data, so no CRLF on Windows.
+        Console.Out.NewLine = "\n";
+        Console.Error.NewLine = "\n";
         if (args.Length == 0 || args[0] is "-h" or "--help")
         {
             Console.Out.Write(UsageText);

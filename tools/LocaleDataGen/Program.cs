@@ -262,8 +262,32 @@ internal sealed class Generator(string json, string common, string ucd, string t
 
         sup.Members["bcp47"] = bcp;
         sup.Members["zoneRegions"] = ZoneRegions(bcp);
+        sup.Members["windowsZones"] = WindowsZones(json);
         sup.Members["collationTailoring"] = Tailorings();
         return sup;
+    }
+
+    // IANA zone id -> Windows zone id, from CLDR's windowsZones (every id of every mapZone's type list). A Windows host without ICU
+    // knows time zones only by the Windows ids, so the engine looks a zone up through this table when the IANA id is not found.
+    private static Obj WindowsZones(string json)
+    {
+        Node ws = TreeOps.FromJson(TreeOps.Load(Path.Combine(json, "cldr-core", "supplemental", "windowsZones.json")));
+        var result = new Obj();
+        foreach (Node item in ((Arr)TreeOps.Dig(ws, "supplemental", "windowsZones", "mapTimezones")!).Items)
+        {
+            Node? zone = TreeOps.Dig(item, "mapZone");
+            if (zone is null || TreeOps.Dig(zone, "_other") is not Str other || TreeOps.Dig(zone, "_type") is not Str type)
+            {
+                continue;
+            }
+
+            foreach (string id in type.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+            {
+                result.Members.TryAdd(id, new Str(other.Value));
+            }
+        }
+
+        return result;
     }
 
     // Country of each CLDR canonical time zone id, from the IANA zone.tab (the first alias present in the table decides). Time zone
