@@ -132,6 +132,12 @@ internal sealed class Agent
 
     internal readonly Queue<Action> Jobs = new();
 
+    /// <summary>Called when the job queue is empty; returns true if it made progress (queued jobs or settled promises), so the loop runs again. Atomics.waitAsync uses it to expire timeouts on virtual time.</summary>
+    internal Func<bool>? IdleHook;
+
+    /// <summary>Weak-reference bookkeeping (WeakRef, FinalizationRegistry).</summary>
+    internal readonly WeakTracker Weak = new();
+
     /// <summary>Promises rejected while nobody was waiting on them, in rejection order; the entry point reports what is left after the jobs ran.</summary>
     internal readonly List<PromiseObject> UnhandledRejections = [];
 
@@ -225,11 +231,18 @@ internal sealed class Agent
     /// <summary>Runs queued jobs until the queue is empty (HostEnqueuePromiseJob consumer).</summary>
     internal void RunJobs()
     {
-        while (Jobs.Count > 0)
+        // ClearKeptObjects (9.10.3): the synchronous run that led here has ended, and so has each job below.
+        Weak.ClearKept();
+        do
         {
-            Action job = Jobs.Dequeue();
-            Tick();
-            job();
+            while (Jobs.Count > 0)
+            {
+                Action job = Jobs.Dequeue();
+                Tick();
+                job();
+                Weak.ClearKept();
+            }
         }
+        while (IdleHook is not null && IdleHook());
     }
 }

@@ -401,7 +401,8 @@ internal static partial class Vm
             case DynKind.With:
                 {
                     var key = new PropertyKey(name);
-                    if (strict && !d.Obj!.HasProperty(key))
+                    // 9.1.1.2.5 SetMutableBinding step 2: HasProperty is observable (a proxy trap) even in sloppy code.
+                    if (!d.Obj!.HasProperty(key) && strict)
                     {
                         throw Errors.Reference(name + " is not defined");
                     }
@@ -701,6 +702,11 @@ internal static partial class Vm
                     }
                 }
             }
+            else if (o.Ref is JsTypedArray ta)
+            {
+                // Every Number key is a canonical numeric index: out of range reads give undefined without touching the prototype chain.
+                return ta.GetByNumber(d);
+            }
             else if (o.Ref is string s)
             {
                 uint i = (uint)d;
@@ -767,6 +773,12 @@ internal static partial class Vm
             }
         }
 
+        if (o.Ref is JsTypedArray tarr && k.IsNumber)
+        {
+            tarr.SetByNumber(k.Num, v);
+            return;
+        }
+
         if (o.IsNullish)
         {
             throw Errors.Type("Cannot set properties of " + (o.IsNull ? "null" : "undefined") + KeySuffix("setting", k));
@@ -786,7 +798,7 @@ internal static partial class Vm
         bool ok = obj.Delete(key);
         if (!ok && strict)
         {
-            throw Errors.Type("Cannot delete property '" + Ops.KeyText(key) + "' of " + Ops.DisplayValue(JsValue.FromObject(obj)));
+            throw obj is ProxyObject ? ProxyObject.Falsish("deleteProperty", Ops.KeyText(key)) : Errors.Type("Cannot delete property '" + Ops.KeyText(key) + "' of " + Ops.DisplayValue(JsValue.FromObject(obj)));
         }
 
         return ok;

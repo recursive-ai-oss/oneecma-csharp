@@ -63,12 +63,7 @@ internal static class RegExpHook
 
     internal static JsValue Create(Realm r, string pattern, string flags)
     {
-        if (Factory is null)
-        {
-            throw Errors.Syntax("RegExp objects are not available in this build");
-        }
-
-        return Factory(r, pattern, flags);
+        return Factory is null ? RegExpBuiltins.CreateLiteral(r, pattern, flags) : Factory(r, pattern, flags);
     }
 }
 
@@ -121,14 +116,23 @@ internal static partial class Builtins
         JsObject h = r.NewObject();
         r.Global.DefineDirect("$262", JsValue.FromObject(h), PropFlags.Hidden);
         Realm.Value(h, "global", JsValue.FromObject(r.Global));
-        r.Method(h, "gc", 0, (t, a, nt) => default);
+        r.Method(h, "gc", 0, (t, a, nt) =>
+        {
+            r.Agent.Weak.Collect(r.Agent);
+            return default;
+        });
+        r.Method(h, "clearKeptObjects", 0, (t, a, nt) =>
+        {
+            r.Agent.Weak.ClearKept();
+            return default;
+        });
         r.Method(h, "createRealm", 0, (t, a, nt) =>
         {
             Realm nr = Realm.Create(r.Agent);
             return nr.Global.Get("$262");
         });
         r.Method(h, "evalScript", 1, (t, a, nt) => ScriptRunner.RunScript(r, Ops.ToStr(A(a, 0)), "<evalScript>"));
-        r.Method(h, "detachArrayBuffer", 1, (t, a, nt) => throw Errors.Type("detachArrayBuffer is not available in this build"));
+        r.Method(h, "detachArrayBuffer", 1, (t, a, nt) => BinaryData.HostDetach(A(a, 0)));
         var agent = r.NewObject();
         Realm.Value(h, "agent", JsValue.FromObject(agent));
         var dda = new HtmlDdaObject(r.ObjectPrototype);

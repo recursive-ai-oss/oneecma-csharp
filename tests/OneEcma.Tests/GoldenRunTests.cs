@@ -23,12 +23,10 @@ public sealed partial class GoldenRunTests
     }
 
     // Cases that need something outside the interpreter core: library functions that arrive with the built-in areas
-    // (JSON.parse, Date, Number.prototype.toFixed, RegExp matching, String.prototype.match), or a mode of running
+    // (JSON.parse, Number.prototype.toFixed), or a mode of running
     // code (top-level await) the core does not offer. Each one must still fail until its feature lands.
     private static readonly Dictionary<string, string> NeedsLibrary = new()
     {
-        ["run-012-match-returns-null"] = "RegExp and String.prototype.match",
-        ["run-024-invalid-date"] = "Date",
     };
 
     // The error is the right one but a native function raised it, so the span is the call; the corpus points at the

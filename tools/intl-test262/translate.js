@@ -20,8 +20,8 @@ const filter = process.argv[4] || '';
 const T = path.join(root, 'test', 'intl402');
 const H = path.join(root, 'harness');
 
-const DIRS = ['NumberFormat', 'PluralRules', 'ListFormat', 'RelativeTimeFormat', 'DisplayNames', 'Locale', 'Intl'];
-const SKIP_FEATURES = ['Temporal', 'Intl.DurationFormat', 'Intl.DateTimeFormat-formatRange', 'Intl.DateTimeFormat-extend-timezone', 'Intl.Era-monthcode', 'intl-normative-optional', 'Intl.Segmenter', 'Intl.DateTimeFormat-datetimestyle', 'Intl.DateTimeFormat-fractionalSecondDigits', 'Intl.DateTimeFormat-dayPeriod', 'ShadowRealm', 'Atomics', 'SharedArrayBuffer'];
+const DIRS = ['NumberFormat', 'PluralRules', 'ListFormat', 'RelativeTimeFormat', 'DisplayNames', 'Locale', 'Intl', 'DateTimeFormat', 'DurationFormat'];
+const SKIP_FEATURES = ['Temporal', 'Intl.Era-monthcode', 'intl-normative-optional', 'Intl.Segmenter', 'ShadowRealm', 'Atomics', 'SharedArrayBuffer'];
 
 function walk(dir, out) {
   for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -57,18 +57,33 @@ for (const dirName of DIRS) {
     const src = fs.readFileSync(file, 'utf8');
     const md = meta(src);
     stats.files++;
-    if (md.flags.includes('async') || md.flags.includes('module') || md.features.some(f => SKIP_FEATURES.includes(f)) || /DateTimeFormat|DurationFormat|Segmenter|Collator|Temporal/.test(rel)) {
+    if (md.flags.includes('async') || md.flags.includes('module') || md.features.some(f => SKIP_FEATURES.includes(f)) || /Segmenter|Collator|Temporal/.test(rel)) {
       stats.skippedFeature++;
       continue;
     }
     const checks = [];
+    // A test that branches on part.type === '...' needs primitive types, so only the values of its parts are tagged.
+    // The harness helper that rebuilds the expected duration text compares option values with ===.
+    const plainResolved = /formatDurationFormatPattern/.test(src);
+    const compareParts = /\.(type|source|unit)\s*[!=]==/.test(src);
     const tags = new WeakMap();
     let calls = [];
 
     const ctx = vm.createContext({});
     const RealIntl = vm.runInContext('Intl', ctx);
 
-    const encNum = (x) => Array.isArray(x) && x.every(e => typeof e === 'string') ? { a: x } : typeof x === 'number' ? 'n:' + (Object.is(x, -0) ? '-0' : String(x)) : typeof x === 'bigint' ? 'b:' + x : typeof x === 'string' ? 's:' + x : undefined;
+    const isDate = (x) => Object.prototype.toString.call(x) === '[object Date]';
+    const encObj = (x) => {
+      if (x === null || typeof x !== 'object' || Array.isArray(x) || isDate(x)) return undefined;
+      const r = {};
+      for (const k of Object.keys(x)) {
+        const v = x[k];
+        if (typeof v !== 'number' && typeof v !== 'string') return undefined;
+        r[k] = typeof v === 'number' ? 'n:' + String(v) : 's:' + v;
+      }
+      return { o: r };
+    };
+    const encNum = (x) => isDate(x) ? 'd:' + x.getTime() : (Array.isArray(x) && x.every(e => typeof e === 'string') ? { a: x } : typeof x === 'number' ? 'n:' + (Object.is(x, -0) ? '-0' : String(x)) : typeof x === 'bigint' ? 'b:' + x : typeof x === 'string' ? 's:' + x : undefined);
     const encLocales = (l) => (l === undefined ? null : typeof l === 'string' ? l : Array.isArray(l) && l.every(x => typeof x === 'string') ? l : { bad: true });
     const encOpts = (o) => {
       if (o === undefined) return {};
@@ -108,9 +123,23 @@ for (const dirName of DIRS) {
       checks.push({ ...desc, expect });
     };
 
-    function service(name, Real, methodNames) {
+    // Tagged results are boxed strings and numbers; the reference implementation wants primitives when they come back as options.
+    const unboxValue = (v) => (v !== null && typeof v === 'object' && tags.has(v) && (v instanceof String || v instanceof Number) ? v.valueOf() : v);
+    const unboxLocales = (l) => Array.isArray(l) ? l.map(unboxValue) : unboxValue(l);
+    const unboxOptions = (o) => {
+      if (o === null || typeof o !== 'object') return o;
+      const keys = Object.keys(o);
+      const descs = keys.map(k => Object.getOwnPropertyDescriptor(o, k));
+      if (descs.some(d => !d || !('value' in d)) || !descs.some(d => unboxValue(d.value) !== d.value)) return o;
+      const c = {};
+      keys.forEach((k, i) => { c[k] = unboxValue(descs[i].value); });
+      return c;
+    };
+
+    function service(name, Real, methodNames, getterNames = []) {
       const proto = {};
-      function Shim(locales, options) {
+      function Shim(locales0, options0) {
+        const locales = unboxLocales(locales0), options = unboxOptions(options0);
         if (!new.target) return new Shim(locales, options);
         const desc = { svc: name, loc: encLocales(locales), opts: encOpts(options) };
         if (desc.loc && desc.loc.bad) desc.bad = true;
@@ -125,20 +154,29 @@ for (const dirName of DIRS) {
         }
         this.__desc = desc;
       }
-      for (const m of methodNames) {
-        proto[m] = function (...args) {
-          const encArgs = args.map(encNum);
-          const desc = { ...this.__desc, method: m, args: encArgs, bad: this.__desc.bad || encArgs.some(a => a === undefined) };
-          const call = { desc };
-          calls.push(call);
-          let r;
-          try { r = this.__real[m](...args); } catch (e) { call.err = e.constructor.name; throw e; }
-          if (typeof r === 'string') return tag(r, desc);
-          if (m === 'resolvedOptions') {
-            return new Proxy(r, { get(t, p) { const v = t[p]; return typeof p === 'string' && (typeof v === 'string' || typeof v === 'number') ? tag(v, { ...desc, prop: p }) : v; } });
-          }
-          return r;
-        };
+      function invoke(self, m, args) {
+        const encArgs = args.map(a => (name === 'df' ? encObj(a) : undefined) ?? encNum(a));
+        const desc = { ...self.__desc, method: m, args: encArgs, bad: self.__desc.bad || encArgs.some(a => a === undefined) };
+        const call = { desc };
+        calls.push(call);
+        let r;
+        try { r = self.__real[m](...args); } catch (e) { call.err = e.constructor.name; throw e; }
+        if (typeof r === 'string') return tag(r, desc);
+        if (m === 'resolvedOptions' && !plainResolved) {
+          return new Proxy(r, { get(t, p) { const v = t[p]; return typeof p === 'string' && (typeof v === 'string' || typeof v === 'number') ? tag(v, { ...desc, prop: p }) : v; } });
+        }
+        if (Array.isArray(r) && /Parts$/.test(m)) {
+          return r.map((part, i) => {
+            const o = {};
+            for (const k of Object.keys(part)) o[k] = typeof part[k] === 'string' && (k === 'value' || !compareParts) ? tag(part[k], { ...desc, part: i, prop: k }) : part[k];
+            return o;
+          });
+        }
+        return r;
+      }
+      for (const m of methodNames) proto[m] = function (...args) { return invoke(this, m, args); };
+      for (const m of getterNames) {
+        Object.defineProperty(proto, m, { get() { const self = this; return (self.__bound ??= {})[m] ??= (...args) => invoke(self, m, args); }, configurable: true });
       }
       Object.defineProperty(Shim, 'prototype', { value: proto, writable: false });
       Shim.supportedLocalesOf = (...a) => Real.supportedLocalesOf(...a);
@@ -163,10 +201,10 @@ for (const dirName of DIRS) {
         return arr;
       },
       supportedValuesOf: (k) => RealIntl.supportedValuesOf(k),
-      DateTimeFormat: RealIntl.DateTimeFormat,
+      DateTimeFormat: service('dtf', RealIntl.DateTimeFormat, ['formatToParts', 'formatRange', 'formatRangeToParts', 'resolvedOptions'], ['format']),
       Collator: RealIntl.Collator,
       Segmenter: RealIntl.Segmenter,
-      DurationFormat: RealIntl.DurationFormat,
+      DurationFormat: RealIntl.DurationFormat ? service('df', RealIntl.DurationFormat, ['format', 'formatToParts', 'resolvedOptions']) : undefined,
       Locale: RealIntl.Locale,
     };
     // Instances inherit the shim prototype; make `instanceof` and constructor lookups behave.

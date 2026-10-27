@@ -5,3 +5,11 @@ Intl/supportedValuesOf/numberingSystems-accepted-by-RelativeTimeFormat.js Same a
 NumberFormat/prototype/resolvedOptions/resolved-numbering-system-unicode-extensions-and-options.js Expects non-Latin numbering systems (arab) to resolve; only latn is supported.
 RelativeTimeFormat/prototype/resolvedOptions/resolved-numbering-system-unicode-extensions-and-options.js Same as above for RelativeTimeFormat.
 NumberFormat/constructor-roundingIncrement-invalid.js#3 A fractional roundingIncrement (5000.1) is rejected by GetNumberOption in the option-reading layer, which converts to an integer before the service sees it.
+# Date-time and duration formatting: only the Gregorian calendar and Latin digits are carried.
+Intl/supportedValuesOf/numberingSystems-accepted-by-DateTimeFormat.js Every numbering system listed by supportedValuesOf must be accepted by DateTimeFormat; only latn is carried.
+DurationFormat/constructor-options-numberingSystem-valid.js Expects every numbering system supportedValuesOf lists to resolve; only latn is carried.
+Intl/supportedValuesOf/calendars-accepted-by-DateTimeFormat.js Expects every calendar supportedValuesOf lists to resolve; only gregory is carried.
+DurationFormat/prototype/resolvedOptions/resolved-numbering-system-unicode-extensions-and-options.js Expects non-Latin numbering systems (arab) and the -u-nu extension to resolve.
+DateTimeFormat/prototype/resolvedOptions/resolved-numbering-system-unicode-extensions-and-options.js Expects non-Latin numbering systems (arab) and the -u-nu extension to resolve.
+DateTimeFormat/prototype/resolvedOptions/resolved-calendar-unicode-extensions-and-options.js Expects non-Gregorian calendars (iso8601) and the -u-ca extension to resolve.
+DateTimeFormat/canonicalize-calendar.js Expects calendar aliases (islamic-civil, ...) to resolve to their calendar; only gregory is carried.

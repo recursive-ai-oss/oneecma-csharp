@@ -596,7 +596,7 @@ internal sealed partial class Compiler
                 if (m.Computed)
                 {
                     Expr(m.Property);
-                    Emit(Op.DeleteElem, _f.Strict ? 1 : 0);
+                    Emit(Op.DeleteElem, 0, _f.Strict ? 1 : 0);
                 }
                 else
                 {

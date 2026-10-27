@@ -151,7 +151,8 @@ internal static class Ops
             return 0;
         }
 
-        return double.IsInfinity(n) ? n : Math.Truncate(n);
+        // Truncate(-0.5) is -0; the mathematical integer has no negative zero (7.1.5 step 4).
+        return double.IsInfinity(n) ? n : Math.Truncate(n) + 0.0;
     }
 
     internal static int ToInt32(JsValue v) => v.IsNumber ? ToInt32(v.Num) : ToInt32(ToNumber(v));
@@ -832,6 +833,11 @@ internal static class Ops
 
     internal static string SetFailureMessage(JsObject o, PropertyKey key)
     {
+        if (o is ProxyObject)
+        {
+            return "'set' on proxy: trap returned falsish for property '" + KeyText(key) + "'";
+        }
+
         // V8 distinguishes a read-only data property, a getter-only accessor and a non-extensible object.
         JsObject? p = o;
         while (p is not null)

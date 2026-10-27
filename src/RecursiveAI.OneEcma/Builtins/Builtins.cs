@@ -25,7 +25,14 @@ internal static partial class Builtins
         SetupGenerators(r);
         SetupGlobals(r);
         SetupMathJson(r);
+        SetupCollections(r);
+        SetupWeak(r);
+        SetupReflect(r);
+        SetupDate(r);
+        SetupProxy(r);
+        BinaryData.Setup(r);
         SetupHost(r);
+        RegExpBuiltins.Setup(r);
     }
 
     private static JsValue A(ReadOnlySpan<JsValue> a, int i) => i < a.Length ? a[i] : default;
@@ -160,7 +167,7 @@ internal static partial class Builtins
 
             if (o.Ref is JsObject oo && !oo.SetPrototypeOf(p.AsObject))
             {
-                throw Errors.Type(oo.IsExtensibleOp() ? "Cyclic __proto__ value" : "#<Object> is not extensible");
+                throw oo is ProxyObject ? ProxyObject.Falsish("setPrototypeOf", "undefined") : Errors.Type(oo.IsExtensibleOp() ? "Cyclic __proto__ value" : "#<Object> is not extensible");
             }
 
             return o;
@@ -257,7 +264,7 @@ internal static partial class Builtins
         {
             if (A(a, 0).Ref is JsObject o && !o.PreventExtensions())
             {
-                throw Errors.Type("Cannot prevent extensions");
+                throw o is ProxyObject ? ProxyObject.Falsish("preventExtensions", null) : Errors.Type("Cannot prevent extensions");
             }
 
             return A(a, 0);
@@ -389,6 +396,11 @@ internal static partial class Builtins
         }
 
         JsObject o = Ops.ToObject(t);
+        if (o.ProxyTarget(out _, out bool revoked) && revoked)
+        {
+            throw Errors.Type("Cannot perform 'Object.prototype.toString' on a proxy that has been revoked");
+        }
+
         string tag = Ops.IsArray(JsValue.FromObject(o)) ? "Array" : o switch
         {
             JsArguments => "Arguments",
@@ -471,7 +483,7 @@ internal static partial class Builtins
 
         if (!o.PreventExtensions())
         {
-            throw Errors.Type("Cannot prevent extensions");
+            throw o is ProxyObject ? ProxyObject.Falsish("preventExtensions", null) : Errors.Type("Cannot prevent extensions");
         }
 
         var keys = new List<PropertyKey>();
