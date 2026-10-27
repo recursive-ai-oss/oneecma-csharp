@@ -31,9 +31,6 @@ language/import/import-attributes/json-value-string.js | core: module evaluation
 language/import/import-attributes/json-via-namespace.js | core: module evaluation is sequential (no async-module graph ordering) and JSON modules are not supported
 language/module-code/import-attributes/allow-nlt-before-with.js | core: module evaluation is sequential (no async-module graph ordering) and JSON modules are not supported
 language/module-code/top-level-await/async-module-does-not-block-sibling-modules.js | core: module evaluation is sequential (no async-module graph ordering) and JSON modules are not supported
-language/expressions/dynamic-import/assignment-expression/this.js | core: needs async test harness behaviour not yet supported (promise result handling in the test)
-language/expressions/in/private-field-rhs-await-present.js | core: needs async test harness behaviour not yet supported (promise result handling in the test)
-language/expressions/optional-chaining/member-expression-async-this.js | core: needs async test harness behaviour not yet supported (promise result handling in the test)
 language/identifier-resolution/assign-to-global-undefined.js | core: strict assignment to the non-writable global `undefined` through a property assignment target must throw
 language/expressions/super/prop-expr-getsuperbase-before-topropertykey-getvalue.js | core: super[key] must capture the super base before ToPropertyKey (13.3.7.1 steps 2-7); the VM converts the key first
 language/expressions/super/prop-expr-getsuperbase-before-topropertykey-putvalue-compound-assign.js | core: super[key] must capture the super base before ToPropertyKey (13.3.7.1 steps 2-7); the VM converts the key first
