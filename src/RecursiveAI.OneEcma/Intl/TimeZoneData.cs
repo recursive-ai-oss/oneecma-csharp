@@ -154,6 +154,9 @@ internal sealed class BclTimeZoneSource : ITimeZoneSource
 {
     private readonly Dictionary<string, TimeZoneInfo?> _zones = new(StringComparer.Ordinal);
 
+    /// <summary>The instance behind the default of the host's offset lookup.</summary>
+    internal static BclTimeZoneSource Shared { get; } = new();
+
     /// <inheritdoc/>
     public bool TryGetOffset(string zoneId, double epochMs, out TimeZoneOffset offset)
     {

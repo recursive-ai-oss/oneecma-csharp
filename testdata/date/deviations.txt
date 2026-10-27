@@ -1,0 +1,5 @@
+# Known differences from the reference Node, one per line as <zone>|<line label>. See docs/date.md.
+# "-000000-01-01" is not valid in the specified format; the reference reads it as a legacy string with a stray sign (2001-01-01).
+UTC|P "-000000-01-01"
+America/Chicago|P "-000000-01-01"
+Europe/Berlin|P "-000000-01-01"
