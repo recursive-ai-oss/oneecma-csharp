@@ -32,7 +32,18 @@ internal static partial class IntlJs
 {
     internal static JsValue A(ReadOnlySpan<JsValue> a, int i) => i < a.Length ? a[i] : default;
 
-    private static readonly BclTimeZoneSource Zones = new();
+    /// <summary>Zone offsets come from the running host (IJsHost.TryGetTimeZoneOffset), so a recording host sees them.</summary>
+    private sealed class HostZoneSource : ITimeZoneSource
+    {
+        public bool TryGetOffset(string zoneId, double epochMs, out TimeZoneOffset offset)
+        {
+            bool known = Agent.Current.Host.TryGetTimeZoneOffset(zoneId, epochMs, out int ms, out bool dst);
+            offset = new TimeZoneOffset(ms, dst);
+            return known;
+        }
+    }
+
+    private static readonly HostZoneSource Zones = new();
 
     internal static void Setup(Realm r)
     {
@@ -105,7 +116,18 @@ internal static partial class IntlJs
         Errors.Type("Method " + method + " called on incompatible receiver " + (t.IsString ? t.AsString : Ops.DisplayValue(t)));
 
     internal static JsIntl This(JsValue t, string kind, string method) =>
-        t.Ref is JsIntl o && o.Kind == kind ? o : throw Incompat("Intl." + kind + ".prototype." + method, t);
+        t.Ref is JsIntl o && o.Kind == kind ? o : throw Incompat(kind is "Segments" ? "%Segments.prototype%." + method : "Intl." + kind + ".prototype." + method, t);
+
+    /// <summary>How V8 names a value that is not iterable: its type, then the value for primitives.</summary>
+    internal static string KindText(JsValue v) => v.Ref switch
+    {
+        null => "undefined",
+        JsSymbol => "symbol",
+        JsObject o => o.IsCallable ? "function" : "object",
+        _ when v.IsNull => "object null",
+        _ when v.IsString => "string \"" + v.AsString + "\"",
+        _ => v.TypeOf + " " + Ops.DisplayValue(v),
+    };
 
     // ---- locale lists and the default locale ---------------------------------------------------------------
 
@@ -155,7 +177,7 @@ internal static partial class IntlJs
             JsValue v = o.Get(pk);
             if (!v.IsString && v.Ref is not JsObject)
             {
-                throw Errors.Type("Incorrect locale information provided");
+                throw Errors.Type("Language ID should be string or object.");
             }
 
             string tag = TagOf(v);
@@ -203,13 +225,15 @@ internal static partial class IntlJs
             return null;
         }
 
-        return options.Ref as JsObject ?? throw Errors.Type("Incorrect options provided");
+        return options.Ref as JsObject ?? throw Errors.Type("invalid_argument");
     }
 
     /// <summary>Reads options of one service, naming it in error messages.</summary>
     internal readonly struct Opts(JsObject? o, string service)
     {
         internal JsObject? Obj => o;
+
+        internal string Service => service;
 
         internal JsValue Raw(string prop) => o is null ? default : o.Get(prop);
 
@@ -225,7 +249,9 @@ internal static partial class IntlJs
             string s = Ops.ToStr(v);
             if (values.Length > 0 && Array.IndexOf(values, s) < 0)
             {
-                throw Errors.Range($"Value {s} out of range for Intl.{service} options property {prop}");
+                throw Errors.Range(service == "Locale"
+                    ? $"Value {s} out of range for locale options property {prop}"
+                    : $"Value {s} out of range for Intl.{service} options property {prop}");
             }
 
             return s;

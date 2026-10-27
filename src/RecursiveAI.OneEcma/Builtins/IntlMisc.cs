@@ -59,6 +59,11 @@ internal static partial class IntlJs
             return list;
         }
 
+        if (Ops.GetMethod(iterable, new PropertyKey(WellKnown.Iterator)).IsUndefined)
+        {
+            throw Errors.Type(KindText(iterable) + " is not iterable (cannot read property Symbol(Symbol.iterator))");
+        }
+
         IteratorRecord rec = Ops.GetIterator(iterable);
         while (Ops.IteratorStepValue(rec, out JsValue v))
         {
@@ -110,7 +115,7 @@ internal static partial class IntlJs
             double value = Ops.ToNumber(A(a, 0));
             string unit = Ops.ToStr(A(a, 1));
             var parts = new List<JsValue>();
-            foreach (RelativeTimePart p in Svc(() => rtf.FormatToParts(DecimalNumber.FromDouble(value), unit)))
+            foreach (RelativeTimePart p in Svc(() => rtf.FormatToParts(DecimalNumber.FromDouble(value), unit, "formatToParts")))
             {
                 parts.Add(JsValue.FromObject(Part(r, p.Type, p.Value, ("unit", p.Unit))));
             }
@@ -139,7 +144,7 @@ internal static partial class IntlJs
             List<string> requested = Locales(A(a, 0));
             if (A(a, 1).IsUndefined)
             {
-                throw Errors.Type("Required option \"type\" is missing");
+                throw Errors.Type("invalid_argument");
             }
 
             var o = new Opts(GetOptionsObject(A(a, 1)), "DisplayNames");
@@ -148,7 +153,7 @@ internal static partial class IntlJs
             string? type = o.Str("type", "language", "region", "script", "currency", "calendar", "dateTimeField");
             if (type is null)
             {
-                throw Errors.Type("Required option \"type\" is missing");
+                throw Errors.Type("invalid_argument");
             }
 
             string? fallback = o.Str("fallback", "code", "none");

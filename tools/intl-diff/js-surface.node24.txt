@@ -1,0 +1,228 @@
+getCanonicalLocales => ["en-US","de-DE-u-co-phonebk","he"]
+getCanonicalLocales invalid !! RangeError: Incorrect locale information provided
+getCanonicalLocales number !! TypeError: Language ID should be string or object.
+supportedLocalesOf => ["en-US","es-419","fr-CA","de"]
+supportedValuesOf calendar => ["buddhist"]
+supportedValuesOf bad !! RangeError: Invalid key : foo
+toStringTag => ["[object Intl]","[object Intl.Collator]","[object Intl.Segmenter]"]
+Locale parts => ["de","Latn","DE","phonebk","h23",true,"de-Latn-DE","de-Latn-DE-u-co-phonebk-hc-h23-kn"]
+Locale maximize => ["en-Latn-US","fr","pt-Latn-BR"]
+Locale options => "en-GB-u-hc-h12-kf-upper-kn"
+Locale getWeekInfo => [{"firstDay":7,"weekend":[6,7]},{"firstDay":1,"weekend":[6,7]},{"firstDay":1,"weekend":[6,7]}]
+Locale getTextInfo => [{"direction":"ltr"},{"direction":"rtl"}]
+Locale getHourCycles => [["h12"],["h23"],["h23"]]
+Locale calendars => ["gregory"]
+Locale invalid !! RangeError: Incorrect locale information provided
+Locale no new !! TypeError: Constructor Intl.Locale requires 'new'
+Collator sort de => ["a","A","ä","z","Z"]
+Collator sort sv-less es => ["n","N","ñ","o"]
+Collator numeric => ["a1","a2","a10"]
+Collator base => 0
+Collator resolvedOptions => {"locale":"de-u-co-phonebk","usage":"sort","sensitivity":"variant","ignorePunctuation":false,"collation":"phonebk","numeric":false,"caseFirst":"upper"}
+localeCompare => [-1,1,0,-1,-1]
+Collator bad usage !! RangeError: Value x out of range for Intl.Collator options property usage
+NF decimal en-US => "1,234,567.891"
+NF decimal en-GB => "1,234,567.891"
+NF decimal es => "1.234.567,891"
+NF decimal es-US => "1,234,567.891"
+NF decimal fr => "1 234 567,891"
+NF decimal de => "1.234.567,891"
+NF decimal pt-BR => "1.234.567,891"
+NF currency en-US => "-€1,234.50"
+NF currency en-GB => "-€1,234.50"
+NF currency es => "-1234,50 €"
+NF currency es-US => "-EUR 1,234.50"
+NF currency fr => "-1 234,50 €"
+NF currency de => "-1.234,50 €"
+NF currency pt-BR => "-€ 1.234,50"
+NF percent en-US => "45.7%"
+NF percent de => "45,7 %"
+NF percent fr => "45,7 %"
+NF compact en-US => ["1.2K","1.2M","12B"]
+NF compact es => ["1,2 mil","1,2 M","12 mil M"]
+NF unit => "88 kilometers per hour"
+NF scientific => "1.235E5"
+NF bigint => "12,345,678,901,234,567,890"
+NF string exact => "1.00000000000000000001"
+NF rounding => "2"
+NF signDisplay => ["-1","0","+1"]
+NF parts => [{"type":"integer","value":"1"},{"type":"group","value":"."},{"type":"integer","value":"234"},{"type":"decimal","value":","},{"type":"fraction","value":"50"},{"type":"literal","value":" "},{"type":"currency","value":"$"}]
+NF formatRange => "$3 – $5"
+NF formatRangeToParts => ["integer:startRange","literal:shared","integer:endRange"]
+NF resolvedOptions => {"locale":"fr","numberingSystem":"latn","style":"currency","currency":"CAD","currencyDisplay":"symbol","currencySign":"standard","minimumIntegerDigits":1,"minimumFractionDigits":1,"maximumFractionDigits":2,"useGrouping":"auto","notation":"standard","signDisplay":"auto","roundingIncrement":1,"roundingMode":"halfExpand","roundingPriority":"auto","trailingZeroDisplay":"auto"}
+NF resolvedOptions sig => {"locale":"en","numberingSystem":"latn","style":"decimal","minimumIntegerDigits":1,"minimumSignificantDigits":1,"maximumSignificantDigits":3,"useGrouping":"auto","notation":"standard","signDisplay":"auto","roundingIncrement":1,"roundingMode":"halfExpand","roundingPriority":"auto","trailingZeroDisplay":"auto"}
+NF bound format => ["01","02","03"]
+NF legacy call => [true,"de"]
+NF bad style !! RangeError: Value foo out of range for Intl.NumberFormat options property style
+NF bad currency !! RangeError: Invalid currency code : EU
+NF no currency !! TypeError: Currency code is required with currency style.
+NF bad digits !! RangeError: minimumFractionDigits value is out of range.
+NF bad unit !! RangeError: Invalid unit argument for Intl.NumberFormat() 'bogus'
+NF incompatible !! TypeError: Method Intl.NumberFormat.prototype.formatToParts called on incompatible receiver #<Object>
+NF formatRange undefined !! TypeError: Invalid start : undefined
+toLocaleString => ["1.234,5","$1,234.50","12 345","1234,5,6789"]
+PR cardinal en => ["other","one","other","other","other","other"]
+PR cardinal es => ["other","one","other","other","other","many"]
+PR cardinal fr => ["one","one","other","other","one","many"]
+PR cardinal de => ["other","one","other","other","other","other"]
+PR cardinal pt-BR => ["one","one","other","other","one","many"]
+PR ordinal en => ["one","two","few","other","other","one","two","few"]
+PR range => "other"
+PR resolvedOptions => {"locale":"fr","type":"cardinal","minimumIntegerDigits":1,"minimumFractionDigits":0,"maximumFractionDigits":3,"pluralCategories":["one","many","other"],"roundingIncrement":1,"roundingMode":"halfExpand","roundingPriority":"auto","trailingZeroDisplay":"auto"}
+PR no new !! TypeError: Constructor Intl.PluralRules requires 'new'
+PR range undefined !! TypeError: Invalid endRange : undefined
+LF en-US => "a, b, and c"
+LF en-GB => "a, b and c"
+LF es => "a, b y c"
+LF es-US => "a, b y c"
+LF fr => "a, b et c"
+LF de => "a, b und c"
+LF pt-BR => "a, b e c"
+LF disjunction => "x or y"
+LF unit narrow => "1, 2 und 3"
+LF parts => [{"type":"element","value":"uno"},{"type":"literal","value":", "},{"type":"element","value":"dos"},{"type":"literal","value":" y "},{"type":"element","value":"tres"}]
+LF non-string !! TypeError: Iterable yielded 1 which is not a string
+LF resolvedOptions => {"locale":"fr","type":"conjunction","style":"short"}
+RTF en-US => ["3 days ago","tomorrow"]
+RTF en-GB => ["3 days ago","tomorrow"]
+RTF es => ["hace 3 días","mañana"]
+RTF es-US => ["hace 3 días","mañana"]
+RTF fr => ["il y a 3 jours","demain"]
+RTF de => ["vor 3 Tagen","morgen"]
+RTF pt-BR => ["há 3 dias","amanhã"]
+RTF parts => [{"type":"literal","value":"in "},{"type":"integer","value":"5","unit":"minute"},{"type":"literal","value":" min."}]
+RTF bad unit !! RangeError: Invalid unit argument for Intl.RelativeTimeFormat.prototype.format() 'fortnight'
+RTF infinite !! RangeError: Value need to be finite number for Intl.RelativeTimeFormat.prototype.format()
+RTF resolvedOptions => {"locale":"de","style":"long","numeric":"auto","numberingSystem":"latn"}
+DN region en => "United States"
+DN region es => "Estados Unidos"
+DN region fr => "États-Unis"
+DN region de => "Vereinigte Staaten"
+DN language => ["Canadian French","Englisch (Vereinigtes Königreich)"]
+DN currency => "dollar des États-Unis"
+DN script => "Latin"
+DN calendar => "Gregorian Calendar"
+DN dateTimeField => "mes"
+DN fallback none => "Unknown Region"
+DN no type !! TypeError: invalid_argument
+DN no options !! TypeError: invalid_argument
+DN invalid code !! RangeError: invalid_argument
+DTF medium en-US => "Mar 9, 2024, 3:04 PM"
+DTF medium en-GB => "9 Mar 2024, 15:04"
+DTF medium es => "9 mar 2024, 15:04"
+DTF medium es-US => "9 mar 2024, 3:04 p.m."
+DTF medium fr => "9 mars 2024, 15:04"
+DTF medium de => "09.03.2024, 15:04"
+DTF medium pt-BR => "9 de mar. de 2024, 15:04"
+DTF full en-US => "Saturday, March 9, 2024 at 4:04:05 PM GMT+1"
+DTF full de => "Samstag, 9. März 2024 um 16:04:05 MEZ"
+DTF full fr => "samedi 9 mars 2024 à 16:04:05 UTC+1"
+DTF components => "Sat, March 9 at 10:04 AM"
+DTF hour12 => ["3:04 pm","15:04"]
+DTF fractional => "04:05.678"
+DTF timeZoneName => ["8 PM GMT+5:30","8 PM India Standard Time","8 PM GMT+5:30","8 PM GMT+05:30"]
+DTF offset zone => "8:34:05 PM GMT+05:30"
+DTF parts => "day=9|literal= de |month=marzo|literal= de |year=2024"
+DTF range => "Mar 9 – 14, 2024"
+DTF rangeToParts => "month:shared,literal:shared,day:startRange,literal:shared,day:endRange"
+DTF resolvedOptions => {"locale":"de","calendar":"gregory","numberingSystem":"latn","timeZone":"Europe/Berlin","year":"numeric","month":"2-digit","day":"2-digit"}
+DTF resolvedOptions hc => {"locale":"en-US","calendar":"gregory","numberingSystem":"latn","timeZone":"UTC","hourCycle":"h12","hour12":true,"timeStyle":"short"}
+DTF invalid date !! RangeError: Invalid time value
+DTF bad zone !! RangeError: Invalid time zone specified: Mars/Base
+DTF style mix !! TypeError: Invalid option : option
+DTF legacy call => "fr"
+DTF no args => "string"
+Date toLocale* => ["9.3.2024","15:04:05","09/03/2024, 15:04:05","Invalid Date"]
+Date toLocaleDateString style conflict !! TypeError: Invalid option : timeStyle
+DF long => "1 hour, 46 minutes, 40 seconds"
+DF digital => "1:05:09.25"
+DF short es => "2 d, 3 h, 4 min"
+DF short fr => "2 j, 3 h et 4 min"
+DF short de => "2 Tg., 3 Std. und 4 Min."
+DF short pt-BR => "2 dias, 3 h e 4 min"
+DF parts => "integer:5:minute|unit:m:minute|literal: :undefined|integer:2:second|unit:s:second"
+DF resolvedOptions => {"locale":"en","numberingSystem":"latn","style":"digital","years":"short","yearsDisplay":"auto","months":"short","monthsDisplay":"auto","weeks":"short","weeksDisplay":"auto","days":"short","daysDisplay":"auto","hours":"numeric","hoursDisplay":"always","minutes":"2-digit","minutesDisplay":"always","seconds":"2-digit","secondsDisplay":"always","milliseconds":"numeric","millisecondsDisplay":"auto","microseconds":"numeric","microsecondsDisplay":"auto","nanoseconds":"numeric","nanosecondsDisplay":"auto","fractionalDigits":2}
+DF empty !! TypeError: Invalid argument for Temporal ../deps/v8/src/objects/js-temporal-objects.cc:7905
+DF string !! RangeError: Invalid object : P1D
+DF fraction !! RangeError: Invalid time value for Temporal ../deps/v8/src/objects/js-temporal-objects.cc:2593
+DF mixed signs !! RangeError: Invalid object : #<Object>
+Seg grapheme => [2,1,5]
+Seg word => "Hello+|,-| -|world+|!-| -|42+"
+Seg sentence => ["One. ","Two? ","Three!"]
+Seg containing => {"segment":"world","index":6,"input":"hello world","isWordLike":true}
+Seg containing out => undefined
+Seg resolvedOptions => {"locale":"fr","granularity":"word"}
+Seg iterator tag => "[object Segmenter String Iterator]"
+toLocaleUpperCase tr => ["İ","ı","i","SS","I"]
+toLocaleLowerCase lt => "i̇̀"
+toLocaleUpperCase bad !! RangeError: Incorrect locale information provided
+toLocaleLowerCase null this !! TypeError: String.prototype.toLocaleLowerCase called on null or undefined
+ERR NF style !! RangeError: Value x out of range for Intl.NumberFormat options property style
+ERR NF notation !! RangeError: Value x out of range for Intl.NumberFormat options property notation
+ERR NF signDisplay !! RangeError: Value x out of range for Intl.NumberFormat options property signDisplay
+ERR NF useGrouping !! RangeError: Value x out of range for Intl.NumberFormat options property useGrouping
+ERR NF roundingMode !! RangeError: Value x out of range for Intl.NumberFormat options property roundingMode
+ERR NF roundingIncrement !! RangeError: roundingIncrement value is out of range.
+ERR NF minimumIntegerDigits !! RangeError: minimumIntegerDigits value is out of range.
+ERR NF mxsd !! RangeError: maximumSignificantDigits value is out of range.
+ERR NF mnfd>mxfd !! RangeError: maximumFractionDigits value is out of range.
+ERR NF numberingSystem !! RangeError: Invalid numberingSystem : a
+ERR NF localeMatcher !! RangeError: Value x out of range for Intl.NumberFormat options property localeMatcher
+ERR NF locale type => {}
+ERR NF locale null !! TypeError: Cannot convert undefined or null to object
+ERR NF unit missing !! TypeError: Invalid unit argument for Intl.NumberFormat() ''
+ERR NF format bigint sym !! TypeError: Cannot convert a Symbol value to a number
+ERR NF range NaN !! RangeError: Invalid start : NaN
+ERR NF range end undefined !! TypeError: Invalid end : undefined
+ERR DTF weekday !! RangeError: Value x out of range for Intl.DateTimeFormat options property weekday
+ERR DTF hourCycle !! RangeError: Value h99 out of range for Intl.DateTimeFormat options property hourCycle
+ERR DTF fractionalSecondDigits !! RangeError: fractionalSecondDigits value is out of range.
+ERR DTF timeZoneName !! RangeError: Value x out of range for Intl.DateTimeFormat options property timeZoneName
+ERR DTF dateStyle !! RangeError: Value x out of range for Intl.DateTimeFormat options property dateStyle
+ERR DTF calendar !! RangeError: Invalid calendar : a
+ERR DTF format huge !! RangeError: Invalid time value
+ERR DTF formatRange undefined !! TypeError: Invalid time value
+ERR DTF formatRange NaN !! RangeError: Invalid time value
+ERR DTF incompat !! TypeError: Method Intl.DateTimeFormat.prototype.formatToParts called on incompatible receiver 1
+ERR DTF format getter incompat !! TypeError: Method UnwrapDateTimeFormat called on incompatible receiver #<Object>
+ERR Collator sensitivity !! RangeError: Value x out of range for Intl.Collator options property sensitivity
+ERR Collator caseFirst !! RangeError: Value x out of range for Intl.Collator options property caseFirst
+ERR Collator compare incompat !! TypeError: Method get Intl.Collator.prototype.compare called on incompatible receiver 3
+ERR PR type !! RangeError: Value x out of range for Intl.PluralRules options property type
+ERR PR select incompat !! TypeError: Method Intl.PluralRules.prototype.select called on incompatible receiver #<Object>
+ERR LF type !! RangeError: Value x out of range for Intl.ListFormat options property type
+ERR LF style !! RangeError: Value x out of range for Intl.ListFormat options property style
+ERR LF options prim !! TypeError: invalid_argument
+ERR LF iterable !! TypeError: number 5 is not iterable (cannot read property Symbol(Symbol.iterator))
+ERR LF no new !! TypeError: Constructor Intl.ListFormat requires 'new'
+ERR RTF style !! RangeError: Value x out of range for Intl.RelativeTimeFormat options property style
+ERR RTF numeric !! RangeError: Value x out of range for Intl.RelativeTimeFormat options property numeric
+ERR RTF parts bad unit !! RangeError: Invalid unit argument for Intl.RelativeTimeFormat.prototype.formatToParts() 'x'
+ERR RTF NaN !! RangeError: Value need to be finite number for Intl.RelativeTimeFormat.prototype.format()
+ERR DN type !! RangeError: Value x out of range for Intl.DisplayNames options property type
+ERR DN style !! RangeError: Value x out of range for Intl.DisplayNames options property style
+ERR DN fallback !! RangeError: Value x out of range for Intl.DisplayNames options property fallback
+ERR DN lang code !! RangeError: invalid_argument
+ERR DN currency code !! RangeError: invalid_argument
+ERR DN script code !! RangeError: invalid_argument
+ERR DN calendar code !! RangeError: invalid_argument
+ERR DN field code !! RangeError: invalid_argument
+ERR DF style !! RangeError: Value x out of range for Intl.DurationFormat options property style
+ERR DF unit style !! RangeError: Value x out of range for Intl.DurationFormat options property hours
+ERR DF fractionalDigits !! RangeError: fractionalDigits value is out of range.
+ERR DF no new !! TypeError: Constructor Intl.DurationFormat requires 'new'
+ERR DF undefined !! TypeError: Invalid argument for Temporal ../deps/v8/src/objects/js-temporal-objects.cc:7856
+ERR Seg granularity !! RangeError: Value x out of range for Intl.Segmenter options property granularity
+ERR Seg no new !! TypeError: Constructor Intl.Segmenter requires 'new'
+ERR Seg segments incompat !! TypeError: Method %Segments.prototype%.containing called on incompatible receiver #<Object>
+ERR Locale tag type !! TypeError: First argument to Intl.Locale constructor can't be empty or missing
+ERR Locale tag undefined !! TypeError: First argument to Intl.Locale constructor can't be empty or missing
+ERR Locale option language !! RangeError: Incorrect locale information provided
+ERR Locale option script !! RangeError: Incorrect locale information provided
+ERR Locale option region !! RangeError: Incorrect locale information provided
+ERR Locale option hourCycle !! RangeError: Value x out of range for locale options property hourCycle
+ERR Locale option calendar !! RangeError: Incorrect locale information provided
+ERR Locale incompat !! TypeError: Method Intl.Locale.prototype.language called on incompatible receiver #<Object>
+ERR supportedLocalesOf bad !! RangeError: Incorrect locale information provided
+ERR toLocaleString incompat !! TypeError: Number.prototype.toLocaleString requires that 'this' be a Number
+ERR BigInt toLocaleString incompat !! TypeError: BigInt.prototype.toLocaleString requires that 'this' be a BigInt

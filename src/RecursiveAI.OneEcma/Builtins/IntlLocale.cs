@@ -43,7 +43,7 @@ internal static partial class IntlJs
                     "6" => "sat",
                     _ => fw,
                 };
-                CheckType(fw, "firstDayOfWeek");
+                CheckType(fw, "firstDayOfWeek", true);
             }
 
             string? hc = o.Str("hourCycle", "h11", "h12", "h23", "h24");
@@ -320,13 +320,13 @@ internal static partial class IntlJs
         string? v = o.Str(prop);
         if (v is not null)
         {
-            CheckType(v, prop);
+            CheckType(v, prop, o.Service == "Locale");
         }
 
         return v;
     }
 
-    private static void CheckType(string v, string prop)
+    private static void CheckType(string v, string prop, bool locale = false)
     {
         try
         {
@@ -334,7 +334,7 @@ internal static partial class IntlJs
         }
         catch (IntlException)
         {
-            throw Errors.Range($"Invalid {prop} : {v}");
+            throw Errors.Range(locale ? "Incorrect locale information provided" : $"Invalid {prop} : {v}");
         }
     }
 

@@ -43,7 +43,7 @@ internal static partial class IntlJs
         // 10.3.3 get compare: the bound function is cached on the instance.
         r.Getter(proto, "compare", "compare", (t, a, nt) =>
         {
-            JsIntl c = This(t, "Collator", "compare");
+            JsIntl c = t.Ref is JsIntl { Kind: "Collator" } ci ? ci : throw Incompat("get Intl.Collator.prototype.compare", t);
             c.Bound ??= new NativeFunction(r, string.Empty, 2, (t2, a2, nt2) =>
             {
                 string x = Ops.ToStr(A(a2, 0));
@@ -259,7 +259,7 @@ internal static partial class IntlJs
         {
             if (style == "unit")
             {
-                throw Errors.Type("Unit is required with unit style.");
+                throw Errors.Type("Invalid unit argument for Intl.NumberFormat() ''");
             }
         }
         else if (!NumberFormatService.IsWellFormedUnit(unit))
@@ -362,7 +362,10 @@ internal static partial class IntlJs
             }
         }
 
-        throw Incompat("Intl." + kind + ".prototype." + method, t);
+        // V8 names the abstract operation, and for NumberFormat shows the (missing) wrapped value instead of the receiver.
+        throw kind == "NumberFormat"
+            ? Errors.Type("Method UnwrapNumberFormat called on incompatible receiver " + (t.Ref is JsObject ? "undefined" : Ops.DisplayValue(t)))
+            : Errors.Type("Method UnwrapDateTimeFormat called on incompatible receiver " + Ops.DisplayValue(t));
     }
 
     /// <summary>ChainNumberFormat / the DateTimeFormat equivalent: a plain call on an instance of the constructor hides the new object on it.</summary>
@@ -456,18 +459,29 @@ internal static partial class IntlJs
         });
     }
 
-    private static (DecimalNumber, DecimalNumber) RangeArgs(JsValue start, JsValue end)
+    /// <summary>The start and end of a range (NumberFormat.formatRange, PluralRules.selectRange), with V8's wording for the failures.</summary>
+    private static (DecimalNumber, DecimalNumber) RangeArgs(JsValue start, JsValue end, string startName = "start", string endName = "end")
     {
-        if (start.IsUndefined || end.IsUndefined)
+        if (start.IsUndefined)
         {
-            throw Errors.Type("Start or end of range is undefined");
+            throw Errors.Type($"Invalid {startName} : undefined");
+        }
+
+        if (end.IsUndefined)
+        {
+            throw Errors.Type($"Invalid {endName} : undefined");
         }
 
         DecimalNumber x = ToIntlMathematicalValue(start);
         DecimalNumber y = ToIntlMathematicalValue(end);
-        if (x.IsNaN || y.IsNaN)
+        if (x.IsNaN)
         {
-            throw Errors.Range("Invalid number value: NaN");
+            throw Errors.Range($"Invalid {startName} : NaN");
+        }
+
+        if (y.IsNaN)
+        {
+            throw Errors.Range($"Invalid {endName} : NaN");
         }
 
         return (x, y);
@@ -501,7 +515,7 @@ internal static partial class IntlJs
         r.Method(proto, "selectRange", 2, (t, a, nt) =>
         {
             var pr = (PluralRulesService)This(t, "PluralRules", "selectRange").Data!;
-            (DecimalNumber x, DecimalNumber y) = RangeArgs(A(a, 0), A(a, 1));
+            (DecimalNumber x, DecimalNumber y) = RangeArgs(A(a, 0), A(a, 1), "startRange", "endRange");
             return Ops.Str(Svc(() => pr.SelectRange(x, y)));
         });
         r.Method(proto, "resolvedOptions", 0, (t, a, nt) =>

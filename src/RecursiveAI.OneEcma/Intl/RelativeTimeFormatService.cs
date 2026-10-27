@@ -66,10 +66,10 @@ internal sealed class RelativeTimeFormatService
 
     /// <summary>SingularRelativeTimeUnit (17.5.?): accepts <c>day</c> and <c>days</c> alike.</summary>
     /// <exception cref="IntlException">Not a time unit (RangeError).</exception>
-    internal static string SingularUnit(string unit)
+    internal static string SingularUnit(string unit, string method = "format")
     {
         string u = unit.EndsWith('s') ? unit[..^1] : unit;
-        return Array.IndexOf(Units, u) >= 0 ? u : throw IntlException.Range($"Invalid unit argument for format() '{unit}'");
+        return Array.IndexOf(Units, u) >= 0 ? u : throw IntlException.Range($"Invalid unit argument for Intl.RelativeTimeFormat.prototype.{method}() '{unit}'");
     }
 
     /// <summary>The formatted string for <paramref name="value"/> units.</summary>
@@ -78,9 +78,9 @@ internal sealed class RelativeTimeFormatService
 
     /// <summary>PartitionRelativeTimePattern (17.5.?).</summary>
     /// <exception cref="IntlException">The value is not finite or the unit is invalid (RangeError).</exception>
-    internal List<RelativeTimePart> FormatToParts(DecimalNumber value, string unit)
+    internal List<RelativeTimePart> FormatToParts(DecimalNumber value, string unit, string method = "format")
     {
-        string u = SingularUnit(unit);
+        string u = SingularUnit(unit, method);
         if (!value.IsFinite)
         {
             throw IntlException.Range("Value need to be finite number for Intl.RelativeTimeFormat.prototype.format()");

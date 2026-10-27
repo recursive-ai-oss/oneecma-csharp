@@ -1,0 +1,8 @@
+# Rows of js-surface.js where the engine differs from the reference Node on purpose: <label> | <reason>
+supportedValuesOf calendar | the data set carries the Gregorian calendar only, so the list has one entry
+PR resolvedOptions | ECMA-402 Table 32 always lists notation; the reference omits it for the standard notation
+DF empty | the reference message is an internal Temporal check with a source path; ours says what is wrong
+DF string | as above
+DF fraction | as above
+DF mixed signs | as above
+ERR DF undefined | as above
