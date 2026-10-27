@@ -1,0 +1,766 @@
+{"s":"lf","l":"en-US","o":{"type":"conjunction","style":"long"},"v":"[]","p":[],"id":"a5400698"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction","style":"long"},"v":"[\"A\"]","p":[["element","A"]],"id":"0ee19813"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction","style":"long"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," and "],["element","B"]],"id":"1dabb2f9"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction","style":"long"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", and "],["element","C"]],"id":"3171f80d"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", and "],["element","D"]],"id":"333841b4"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal",", and "],["element","E"]],"id":"71562449"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction","style":"long"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," and "],["element","otro"]],"id":"fab010d5"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction","style":"long"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal",", and "],["element","2 segundos"]],"id":"f18ad85b"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction","style":"long"},"v":"[\"\",\"x\"]","p":[["literal"," and "],["element","x"]],"id":"c2d77f79"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction","style":"short"},"v":"[]","p":[],"id":"c7ff7def"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction","style":"short"},"v":"[\"A\"]","p":[["element","A"]],"id":"73adb481"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction","style":"short"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," & "],["element","B"]],"id":"bbf0711f"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction","style":"short"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", & "],["element","C"]],"id":"bc227a6a"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", & "],["element","D"]],"id":"5e8da6c7"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal",", & "],["element","E"]],"id":"752de4fc"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction","style":"short"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," & "],["element","otro"]],"id":"74363b30"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction","style":"short"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal",", & "],["element","2 segundos"]],"id":"dd753af4"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction","style":"short"},"v":"[\"\",\"x\"]","p":[["literal"," & "],["element","x"]],"id":"41218c82"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction","style":"narrow"},"v":"[]","p":[],"id":"b0e08677"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction","style":"narrow"},"v":"[\"A\"]","p":[["element","A"]],"id":"ba712074"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction","style":"narrow"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal",", "],["element","B"]],"id":"a7796c7e"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"]],"id":"4af60597"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"]],"id":"c37eb215"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal",", "],["element","E"]],"id":"9ee5481e"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction","style":"narrow"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal",", "],["element","otro"]],"id":"18170c2d"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction","style":"narrow"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal",", "],["element","2 segundos"]],"id":"adf0f4d2"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction","style":"narrow"},"v":"[\"\",\"x\"]","p":[["literal",", "],["element","x"]],"id":"2ca88017"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction","style":"long"},"v":"[]","p":[],"id":"7e071ed9"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction","style":"long"},"v":"[\"A\"]","p":[["element","A"]],"id":"982bb046"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction","style":"long"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," or "],["element","B"]],"id":"3920b32d"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction","style":"long"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", or "],["element","C"]],"id":"0fa8c067"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", or "],["element","D"]],"id":"4c8abbc6"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal",", or "],["element","E"]],"id":"d34e472a"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction","style":"long"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," or "],["element","otro"]],"id":"8b2cfbf0"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction","style":"long"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal",", or "],["element","2 segundos"]],"id":"3aca002f"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction","style":"long"},"v":"[\"\",\"x\"]","p":[["literal"," or "],["element","x"]],"id":"adeb852f"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction","style":"short"},"v":"[]","p":[],"id":"926a1c7f"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction","style":"short"},"v":"[\"A\"]","p":[["element","A"]],"id":"2a336083"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction","style":"short"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," or "],["element","B"]],"id":"764e43dc"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction","style":"short"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", or "],["element","C"]],"id":"99daea74"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", or "],["element","D"]],"id":"70da9bd0"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal",", or "],["element","E"]],"id":"eccc958b"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction","style":"short"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," or "],["element","otro"]],"id":"da9d1310"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction","style":"short"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal",", or "],["element","2 segundos"]],"id":"bd9645f8"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction","style":"short"},"v":"[\"\",\"x\"]","p":[["literal"," or "],["element","x"]],"id":"68a97c78"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction","style":"narrow"},"v":"[]","p":[],"id":"9dc68651"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction","style":"narrow"},"v":"[\"A\"]","p":[["element","A"]],"id":"9c7df4b4"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction","style":"narrow"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," or "],["element","B"]],"id":"c0d2a106"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", or "],["element","C"]],"id":"5d4d68da"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", or "],["element","D"]],"id":"54efcdc3"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal",", or "],["element","E"]],"id":"2efc77ab"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction","style":"narrow"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," or "],["element","otro"]],"id":"226d6dbe"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction","style":"narrow"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal",", or "],["element","2 segundos"]],"id":"8f82735e"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction","style":"narrow"},"v":"[\"\",\"x\"]","p":[["literal"," or "],["element","x"]],"id":"c5fda8d5"}
+{"s":"lf","l":"en-US","o":{"type":"unit","style":"long"},"v":"[]","p":[],"id":"b6d4210f"}
+{"s":"lf","l":"en-US","o":{"type":"unit","style":"long"},"v":"[\"A\"]","p":[["element","A"]],"id":"887dfb20"}
+{"s":"lf","l":"en-US","o":{"type":"unit","style":"long"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal",", "],["element","B"]],"id":"113b4ff6"}
+{"s":"lf","l":"en-US","o":{"type":"unit","style":"long"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"]],"id":"3566e85d"}
+{"s":"lf","l":"en-US","o":{"type":"unit","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"]],"id":"c70f3941"}
+{"s":"lf","l":"en-US","o":{"type":"unit","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal",", "],["element","E"]],"id":"0b44dae2"}
+{"s":"lf","l":"en-US","o":{"type":"unit","style":"long"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal",", "],["element","otro"]],"id":"9813826f"}
+{"s":"lf","l":"en-US","o":{"type":"unit","style":"long"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal",", "],["element","2 segundos"]],"id":"4eacd95f"}
+{"s":"lf","l":"en-US","o":{"type":"unit","style":"long"},"v":"[\"\",\"x\"]","p":[["literal",", "],["element","x"]],"id":"bc288463"}
+{"s":"lf","l":"en-US","o":{"type":"unit","style":"short"},"v":"[]","p":[],"id":"ae17bc45"}
+{"s":"lf","l":"en-US","o":{"type":"unit","style":"short"},"v":"[\"A\"]","p":[["element","A"]],"id":"6646408e"}
+{"s":"lf","l":"en-US","o":{"type":"unit","style":"short"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal",", "],["element","B"]],"id":"48b968c2"}
+{"s":"lf","l":"en-US","o":{"type":"unit","style":"short"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"]],"id":"9d1d7836"}
+{"s":"lf","l":"en-US","o":{"type":"unit","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"]],"id":"66281d24"}
+{"s":"lf","l":"en-US","o":{"type":"unit","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal",", "],["element","E"]],"id":"ebb034ad"}
+{"s":"lf","l":"en-US","o":{"type":"unit","style":"short"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal",", "],["element","otro"]],"id":"759853cf"}
+{"s":"lf","l":"en-US","o":{"type":"unit","style":"short"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal",", "],["element","2 segundos"]],"id":"c292322b"}
+{"s":"lf","l":"en-US","o":{"type":"unit","style":"short"},"v":"[\"\",\"x\"]","p":[["literal",", "],["element","x"]],"id":"00e4ab24"}
+{"s":"lf","l":"en-US","o":{"type":"unit","style":"narrow"},"v":"[]","p":[],"id":"579e7897"}
+{"s":"lf","l":"en-US","o":{"type":"unit","style":"narrow"},"v":"[\"A\"]","p":[["element","A"]],"id":"292f5ebb"}
+{"s":"lf","l":"en-US","o":{"type":"unit","style":"narrow"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," "],["element","B"]],"id":"ecfbecf1"}
+{"s":"lf","l":"en-US","o":{"type":"unit","style":"narrow"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal"," "],["element","B"],["literal"," "],["element","C"]],"id":"27ef238e"}
+{"s":"lf","l":"en-US","o":{"type":"unit","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal"," "],["element","B"],["literal"," "],["element","C"],["literal"," "],["element","D"]],"id":"513052fc"}
+{"s":"lf","l":"en-US","o":{"type":"unit","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal"," "],["element","B"],["literal"," "],["element","C"],["literal"," "],["element","D"],["literal"," "],["element","E"]],"id":"92c0f80a"}
+{"s":"lf","l":"en-US","o":{"type":"unit","style":"narrow"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," "],["element","otro"]],"id":"290d6672"}
+{"s":"lf","l":"en-US","o":{"type":"unit","style":"narrow"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal"," "],["element","30 minutos"],["literal"," "],["element","2 segundos"]],"id":"967344dc"}
+{"s":"lf","l":"en-US","o":{"type":"unit","style":"narrow"},"v":"[\"\",\"x\"]","p":[["literal"," "],["element","x"]],"id":"05ec6b02"}
+{"s":"lf","l":"en-GB","o":{"type":"conjunction","style":"long"},"v":"[]","p":[],"id":"9d19b0c9"}
+{"s":"lf","l":"en-GB","o":{"type":"conjunction","style":"long"},"v":"[\"A\"]","p":[["element","A"]],"id":"5b77b453"}
+{"s":"lf","l":"en-GB","o":{"type":"conjunction","style":"long"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," and "],["element","B"]],"id":"c0550725"}
+{"s":"lf","l":"en-GB","o":{"type":"conjunction","style":"long"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," and "],["element","C"]],"id":"7d78caf8"}
+{"s":"lf","l":"en-GB","o":{"type":"conjunction","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," and "],["element","D"]],"id":"fbe7cc55"}
+{"s":"lf","l":"en-GB","o":{"type":"conjunction","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," and "],["element","E"]],"id":"7abcb2b3"}
+{"s":"lf","l":"en-GB","o":{"type":"conjunction","style":"long"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," and "],["element","otro"]],"id":"0dfe5826"}
+{"s":"lf","l":"en-GB","o":{"type":"conjunction","style":"long"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," and "],["element","2 segundos"]],"id":"ffef55c5"}
+{"s":"lf","l":"en-GB","o":{"type":"conjunction","style":"long"},"v":"[\"\",\"x\"]","p":[["literal"," and "],["element","x"]],"id":"f0f638f1"}
+{"s":"lf","l":"en-GB","o":{"type":"conjunction","style":"short"},"v":"[]","p":[],"id":"3be77af7"}
+{"s":"lf","l":"en-GB","o":{"type":"conjunction","style":"short"},"v":"[\"A\"]","p":[["element","A"]],"id":"5650e896"}
+{"s":"lf","l":"en-GB","o":{"type":"conjunction","style":"short"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," and "],["element","B"]],"id":"ed71ef77"}
+{"s":"lf","l":"en-GB","o":{"type":"conjunction","style":"short"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," and "],["element","C"]],"id":"ea62b3f4"}
+{"s":"lf","l":"en-GB","o":{"type":"conjunction","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," and "],["element","D"]],"id":"1e1ed1f6"}
+{"s":"lf","l":"en-GB","o":{"type":"conjunction","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," and "],["element","E"]],"id":"736d1df5"}
+{"s":"lf","l":"en-GB","o":{"type":"conjunction","style":"short"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," and "],["element","otro"]],"id":"32e93b60"}
+{"s":"lf","l":"en-GB","o":{"type":"conjunction","style":"short"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," and "],["element","2 segundos"]],"id":"f5a60acb"}
+{"s":"lf","l":"en-GB","o":{"type":"conjunction","style":"short"},"v":"[\"\",\"x\"]","p":[["literal"," and "],["element","x"]],"id":"b0096bb9"}
+{"s":"lf","l":"en-GB","o":{"type":"conjunction","style":"narrow"},"v":"[]","p":[],"id":"51b31975"}
+{"s":"lf","l":"en-GB","o":{"type":"conjunction","style":"narrow"},"v":"[\"A\"]","p":[["element","A"]],"id":"a94c82e2"}
+{"s":"lf","l":"en-GB","o":{"type":"conjunction","style":"narrow"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal",", "],["element","B"]],"id":"146f5e5b"}
+{"s":"lf","l":"en-GB","o":{"type":"conjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"]],"id":"3d422e59"}
+{"s":"lf","l":"en-GB","o":{"type":"conjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"]],"id":"a52fd831"}
+{"s":"lf","l":"en-GB","o":{"type":"conjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal",", "],["element","E"]],"id":"f2efdf5b"}
+{"s":"lf","l":"en-GB","o":{"type":"conjunction","style":"narrow"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal",", "],["element","otro"]],"id":"e33802cc"}
+{"s":"lf","l":"en-GB","o":{"type":"conjunction","style":"narrow"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal",", "],["element","2 segundos"]],"id":"a5abed53"}
+{"s":"lf","l":"en-GB","o":{"type":"conjunction","style":"narrow"},"v":"[\"\",\"x\"]","p":[["literal",", "],["element","x"]],"id":"0b93bef3"}
+{"s":"lf","l":"en-GB","o":{"type":"disjunction","style":"long"},"v":"[]","p":[],"id":"64536572"}
+{"s":"lf","l":"en-GB","o":{"type":"disjunction","style":"long"},"v":"[\"A\"]","p":[["element","A"]],"id":"f6e04277"}
+{"s":"lf","l":"en-GB","o":{"type":"disjunction","style":"long"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," or "],["element","B"]],"id":"df67a087"}
+{"s":"lf","l":"en-GB","o":{"type":"disjunction","style":"long"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," or "],["element","C"]],"id":"c41b207b"}
+{"s":"lf","l":"en-GB","o":{"type":"disjunction","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," or "],["element","D"]],"id":"dc7e193c"}
+{"s":"lf","l":"en-GB","o":{"type":"disjunction","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," or "],["element","E"]],"id":"e3edddaf"}
+{"s":"lf","l":"en-GB","o":{"type":"disjunction","style":"long"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," or "],["element","otro"]],"id":"bfcd3a39"}
+{"s":"lf","l":"en-GB","o":{"type":"disjunction","style":"long"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," or "],["element","2 segundos"]],"id":"10ac7307"}
+{"s":"lf","l":"en-GB","o":{"type":"disjunction","style":"long"},"v":"[\"\",\"x\"]","p":[["literal"," or "],["element","x"]],"id":"6b6ec02e"}
+{"s":"lf","l":"en-GB","o":{"type":"disjunction","style":"short"},"v":"[]","p":[],"id":"ba710358"}
+{"s":"lf","l":"en-GB","o":{"type":"disjunction","style":"short"},"v":"[\"A\"]","p":[["element","A"]],"id":"5ae1995a"}
+{"s":"lf","l":"en-GB","o":{"type":"disjunction","style":"short"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," or "],["element","B"]],"id":"c9085401"}
+{"s":"lf","l":"en-GB","o":{"type":"disjunction","style":"short"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," or "],["element","C"]],"id":"758638f2"}
+{"s":"lf","l":"en-GB","o":{"type":"disjunction","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," or "],["element","D"]],"id":"8271d0d2"}
+{"s":"lf","l":"en-GB","o":{"type":"disjunction","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," or "],["element","E"]],"id":"e0c47bc3"}
+{"s":"lf","l":"en-GB","o":{"type":"disjunction","style":"short"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," or "],["element","otro"]],"id":"ca1ece67"}
+{"s":"lf","l":"en-GB","o":{"type":"disjunction","style":"short"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," or "],["element","2 segundos"]],"id":"e8c5e683"}
+{"s":"lf","l":"en-GB","o":{"type":"disjunction","style":"short"},"v":"[\"\",\"x\"]","p":[["literal"," or "],["element","x"]],"id":"c67f79e7"}
+{"s":"lf","l":"en-GB","o":{"type":"disjunction","style":"narrow"},"v":"[]","p":[],"id":"20fef1f0"}
+{"s":"lf","l":"en-GB","o":{"type":"disjunction","style":"narrow"},"v":"[\"A\"]","p":[["element","A"]],"id":"1509c2f8"}
+{"s":"lf","l":"en-GB","o":{"type":"disjunction","style":"narrow"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," or "],["element","B"]],"id":"72ffe9e2"}
+{"s":"lf","l":"en-GB","o":{"type":"disjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," or "],["element","C"]],"id":"746b9e6d"}
+{"s":"lf","l":"en-GB","o":{"type":"disjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," or "],["element","D"]],"id":"762ce410"}
+{"s":"lf","l":"en-GB","o":{"type":"disjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," or "],["element","E"]],"id":"753bfdbd"}
+{"s":"lf","l":"en-GB","o":{"type":"disjunction","style":"narrow"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," or "],["element","otro"]],"id":"05b0f7f8"}
+{"s":"lf","l":"en-GB","o":{"type":"disjunction","style":"narrow"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," or "],["element","2 segundos"]],"id":"79c940c8"}
+{"s":"lf","l":"en-GB","o":{"type":"disjunction","style":"narrow"},"v":"[\"\",\"x\"]","p":[["literal"," or "],["element","x"]],"id":"2ceb39c2"}
+{"s":"lf","l":"en-GB","o":{"type":"unit","style":"long"},"v":"[]","p":[],"id":"9b27484f"}
+{"s":"lf","l":"en-GB","o":{"type":"unit","style":"long"},"v":"[\"A\"]","p":[["element","A"]],"id":"4e7f00dd"}
+{"s":"lf","l":"en-GB","o":{"type":"unit","style":"long"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal",", "],["element","B"]],"id":"7c4b0790"}
+{"s":"lf","l":"en-GB","o":{"type":"unit","style":"long"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"]],"id":"b5faf025"}
+{"s":"lf","l":"en-GB","o":{"type":"unit","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"]],"id":"bdf30baf"}
+{"s":"lf","l":"en-GB","o":{"type":"unit","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal",", "],["element","E"]],"id":"4bf60cbb"}
+{"s":"lf","l":"en-GB","o":{"type":"unit","style":"long"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal",", "],["element","otro"]],"id":"781d8b5d"}
+{"s":"lf","l":"en-GB","o":{"type":"unit","style":"long"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal",", "],["element","2 segundos"]],"id":"1d60dc37"}
+{"s":"lf","l":"en-GB","o":{"type":"unit","style":"long"},"v":"[\"\",\"x\"]","p":[["literal",", "],["element","x"]],"id":"ddd6c599"}
+{"s":"lf","l":"en-GB","o":{"type":"unit","style":"short"},"v":"[]","p":[],"id":"f9e7abc1"}
+{"s":"lf","l":"en-GB","o":{"type":"unit","style":"short"},"v":"[\"A\"]","p":[["element","A"]],"id":"9ba3e19a"}
+{"s":"lf","l":"en-GB","o":{"type":"unit","style":"short"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal",", "],["element","B"]],"id":"29744e43"}
+{"s":"lf","l":"en-GB","o":{"type":"unit","style":"short"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"]],"id":"b6d0f6d8"}
+{"s":"lf","l":"en-GB","o":{"type":"unit","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"]],"id":"7739aa2a"}
+{"s":"lf","l":"en-GB","o":{"type":"unit","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal",", "],["element","E"]],"id":"255c3abb"}
+{"s":"lf","l":"en-GB","o":{"type":"unit","style":"short"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal",", "],["element","otro"]],"id":"9d8f7a59"}
+{"s":"lf","l":"en-GB","o":{"type":"unit","style":"short"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal",", "],["element","2 segundos"]],"id":"86caffcd"}
+{"s":"lf","l":"en-GB","o":{"type":"unit","style":"short"},"v":"[\"\",\"x\"]","p":[["literal",", "],["element","x"]],"id":"fb873150"}
+{"s":"lf","l":"en-GB","o":{"type":"unit","style":"narrow"},"v":"[]","p":[],"id":"8d6f008a"}
+{"s":"lf","l":"en-GB","o":{"type":"unit","style":"narrow"},"v":"[\"A\"]","p":[["element","A"]],"id":"d3c2aa77"}
+{"s":"lf","l":"en-GB","o":{"type":"unit","style":"narrow"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," "],["element","B"]],"id":"04ed8ad9"}
+{"s":"lf","l":"en-GB","o":{"type":"unit","style":"narrow"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal"," "],["element","B"],["literal"," "],["element","C"]],"id":"f5fdd8cb"}
+{"s":"lf","l":"en-GB","o":{"type":"unit","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal"," "],["element","B"],["literal"," "],["element","C"],["literal"," "],["element","D"]],"id":"ac2ecc17"}
+{"s":"lf","l":"en-GB","o":{"type":"unit","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal"," "],["element","B"],["literal"," "],["element","C"],["literal"," "],["element","D"],["literal"," "],["element","E"]],"id":"71625e38"}
+{"s":"lf","l":"en-GB","o":{"type":"unit","style":"narrow"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," "],["element","otro"]],"id":"4af97e71"}
+{"s":"lf","l":"en-GB","o":{"type":"unit","style":"narrow"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal"," "],["element","30 minutos"],["literal"," "],["element","2 segundos"]],"id":"596287fd"}
+{"s":"lf","l":"en-GB","o":{"type":"unit","style":"narrow"},"v":"[\"\",\"x\"]","p":[["literal"," "],["element","x"]],"id":"1f74e05a"}
+{"s":"lf","l":"es","o":{"type":"conjunction","style":"long"},"v":"[]","p":[],"id":"d51ba36d"}
+{"s":"lf","l":"es","o":{"type":"conjunction","style":"long"},"v":"[\"A\"]","p":[["element","A"]],"id":"18976fc3"}
+{"s":"lf","l":"es","o":{"type":"conjunction","style":"long"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," y "],["element","B"]],"id":"03da735b"}
+{"s":"lf","l":"es","o":{"type":"conjunction","style":"long"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," y "],["element","C"]],"id":"a345ad4c"}
+{"s":"lf","l":"es","o":{"type":"conjunction","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," y "],["element","D"]],"id":"72ec8c1e"}
+{"s":"lf","l":"es","o":{"type":"conjunction","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," y "],["element","E"]],"id":"2536649a"}
+{"s":"lf","l":"es","o":{"type":"conjunction","style":"long"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," y "],["element","otro"]],"id":"50025b4d"}
+{"s":"lf","l":"es","o":{"type":"conjunction","style":"long"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," y "],["element","2 segundos"]],"id":"d4321481"}
+{"s":"lf","l":"es","o":{"type":"conjunction","style":"long"},"v":"[\"\",\"x\"]","p":[["literal"," y "],["element","x"]],"id":"a0753361"}
+{"s":"lf","l":"es","o":{"type":"conjunction","style":"short"},"v":"[]","p":[],"id":"1cb52c88"}
+{"s":"lf","l":"es","o":{"type":"conjunction","style":"short"},"v":"[\"A\"]","p":[["element","A"]],"id":"b88733ac"}
+{"s":"lf","l":"es","o":{"type":"conjunction","style":"short"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," y "],["element","B"]],"id":"cc67ae55"}
+{"s":"lf","l":"es","o":{"type":"conjunction","style":"short"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," y "],["element","C"]],"id":"16a03cd2"}
+{"s":"lf","l":"es","o":{"type":"conjunction","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," y "],["element","D"]],"id":"7ea9cbee"}
+{"s":"lf","l":"es","o":{"type":"conjunction","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," y "],["element","E"]],"id":"f5156bb4"}
+{"s":"lf","l":"es","o":{"type":"conjunction","style":"short"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," y "],["element","otro"]],"id":"91a38c90"}
+{"s":"lf","l":"es","o":{"type":"conjunction","style":"short"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," y "],["element","2 segundos"]],"id":"a7966f9a"}
+{"s":"lf","l":"es","o":{"type":"conjunction","style":"short"},"v":"[\"\",\"x\"]","p":[["literal"," y "],["element","x"]],"id":"fc03d1ff"}
+{"s":"lf","l":"es","o":{"type":"conjunction","style":"narrow"},"v":"[]","p":[],"id":"48613ab9"}
+{"s":"lf","l":"es","o":{"type":"conjunction","style":"narrow"},"v":"[\"A\"]","p":[["element","A"]],"id":"fb590d03"}
+{"s":"lf","l":"es","o":{"type":"conjunction","style":"narrow"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," y "],["element","B"]],"id":"832efb08"}
+{"s":"lf","l":"es","o":{"type":"conjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," y "],["element","C"]],"id":"c529835d"}
+{"s":"lf","l":"es","o":{"type":"conjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," y "],["element","D"]],"id":"08c30414"}
+{"s":"lf","l":"es","o":{"type":"conjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," y "],["element","E"]],"id":"4a041282"}
+{"s":"lf","l":"es","o":{"type":"conjunction","style":"narrow"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," y "],["element","otro"]],"id":"40f5db6a"}
+{"s":"lf","l":"es","o":{"type":"conjunction","style":"narrow"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," y "],["element","2 segundos"]],"id":"c69177cd"}
+{"s":"lf","l":"es","o":{"type":"conjunction","style":"narrow"},"v":"[\"\",\"x\"]","p":[["literal"," y "],["element","x"]],"id":"a524375d"}
+{"s":"lf","l":"es","o":{"type":"disjunction","style":"long"},"v":"[]","p":[],"id":"4dbc3855"}
+{"s":"lf","l":"es","o":{"type":"disjunction","style":"long"},"v":"[\"A\"]","p":[["element","A"]],"id":"3f63f869"}
+{"s":"lf","l":"es","o":{"type":"disjunction","style":"long"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," o "],["element","B"]],"id":"9dc0b76c"}
+{"s":"lf","l":"es","o":{"type":"disjunction","style":"long"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," o "],["element","C"]],"id":"86c8fcc7"}
+{"s":"lf","l":"es","o":{"type":"disjunction","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," o "],["element","D"]],"id":"b52087fe"}
+{"s":"lf","l":"es","o":{"type":"disjunction","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," o "],["element","E"]],"id":"e93be386"}
+{"s":"lf","l":"es","o":{"type":"disjunction","style":"long"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," u "],["element","otro"]],"id":"a266ad21"}
+{"s":"lf","l":"es","o":{"type":"disjunction","style":"long"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," o "],["element","2 segundos"]],"id":"aeb4fd04"}
+{"s":"lf","l":"es","o":{"type":"disjunction","style":"long"},"v":"[\"\",\"x\"]","p":[["literal"," o "],["element","x"]],"id":"47f0581d"}
+{"s":"lf","l":"es","o":{"type":"disjunction","style":"short"},"v":"[]","p":[],"id":"41e9e15d"}
+{"s":"lf","l":"es","o":{"type":"disjunction","style":"short"},"v":"[\"A\"]","p":[["element","A"]],"id":"2e1798ca"}
+{"s":"lf","l":"es","o":{"type":"disjunction","style":"short"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," o "],["element","B"]],"id":"e3de4268"}
+{"s":"lf","l":"es","o":{"type":"disjunction","style":"short"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," o "],["element","C"]],"id":"7fe89b9f"}
+{"s":"lf","l":"es","o":{"type":"disjunction","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," o "],["element","D"]],"id":"e2408d79"}
+{"s":"lf","l":"es","o":{"type":"disjunction","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," o "],["element","E"]],"id":"47d69ced"}
+{"s":"lf","l":"es","o":{"type":"disjunction","style":"short"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," u "],["element","otro"]],"id":"43beb7e4"}
+{"s":"lf","l":"es","o":{"type":"disjunction","style":"short"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," o "],["element","2 segundos"]],"id":"1ea69274"}
+{"s":"lf","l":"es","o":{"type":"disjunction","style":"short"},"v":"[\"\",\"x\"]","p":[["literal"," o "],["element","x"]],"id":"7063bf36"}
+{"s":"lf","l":"es","o":{"type":"disjunction","style":"narrow"},"v":"[]","p":[],"id":"0684f7e7"}
+{"s":"lf","l":"es","o":{"type":"disjunction","style":"narrow"},"v":"[\"A\"]","p":[["element","A"]],"id":"8b7f4f4e"}
+{"s":"lf","l":"es","o":{"type":"disjunction","style":"narrow"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," o "],["element","B"]],"id":"af7c1d2a"}
+{"s":"lf","l":"es","o":{"type":"disjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," o "],["element","C"]],"id":"5808a700"}
+{"s":"lf","l":"es","o":{"type":"disjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," o "],["element","D"]],"id":"d4ab4370"}
+{"s":"lf","l":"es","o":{"type":"disjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," o "],["element","E"]],"id":"a0cfee45"}
+{"s":"lf","l":"es","o":{"type":"disjunction","style":"narrow"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," u "],["element","otro"]],"id":"5dc1e47d"}
+{"s":"lf","l":"es","o":{"type":"disjunction","style":"narrow"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," o "],["element","2 segundos"]],"id":"b99622d4"}
+{"s":"lf","l":"es","o":{"type":"disjunction","style":"narrow"},"v":"[\"\",\"x\"]","p":[["literal"," o "],["element","x"]],"id":"2aa5c6d7"}
+{"s":"lf","l":"es","o":{"type":"unit","style":"long"},"v":"[]","p":[],"id":"412e67c0"}
+{"s":"lf","l":"es","o":{"type":"unit","style":"long"},"v":"[\"A\"]","p":[["element","A"]],"id":"cbf9a194"}
+{"s":"lf","l":"es","o":{"type":"unit","style":"long"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," y "],["element","B"]],"id":"c5f589a4"}
+{"s":"lf","l":"es","o":{"type":"unit","style":"long"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," y "],["element","C"]],"id":"0b9223fd"}
+{"s":"lf","l":"es","o":{"type":"unit","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," y "],["element","D"]],"id":"ea34e6f8"}
+{"s":"lf","l":"es","o":{"type":"unit","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," y "],["element","E"]],"id":"e115eeac"}
+{"s":"lf","l":"es","o":{"type":"unit","style":"long"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," y "],["element","otro"]],"id":"c38814dd"}
+{"s":"lf","l":"es","o":{"type":"unit","style":"long"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," y "],["element","2 segundos"]],"id":"023665cf"}
+{"s":"lf","l":"es","o":{"type":"unit","style":"long"},"v":"[\"\",\"x\"]","p":[["literal"," y "],["element","x"]],"id":"a5f0636f"}
+{"s":"lf","l":"es","o":{"type":"unit","style":"short"},"v":"[]","p":[],"id":"311c69ae"}
+{"s":"lf","l":"es","o":{"type":"unit","style":"short"},"v":"[\"A\"]","p":[["element","A"]],"id":"bc4227a9"}
+{"s":"lf","l":"es","o":{"type":"unit","style":"short"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," y "],["element","B"]],"id":"ae73ba40"}
+{"s":"lf","l":"es","o":{"type":"unit","style":"short"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"]],"id":"f88507a8"}
+{"s":"lf","l":"es","o":{"type":"unit","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"]],"id":"33ce48f8"}
+{"s":"lf","l":"es","o":{"type":"unit","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal",", "],["element","E"]],"id":"366a3b74"}
+{"s":"lf","l":"es","o":{"type":"unit","style":"short"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," y "],["element","otro"]],"id":"8263896f"}
+{"s":"lf","l":"es","o":{"type":"unit","style":"short"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal",", "],["element","2 segundos"]],"id":"f87645da"}
+{"s":"lf","l":"es","o":{"type":"unit","style":"short"},"v":"[\"\",\"x\"]","p":[["literal"," y "],["element","x"]],"id":"9f1caa36"}
+{"s":"lf","l":"es","o":{"type":"unit","style":"narrow"},"v":"[]","p":[],"id":"ee7e7e3f"}
+{"s":"lf","l":"es","o":{"type":"unit","style":"narrow"},"v":"[\"A\"]","p":[["element","A"]],"id":"33ae540a"}
+{"s":"lf","l":"es","o":{"type":"unit","style":"narrow"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," "],["element","B"]],"id":"0f4724b6"}
+{"s":"lf","l":"es","o":{"type":"unit","style":"narrow"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal"," "],["element","B"],["literal"," "],["element","C"]],"id":"8f311a09"}
+{"s":"lf","l":"es","o":{"type":"unit","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal"," "],["element","B"],["literal"," "],["element","C"],["literal"," "],["element","D"]],"id":"78e71d44"}
+{"s":"lf","l":"es","o":{"type":"unit","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal"," "],["element","B"],["literal"," "],["element","C"],["literal"," "],["element","D"],["literal"," "],["element","E"]],"id":"ace08753"}
+{"s":"lf","l":"es","o":{"type":"unit","style":"narrow"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," "],["element","otro"]],"id":"01e9f7c0"}
+{"s":"lf","l":"es","o":{"type":"unit","style":"narrow"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal"," "],["element","30 minutos"],["literal"," "],["element","2 segundos"]],"id":"af46229f"}
+{"s":"lf","l":"es","o":{"type":"unit","style":"narrow"},"v":"[\"\",\"x\"]","p":[["literal"," "],["element","x"]],"id":"37bb84f4"}
+{"s":"lf","l":"es-US","o":{"type":"conjunction","style":"long"},"v":"[]","p":[],"id":"e260383c"}
+{"s":"lf","l":"es-US","o":{"type":"conjunction","style":"long"},"v":"[\"A\"]","p":[["element","A"]],"id":"cda9cd84"}
+{"s":"lf","l":"es-US","o":{"type":"conjunction","style":"long"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," y "],["element","B"]],"id":"3977ca25"}
+{"s":"lf","l":"es-US","o":{"type":"conjunction","style":"long"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," y "],["element","C"]],"id":"91acd21b"}
+{"s":"lf","l":"es-US","o":{"type":"conjunction","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," y "],["element","D"]],"id":"f901f252"}
+{"s":"lf","l":"es-US","o":{"type":"conjunction","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," y "],["element","E"]],"id":"744001b1"}
+{"s":"lf","l":"es-US","o":{"type":"conjunction","style":"long"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," y "],["element","otro"]],"id":"82292902"}
+{"s":"lf","l":"es-US","o":{"type":"conjunction","style":"long"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," y "],["element","2 segundos"]],"id":"822d7c6e"}
+{"s":"lf","l":"es-US","o":{"type":"conjunction","style":"long"},"v":"[\"\",\"x\"]","p":[["literal"," y "],["element","x"]],"id":"6b15f6cf"}
+{"s":"lf","l":"es-US","o":{"type":"conjunction","style":"short"},"v":"[]","p":[],"id":"6925da17"}
+{"s":"lf","l":"es-US","o":{"type":"conjunction","style":"short"},"v":"[\"A\"]","p":[["element","A"]],"id":"c616884b"}
+{"s":"lf","l":"es-US","o":{"type":"conjunction","style":"short"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," y "],["element","B"]],"id":"a696f943"}
+{"s":"lf","l":"es-US","o":{"type":"conjunction","style":"short"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," y "],["element","C"]],"id":"5577f174"}
+{"s":"lf","l":"es-US","o":{"type":"conjunction","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," y "],["element","D"]],"id":"a328ca4c"}
+{"s":"lf","l":"es-US","o":{"type":"conjunction","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," y "],["element","E"]],"id":"46ca18a5"}
+{"s":"lf","l":"es-US","o":{"type":"conjunction","style":"short"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," y "],["element","otro"]],"id":"be6529ce"}
+{"s":"lf","l":"es-US","o":{"type":"conjunction","style":"short"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," y "],["element","2 segundos"]],"id":"65189893"}
+{"s":"lf","l":"es-US","o":{"type":"conjunction","style":"short"},"v":"[\"\",\"x\"]","p":[["literal"," y "],["element","x"]],"id":"08a46ef5"}
+{"s":"lf","l":"es-US","o":{"type":"conjunction","style":"narrow"},"v":"[]","p":[],"id":"2d8ad4db"}
+{"s":"lf","l":"es-US","o":{"type":"conjunction","style":"narrow"},"v":"[\"A\"]","p":[["element","A"]],"id":"86525e3e"}
+{"s":"lf","l":"es-US","o":{"type":"conjunction","style":"narrow"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," y "],["element","B"]],"id":"d4a23923"}
+{"s":"lf","l":"es-US","o":{"type":"conjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," y "],["element","C"]],"id":"7a09f8f1"}
+{"s":"lf","l":"es-US","o":{"type":"conjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," y "],["element","D"]],"id":"82bc55e8"}
+{"s":"lf","l":"es-US","o":{"type":"conjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," y "],["element","E"]],"id":"e9e261a5"}
+{"s":"lf","l":"es-US","o":{"type":"conjunction","style":"narrow"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," y "],["element","otro"]],"id":"28ddfe57"}
+{"s":"lf","l":"es-US","o":{"type":"conjunction","style":"narrow"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," y "],["element","2 segundos"]],"id":"e529534d"}
+{"s":"lf","l":"es-US","o":{"type":"conjunction","style":"narrow"},"v":"[\"\",\"x\"]","p":[["literal"," y "],["element","x"]],"id":"28b8f2f3"}
+{"s":"lf","l":"es-US","o":{"type":"disjunction","style":"long"},"v":"[]","p":[],"id":"a6d274e5"}
+{"s":"lf","l":"es-US","o":{"type":"disjunction","style":"long"},"v":"[\"A\"]","p":[["element","A"]],"id":"bcdf5cee"}
+{"s":"lf","l":"es-US","o":{"type":"disjunction","style":"long"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," o "],["element","B"]],"id":"0cd0beae"}
+{"s":"lf","l":"es-US","o":{"type":"disjunction","style":"long"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," o "],["element","C"]],"id":"6b10b098"}
+{"s":"lf","l":"es-US","o":{"type":"disjunction","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," o "],["element","D"]],"id":"98f934d6"}
+{"s":"lf","l":"es-US","o":{"type":"disjunction","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," o "],["element","E"]],"id":"0f9964c2"}
+{"s":"lf","l":"es-US","o":{"type":"disjunction","style":"long"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," u "],["element","otro"]],"id":"17b32f32"}
+{"s":"lf","l":"es-US","o":{"type":"disjunction","style":"long"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," o "],["element","2 segundos"]],"id":"e2c05ff9"}
+{"s":"lf","l":"es-US","o":{"type":"disjunction","style":"long"},"v":"[\"\",\"x\"]","p":[["literal"," o "],["element","x"]],"id":"ac84e36f"}
+{"s":"lf","l":"es-US","o":{"type":"disjunction","style":"short"},"v":"[]","p":[],"id":"2665481d"}
+{"s":"lf","l":"es-US","o":{"type":"disjunction","style":"short"},"v":"[\"A\"]","p":[["element","A"]],"id":"bdb50538"}
+{"s":"lf","l":"es-US","o":{"type":"disjunction","style":"short"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," o "],["element","B"]],"id":"315cbf1f"}
+{"s":"lf","l":"es-US","o":{"type":"disjunction","style":"short"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," o "],["element","C"]],"id":"578be3f1"}
+{"s":"lf","l":"es-US","o":{"type":"disjunction","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," o "],["element","D"]],"id":"51e094b3"}
+{"s":"lf","l":"es-US","o":{"type":"disjunction","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," o "],["element","E"]],"id":"e7626f1b"}
+{"s":"lf","l":"es-US","o":{"type":"disjunction","style":"short"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," u "],["element","otro"]],"id":"f0fa43ab"}
+{"s":"lf","l":"es-US","o":{"type":"disjunction","style":"short"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," o "],["element","2 segundos"]],"id":"1bc76968"}
+{"s":"lf","l":"es-US","o":{"type":"disjunction","style":"short"},"v":"[\"\",\"x\"]","p":[["literal"," o "],["element","x"]],"id":"ef613db1"}
+{"s":"lf","l":"es-US","o":{"type":"disjunction","style":"narrow"},"v":"[]","p":[],"id":"cb293753"}
+{"s":"lf","l":"es-US","o":{"type":"disjunction","style":"narrow"},"v":"[\"A\"]","p":[["element","A"]],"id":"bc0290e5"}
+{"s":"lf","l":"es-US","o":{"type":"disjunction","style":"narrow"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," o "],["element","B"]],"id":"1ad59022"}
+{"s":"lf","l":"es-US","o":{"type":"disjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," o "],["element","C"]],"id":"50816afe"}
+{"s":"lf","l":"es-US","o":{"type":"disjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," o "],["element","D"]],"id":"8534418a"}
+{"s":"lf","l":"es-US","o":{"type":"disjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," o "],["element","E"]],"id":"d6596730"}
+{"s":"lf","l":"es-US","o":{"type":"disjunction","style":"narrow"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," u "],["element","otro"]],"id":"79ddcb9b"}
+{"s":"lf","l":"es-US","o":{"type":"disjunction","style":"narrow"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," o "],["element","2 segundos"]],"id":"cbae59be"}
+{"s":"lf","l":"es-US","o":{"type":"disjunction","style":"narrow"},"v":"[\"\",\"x\"]","p":[["literal"," o "],["element","x"]],"id":"50c045d1"}
+{"s":"lf","l":"es-US","o":{"type":"unit","style":"long"},"v":"[]","p":[],"id":"9b643091"}
+{"s":"lf","l":"es-US","o":{"type":"unit","style":"long"},"v":"[\"A\"]","p":[["element","A"]],"id":"4fa2ce88"}
+{"s":"lf","l":"es-US","o":{"type":"unit","style":"long"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," y "],["element","B"]],"id":"f39725ed"}
+{"s":"lf","l":"es-US","o":{"type":"unit","style":"long"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," y "],["element","C"]],"id":"f6e359f3"}
+{"s":"lf","l":"es-US","o":{"type":"unit","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," y "],["element","D"]],"id":"82fbcacc"}
+{"s":"lf","l":"es-US","o":{"type":"unit","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," y "],["element","E"]],"id":"e020bd3d"}
+{"s":"lf","l":"es-US","o":{"type":"unit","style":"long"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," y "],["element","otro"]],"id":"a028fc7a"}
+{"s":"lf","l":"es-US","o":{"type":"unit","style":"long"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," y "],["element","2 segundos"]],"id":"2c4c1f97"}
+{"s":"lf","l":"es-US","o":{"type":"unit","style":"long"},"v":"[\"\",\"x\"]","p":[["literal"," y "],["element","x"]],"id":"968d0189"}
+{"s":"lf","l":"es-US","o":{"type":"unit","style":"short"},"v":"[]","p":[],"id":"c75fac43"}
+{"s":"lf","l":"es-US","o":{"type":"unit","style":"short"},"v":"[\"A\"]","p":[["element","A"]],"id":"a49d87c8"}
+{"s":"lf","l":"es-US","o":{"type":"unit","style":"short"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," y "],["element","B"]],"id":"afc3c369"}
+{"s":"lf","l":"es-US","o":{"type":"unit","style":"short"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," y "],["element","C"]],"id":"a3fd7710"}
+{"s":"lf","l":"es-US","o":{"type":"unit","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," y "],["element","D"]],"id":"6802b2bc"}
+{"s":"lf","l":"es-US","o":{"type":"unit","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," y "],["element","E"]],"id":"c008097c"}
+{"s":"lf","l":"es-US","o":{"type":"unit","style":"short"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," y "],["element","otro"]],"id":"0a153e15"}
+{"s":"lf","l":"es-US","o":{"type":"unit","style":"short"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," y "],["element","2 segundos"]],"id":"56aed1fe"}
+{"s":"lf","l":"es-US","o":{"type":"unit","style":"short"},"v":"[\"\",\"x\"]","p":[["literal"," y "],["element","x"]],"id":"88ce720f"}
+{"s":"lf","l":"es-US","o":{"type":"unit","style":"narrow"},"v":"[]","p":[],"id":"771bba19"}
+{"s":"lf","l":"es-US","o":{"type":"unit","style":"narrow"},"v":"[\"A\"]","p":[["element","A"]],"id":"36a5e9ca"}
+{"s":"lf","l":"es-US","o":{"type":"unit","style":"narrow"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," "],["element","B"]],"id":"fa78f64c"}
+{"s":"lf","l":"es-US","o":{"type":"unit","style":"narrow"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal"," "],["element","B"],["literal"," "],["element","C"]],"id":"be595364"}
+{"s":"lf","l":"es-US","o":{"type":"unit","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal"," "],["element","B"],["literal"," "],["element","C"],["literal"," "],["element","D"]],"id":"b2763916"}
+{"s":"lf","l":"es-US","o":{"type":"unit","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal"," "],["element","B"],["literal"," "],["element","C"],["literal"," "],["element","D"],["literal"," "],["element","E"]],"id":"cf28f615"}
+{"s":"lf","l":"es-US","o":{"type":"unit","style":"narrow"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," "],["element","otro"]],"id":"12abd952"}
+{"s":"lf","l":"es-US","o":{"type":"unit","style":"narrow"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal"," "],["element","30 minutos"],["literal"," "],["element","2 segundos"]],"id":"2fa7fae8"}
+{"s":"lf","l":"es-US","o":{"type":"unit","style":"narrow"},"v":"[\"\",\"x\"]","p":[["literal"," "],["element","x"]],"id":"aba367c1"}
+{"s":"lf","l":"fr","o":{"type":"conjunction","style":"long"},"v":"[]","p":[],"id":"680441e6"}
+{"s":"lf","l":"fr","o":{"type":"conjunction","style":"long"},"v":"[\"A\"]","p":[["element","A"]],"id":"d922ed18"}
+{"s":"lf","l":"fr","o":{"type":"conjunction","style":"long"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," et "],["element","B"]],"id":"bc83361e"}
+{"s":"lf","l":"fr","o":{"type":"conjunction","style":"long"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," et "],["element","C"]],"id":"845fdc2b"}
+{"s":"lf","l":"fr","o":{"type":"conjunction","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," et "],["element","D"]],"id":"345841fa"}
+{"s":"lf","l":"fr","o":{"type":"conjunction","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," et "],["element","E"]],"id":"1b84c6a8"}
+{"s":"lf","l":"fr","o":{"type":"conjunction","style":"long"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," et "],["element","otro"]],"id":"d164cb07"}
+{"s":"lf","l":"fr","o":{"type":"conjunction","style":"long"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," et "],["element","2 segundos"]],"id":"342d4d59"}
+{"s":"lf","l":"fr","o":{"type":"conjunction","style":"long"},"v":"[\"\",\"x\"]","p":[["literal"," et "],["element","x"]],"id":"23441b13"}
+{"s":"lf","l":"fr","o":{"type":"conjunction","style":"short"},"v":"[]","p":[],"id":"6e9b76b3"}
+{"s":"lf","l":"fr","o":{"type":"conjunction","style":"short"},"v":"[\"A\"]","p":[["element","A"]],"id":"c23628ba"}
+{"s":"lf","l":"fr","o":{"type":"conjunction","style":"short"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," et "],["element","B"]],"id":"53157a55"}
+{"s":"lf","l":"fr","o":{"type":"conjunction","style":"short"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," et "],["element","C"]],"id":"9189b8b0"}
+{"s":"lf","l":"fr","o":{"type":"conjunction","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," et "],["element","D"]],"id":"14e6cb76"}
+{"s":"lf","l":"fr","o":{"type":"conjunction","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," et "],["element","E"]],"id":"c10d1261"}
+{"s":"lf","l":"fr","o":{"type":"conjunction","style":"short"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," et "],["element","otro"]],"id":"8d51a1a5"}
+{"s":"lf","l":"fr","o":{"type":"conjunction","style":"short"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," et "],["element","2 segundos"]],"id":"188b0df1"}
+{"s":"lf","l":"fr","o":{"type":"conjunction","style":"short"},"v":"[\"\",\"x\"]","p":[["literal"," et "],["element","x"]],"id":"1755e258"}
+{"s":"lf","l":"fr","o":{"type":"conjunction","style":"narrow"},"v":"[]","p":[],"id":"a5a5613d"}
+{"s":"lf","l":"fr","o":{"type":"conjunction","style":"narrow"},"v":"[\"A\"]","p":[["element","A"]],"id":"157d7607"}
+{"s":"lf","l":"fr","o":{"type":"conjunction","style":"narrow"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal",", "],["element","B"]],"id":"f9da23ad"}
+{"s":"lf","l":"fr","o":{"type":"conjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"]],"id":"6fbff7e6"}
+{"s":"lf","l":"fr","o":{"type":"conjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"]],"id":"3e7ae895"}
+{"s":"lf","l":"fr","o":{"type":"conjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal",", "],["element","E"]],"id":"4890a231"}
+{"s":"lf","l":"fr","o":{"type":"conjunction","style":"narrow"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal",", "],["element","otro"]],"id":"dd60d548"}
+{"s":"lf","l":"fr","o":{"type":"conjunction","style":"narrow"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal",", "],["element","2 segundos"]],"id":"b051d360"}
+{"s":"lf","l":"fr","o":{"type":"conjunction","style":"narrow"},"v":"[\"\",\"x\"]","p":[["literal",", "],["element","x"]],"id":"98b3af5b"}
+{"s":"lf","l":"fr","o":{"type":"disjunction","style":"long"},"v":"[]","p":[],"id":"b1b0294c"}
+{"s":"lf","l":"fr","o":{"type":"disjunction","style":"long"},"v":"[\"A\"]","p":[["element","A"]],"id":"65b03a29"}
+{"s":"lf","l":"fr","o":{"type":"disjunction","style":"long"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," ou "],["element","B"]],"id":"a5e69e96"}
+{"s":"lf","l":"fr","o":{"type":"disjunction","style":"long"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," ou "],["element","C"]],"id":"9e232bb0"}
+{"s":"lf","l":"fr","o":{"type":"disjunction","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," ou "],["element","D"]],"id":"ebe52ba8"}
+{"s":"lf","l":"fr","o":{"type":"disjunction","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," ou "],["element","E"]],"id":"0847a81b"}
+{"s":"lf","l":"fr","o":{"type":"disjunction","style":"long"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," ou "],["element","otro"]],"id":"421c227e"}
+{"s":"lf","l":"fr","o":{"type":"disjunction","style":"long"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," ou "],["element","2 segundos"]],"id":"77fed5b5"}
+{"s":"lf","l":"fr","o":{"type":"disjunction","style":"long"},"v":"[\"\",\"x\"]","p":[["literal"," ou "],["element","x"]],"id":"1883393e"}
+{"s":"lf","l":"fr","o":{"type":"disjunction","style":"short"},"v":"[]","p":[],"id":"fef09619"}
+{"s":"lf","l":"fr","o":{"type":"disjunction","style":"short"},"v":"[\"A\"]","p":[["element","A"]],"id":"a5403acf"}
+{"s":"lf","l":"fr","o":{"type":"disjunction","style":"short"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," ou "],["element","B"]],"id":"8a37bb4a"}
+{"s":"lf","l":"fr","o":{"type":"disjunction","style":"short"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," ou "],["element","C"]],"id":"0859cccc"}
+{"s":"lf","l":"fr","o":{"type":"disjunction","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," ou "],["element","D"]],"id":"0e6a3928"}
+{"s":"lf","l":"fr","o":{"type":"disjunction","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," ou "],["element","E"]],"id":"e4d17f8b"}
+{"s":"lf","l":"fr","o":{"type":"disjunction","style":"short"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," ou "],["element","otro"]],"id":"d4aa20f6"}
+{"s":"lf","l":"fr","o":{"type":"disjunction","style":"short"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," ou "],["element","2 segundos"]],"id":"df3c0743"}
+{"s":"lf","l":"fr","o":{"type":"disjunction","style":"short"},"v":"[\"\",\"x\"]","p":[["literal"," ou "],["element","x"]],"id":"22740cc4"}
+{"s":"lf","l":"fr","o":{"type":"disjunction","style":"narrow"},"v":"[]","p":[],"id":"0c8ddbc7"}
+{"s":"lf","l":"fr","o":{"type":"disjunction","style":"narrow"},"v":"[\"A\"]","p":[["element","A"]],"id":"7f149492"}
+{"s":"lf","l":"fr","o":{"type":"disjunction","style":"narrow"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," ou "],["element","B"]],"id":"a208cbba"}
+{"s":"lf","l":"fr","o":{"type":"disjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," ou "],["element","C"]],"id":"da252adc"}
+{"s":"lf","l":"fr","o":{"type":"disjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," ou "],["element","D"]],"id":"a40d965a"}
+{"s":"lf","l":"fr","o":{"type":"disjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," ou "],["element","E"]],"id":"a7efc2c2"}
+{"s":"lf","l":"fr","o":{"type":"disjunction","style":"narrow"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," ou "],["element","otro"]],"id":"ffb7bfd6"}
+{"s":"lf","l":"fr","o":{"type":"disjunction","style":"narrow"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," ou "],["element","2 segundos"]],"id":"9311de7c"}
+{"s":"lf","l":"fr","o":{"type":"disjunction","style":"narrow"},"v":"[\"\",\"x\"]","p":[["literal"," ou "],["element","x"]],"id":"23f881d5"}
+{"s":"lf","l":"fr","o":{"type":"unit","style":"long"},"v":"[]","p":[],"id":"46b60116"}
+{"s":"lf","l":"fr","o":{"type":"unit","style":"long"},"v":"[\"A\"]","p":[["element","A"]],"id":"97bf3c26"}
+{"s":"lf","l":"fr","o":{"type":"unit","style":"long"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," et "],["element","B"]],"id":"6ef9ea96"}
+{"s":"lf","l":"fr","o":{"type":"unit","style":"long"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," et "],["element","C"]],"id":"14f0fbd6"}
+{"s":"lf","l":"fr","o":{"type":"unit","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," et "],["element","D"]],"id":"ecfffe5a"}
+{"s":"lf","l":"fr","o":{"type":"unit","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," et "],["element","E"]],"id":"1ba7e11e"}
+{"s":"lf","l":"fr","o":{"type":"unit","style":"long"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," et "],["element","otro"]],"id":"b0fb6261"}
+{"s":"lf","l":"fr","o":{"type":"unit","style":"long"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," et "],["element","2 segundos"]],"id":"f1b6ff55"}
+{"s":"lf","l":"fr","o":{"type":"unit","style":"long"},"v":"[\"\",\"x\"]","p":[["literal"," et "],["element","x"]],"id":"9a79261c"}
+{"s":"lf","l":"fr","o":{"type":"unit","style":"short"},"v":"[]","p":[],"id":"670287a6"}
+{"s":"lf","l":"fr","o":{"type":"unit","style":"short"},"v":"[\"A\"]","p":[["element","A"]],"id":"c2e16462"}
+{"s":"lf","l":"fr","o":{"type":"unit","style":"short"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," et "],["element","B"]],"id":"5cc07423"}
+{"s":"lf","l":"fr","o":{"type":"unit","style":"short"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," et "],["element","C"]],"id":"a49d2db0"}
+{"s":"lf","l":"fr","o":{"type":"unit","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," et "],["element","D"]],"id":"e3374e32"}
+{"s":"lf","l":"fr","o":{"type":"unit","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," et "],["element","E"]],"id":"857ebe09"}
+{"s":"lf","l":"fr","o":{"type":"unit","style":"short"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," et "],["element","otro"]],"id":"b147dcfd"}
+{"s":"lf","l":"fr","o":{"type":"unit","style":"short"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," et "],["element","2 segundos"]],"id":"be6f74af"}
+{"s":"lf","l":"fr","o":{"type":"unit","style":"short"},"v":"[\"\",\"x\"]","p":[["literal"," et "],["element","x"]],"id":"e87cfee0"}
+{"s":"lf","l":"fr","o":{"type":"unit","style":"narrow"},"v":"[]","p":[],"id":"0fcf11e3"}
+{"s":"lf","l":"fr","o":{"type":"unit","style":"narrow"},"v":"[\"A\"]","p":[["element","A"]],"id":"12e9c3ad"}
+{"s":"lf","l":"fr","o":{"type":"unit","style":"narrow"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," "],["element","B"]],"id":"ebdea885"}
+{"s":"lf","l":"fr","o":{"type":"unit","style":"narrow"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal"," "],["element","B"],["literal"," "],["element","C"]],"id":"3b8c75e7"}
+{"s":"lf","l":"fr","o":{"type":"unit","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal"," "],["element","B"],["literal"," "],["element","C"],["literal"," "],["element","D"]],"id":"24e67fb1"}
+{"s":"lf","l":"fr","o":{"type":"unit","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal"," "],["element","B"],["literal"," "],["element","C"],["literal"," "],["element","D"],["literal"," "],["element","E"]],"id":"40f64e00"}
+{"s":"lf","l":"fr","o":{"type":"unit","style":"narrow"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," "],["element","otro"]],"id":"be4c740b"}
+{"s":"lf","l":"fr","o":{"type":"unit","style":"narrow"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal"," "],["element","30 minutos"],["literal"," "],["element","2 segundos"]],"id":"121e3a99"}
+{"s":"lf","l":"fr","o":{"type":"unit","style":"narrow"},"v":"[\"\",\"x\"]","p":[["literal"," "],["element","x"]],"id":"c6f193d5"}
+{"s":"lf","l":"de","o":{"type":"conjunction","style":"long"},"v":"[]","p":[],"id":"d4767eac"}
+{"s":"lf","l":"de","o":{"type":"conjunction","style":"long"},"v":"[\"A\"]","p":[["element","A"]],"id":"e93f826a"}
+{"s":"lf","l":"de","o":{"type":"conjunction","style":"long"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," und "],["element","B"]],"id":"04780784"}
+{"s":"lf","l":"de","o":{"type":"conjunction","style":"long"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," und "],["element","C"]],"id":"bf41e579"}
+{"s":"lf","l":"de","o":{"type":"conjunction","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," und "],["element","D"]],"id":"b3ddd0bc"}
+{"s":"lf","l":"de","o":{"type":"conjunction","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," und "],["element","E"]],"id":"0124749a"}
+{"s":"lf","l":"de","o":{"type":"conjunction","style":"long"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," und "],["element","otro"]],"id":"27b21a51"}
+{"s":"lf","l":"de","o":{"type":"conjunction","style":"long"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," und "],["element","2 segundos"]],"id":"9d825f3d"}
+{"s":"lf","l":"de","o":{"type":"conjunction","style":"long"},"v":"[\"\",\"x\"]","p":[["literal"," und "],["element","x"]],"id":"b4f8ef65"}
+{"s":"lf","l":"de","o":{"type":"conjunction","style":"short"},"v":"[]","p":[],"id":"a07ff2a9"}
+{"s":"lf","l":"de","o":{"type":"conjunction","style":"short"},"v":"[\"A\"]","p":[["element","A"]],"id":"caa8b6df"}
+{"s":"lf","l":"de","o":{"type":"conjunction","style":"short"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," und "],["element","B"]],"id":"a0d9dd49"}
+{"s":"lf","l":"de","o":{"type":"conjunction","style":"short"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," und "],["element","C"]],"id":"b977b05e"}
+{"s":"lf","l":"de","o":{"type":"conjunction","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," und "],["element","D"]],"id":"ba7a1cd8"}
+{"s":"lf","l":"de","o":{"type":"conjunction","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," und "],["element","E"]],"id":"430656dd"}
+{"s":"lf","l":"de","o":{"type":"conjunction","style":"short"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," und "],["element","otro"]],"id":"4f1d2ef0"}
+{"s":"lf","l":"de","o":{"type":"conjunction","style":"short"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," und "],["element","2 segundos"]],"id":"08dee836"}
+{"s":"lf","l":"de","o":{"type":"conjunction","style":"short"},"v":"[\"\",\"x\"]","p":[["literal"," und "],["element","x"]],"id":"04e49749"}
+{"s":"lf","l":"de","o":{"type":"conjunction","style":"narrow"},"v":"[]","p":[],"id":"5df37081"}
+{"s":"lf","l":"de","o":{"type":"conjunction","style":"narrow"},"v":"[\"A\"]","p":[["element","A"]],"id":"bb9944c7"}
+{"s":"lf","l":"de","o":{"type":"conjunction","style":"narrow"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," und "],["element","B"]],"id":"60167b9d"}
+{"s":"lf","l":"de","o":{"type":"conjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," und "],["element","C"]],"id":"ce6646b1"}
+{"s":"lf","l":"de","o":{"type":"conjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," und "],["element","D"]],"id":"d56461b2"}
+{"s":"lf","l":"de","o":{"type":"conjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," und "],["element","E"]],"id":"6279ba65"}
+{"s":"lf","l":"de","o":{"type":"conjunction","style":"narrow"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," und "],["element","otro"]],"id":"26dcb67f"}
+{"s":"lf","l":"de","o":{"type":"conjunction","style":"narrow"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," und "],["element","2 segundos"]],"id":"da41fa54"}
+{"s":"lf","l":"de","o":{"type":"conjunction","style":"narrow"},"v":"[\"\",\"x\"]","p":[["literal"," und "],["element","x"]],"id":"d600f95a"}
+{"s":"lf","l":"de","o":{"type":"disjunction","style":"long"},"v":"[]","p":[],"id":"a69cd374"}
+{"s":"lf","l":"de","o":{"type":"disjunction","style":"long"},"v":"[\"A\"]","p":[["element","A"]],"id":"9849bcb9"}
+{"s":"lf","l":"de","o":{"type":"disjunction","style":"long"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," oder "],["element","B"]],"id":"194e462e"}
+{"s":"lf","l":"de","o":{"type":"disjunction","style":"long"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," oder "],["element","C"]],"id":"38f81a70"}
+{"s":"lf","l":"de","o":{"type":"disjunction","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," oder "],["element","D"]],"id":"1a22a362"}
+{"s":"lf","l":"de","o":{"type":"disjunction","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," oder "],["element","E"]],"id":"b50e9d06"}
+{"s":"lf","l":"de","o":{"type":"disjunction","style":"long"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," oder "],["element","otro"]],"id":"d69368b4"}
+{"s":"lf","l":"de","o":{"type":"disjunction","style":"long"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," oder "],["element","2 segundos"]],"id":"2372eb48"}
+{"s":"lf","l":"de","o":{"type":"disjunction","style":"long"},"v":"[\"\",\"x\"]","p":[["literal"," oder "],["element","x"]],"id":"5bfccbba"}
+{"s":"lf","l":"de","o":{"type":"disjunction","style":"short"},"v":"[]","p":[],"id":"be794113"}
+{"s":"lf","l":"de","o":{"type":"disjunction","style":"short"},"v":"[\"A\"]","p":[["element","A"]],"id":"f12ccff0"}
+{"s":"lf","l":"de","o":{"type":"disjunction","style":"short"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," oder "],["element","B"]],"id":"c3e7fbf6"}
+{"s":"lf","l":"de","o":{"type":"disjunction","style":"short"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," oder "],["element","C"]],"id":"3246f937"}
+{"s":"lf","l":"de","o":{"type":"disjunction","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," oder "],["element","D"]],"id":"67f5fe17"}
+{"s":"lf","l":"de","o":{"type":"disjunction","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," oder "],["element","E"]],"id":"34ea758b"}
+{"s":"lf","l":"de","o":{"type":"disjunction","style":"short"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," oder "],["element","otro"]],"id":"c0da408f"}
+{"s":"lf","l":"de","o":{"type":"disjunction","style":"short"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," oder "],["element","2 segundos"]],"id":"4e2fa7c0"}
+{"s":"lf","l":"de","o":{"type":"disjunction","style":"short"},"v":"[\"\",\"x\"]","p":[["literal"," oder "],["element","x"]],"id":"2200a72f"}
+{"s":"lf","l":"de","o":{"type":"disjunction","style":"narrow"},"v":"[]","p":[],"id":"de470ed6"}
+{"s":"lf","l":"de","o":{"type":"disjunction","style":"narrow"},"v":"[\"A\"]","p":[["element","A"]],"id":"41b5ca55"}
+{"s":"lf","l":"de","o":{"type":"disjunction","style":"narrow"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," oder "],["element","B"]],"id":"51f0fe73"}
+{"s":"lf","l":"de","o":{"type":"disjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," oder "],["element","C"]],"id":"beacf04e"}
+{"s":"lf","l":"de","o":{"type":"disjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," oder "],["element","D"]],"id":"a3044b20"}
+{"s":"lf","l":"de","o":{"type":"disjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," oder "],["element","E"]],"id":"acb13a50"}
+{"s":"lf","l":"de","o":{"type":"disjunction","style":"narrow"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," oder "],["element","otro"]],"id":"4ab60a00"}
+{"s":"lf","l":"de","o":{"type":"disjunction","style":"narrow"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," oder "],["element","2 segundos"]],"id":"6d450ca7"}
+{"s":"lf","l":"de","o":{"type":"disjunction","style":"narrow"},"v":"[\"\",\"x\"]","p":[["literal"," oder "],["element","x"]],"id":"e9eb1506"}
+{"s":"lf","l":"de","o":{"type":"unit","style":"long"},"v":"[]","p":[],"id":"58175f2e"}
+{"s":"lf","l":"de","o":{"type":"unit","style":"long"},"v":"[\"A\"]","p":[["element","A"]],"id":"ef997038"}
+{"s":"lf","l":"de","o":{"type":"unit","style":"long"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal",", "],["element","B"]],"id":"ccd23d61"}
+{"s":"lf","l":"de","o":{"type":"unit","style":"long"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," und "],["element","C"]],"id":"39734fe1"}
+{"s":"lf","l":"de","o":{"type":"unit","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," und "],["element","D"]],"id":"c8c37f68"}
+{"s":"lf","l":"de","o":{"type":"unit","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," und "],["element","E"]],"id":"f858f21b"}
+{"s":"lf","l":"de","o":{"type":"unit","style":"long"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal",", "],["element","otro"]],"id":"6d52610e"}
+{"s":"lf","l":"de","o":{"type":"unit","style":"long"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," und "],["element","2 segundos"]],"id":"696c9d5a"}
+{"s":"lf","l":"de","o":{"type":"unit","style":"long"},"v":"[\"\",\"x\"]","p":[["literal",", "],["element","x"]],"id":"d10be6b8"}
+{"s":"lf","l":"de","o":{"type":"unit","style":"short"},"v":"[]","p":[],"id":"8b13f323"}
+{"s":"lf","l":"de","o":{"type":"unit","style":"short"},"v":"[\"A\"]","p":[["element","A"]],"id":"e77c564d"}
+{"s":"lf","l":"de","o":{"type":"unit","style":"short"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal",", "],["element","B"]],"id":"6883d1d8"}
+{"s":"lf","l":"de","o":{"type":"unit","style":"short"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," und "],["element","C"]],"id":"9e470a1d"}
+{"s":"lf","l":"de","o":{"type":"unit","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," und "],["element","D"]],"id":"6ae3fb4f"}
+{"s":"lf","l":"de","o":{"type":"unit","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," und "],["element","E"]],"id":"593f28ca"}
+{"s":"lf","l":"de","o":{"type":"unit","style":"short"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal",", "],["element","otro"]],"id":"16b20872"}
+{"s":"lf","l":"de","o":{"type":"unit","style":"short"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," und "],["element","2 segundos"]],"id":"0551ee76"}
+{"s":"lf","l":"de","o":{"type":"unit","style":"short"},"v":"[\"\",\"x\"]","p":[["literal",", "],["element","x"]],"id":"d3cdfc17"}
+{"s":"lf","l":"de","o":{"type":"unit","style":"narrow"},"v":"[]","p":[],"id":"9016e73a"}
+{"s":"lf","l":"de","o":{"type":"unit","style":"narrow"},"v":"[\"A\"]","p":[["element","A"]],"id":"1cd7ff43"}
+{"s":"lf","l":"de","o":{"type":"unit","style":"narrow"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal",", "],["element","B"]],"id":"7c17f742"}
+{"s":"lf","l":"de","o":{"type":"unit","style":"narrow"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," und "],["element","C"]],"id":"d9618f32"}
+{"s":"lf","l":"de","o":{"type":"unit","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," und "],["element","D"]],"id":"975db09f"}
+{"s":"lf","l":"de","o":{"type":"unit","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," und "],["element","E"]],"id":"565d140d"}
+{"s":"lf","l":"de","o":{"type":"unit","style":"narrow"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal",", "],["element","otro"]],"id":"65480822"}
+{"s":"lf","l":"de","o":{"type":"unit","style":"narrow"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," und "],["element","2 segundos"]],"id":"fac23191"}
+{"s":"lf","l":"de","o":{"type":"unit","style":"narrow"},"v":"[\"\",\"x\"]","p":[["literal",", "],["element","x"]],"id":"3e6e30cf"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction","style":"long"},"v":"[]","p":[],"id":"afc9e983"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction","style":"long"},"v":"[\"A\"]","p":[["element","A"]],"id":"551e9632"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction","style":"long"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," e "],["element","B"]],"id":"0aa7fdc2"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction","style":"long"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," e "],["element","C"]],"id":"70f88f11"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," e "],["element","D"]],"id":"5df9ea5d"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," e "],["element","E"]],"id":"082a34ec"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction","style":"long"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," e "],["element","otro"]],"id":"e700a853"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction","style":"long"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," e "],["element","2 segundos"]],"id":"524f42e1"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction","style":"long"},"v":"[\"\",\"x\"]","p":[["literal"," e "],["element","x"]],"id":"520ce343"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction","style":"short"},"v":"[]","p":[],"id":"c22311e4"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction","style":"short"},"v":"[\"A\"]","p":[["element","A"]],"id":"9092fd6d"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction","style":"short"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," e "],["element","B"]],"id":"486242ee"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction","style":"short"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," e "],["element","C"]],"id":"f0942559"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," e "],["element","D"]],"id":"138fe46a"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," e "],["element","E"]],"id":"903bdf26"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction","style":"short"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," e "],["element","otro"]],"id":"105f5275"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction","style":"short"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," e "],["element","2 segundos"]],"id":"a37c2ac2"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction","style":"short"},"v":"[\"\",\"x\"]","p":[["literal"," e "],["element","x"]],"id":"74bc348a"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction","style":"narrow"},"v":"[]","p":[],"id":"c484764b"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction","style":"narrow"},"v":"[\"A\"]","p":[["element","A"]],"id":"cce3000c"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction","style":"narrow"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal",", "],["element","B"]],"id":"3a413e67"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"]],"id":"4f89d505"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"]],"id":"f3c45cb8"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal",", "],["element","E"]],"id":"17b2a9fe"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction","style":"narrow"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal",", "],["element","otro"]],"id":"ad2291ba"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction","style":"narrow"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal",", "],["element","2 segundos"]],"id":"82457f77"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction","style":"narrow"},"v":"[\"\",\"x\"]","p":[["literal",", "],["element","x"]],"id":"be0386f2"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction","style":"long"},"v":"[]","p":[],"id":"8eed0afd"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction","style":"long"},"v":"[\"A\"]","p":[["element","A"]],"id":"eb133c6b"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction","style":"long"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," ou "],["element","B"]],"id":"e981627d"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction","style":"long"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," ou "],["element","C"]],"id":"4541ed2b"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," ou "],["element","D"]],"id":"7cf228a9"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," ou "],["element","E"]],"id":"e716cb29"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction","style":"long"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," ou "],["element","otro"]],"id":"9f2dbe84"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction","style":"long"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," ou "],["element","2 segundos"]],"id":"7d9f0e58"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction","style":"long"},"v":"[\"\",\"x\"]","p":[["literal"," ou "],["element","x"]],"id":"b76abb3d"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction","style":"short"},"v":"[]","p":[],"id":"70b22463"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction","style":"short"},"v":"[\"A\"]","p":[["element","A"]],"id":"33f0150d"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction","style":"short"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," ou "],["element","B"]],"id":"7a613f61"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction","style":"short"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," ou "],["element","C"]],"id":"40ea5fad"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," ou "],["element","D"]],"id":"e5c6f041"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," ou "],["element","E"]],"id":"68afcc81"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction","style":"short"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," ou "],["element","otro"]],"id":"73592690"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction","style":"short"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," ou "],["element","2 segundos"]],"id":"261db850"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction","style":"short"},"v":"[\"\",\"x\"]","p":[["literal"," ou "],["element","x"]],"id":"c23dfb5c"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction","style":"narrow"},"v":"[]","p":[],"id":"3cea8a4d"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction","style":"narrow"},"v":"[\"A\"]","p":[["element","A"]],"id":"ece9beaf"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction","style":"narrow"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," ou "],["element","B"]],"id":"cde4f168"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," ou "],["element","C"]],"id":"b376e8a9"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," ou "],["element","D"]],"id":"3ce74f73"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," ou "],["element","E"]],"id":"1d7f0b7e"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction","style":"narrow"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," ou "],["element","otro"]],"id":"83016626"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction","style":"narrow"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," ou "],["element","2 segundos"]],"id":"a5da4c6a"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction","style":"narrow"},"v":"[\"\",\"x\"]","p":[["literal"," ou "],["element","x"]],"id":"dc2633d4"}
+{"s":"lf","l":"pt-BR","o":{"type":"unit","style":"long"},"v":"[]","p":[],"id":"e8039ec6"}
+{"s":"lf","l":"pt-BR","o":{"type":"unit","style":"long"},"v":"[\"A\"]","p":[["element","A"]],"id":"1cc3677f"}
+{"s":"lf","l":"pt-BR","o":{"type":"unit","style":"long"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," e "],["element","B"]],"id":"a4df4721"}
+{"s":"lf","l":"pt-BR","o":{"type":"unit","style":"long"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," e "],["element","C"]],"id":"6985cb14"}
+{"s":"lf","l":"pt-BR","o":{"type":"unit","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," e "],["element","D"]],"id":"a2c93f00"}
+{"s":"lf","l":"pt-BR","o":{"type":"unit","style":"long"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," e "],["element","E"]],"id":"df1de507"}
+{"s":"lf","l":"pt-BR","o":{"type":"unit","style":"long"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," e "],["element","otro"]],"id":"45bb985a"}
+{"s":"lf","l":"pt-BR","o":{"type":"unit","style":"long"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," e "],["element","2 segundos"]],"id":"d0a2deaa"}
+{"s":"lf","l":"pt-BR","o":{"type":"unit","style":"long"},"v":"[\"\",\"x\"]","p":[["literal"," e "],["element","x"]],"id":"7cb6694b"}
+{"s":"lf","l":"pt-BR","o":{"type":"unit","style":"short"},"v":"[]","p":[],"id":"f002180f"}
+{"s":"lf","l":"pt-BR","o":{"type":"unit","style":"short"},"v":"[\"A\"]","p":[["element","A"]],"id":"486c8bff"}
+{"s":"lf","l":"pt-BR","o":{"type":"unit","style":"short"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," e "],["element","B"]],"id":"39b566ce"}
+{"s":"lf","l":"pt-BR","o":{"type":"unit","style":"short"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal",", "],["element","B"],["literal"," e "],["element","C"]],"id":"7ac43586"}
+{"s":"lf","l":"pt-BR","o":{"type":"unit","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal"," e "],["element","D"]],"id":"087b392c"}
+{"s":"lf","l":"pt-BR","o":{"type":"unit","style":"short"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal",", "],["element","B"],["literal",", "],["element","C"],["literal",", "],["element","D"],["literal"," e "],["element","E"]],"id":"a77f1029"}
+{"s":"lf","l":"pt-BR","o":{"type":"unit","style":"short"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," e "],["element","otro"]],"id":"962d7a64"}
+{"s":"lf","l":"pt-BR","o":{"type":"unit","style":"short"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal",", "],["element","30 minutos"],["literal"," e "],["element","2 segundos"]],"id":"bbc316b4"}
+{"s":"lf","l":"pt-BR","o":{"type":"unit","style":"short"},"v":"[\"\",\"x\"]","p":[["literal"," e "],["element","x"]],"id":"69b8d9bf"}
+{"s":"lf","l":"pt-BR","o":{"type":"unit","style":"narrow"},"v":"[]","p":[],"id":"180b1269"}
+{"s":"lf","l":"pt-BR","o":{"type":"unit","style":"narrow"},"v":"[\"A\"]","p":[["element","A"]],"id":"cb52c975"}
+{"s":"lf","l":"pt-BR","o":{"type":"unit","style":"narrow"},"v":"[\"A\",\"B\"]","p":[["element","A"],["literal"," "],["element","B"]],"id":"20545cd0"}
+{"s":"lf","l":"pt-BR","o":{"type":"unit","style":"narrow"},"v":"[\"A\",\"B\",\"C\"]","p":[["element","A"],["literal"," "],["element","B"],["literal"," "],["element","C"]],"id":"f3cde23d"}
+{"s":"lf","l":"pt-BR","o":{"type":"unit","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\"]","p":[["element","A"],["literal"," "],["element","B"],["literal"," "],["element","C"],["literal"," "],["element","D"]],"id":"fe29455d"}
+{"s":"lf","l":"pt-BR","o":{"type":"unit","style":"narrow"},"v":"[\"A\",\"B\",\"C\",\"D\",\"E\"]","p":[["element","A"],["literal"," "],["element","B"],["literal"," "],["element","C"],["literal"," "],["element","D"],["literal"," "],["element","E"]],"id":"bf8a9a4e"}
+{"s":"lf","l":"pt-BR","o":{"type":"unit","style":"narrow"},"v":"[\"uno\",\"otro\"]","p":[["element","uno"],["literal"," "],["element","otro"]],"id":"16e4382d"}
+{"s":"lf","l":"pt-BR","o":{"type":"unit","style":"narrow"},"v":"[\"1 hora\",\"30 minutos\",\"2 segundos\"]","p":[["element","1 hora"],["literal"," "],["element","30 minutos"],["literal"," "],["element","2 segundos"]],"id":"bd465736"}
+{"s":"lf","l":"pt-BR","o":{"type":"unit","style":"narrow"},"v":"[\"\",\"x\"]","p":[["literal"," "],["element","x"]],"id":"1a76fab2"}
+{"s":"lfo","l":"en-US","o":{"type":"bogus"},"v":"","e":"RangeError","id":"936a339d"}
+{"s":"lfo","l":"en-US","o":{"style":"bogus"},"v":"","e":"RangeError","id":"230d255d"}
+{"s":"lfo","l":"en-US","o":{},"v":"","p":"conjunction","id":"e542fb40"}
+{"s":"lfo","l":"es","o":{"type":"bogus"},"v":"","e":"RangeError","id":"4c9fa0a6"}
+{"s":"lfo","l":"es","o":{"style":"bogus"},"v":"","e":"RangeError","id":"f7a74a31"}
+{"s":"lfo","l":"es","o":{},"v":"","p":"conjunction","id":"714bdfd0"}
+{"s":"lfo","l":"fr","o":{"type":"bogus"},"v":"","e":"RangeError","id":"78d54644"}
+{"s":"lfo","l":"fr","o":{"style":"bogus"},"v":"","e":"RangeError","id":"81bd4978"}
+{"s":"lfo","l":"fr","o":{},"v":"","p":"conjunction","id":"504749cd"}
+{"s":"lf","l":"es","o":{"type":"conjunction"},"v":"[\"uno\",\"hijo\"]","p":[["literal","uno e hijo"]],"x":1,"id":"e1851574"}
+{"s":"lf","l":"es","o":{"type":"disjunction"},"v":"[\"uno\",\"hijo\"]","p":[["literal","uno o hijo"]],"x":1,"id":"0ff79101"}
+{"s":"lf","l":"es","o":{"type":"conjunction"},"v":"[\"uno\",\"iglesia\"]","p":[["literal","uno e iglesia"]],"x":1,"id":"c7330048"}
+{"s":"lf","l":"es","o":{"type":"disjunction"},"v":"[\"uno\",\"iglesia\"]","p":[["literal","uno o iglesia"]],"x":1,"id":"5200c317"}
+{"s":"lf","l":"es","o":{"type":"conjunction"},"v":"[\"siete\",\"ocho\"]","p":[["literal","siete y ocho"]],"x":1,"id":"3892ddb6"}
+{"s":"lf","l":"es","o":{"type":"disjunction"},"v":"[\"siete\",\"ocho\"]","p":[["literal","siete u ocho"]],"x":1,"id":"8c9c39d5"}
+{"s":"lf","l":"es","o":{"type":"conjunction"},"v":"[\"uno\",\"once\"]","p":[["literal","uno y once"]],"x":1,"id":"2311a6fd"}
+{"s":"lf","l":"es","o":{"type":"disjunction"},"v":"[\"uno\",\"once\"]","p":[["literal","uno u once"]],"x":1,"id":"abe8cb08"}
+{"s":"lf","l":"es","o":{"type":"conjunction"},"v":"[\"x\",\"y\",\"hielo\"]","p":[["literal","x, y y hielo"]],"x":1,"id":"3b033289"}
+{"s":"lf","l":"es","o":{"type":"disjunction"},"v":"[\"x\",\"y\",\"hielo\"]","p":[["literal","x, y o hielo"]],"x":1,"id":"1202cc93"}
+{"s":"lf","l":"es","o":{"type":"conjunction"},"v":"[\"a\",\"o\"]","p":[["literal","a y o"]],"x":1,"id":"ae0d120e"}
+{"s":"lf","l":"es","o":{"type":"disjunction"},"v":"[\"a\",\"o\"]","p":[["literal","a u o"]],"x":1,"id":"2e80941b"}
+{"s":"lf","l":"es","o":{"type":"conjunction"},"v":"[\"a\",\"ocho\"]","p":[["literal","a y ocho"]],"x":1,"id":"a1aeb202"}
+{"s":"lf","l":"es","o":{"type":"disjunction"},"v":"[\"a\",\"ocho\"]","p":[["literal","a u ocho"]],"x":1,"id":"6d36b489"}
+{"s":"lf","l":"es","o":{"type":"conjunction"},"v":"[\"a\",\"hijo\"]","p":[["literal","a e hijo"]],"x":1,"id":"08fe58fb"}
+{"s":"lf","l":"es","o":{"type":"disjunction"},"v":"[\"a\",\"hijo\"]","p":[["literal","a o hijo"]],"x":1,"id":"9b8c0cc5"}
+{"s":"lf","l":"es","o":{"type":"conjunction"},"v":"[\"a\",\"ñu\"]","p":[["literal","a y ñu"]],"x":1,"id":"3fccb18a"}
+{"s":"lf","l":"es","o":{"type":"disjunction"},"v":"[\"a\",\"ñu\"]","p":[["literal","a o ñu"]],"x":1,"id":"12cc211d"}
+{"s":"lf","l":"es","o":{"type":"conjunction"},"v":"[\"a\",\"Hiena\"]","p":[["literal","a y Hiena"]],"x":1,"id":"89cfb117"}
+{"s":"lf","l":"es","o":{"type":"disjunction"},"v":"[\"a\",\"Hiena\"]","p":[["literal","a o Hiena"]],"x":1,"id":"6c66d8b1"}
+{"s":"lf","l":"es","o":{"type":"conjunction"},"v":"[\"a\",\"ho\"]","p":[["literal","a y ho"]],"x":1,"id":"936fcdf8"}
+{"s":"lf","l":"es","o":{"type":"disjunction"},"v":"[\"a\",\"ho\"]","p":[["literal","a u ho"]],"x":1,"id":"38374960"}
+{"s":"lf","l":"es","o":{"type":"conjunction"},"v":"[\"a\",\"y\"]","p":[["literal","a y y"]],"x":1,"id":"971abbcb"}
+{"s":"lf","l":"es","o":{"type":"disjunction"},"v":"[\"a\",\"y\"]","p":[["literal","a o y"]],"x":1,"id":"b2e901f5"}
+{"s":"lf","l":"es","o":{"type":"conjunction"},"v":"[\"a\",\"8\"]","p":[["literal","a y 8"]],"x":1,"id":"072641f5"}
+{"s":"lf","l":"es","o":{"type":"disjunction"},"v":"[\"a\",\"8\"]","p":[["literal","a u 8"]],"x":1,"id":"f3a5a8a8"}
+{"s":"lf","l":"es","o":{"type":"conjunction"},"v":"[\"a\",\"11\"]","p":[["literal","a y 11"]],"x":1,"id":"b9841239"}
+{"s":"lf","l":"es","o":{"type":"disjunction"},"v":"[\"a\",\"11\"]","p":[["literal","a u 11"]],"x":1,"id":"70212c09"}
+{"s":"lf","l":"es","o":{"type":"conjunction"},"v":"[\"a\",\"1000\"]","p":[["literal","a y 1000"]],"x":1,"id":"4d06b100"}
+{"s":"lf","l":"es","o":{"type":"disjunction"},"v":"[\"a\",\"1000\"]","p":[["literal","a o 1000"]],"x":1,"id":"6c344502"}
+{"s":"lf","l":"es","o":{"type":"conjunction"},"v":"[\"a\",\"800\"]","p":[["literal","a y 800"]],"x":1,"id":"a3b55bb1"}
+{"s":"lf","l":"es","o":{"type":"disjunction"},"v":"[\"a\",\"800\"]","p":[["literal","a u 800"]],"x":1,"id":"93fb6a72"}
+{"s":"lf","l":"es","o":{"type":"conjunction"},"v":"[\"a\",\"ok\"]","p":[["literal","a y ok"]],"x":1,"id":"d3232175"}
+{"s":"lf","l":"es","o":{"type":"disjunction"},"v":"[\"a\",\"ok\"]","p":[["literal","a u ok"]],"x":1,"id":"086e6938"}
+{"s":"lf","l":"es","o":{"type":"conjunction"},"v":"[\"a\",\"iniciativa\"]","p":[["literal","a e iniciativa"]],"x":1,"id":"6d39f32d"}
+{"s":"lf","l":"es","o":{"type":"disjunction"},"v":"[\"a\",\"iniciativa\"]","p":[["literal","a o iniciativa"]],"x":1,"id":"16e5d898"}
+{"s":"lf","l":"es","o":{"type":"conjunction"},"v":"[\"a\",\"x\"]","p":[["literal","a y x"]],"x":1,"id":"0511c9ae"}
+{"s":"lf","l":"es","o":{"type":"disjunction"},"v":"[\"a\",\"x\"]","p":[["literal","a o x"]],"x":1,"id":"d6c156e9"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction"},"v":"[\"uno\",\"hijo\"]","p":[["literal","uno and hijo"]],"x":1,"id":"f5b6387b"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction"},"v":"[\"uno\",\"hijo\"]","p":[["literal","uno or hijo"]],"x":1,"id":"104ceebe"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction"},"v":"[\"uno\",\"iglesia\"]","p":[["literal","uno and iglesia"]],"x":1,"id":"ca7af018"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction"},"v":"[\"uno\",\"iglesia\"]","p":[["literal","uno or iglesia"]],"x":1,"id":"f04b5783"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction"},"v":"[\"siete\",\"ocho\"]","p":[["literal","siete and ocho"]],"x":1,"id":"f53cd049"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction"},"v":"[\"siete\",\"ocho\"]","p":[["literal","siete or ocho"]],"x":1,"id":"54430f59"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction"},"v":"[\"uno\",\"once\"]","p":[["literal","uno and once"]],"x":1,"id":"a6248202"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction"},"v":"[\"uno\",\"once\"]","p":[["literal","uno or once"]],"x":1,"id":"0ef7d2e8"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction"},"v":"[\"x\",\"y\",\"hielo\"]","p":[["literal","x, y, and hielo"]],"x":1,"id":"0e847374"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction"},"v":"[\"x\",\"y\",\"hielo\"]","p":[["literal","x, y, or hielo"]],"x":1,"id":"1f97dc82"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction"},"v":"[\"a\",\"o\"]","p":[["literal","a and o"]],"x":1,"id":"d25b3093"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction"},"v":"[\"a\",\"o\"]","p":[["literal","a or o"]],"x":1,"id":"11764f43"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction"},"v":"[\"a\",\"ocho\"]","p":[["literal","a and ocho"]],"x":1,"id":"cbad06dd"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction"},"v":"[\"a\",\"ocho\"]","p":[["literal","a or ocho"]],"x":1,"id":"4891dc85"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction"},"v":"[\"a\",\"hijo\"]","p":[["literal","a and hijo"]],"x":1,"id":"ad3e610f"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction"},"v":"[\"a\",\"hijo\"]","p":[["literal","a or hijo"]],"x":1,"id":"c6b8cb3b"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction"},"v":"[\"a\",\"ñu\"]","p":[["literal","a and ñu"]],"x":1,"id":"e2c81f0e"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction"},"v":"[\"a\",\"ñu\"]","p":[["literal","a or ñu"]],"x":1,"id":"96a13657"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction"},"v":"[\"a\",\"Hiena\"]","p":[["literal","a and Hiena"]],"x":1,"id":"50c8edab"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction"},"v":"[\"a\",\"Hiena\"]","p":[["literal","a or Hiena"]],"x":1,"id":"ea5c678c"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction"},"v":"[\"a\",\"ho\"]","p":[["literal","a and ho"]],"x":1,"id":"47bfc749"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction"},"v":"[\"a\",\"ho\"]","p":[["literal","a or ho"]],"x":1,"id":"d98098c1"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction"},"v":"[\"a\",\"y\"]","p":[["literal","a and y"]],"x":1,"id":"32841e11"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction"},"v":"[\"a\",\"y\"]","p":[["literal","a or y"]],"x":1,"id":"8f45c770"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction"},"v":"[\"a\",\"8\"]","p":[["literal","a and 8"]],"x":1,"id":"166c8b60"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction"},"v":"[\"a\",\"8\"]","p":[["literal","a or 8"]],"x":1,"id":"ac7d88c3"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction"},"v":"[\"a\",\"11\"]","p":[["literal","a and 11"]],"x":1,"id":"7c929289"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction"},"v":"[\"a\",\"11\"]","p":[["literal","a or 11"]],"x":1,"id":"4b36ec04"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction"},"v":"[\"a\",\"1000\"]","p":[["literal","a and 1000"]],"x":1,"id":"456f8927"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction"},"v":"[\"a\",\"1000\"]","p":[["literal","a or 1000"]],"x":1,"id":"4538a531"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction"},"v":"[\"a\",\"800\"]","p":[["literal","a and 800"]],"x":1,"id":"98375872"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction"},"v":"[\"a\",\"800\"]","p":[["literal","a or 800"]],"x":1,"id":"d8e4616c"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction"},"v":"[\"a\",\"ok\"]","p":[["literal","a and ok"]],"x":1,"id":"de6469bd"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction"},"v":"[\"a\",\"ok\"]","p":[["literal","a or ok"]],"x":1,"id":"c79badb8"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction"},"v":"[\"a\",\"iniciativa\"]","p":[["literal","a and iniciativa"]],"x":1,"id":"3650a24a"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction"},"v":"[\"a\",\"iniciativa\"]","p":[["literal","a or iniciativa"]],"x":1,"id":"b3a8b0cb"}
+{"s":"lf","l":"en-US","o":{"type":"conjunction"},"v":"[\"a\",\"x\"]","p":[["literal","a and x"]],"x":1,"id":"67fc1929"}
+{"s":"lf","l":"en-US","o":{"type":"disjunction"},"v":"[\"a\",\"x\"]","p":[["literal","a or x"]],"x":1,"id":"c831ca60"}
+{"s":"lf","l":"fr","o":{"type":"conjunction"},"v":"[\"uno\",\"hijo\"]","p":[["literal","uno et hijo"]],"x":1,"id":"c3627bc7"}
+{"s":"lf","l":"fr","o":{"type":"disjunction"},"v":"[\"uno\",\"hijo\"]","p":[["literal","uno ou hijo"]],"x":1,"id":"1ab28dda"}
+{"s":"lf","l":"fr","o":{"type":"conjunction"},"v":"[\"uno\",\"iglesia\"]","p":[["literal","uno et iglesia"]],"x":1,"id":"ba500953"}
+{"s":"lf","l":"fr","o":{"type":"disjunction"},"v":"[\"uno\",\"iglesia\"]","p":[["literal","uno ou iglesia"]],"x":1,"id":"7fca899d"}
+{"s":"lf","l":"fr","o":{"type":"conjunction"},"v":"[\"siete\",\"ocho\"]","p":[["literal","siete et ocho"]],"x":1,"id":"42791b55"}
+{"s":"lf","l":"fr","o":{"type":"disjunction"},"v":"[\"siete\",\"ocho\"]","p":[["literal","siete ou ocho"]],"x":1,"id":"66e89049"}
+{"s":"lf","l":"fr","o":{"type":"conjunction"},"v":"[\"uno\",\"once\"]","p":[["literal","uno et once"]],"x":1,"id":"7b457b38"}
+{"s":"lf","l":"fr","o":{"type":"disjunction"},"v":"[\"uno\",\"once\"]","p":[["literal","uno ou once"]],"x":1,"id":"126123c2"}
+{"s":"lf","l":"fr","o":{"type":"conjunction"},"v":"[\"x\",\"y\",\"hielo\"]","p":[["literal","x, y et hielo"]],"x":1,"id":"95fa595d"}
+{"s":"lf","l":"fr","o":{"type":"disjunction"},"v":"[\"x\",\"y\",\"hielo\"]","p":[["literal","x, y ou hielo"]],"x":1,"id":"1cddd0e4"}
+{"s":"lf","l":"fr","o":{"type":"conjunction"},"v":"[\"a\",\"o\"]","p":[["literal","a et o"]],"x":1,"id":"4dc06d75"}
+{"s":"lf","l":"fr","o":{"type":"disjunction"},"v":"[\"a\",\"o\"]","p":[["literal","a ou o"]],"x":1,"id":"ea840da1"}
+{"s":"lf","l":"fr","o":{"type":"conjunction"},"v":"[\"a\",\"ocho\"]","p":[["literal","a et ocho"]],"x":1,"id":"13c35ce5"}
+{"s":"lf","l":"fr","o":{"type":"disjunction"},"v":"[\"a\",\"ocho\"]","p":[["literal","a ou ocho"]],"x":1,"id":"985a8e25"}
+{"s":"lf","l":"fr","o":{"type":"conjunction"},"v":"[\"a\",\"hijo\"]","p":[["literal","a et hijo"]],"x":1,"id":"a6835c87"}
+{"s":"lf","l":"fr","o":{"type":"disjunction"},"v":"[\"a\",\"hijo\"]","p":[["literal","a ou hijo"]],"x":1,"id":"fefc8cb1"}
+{"s":"lf","l":"fr","o":{"type":"conjunction"},"v":"[\"a\",\"ñu\"]","p":[["literal","a et ñu"]],"x":1,"id":"e296434d"}
+{"s":"lf","l":"fr","o":{"type":"disjunction"},"v":"[\"a\",\"ñu\"]","p":[["literal","a ou ñu"]],"x":1,"id":"0b329d08"}
+{"s":"lf","l":"fr","o":{"type":"conjunction"},"v":"[\"a\",\"Hiena\"]","p":[["literal","a et Hiena"]],"x":1,"id":"ca4c811c"}
+{"s":"lf","l":"fr","o":{"type":"disjunction"},"v":"[\"a\",\"Hiena\"]","p":[["literal","a ou Hiena"]],"x":1,"id":"54c32349"}
+{"s":"lf","l":"fr","o":{"type":"conjunction"},"v":"[\"a\",\"ho\"]","p":[["literal","a et ho"]],"x":1,"id":"c60f2cd4"}
+{"s":"lf","l":"fr","o":{"type":"disjunction"},"v":"[\"a\",\"ho\"]","p":[["literal","a ou ho"]],"x":1,"id":"1bcbb013"}
+{"s":"lf","l":"fr","o":{"type":"conjunction"},"v":"[\"a\",\"y\"]","p":[["literal","a et y"]],"x":1,"id":"04c54cd7"}
+{"s":"lf","l":"fr","o":{"type":"disjunction"},"v":"[\"a\",\"y\"]","p":[["literal","a ou y"]],"x":1,"id":"1187c222"}
+{"s":"lf","l":"fr","o":{"type":"conjunction"},"v":"[\"a\",\"8\"]","p":[["literal","a et 8"]],"x":1,"id":"5c514543"}
+{"s":"lf","l":"fr","o":{"type":"disjunction"},"v":"[\"a\",\"8\"]","p":[["literal","a ou 8"]],"x":1,"id":"a59bb3e7"}
+{"s":"lf","l":"fr","o":{"type":"conjunction"},"v":"[\"a\",\"11\"]","p":[["literal","a et 11"]],"x":1,"id":"4c69e5fe"}
+{"s":"lf","l":"fr","o":{"type":"disjunction"},"v":"[\"a\",\"11\"]","p":[["literal","a ou 11"]],"x":1,"id":"3b96d338"}
+{"s":"lf","l":"fr","o":{"type":"conjunction"},"v":"[\"a\",\"1000\"]","p":[["literal","a et 1000"]],"x":1,"id":"ba0cd6a6"}
+{"s":"lf","l":"fr","o":{"type":"disjunction"},"v":"[\"a\",\"1000\"]","p":[["literal","a ou 1000"]],"x":1,"id":"094ab7c7"}
+{"s":"lf","l":"fr","o":{"type":"conjunction"},"v":"[\"a\",\"800\"]","p":[["literal","a et 800"]],"x":1,"id":"9d1d68d6"}
+{"s":"lf","l":"fr","o":{"type":"disjunction"},"v":"[\"a\",\"800\"]","p":[["literal","a ou 800"]],"x":1,"id":"945322d6"}
+{"s":"lf","l":"fr","o":{"type":"conjunction"},"v":"[\"a\",\"ok\"]","p":[["literal","a et ok"]],"x":1,"id":"0506b80d"}
+{"s":"lf","l":"fr","o":{"type":"disjunction"},"v":"[\"a\",\"ok\"]","p":[["literal","a ou ok"]],"x":1,"id":"41c42097"}
+{"s":"lf","l":"fr","o":{"type":"conjunction"},"v":"[\"a\",\"iniciativa\"]","p":[["literal","a et iniciativa"]],"x":1,"id":"90592236"}
+{"s":"lf","l":"fr","o":{"type":"disjunction"},"v":"[\"a\",\"iniciativa\"]","p":[["literal","a ou iniciativa"]],"x":1,"id":"fd693cf8"}
+{"s":"lf","l":"fr","o":{"type":"conjunction"},"v":"[\"a\",\"x\"]","p":[["literal","a et x"]],"x":1,"id":"f4480d45"}
+{"s":"lf","l":"fr","o":{"type":"disjunction"},"v":"[\"a\",\"x\"]","p":[["literal","a ou x"]],"x":1,"id":"3801dcf1"}
+{"s":"lf","l":"de","o":{"type":"conjunction"},"v":"[\"uno\",\"hijo\"]","p":[["literal","uno und hijo"]],"x":1,"id":"b00d7e15"}
+{"s":"lf","l":"de","o":{"type":"disjunction"},"v":"[\"uno\",\"hijo\"]","p":[["literal","uno oder hijo"]],"x":1,"id":"4a9d10b9"}
+{"s":"lf","l":"de","o":{"type":"conjunction"},"v":"[\"uno\",\"iglesia\"]","p":[["literal","uno und iglesia"]],"x":1,"id":"fd3f9cc7"}
+{"s":"lf","l":"de","o":{"type":"disjunction"},"v":"[\"uno\",\"iglesia\"]","p":[["literal","uno oder iglesia"]],"x":1,"id":"087304a5"}
+{"s":"lf","l":"de","o":{"type":"conjunction"},"v":"[\"siete\",\"ocho\"]","p":[["literal","siete und ocho"]],"x":1,"id":"803cfde6"}
+{"s":"lf","l":"de","o":{"type":"disjunction"},"v":"[\"siete\",\"ocho\"]","p":[["literal","siete oder ocho"]],"x":1,"id":"179e80b5"}
+{"s":"lf","l":"de","o":{"type":"conjunction"},"v":"[\"uno\",\"once\"]","p":[["literal","uno und once"]],"x":1,"id":"d7baf0be"}
+{"s":"lf","l":"de","o":{"type":"disjunction"},"v":"[\"uno\",\"once\"]","p":[["literal","uno oder once"]],"x":1,"id":"aed0a6bd"}
+{"s":"lf","l":"de","o":{"type":"conjunction"},"v":"[\"x\",\"y\",\"hielo\"]","p":[["literal","x, y und hielo"]],"x":1,"id":"415877bb"}
+{"s":"lf","l":"de","o":{"type":"disjunction"},"v":"[\"x\",\"y\",\"hielo\"]","p":[["literal","x, y oder hielo"]],"x":1,"id":"ce3213ff"}
+{"s":"lf","l":"de","o":{"type":"conjunction"},"v":"[\"a\",\"o\"]","p":[["literal","a und o"]],"x":1,"id":"0d413b40"}
+{"s":"lf","l":"de","o":{"type":"disjunction"},"v":"[\"a\",\"o\"]","p":[["literal","a oder o"]],"x":1,"id":"d223e702"}
+{"s":"lf","l":"de","o":{"type":"conjunction"},"v":"[\"a\",\"ocho\"]","p":[["literal","a und ocho"]],"x":1,"id":"47d667ac"}
+{"s":"lf","l":"de","o":{"type":"disjunction"},"v":"[\"a\",\"ocho\"]","p":[["literal","a oder ocho"]],"x":1,"id":"e8a65766"}
+{"s":"lf","l":"de","o":{"type":"conjunction"},"v":"[\"a\",\"hijo\"]","p":[["literal","a und hijo"]],"x":1,"id":"9b821860"}
+{"s":"lf","l":"de","o":{"type":"disjunction"},"v":"[\"a\",\"hijo\"]","p":[["literal","a oder hijo"]],"x":1,"id":"b5e78b95"}
+{"s":"lf","l":"de","o":{"type":"conjunction"},"v":"[\"a\",\"ñu\"]","p":[["literal","a und ñu"]],"x":1,"id":"1a990049"}
+{"s":"lf","l":"de","o":{"type":"disjunction"},"v":"[\"a\",\"ñu\"]","p":[["literal","a oder ñu"]],"x":1,"id":"35ec3f17"}
+{"s":"lf","l":"de","o":{"type":"conjunction"},"v":"[\"a\",\"Hiena\"]","p":[["literal","a und Hiena"]],"x":1,"id":"13ce1699"}
+{"s":"lf","l":"de","o":{"type":"disjunction"},"v":"[\"a\",\"Hiena\"]","p":[["literal","a oder Hiena"]],"x":1,"id":"1c7eb1db"}
+{"s":"lf","l":"de","o":{"type":"conjunction"},"v":"[\"a\",\"ho\"]","p":[["literal","a und ho"]],"x":1,"id":"473d9ec2"}
+{"s":"lf","l":"de","o":{"type":"disjunction"},"v":"[\"a\",\"ho\"]","p":[["literal","a oder ho"]],"x":1,"id":"445ad687"}
+{"s":"lf","l":"de","o":{"type":"conjunction"},"v":"[\"a\",\"y\"]","p":[["literal","a und y"]],"x":1,"id":"85697075"}
+{"s":"lf","l":"de","o":{"type":"disjunction"},"v":"[\"a\",\"y\"]","p":[["literal","a oder y"]],"x":1,"id":"4f5c2e36"}
+{"s":"lf","l":"de","o":{"type":"conjunction"},"v":"[\"a\",\"8\"]","p":[["literal","a und 8"]],"x":1,"id":"0a754cc4"}
+{"s":"lf","l":"de","o":{"type":"disjunction"},"v":"[\"a\",\"8\"]","p":[["literal","a oder 8"]],"x":1,"id":"5f4dec49"}
+{"s":"lf","l":"de","o":{"type":"conjunction"},"v":"[\"a\",\"11\"]","p":[["literal","a und 11"]],"x":1,"id":"7c02ebd9"}
+{"s":"lf","l":"de","o":{"type":"disjunction"},"v":"[\"a\",\"11\"]","p":[["literal","a oder 11"]],"x":1,"id":"0645157a"}
+{"s":"lf","l":"de","o":{"type":"conjunction"},"v":"[\"a\",\"1000\"]","p":[["literal","a und 1000"]],"x":1,"id":"45c1a90d"}
+{"s":"lf","l":"de","o":{"type":"disjunction"},"v":"[\"a\",\"1000\"]","p":[["literal","a oder 1000"]],"x":1,"id":"7858c390"}
+{"s":"lf","l":"de","o":{"type":"conjunction"},"v":"[\"a\",\"800\"]","p":[["literal","a und 800"]],"x":1,"id":"e936c66f"}
+{"s":"lf","l":"de","o":{"type":"disjunction"},"v":"[\"a\",\"800\"]","p":[["literal","a oder 800"]],"x":1,"id":"13c02204"}
+{"s":"lf","l":"de","o":{"type":"conjunction"},"v":"[\"a\",\"ok\"]","p":[["literal","a und ok"]],"x":1,"id":"7942841e"}
+{"s":"lf","l":"de","o":{"type":"disjunction"},"v":"[\"a\",\"ok\"]","p":[["literal","a oder ok"]],"x":1,"id":"ac1aaad5"}
+{"s":"lf","l":"de","o":{"type":"conjunction"},"v":"[\"a\",\"iniciativa\"]","p":[["literal","a und iniciativa"]],"x":1,"id":"7b82c577"}
+{"s":"lf","l":"de","o":{"type":"disjunction"},"v":"[\"a\",\"iniciativa\"]","p":[["literal","a oder iniciativa"]],"x":1,"id":"722fa0f1"}
+{"s":"lf","l":"de","o":{"type":"conjunction"},"v":"[\"a\",\"x\"]","p":[["literal","a und x"]],"x":1,"id":"72677d5b"}
+{"s":"lf","l":"de","o":{"type":"disjunction"},"v":"[\"a\",\"x\"]","p":[["literal","a oder x"]],"x":1,"id":"1f3e4ef0"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction"},"v":"[\"uno\",\"hijo\"]","p":[["literal","uno e hijo"]],"x":1,"id":"9a751dd9"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction"},"v":"[\"uno\",\"hijo\"]","p":[["literal","uno ou hijo"]],"x":1,"id":"1b1219a6"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction"},"v":"[\"uno\",\"iglesia\"]","p":[["literal","uno e iglesia"]],"x":1,"id":"4c53bb40"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction"},"v":"[\"uno\",\"iglesia\"]","p":[["literal","uno ou iglesia"]],"x":1,"id":"c5db436d"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction"},"v":"[\"siete\",\"ocho\"]","p":[["literal","siete e ocho"]],"x":1,"id":"db437420"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction"},"v":"[\"siete\",\"ocho\"]","p":[["literal","siete ou ocho"]],"x":1,"id":"ec63facc"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction"},"v":"[\"uno\",\"once\"]","p":[["literal","uno e once"]],"x":1,"id":"21c088a1"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction"},"v":"[\"uno\",\"once\"]","p":[["literal","uno ou once"]],"x":1,"id":"99dd04f8"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction"},"v":"[\"x\",\"y\",\"hielo\"]","p":[["literal","x, y e hielo"]],"x":1,"id":"331e11d1"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction"},"v":"[\"x\",\"y\",\"hielo\"]","p":[["literal","x, y ou hielo"]],"x":1,"id":"289613e0"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction"},"v":"[\"a\",\"o\"]","p":[["literal","a e o"]],"x":1,"id":"4a167529"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction"},"v":"[\"a\",\"o\"]","p":[["literal","a ou o"]],"x":1,"id":"be112716"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction"},"v":"[\"a\",\"ocho\"]","p":[["literal","a e ocho"]],"x":1,"id":"87fbe37d"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction"},"v":"[\"a\",\"ocho\"]","p":[["literal","a ou ocho"]],"x":1,"id":"26be2b08"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction"},"v":"[\"a\",\"hijo\"]","p":[["literal","a e hijo"]],"x":1,"id":"393fc6c8"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction"},"v":"[\"a\",\"hijo\"]","p":[["literal","a ou hijo"]],"x":1,"id":"b7e37f2b"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction"},"v":"[\"a\",\"ñu\"]","p":[["literal","a e ñu"]],"x":1,"id":"ea906c85"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction"},"v":"[\"a\",\"ñu\"]","p":[["literal","a ou ñu"]],"x":1,"id":"bb84db30"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction"},"v":"[\"a\",\"Hiena\"]","p":[["literal","a e Hiena"]],"x":1,"id":"f05eaf00"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction"},"v":"[\"a\",\"Hiena\"]","p":[["literal","a ou Hiena"]],"x":1,"id":"d2272a1b"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction"},"v":"[\"a\",\"ho\"]","p":[["literal","a e ho"]],"x":1,"id":"4f8cd0d8"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction"},"v":"[\"a\",\"ho\"]","p":[["literal","a ou ho"]],"x":1,"id":"84ab0690"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction"},"v":"[\"a\",\"y\"]","p":[["literal","a e y"]],"x":1,"id":"e92ac58d"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction"},"v":"[\"a\",\"y\"]","p":[["literal","a ou y"]],"x":1,"id":"e4153715"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction"},"v":"[\"a\",\"8\"]","p":[["literal","a e 8"]],"x":1,"id":"d5967469"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction"},"v":"[\"a\",\"8\"]","p":[["literal","a ou 8"]],"x":1,"id":"1a95fc12"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction"},"v":"[\"a\",\"11\"]","p":[["literal","a e 11"]],"x":1,"id":"6dac89a4"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction"},"v":"[\"a\",\"11\"]","p":[["literal","a ou 11"]],"x":1,"id":"d60eb452"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction"},"v":"[\"a\",\"1000\"]","p":[["literal","a e 1000"]],"x":1,"id":"154d87e4"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction"},"v":"[\"a\",\"1000\"]","p":[["literal","a ou 1000"]],"x":1,"id":"7641ba39"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction"},"v":"[\"a\",\"800\"]","p":[["literal","a e 800"]],"x":1,"id":"874c2ac6"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction"},"v":"[\"a\",\"800\"]","p":[["literal","a ou 800"]],"x":1,"id":"f62c0f4a"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction"},"v":"[\"a\",\"ok\"]","p":[["literal","a e ok"]],"x":1,"id":"3a001d96"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction"},"v":"[\"a\",\"ok\"]","p":[["literal","a ou ok"]],"x":1,"id":"e75d97b1"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction"},"v":"[\"a\",\"iniciativa\"]","p":[["literal","a e iniciativa"]],"x":1,"id":"207d7a59"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction"},"v":"[\"a\",\"iniciativa\"]","p":[["literal","a ou iniciativa"]],"x":1,"id":"87660d9d"}
+{"s":"lf","l":"pt-BR","o":{"type":"conjunction"},"v":"[\"a\",\"x\"]","p":[["literal","a e x"]],"x":1,"id":"a4382d44"}
+{"s":"lf","l":"pt-BR","o":{"type":"disjunction"},"v":"[\"a\",\"x\"]","p":[["literal","a ou x"]],"x":1,"id":"4cb1e28f"}

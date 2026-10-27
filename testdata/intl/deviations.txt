@@ -1,0 +1,55 @@
+# Known differences from the recorded Node v24.22.1 (ICU 78.3, CLDR 48.0) output: <row id> <reason>.
+# Where ECMA-402 and Node disagree the specification is followed.
+7d372996 ECMA-402 12.1.1 CanonicalCodeForDisplayNames canonicalizes region and script codes (upper/title case) and calendar aliases; Node returns the input spelling or no name
+06e26d59 ECMA-402 12.1.1 CanonicalCodeForDisplayNames canonicalizes region and script codes (upper/title case) and calendar aliases; Node returns the input spelling or no name
+e2501c94 ECMA-402 12.1.1 CanonicalCodeForDisplayNames canonicalizes region and script codes (upper/title case) and calendar aliases; Node returns the input spelling or no name
+a527601d ECMA-402 12.1.1 CanonicalCodeForDisplayNames canonicalizes region and script codes (upper/title case) and calendar aliases; Node returns the input spelling or no name
+50dfee23 ECMA-402 12.1.1 CanonicalCodeForDisplayNames canonicalizes region and script codes (upper/title case) and calendar aliases; Node returns the input spelling or no name
+3e0762e5 ECMA-402 12.1.1 CanonicalCodeForDisplayNames canonicalizes region and script codes (upper/title case) and calendar aliases; Node returns the input spelling or no name
+92ffa49d ECMA-402 12.1.1 CanonicalCodeForDisplayNames canonicalizes region and script codes (upper/title case) and calendar aliases; Node returns the input spelling or no name
+2a915201 ECMA-402 12.1.1 CanonicalCodeForDisplayNames canonicalizes region and script codes (upper/title case) and calendar aliases; Node returns the input spelling or no name
+3ff973da ECMA-402 12.1.1 CanonicalCodeForDisplayNames canonicalizes region and script codes (upper/title case) and calendar aliases; Node returns the input spelling or no name
+e86b5f96 ECMA-402 12.1.1 CanonicalCodeForDisplayNames canonicalizes region and script codes (upper/title case) and calendar aliases; Node returns the input spelling or no name
+5ee8baf1 ECMA-402 12.1.1 CanonicalCodeForDisplayNames canonicalizes region and script codes (upper/title case) and calendar aliases; Node returns the input spelling or no name
+1d2a5132 ECMA-402 12.1.1 CanonicalCodeForDisplayNames canonicalizes region and script codes (upper/title case) and calendar aliases; Node returns the input spelling or no name
+c28e2f60 ECMA-402 12.1.1 CanonicalCodeForDisplayNames canonicalizes region and script codes (upper/title case) and calendar aliases; Node returns the input spelling or no name
+f0bb3629 ECMA-402 12.1.1 CanonicalCodeForDisplayNames canonicalizes region and script codes (upper/title case) and calendar aliases; Node returns the input spelling or no name
+8cf0b2bd ECMA-402 12.1.1 CanonicalCodeForDisplayNames canonicalizes region and script codes (upper/title case) and calendar aliases; Node returns the input spelling or no name
+584f5f4c ECMA-402 12.1.1 CanonicalCodeForDisplayNames canonicalizes region and script codes (upper/title case) and calendar aliases; Node returns the input spelling or no name
+338e32ef ECMA-402 12.1.1 CanonicalCodeForDisplayNames canonicalizes region and script codes (upper/title case) and calendar aliases; Node returns the input spelling or no name
+23a1db57 ECMA-402 12.1.1 CanonicalCodeForDisplayNames canonicalizes region and script codes (upper/title case) and calendar aliases; Node returns the input spelling or no name
+4c70ece4 ECMA-402 12.1.1 CanonicalCodeForDisplayNames canonicalizes region and script codes (upper/title case) and calendar aliases; Node returns the input spelling or no name
+a844da84 ECMA-402 12.1.1 CanonicalCodeForDisplayNames canonicalizes region and script codes (upper/title case) and calendar aliases; Node returns the input spelling or no name
+def86381 ECMA-402 12.1.1 CanonicalCodeForDisplayNames canonicalizes region and script codes (upper/title case) and calendar aliases; Node returns the input spelling or no name
+9f1a7282 ECMA-402 12.1.1 CanonicalCodeForDisplayNames canonicalizes region and script codes (upper/title case) and calendar aliases; Node returns the input spelling or no name
+777e70fe ICU overflows the plural operands of 1e21; CLDR rules (and this implementation) use the exact value
+fa4ee291 ICU overflows the plural operands of 1e21; CLDR rules (and this implementation) use the exact value
+12818c61 ICU overflows the plural operands of 1e21; CLDR rules (and this implementation) use the exact value
+fe85ed31 ICU overflows the plural operands of 1e21; CLDR rules (and this implementation) use the exact value
+2df0ea88 ICU overflows the plural operands of 1e21; CLDR rules (and this implementation) use the exact value
+18435571 ICU overflows the plural operands of 1e21; CLDR rules (and this implementation) use the exact value
+72c589b6 ICU overflows the plural operands of 1e21; CLDR rules (and this implementation) use the exact value
+2480632a ICU overflows the plural operands of 1e21 in the relative-time plural selection; CLDR rules are followed
+fdd96f29 ICU overflows the plural operands of 1e21 in the relative-time plural selection; CLDR rules are followed
+fdd96f29 ICU overflows the plural operands of 1e21 in the relative-time plural selection; CLDR rules are followed
+a383f3c7 ICU overflows the plural operands of 1e21 in the relative-time plural selection; CLDR rules are followed
+b09845e7 ECMA-402 PartitionNumberRangePattern keeps the shared currency code and separator spacing of the pattern; ICU shifts the labels of the code prefix
+313ada23 ECMA-402 PartitionNumberRangePattern keeps the shared currency code and separator spacing of the pattern; ICU shifts the labels of the code prefix
+50ee935b ECMA-402 PartitionNumberRangePattern keeps the shared currency code and separator spacing of the pattern; ICU shifts the labels of the code prefix
+ac74ee7d ECMA-402 PartitionNumberRangePattern keeps the shared currency code and separator spacing of the pattern; ICU shifts the labels of the code prefix
+1bc9f2ff ECMA-402 PartitionNumberRangePattern keeps the shared currency code and separator spacing of the pattern; ICU shifts the labels of the code prefix
+c7a44cbf ECMA-402 PartitionNumberRangePattern keeps the shared currency code and separator spacing of the pattern; ICU shifts the labels of the code prefix
+298d61cb ICU keeps the original language when minimizing und-Hant and keeps the variant keyword in the base name of en-u-va-posix; this implementation follows the ECMA-402 Intl.Locale algorithms
+5285047d ICU keeps the original language when minimizing und-Hant and keeps the variant keyword in the base name of en-u-va-posix; this implementation follows the ECMA-402 Intl.Locale algorithms
+33dc652b supportedLocalesOf and resolved locale depend on the available-locale set: this implementation ships six locales (plus es-US), Node ships all of CLDR
+bc6a2d56 supportedLocalesOf and resolved locale depend on the available-locale set: this implementation ships six locales (plus es-US), Node ships all of CLDR
+e006b3f5 supportedLocalesOf and resolved locale depend on the available-locale set: this implementation ships six locales (plus es-US), Node ships all of CLDR
+9b96f68d supportedLocalesOf and resolved locale depend on the available-locale set: this implementation ships six locales (plus es-US), Node ships all of CLDR
+3fffb6a7 supportedLocalesOf and resolved locale depend on the available-locale set: this implementation ships six locales (plus es-US), Node ships all of CLDR
+c250ba0e supportedLocalesOf and resolved locale depend on the available-locale set: this implementation ships six locales (plus es-US), Node ships all of CLDR
+ddb1024f supportedLocalesOf and resolved locale depend on the available-locale set: this implementation ships six locales (plus es-US), Node ships all of CLDR
+bddd726b supportedLocalesOf and resolved locale depend on the available-locale set: this implementation ships six locales (plus es-US), Node ships all of CLDR
+711d831c supportedValuesOf: only Gregorian calendar, Latin digits, the shipped collations and currencies with data are listed
+b567c614 supportedValuesOf: only Gregorian calendar, Latin digits, the shipped collations and currencies with data are listed
+2e97a020 supportedValuesOf: only Gregorian calendar, Latin digits, the shipped collations and currencies with data are listed
+16f698b1 supportedValuesOf: only Gregorian calendar, Latin digits, the shipped collations and currencies with data are listed

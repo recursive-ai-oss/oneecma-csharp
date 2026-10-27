@@ -1,5 +1,6 @@
 using RecursiveAI.OneEcma;
 using RecursiveAI.OneEcma.Diagnostics;
+using RecursiveAI.OneEcma.Intl;
 using RecursiveAI.OneEcma.TextServices;
 using RecursiveAI.OneEcma.RegExp;
 using RecursiveAI.OneEcma.SourceMaps;
@@ -92,6 +93,16 @@ foreach (TextSegment s in TextSegmenter.Enumerate("e\u0301\uD83C\uDDFA\uD83C\uDD
 if (words != 2 || graphemes != 2)
 {
     Console.Error.WriteLine($"smoke: segmentation {words} {graphemes}");
+    return 1;
+}
+
+// Intl: locale data is an embedded resource, so this checks it loads under NativeAOT.
+NumberFormatService german = NumberFormatService.Create(["de"], new NumberFormatOptions { Style = "currency", Currency = "EUR" }, "en-US");
+string money = german.Format(DecimalNumber.FromDouble(1234.5));
+DisplayNamesService names = DisplayNamesService.Create(["fr"], new DisplayNamesOptions { Type = "region" }, "en-US");
+if (money != "1.234,50\u00A0\u20AC" || names.Of("US") != "\u00C9tats-Unis")
+{
+    Console.Error.WriteLine($"smoke: intl {money} {names.Of("US")}");
     return 1;
 }
 
