@@ -1,0 +1,6 @@
+error[SyntaxError]: missing ) after argument list
+ --> case.js:1:250
+1 | …7;v28=28;v29=29;var r = compute(items.map(function (x) { return x * 2; }), 3;v100=0;v101=1;v102=2;v1…
+  |                          -------- the argument list opened here is never closed
+  |                                                                             ^ expected `,` or `)` before this `;`
+  = help: add `)` before `;`: `compute(items.map(function (x) { return x * 2; }), 3);`
