@@ -498,8 +498,11 @@ internal static partial class Explain
     /// label and notes are added.
     /// </summary>
     private static bool ExplainUndefinedOrigin(Diagnostic d, TraceState trace, string name, JsValue value, string member, bool setting, Span primary, bool advise)
+        => trace.UndefinedOriginOf(value) is { } found && ExplainUndefinedOrigin(d, trace, name, found, member, setting, primary, advise);
+
+    private static bool ExplainUndefinedOrigin(Diagnostic d, TraceState trace, string name, UndefinedOrigin uo, string member, bool setting, Span primary, bool advise)
     {
-        if (trace.UndefinedOriginOf(value) is not { } uo || (!ReferenceEquals(uo.Source, d.Source) && uo.Source.Name != d.Source.Name))
+        if (!ReferenceEquals(uo.Source, d.Source) && uo.Source.Name != d.Source.Name)
         {
             return false;
         }
@@ -807,7 +810,7 @@ internal static partial class Explain
     /// </summary>
     private static bool ExplainDateFromUndefined(Diagnostic d, TraceState trace, JsDate date, Span primary)
     {
-        if (trace.MadeDateOf(date) is not { } made || trace.UndefinedOriginOf(made.Argument) is not { } uo
+        if (trace.MadeDateOf(date) is not { } made || trace.OriginBehind(made.Argument) is not { } uo
             || (!ReferenceEquals(made.Source, d.Source) && made.Source.Name != d.Source.Name))
         {
             return false;
@@ -831,7 +834,7 @@ internal static partial class Explain
         int madeEnd = ExtendCall(all, made.End);
         string madeText = Clip(Slice(d.Source, madeStart, madeEnd).Replace("\n", " ", StringComparison.Ordinal), 60);
         var madeSpan = new Span(madeStart, madeEnd);
-        if (!ExplainUndefinedOrigin(d, trace, argText, made.Argument, string.Empty, false, primary, advise: true))
+        if (!ExplainUndefinedOrigin(d, trace, argText, uo, string.Empty, false, primary, advise: true))
         {
             return false;
         }

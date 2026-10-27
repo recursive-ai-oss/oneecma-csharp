@@ -1,0 +1,16 @@
+{
+  "id": "run-061-for-of-call-result-not-iterable",
+  "category": "rt:not-iterable",
+  "kind": "runtime",
+  "repair": null,
+  "node": {
+    "name": "TypeError",
+    "message": "inventory.items is not a function or its return value is not iterable",
+    "line": 6,
+    "column": 29,
+    "stack_head": [
+      "for (const row of inventory.items()) {",
+      "                            ^"
+    ]
+  }
+}

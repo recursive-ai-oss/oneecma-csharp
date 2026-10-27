@@ -962,7 +962,7 @@ internal static partial class Vm
                 throw Errors.Type(text + " is not iterable (cannot read property " + (iterable.IsNull ? "null" : "undefined") + ")");
             }
 
-            throw Errors.Type(inCall ? "Spread syntax requires ...iterable[Symbol.iterator] to be a function" : text + " is not iterable");
+            throw Errors.Type(inCall ? "Spread syntax requires ...iterable[Symbol.iterator] to be a function" : text.Length > 0 && text[0] == '\u0003' ? text[1..] : text + " is not iterable");
         }
 
         IteratorRecord rec = Ops.GetIteratorFromMethod(iterable, m);
@@ -1244,7 +1244,7 @@ internal static partial class Vm
 
     // The text names the expression in the source (V8 prints it); a parameter pattern has none, so V8 names the value instead.
     private static string IterErrorText(JsValue v, string text) =>
-        text == "\u0002" ? Ops.KindText(v) + " is not iterable (cannot read property Symbol(Symbol.iterator))" : text + " is not iterable";
+        text.Length > 0 && text[0] == '\u0003' ? text[1..] : text == "\u0002" ? Ops.KindText(v) + " is not iterable (cannot read property Symbol(Symbol.iterator))" : text + " is not iterable";
 
     private static string DestructureError(JsValue v, string? firstKey, string text)
     {

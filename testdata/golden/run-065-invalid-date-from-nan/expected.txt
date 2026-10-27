@@ -1,0 +1,10 @@
+error[RangeError]: Invalid time value
+ --> case.js:3:13
+  |
+2 | const when = new Date(event.time * 1000);
+  |              --------------------------- `new Date(event.time * 1000)`: `event.time` is undefined, so the Date is invalid
+3 | console.log(when.toISOString());
+  |             ^^^^^^^^^^^^^^^^ `when` is an Invalid Date, so `toISOString` throws
+  |
+  = help: `event` has `id`, `timestamp` but no `time`
+  = stack: <top-level> (case.js:3)

@@ -759,11 +759,67 @@ internal sealed partial class Parser
             }
             else if (offending.Type is TokenType.Semicolon or TokenType.RBrace or TokenType.RBracket)
             {
-                d.Help.Add("add `)` before `" + offendingText + "`: `" + _s.Substring(calleeStart, offending.Start - calleeStart) + ")" + offendingText + "`");
+                // Every group opened on this line and still open at the offending token needs its closer; the help shows the whole run.
+                string closers = offending.Type == TokenType.Semicolon ? OpenGroupsOnLine(offending.Start) : ")";
+                int from = Math.Max(calleeStart, 0);
+                string before = _s.Substring(from, offending.Start - from);
+                // A very long statement is shown by its last stretch only: the insertion point is what the reader needs.
+                if (before.Length > MaxHelpSnippet)
+                {
+                    before = "…" + before[^(MaxHelpSnippet - 24)..].TrimStart();
+                }
+
+                d.Help.Add("add `" + closers + "` before `" + offendingText + "`: `" + before + closers + offendingText + "`");
             }
 
-            NoteInserted(d, offending.Start, ")");
+            NoteInserted(d, offending.Start, offending.Type == TokenType.Semicolon ? OpenGroupsOnLine(offending.Start) : ")");
         }
+    }
+
+    private const int MaxHelpSnippet = 72;
+
+    /// <summary>
+    /// The closers, innermost first, for the <c>(</c> and <c>[</c> groups opened on the line of <paramref name="at"/> and still open there.
+    /// Falls back to a single <c>)</c> when the line does not say (strings and comments are skipped; a template literal spanning lines is not followed).
+    /// </summary>
+    private string OpenGroupsOnLine(int at)
+    {
+        int lineStart = _s.LastIndexOf('\n', Math.Max(0, at - 1)) + 1;
+        var open = new List<char>();
+        for (int i = lineStart; i < at; i++)
+        {
+            char c = _s[i];
+            if (c is '"' or '\'' or '`')
+            {
+                int j = i + 1;
+                while (j < at && _s[j] != c)
+                {
+                    j += _s[j] == '\\' ? 2 : 1;
+                }
+
+                i = j;
+            }
+            else if (c == '/' && i + 1 < at && _s[i + 1] == '/')
+            {
+                break;
+            }
+            else if (c is '(' or '[')
+            {
+                open.Add(c == '(' ? ')' : ']');
+            }
+            else if (c is ')' or ']' && open.Count > 0)
+            {
+                open.RemoveAt(open.Count - 1);
+            }
+        }
+
+        if (open.Count == 0 || open[^1] != ')')
+        {
+            return ")";
+        }
+
+        open.Reverse();
+        return new string(open.ToArray());
     }
 
     /// <summary>

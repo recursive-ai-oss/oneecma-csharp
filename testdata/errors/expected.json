@@ -2180,6 +2180,126 @@
   "order-with-assign-unresolvable-strict-fn": {
    "threw": false,
    "primitive": "binding::src,get p,binding::undeclared,ReferenceError"
+  },
+  "iter-forof-method-call-number": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "obj.items is not a function or its return value is not iterable",
+   "stack": "TypeError: obj.items is not a function or its return value is not iterable\n    at case.js:2:21"
+  },
+  "iter-forof-method-call-object": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "obj.items is not a function or its return value is not iterable",
+   "stack": "TypeError: obj.items is not a function or its return value is not iterable\n    at case.js:2:21"
+  },
+  "iter-forof-method-call-undefined": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "obj.items is not a function or its return value is not iterable",
+   "stack": "TypeError: obj.items is not a function or its return value is not iterable\n    at case.js:2:21"
+  },
+  "iter-forof-call-plain": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "g is not a function or its return value is not iterable",
+   "stack": "TypeError: g is not a function or its return value is not iterable\n    at case.js:2:17"
+  },
+  "iter-forof-call-nested": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "ctx.a.b.c is not a function or its return value is not iterable",
+   "stack": "TypeError: ctx.a.b.c is not a function or its return value is not iterable\n    at case.js:2:25"
+  },
+  "iter-forof-call-index": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "obj.items is not a function or its return value is not iterable",
+   "stack": "TypeError: obj.items is not a function or its return value is not iterable\n    at case.js:2:29"
+  },
+  "iter-forof-new": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Object is not a function or its return value is not iterable",
+   "stack": "TypeError: Object is not a function or its return value is not iterable\n    at case.js:1:17"
+  },
+  "iter-forof-call-comma": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "(0 , ctx.f) is not a function or its return value is not iterable",
+   "stack": "TypeError: (0 , ctx.f) is not a function or its return value is not iterable\n    at case.js:2:27"
+  },
+  "iter-spread-array-call": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "obj.items is not a function or its return value is not iterable",
+   "stack": "TypeError: obj.items is not a function or its return value is not iterable\n    at case.js:2:9"
+  },
+  "iter-spread-array-call-object": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "obj.o is not a function or its return value is not iterable",
+   "stack": "TypeError: obj.o is not a function or its return value is not iterable\n    at case.js:2:9"
+  },
+  "iter-spread-args-call": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Spread syntax requires ...iterable[Symbol.iterator] to be a function",
+   "stack": "TypeError: Spread syntax requires ...iterable[Symbol.iterator] to be a function\n    at case.js:2:6"
+  },
+  "iter-destructure-method-call-number": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "number 5 is not iterable (cannot read property Symbol(Symbol.iterator))",
+   "stack": "TypeError: number 5 is not iterable (cannot read property Symbol(Symbol.iterator))\n    at case.js:2:13"
+  },
+  "iter-destructure-method-call-object": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "object is not iterable (cannot read property Symbol(Symbol.iterator))",
+   "stack": "TypeError: object is not iterable (cannot read property Symbol(Symbol.iterator))\n    at case.js:2:13"
+  },
+  "iter-destructure-call-plain": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "g is not a function or its return value is not iterable",
+   "stack": "TypeError: g is not a function or its return value is not iterable\n    at case.js:2:13"
+  },
+  "iter-destructure-assign-call": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "object is not iterable (cannot read property Symbol(Symbol.iterator))",
+   "stack": "TypeError: object is not iterable (cannot read property Symbol(Symbol.iterator))\n    at case.js:3:5"
+  },
+  "iter-yield-star-call": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "yield* (intermediate value) is not iterable",
+   "stack": "TypeError: yield* (intermediate value) is not iterable\n    at g (case.js:2:28)\n    at g.next (<anonymous>)\n    at case.js:3:5"
+  },
+  "iter-forof-param": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "p is not iterable",
+   "stack": "TypeError: p is not iterable\n    at g (case.js:1:33)\n    at case.js:2:1"
+  },
+  "iter-new-set-call": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "number 5 is not iterable (cannot read property Symbol(Symbol.iterator))",
+   "stack": "TypeError: number 5 is not iterable (cannot read property Symbol(Symbol.iterator))\n    at new Set (<anonymous>)\n    at case.js:2:1"
+  },
+  "iter-forof-optional-call": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "obj.o is not iterable (cannot read property Symbol(Symbol.iterator))",
+   "stack": "TypeError: obj.o is not iterable (cannot read property Symbol(Symbol.iterator))\n    at case.js:2:24"
+  },
+  "iter-forawait-call": {
+   "threw": false,
+   "name": "TypeError",
+   "message": "obj.o(...) is not a function or its return value is not async iterable",
+   "stack": "TypeError: obj.o(...) is not a function or its return value is not async iterable\n    at case.js:2:48\n    at case.js:2:94"
   }
  }
 }
