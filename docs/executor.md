@@ -251,7 +251,28 @@ about 500 bytes per call (a `Frame`, its stack array, the scope `Env` and its sl
 - **Traced runs** (`RecordingTrace`) never recycle, because the explainer keeps environments and frames alive for the report.
 - Anything new that stores a `Frame` or an `Env` beyond the call must set `Escaped` / call `MarkCaptured`.
 
-Measured effect on `fib(25)` (about 243,000 calls): allocation 139 MB to 0.8 MB, time 65 ms to 25 ms in a warm process.
+Measured effect on `fib(25)` (about 243,000 calls): allocation 139 MB to 0.3 MB per run (what remains is realm setup), and 42 ms to 27 ms.
+
+BenchmarkDotNet 0.15.8, .NET 10.0.13, Jint 4.17.0, AMD Ryzen 9 7950X3D (16 cores, 32 threads), machine
+load average 4 to 12 from other jobs (so the times are indicative; the closures, loops and qsort rows were run again, twice each
+way, to get past noise). Each run builds a fresh engine, so setup, parse and compile are inside the number. "Before" is the
+same bench project on the commit before this change.
+
+| row | before ms | before alloc | after ms | after alloc | Jint ms | Jint alloc |
+|---|---:|---:|---:|---:|---:|---:|
+| fib25 | 42.1 | 139,216 KB | 27.5 | 307 KB | 31.4 to 38.2 | 42 KB |
+| loops | 93.8 (re-run 87.2, 85.2) | 757 KB | 85.8 (re-run 87.2, 107.8 noisy) | 298 KB | 63.8 to 68.9 | 91,551 KB |
+| props | 57.6 | 768 KB | 58.6 | 308 KB | 57.6 to 60.3 | 42,752 KB |
+| closures | 91.9 (re-run 92.1, 97.3) | 153,546 KB | 111.9 noisy (re-run 78.2, 76.5) | 5,310 KB | 39.9 | 5,412 KB |
+| strings | 6.41 | 4,504 KB | 6.15 | 4,044 KB | 3.14 | 4,568 KB |
+| vectors | 102.6 | 247,661 KB | 65.2 | 28,452 KB | 91.9 to 100.4 | 69,873 KB |
+| calc | 128.8 | 312,418 KB | 88.6 | 800 KB | 117.9 to 120.2 | 7,120 KB |
+| qsort | 93.6 (re-run 105.0, 94.9) | 23,159 KB | 122.1 noisy (re-run 93.2, 92.1) | 2,396 KB | 117 to 152 | 28,579 KB |
+| throws | 12.3 | 28,894 KB | 9.8 | 23,357 KB | 33.9 to 36.3 | 14,630 KB |
+| startup | 0.315 | 742 KB | 0.116 | 282 KB | 0.002 | 10 KB |
+
+No row is slower beyond its measured error; the rows that look slower in one run (closures, qsort, loops) have error bars of
+20 to 50 ms there and are faster or equal when repeated.
 
 ## Realm creation
 
@@ -264,7 +285,7 @@ A new realm defines roughly 1,500 built-in functions. Two costs dominated it and
 - Every shape allocated a transition dictionary for its successors. Most shapes have exactly one, so the first successor is kept in a
   field and the dictionary is created for a second.
 
-Realm creation went from about 210 us and 737 KB to about 84 us and 276 KB (cold-started process, same machine). Making
+Realm creation went from about 210 us and 737 KB to about 84 us and 276 KB (timing loop of 2,000 engines in one process). Making
 intrinsics lazy was considered and not done: the remaining cost is spread over all areas, and a lazy global would need a check on
 every global and slot read to stay unobservable.
 
@@ -273,7 +294,11 @@ every global and slot read to stay unobservable.
 `dotnet run -c Release --project bench/OneEcma.Benchmarks -- longrun [rounds]` runs every kernel in sequence in one process, with a
 fresh engine per run and then with one engine reused, and prints a column per kernel per round. Run in this form, in forward
 and reverse kernel order, with tiered PGO on and off, and with each kernel alone, times were flat after the first (JIT) round and
-equal to the isolated runs, so there is no slowdown that grows with process age. The record log is bounded (8 MiB), and a reused
+equal to the isolated runs, so there is no slowdown that grows with process age. A 24-round run on the benchmark machine stayed
+within about 4% from round 1 to round 23 for every kernel, with a Jint control column in the same process that moved with the
+machine (a short step of 10 to 15% in all columns during an earlier run coincided with other jobs on the machine). The commit
+before this change behaved the same way when run in these forms, and so did the earlier engine core, so an earlier report of
+later kernels being slower in one process was a measurement artefact. The record log is bounded (8 MiB), and a reused
 engine's log grew by 3 to 26 KB per kernel run with no change in time.
 
 ## Open points for the engine core
