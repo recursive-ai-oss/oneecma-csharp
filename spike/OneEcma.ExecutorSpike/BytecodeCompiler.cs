@@ -969,9 +969,9 @@ internal sealed class BytecodeCompiler
                     Emit(Op.NewArray, t, arr.Elements.Count, 0, e);
                     foreach (Node? el in arr.Elements)
                     {
-                        int m2 = _fs.TempTop;
+                        int keep = _fs.TempTop;
                         Emit(Op.ArrPush, t, Expr((Expression)el!), 0, el);
-                        _fs.TempTop = m2;
+                        _fs.TempTop = keep;
                     }
 
                     Finalize(dst, t, e);
@@ -985,11 +985,11 @@ internal sealed class BytecodeCompiler
                     foreach (Node p in obj.Properties)
                     {
                         var prop = (Property)p;
-                        int m2 = _fs.TempTop;
+                        int keep = _fs.TempTop;
                         int v = Expr((Expression)prop.Value);
                         NewIc(CompileUtil.KeyName(prop.Key), out int ic);
                         Emit(Op.SetProp, t, v, ic, prop);
-                        _fs.TempTop = m2;
+                        _fs.TempTop = keep;
                     }
 
                     Finalize(dst, t, e);
