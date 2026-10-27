@@ -467,7 +467,7 @@ public static class JsonSchemaTools
             o.OwnKeys(keys);
             foreach (PropertyKey k in keys)
             {
-                if (k.IsSymbol || !o.GetOwnProperty(k, out PropertyDescriptor d) || !d.Enumerable || known.Contains(k.ToString()))
+                if (k.IsSymbol || !o.GetOwnProperty(k, out PropertyDescriptor d) || !d.Enumerable || known.Contains(k.ToString()) || IsDropped(o.Get(k)))
                 {
                     continue;
                 }
@@ -486,6 +486,9 @@ public static class JsonSchemaTools
 
         return true;
     }
+
+    /// <summary>Undefined and function values are left out of the JSON form, so they are not extra properties.</summary>
+    private static bool IsDropped(JsValue v) => v.IsUndefined || JsMarshal.IsFunctionValue(v);
 
     private static bool CheckCombinators(JsonElement root, JsonElement schema, JsValue v, ref JsConv c, int depth)
     {

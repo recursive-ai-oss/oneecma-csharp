@@ -11,7 +11,7 @@ internal static class Program
     private const string UsageText =
         "usage: oneecma run <file>\n" +
         "       oneecma check [--module] [--format text|json] [--source-map <map>] [--repair [--out <path>]] <file>\n" +
-        "       oneecma repl\n";
+        "       oneecma repl      (multi-line input, top-level await, .exit)\n";
 
     private static int Check(ScriptEngine engine, string[] args)
     {
@@ -201,6 +201,25 @@ internal static class Program
         }
     }
 
+    private static int RunRepl(ScriptEngine engine)
+    {
+        engine.DefineGlobalFunction("print", 1, (_, a) =>
+        {
+            var parts = new string[a.Length];
+            for (int i = 0; i < a.Length; i++)
+            {
+                parts[i] = engine.ToDisplayString(a[i]);
+            }
+
+            Console.Out.WriteLine(string.Join(' ', parts));
+            return JsValue.Undefined;
+        });
+        engine.Evaluate("globalThis.console = { log: print, error: print, warn: print, info: print, debug: print };");
+        bool terminal = !Console.IsInputRedirected;
+        bool ansi = !Console.IsErrorRedirected && Environment.GetEnvironmentVariable("NO_COLOR") is null;
+        return new Repl(engine, Console.In, Console.Out, Console.Error, ansi, terminal).Run();
+    }
+
     private static int Usage()
     {
         Console.Error.Write(UsageText);
@@ -231,8 +250,7 @@ internal static class Program
                 case "check" when args.Length >= 2:
                     return Check(engine, args);
                 case "repl" when args.Length == 1:
-                    Console.Error.WriteLine("oneecma: repl is not implemented yet");
-                    return 1;
+                    return RunRepl(engine);
                 default:
                     return Usage();
             }

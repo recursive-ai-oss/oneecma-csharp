@@ -347,6 +347,8 @@ public static class JsMarshal
 
     private static int Distance(string a, string b)
     {
+        // Optimal string alignment: an adjacent swap ("opne" for "open") costs one edit, as typos go.
+        var older = new int[b.Length + 1];
         var prev = new int[b.Length + 1];
         var cur = new int[b.Length + 1];
         for (int j = 0; j <= b.Length; j++)
@@ -361,9 +363,13 @@ public static class JsMarshal
             {
                 int cost = char.ToLowerInvariant(a[i - 1]) == char.ToLowerInvariant(b[j - 1]) ? 0 : 1;
                 cur[j] = Math.Min(Math.Min(cur[j - 1] + 1, prev[j] + 1), prev[j - 1] + cost);
+                if (i > 1 && j > 1 && char.ToLowerInvariant(a[i - 1]) == char.ToLowerInvariant(b[j - 2]) && char.ToLowerInvariant(a[i - 2]) == char.ToLowerInvariant(b[j - 1]))
+                {
+                    cur[j] = Math.Min(cur[j], older[j - 2] + 1);
+                }
             }
 
-            (prev, cur) = (cur, prev);
+            (older, prev, cur) = (prev, cur, older);
         }
 
         return prev[b.Length];
