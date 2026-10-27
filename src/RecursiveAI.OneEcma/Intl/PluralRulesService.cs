@@ -14,6 +14,9 @@ internal sealed record PluralRulesOptions
     /// <summary><c>notation</c>: <c>standard</c> (default) or <c>compact</c>; compact reports the exponent as the plural operand <c>c</c>.</summary>
     internal string? Notation { get; init; }
 
+    /// <summary><c>compactDisplay</c> (short or long); only used with compact notation.</summary>
+    internal string? CompactDisplay { get; init; }
+
     /// <summary>The digit options that shape the number whose plural form is chosen.</summary>
     internal DigitOptionInputs Digits { get; init; } = new();
 }
@@ -47,6 +50,12 @@ internal sealed class PluralRulesService
     /// <summary>The resolved type, <c>cardinal</c> or <c>ordinal</c>.</summary>
     internal string Type => _type == PluralType.Cardinal ? "cardinal" : "ordinal";
 
+    /// <summary>The resolved <c>notation</c>.</summary>
+    internal string Notation { get; private init; } = "standard";
+
+    /// <summary>The resolved <c>compactDisplay</c>, or null unless the notation is compact.</summary>
+    internal string? CompactDisplay { get; private init; }
+
     /// <summary>The resolved digit options.</summary>
     internal DigitOptions Digits { get; }
 
@@ -69,17 +78,22 @@ internal sealed class PluralRulesService
 
         ResolvedLocale r = LocaleResolver.Resolve(locales, [], new Dictionary<string, string?>(), (_, _) => [], defaultLocale);
         string notation = options.Notation ?? "standard";
-        if (notation is not ("standard" or "compact"))
+        if (notation is not ("standard" or "scientific" or "engineering" or "compact"))
         {
             throw IntlException.Range($"Value {notation} out of range for Intl.PluralRules options property notation");
         }
 
         // Compact notation scales the number the way NumberFormat does; that service supplies the exponent.
         NumberFormatService? compact = notation == "compact"
-            ? NumberFormatService.Create(locales, new NumberFormatOptions { Notation = "compact", Digits = options.Digits }, defaultLocale)
+            ? NumberFormatService.Create(locales, new NumberFormatOptions { Notation = "compact", CompactDisplay = options.CompactDisplay, Digits = options.Digits }, defaultLocale)
             : null;
         DigitOptions digits = compact?.Digits ?? DigitOptions.Resolve(options.Digits, 0, 3, compactNotation: false);
-        return new PluralRulesService(r.Locale, r.DataLocale, type == "cardinal" ? PluralType.Cardinal : PluralType.Ordinal, digits, compact);
+        string? compactDisplay = options.CompactDisplay ?? "short";
+        return new PluralRulesService(r.Locale, r.DataLocale, type == "cardinal" ? PluralType.Cardinal : PluralType.Ordinal, digits, compact)
+        {
+            Notation = notation,
+            CompactDisplay = notation == "compact" ? compactDisplay : null,
+        };
     }
 
     /// <summary>The category name for a number (PluralRuleSelect after FormatNumericToString).</summary>
