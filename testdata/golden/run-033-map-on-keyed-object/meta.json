@@ -9,8 +9,7 @@
     "line": 2,
     "column": 24,
     "stack_head": [
-      "at case.js:2:24",
-      "at Object.<anonymous> (/work/node-probe.js:5:51)"
+      "at case.js:2:24"
     ]
   }
 }
