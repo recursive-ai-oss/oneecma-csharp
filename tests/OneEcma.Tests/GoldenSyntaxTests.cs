@@ -44,28 +44,21 @@ public sealed partial class GoldenSyntaxTests
         Assert.Equal(Arrow().Matches(expected).Select(m => m.Value.Trim()), Arrow().Matches(actual).Select(m => m.Value.Trim()));
     }
 
-    // Cases whose expected text the renderer cannot produce as written: the corpus draws an underline past the end of
-    // a line, and one that starts under whitespace on the previous token. Everything else must match byte for byte.
-    private static readonly HashSet<string> TextKnownDifferent =
-    [
-        "syn-012-missing-comma-arguments",
-        "syn-027-backtick-in-template",
-    ];
-
     [Theory]
     [MemberData(nameof(Cases))]
     public void ReportTextMatchesTheCorpus(string id)
     {
-        if (TextKnownDifferent.Contains(id))
-        {
-            return;
-        }
-
         string dir = Path.Combine(RepoPaths.Root, "testdata", "golden", id);
         string source = File.ReadAllText(Path.Combine(dir, "case.js"));
         string expected = File.ReadAllText(Path.Combine(dir, "expected.txt"));
         var result = JsParser.Parse(source, new ParseOptions { FileName = "case.js" }, TestContext.Current.CancellationToken);
-        Assert.Equal(expected, DiagnosticRenderer.RenderAll(result.Diagnostics));
+        string actual = DiagnosticRenderer.RenderAll(result.Diagnostics);
+        if (Environment.GetEnvironmentVariable("ONEECMA_UPDATE_GOLDEN") == "1")
+        {
+            File.WriteAllText(Path.Combine(dir, "expected.txt"), actual);
+        }
+
+        Assert.Equal(expected, actual);
     }
 
     public static IEnumerable<TheoryDataRow<string>> RepairCases()

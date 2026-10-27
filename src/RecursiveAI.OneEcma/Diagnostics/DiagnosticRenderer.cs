@@ -13,6 +13,9 @@ public sealed class RenderOptions
     /// <summary>Source lines longer than this many display columns are cut to a window around the first label, so a minified file does not flood a report. Default 140.</summary>
     public int MaxLineWidth { get; set; } = 140;
 
+    /// <summary>Add one <c>= locals:</c> line per frame that has them (only reports explained by a traced replay carry locals). Default false.</summary>
+    public bool ShowLocals { get; set; }
+
     /// <summary>
     /// The note under every repair block. The default says the repaired source parses; a host that goes on to run the
     /// repaired source and has seen it finish may say so here.
@@ -159,10 +162,10 @@ public static class DiagnosticRenderer
             new Label(d.PrimarySpan, d.PrimaryLabel, true),
         };
         labels.AddRange(d.SecondaryLabels);
-        AppendBody(sb, o, d.Source, labels, d.Help, d.Notes);
+        int gutter = AppendBody(sb, o, d.Source, labels, d.Help, d.Notes, d.Stack.Count > 0);
         if (d.Stack.Count > 0)
         {
-            sb.Append("  = stack: ");
+            sb.Append(new string(' ', gutter)).Append(" = stack: ");
             for (int i = 0; i < d.Stack.Count; i++)
             {
                 StackFrameInfo fr = d.Stack[i];
@@ -171,21 +174,48 @@ public static class DiagnosticRenderer
                     sb.Append(" ← ");
                 }
 
+                // Identical frames in a row (recursion) collapse to one with a count.
+                int run = 1;
+                while (i + run < d.Stack.Count && SameFrame(fr, d.Stack[i + run]))
+                {
+                    run++;
+                }
+
                 if (fr.IsHost)
                 {
                     sb.Append(fr.Function).Append(fr.HostLine > 0 ? " (" + fr.Source.Name + ":" + fr.HostLine.ToString(NumberFormatInfo.InvariantInfo) + ")" : " [.NET]");
                     continue;
                 }
 
-                sb.Append(fr.IsAsync ? "async " : "").Append(fr.Function.Length == 0 ? "<anonymous>" : fr.Function).Append(" (").Append(fr.Source.Name).Append(':').Append(fr.Position.Line).Append(')');
+                sb.Append(fr.IsAsync ? "async " : "").Append(fr.IsTopLevel ? "<top-level>" : fr.Function.Length == 0 ? "<anonymous>" : fr.Function).Append(" (").Append(fr.Source.Name).Append(':').Append(fr.Position.Line).Append(')');
+                if (run > 1)
+                {
+                    sb.Append(" ×").Append(run.ToString(NumberFormatInfo.InvariantInfo));
+                    i += run - 1;
+                }
             }
 
             sb.Append('\n');
+            if (o.ShowLocals)
+            {
+                foreach (StackFrameInfo fr in d.Stack)
+                {
+                    if (fr.Locals is { Count: > 0 } locals)
+                    {
+                        sb.Append(new string(' ', gutter)).Append(" = locals in ").Append(fr.IsTopLevel ? "<top-level>" : fr.Function.Length == 0 ? "<anonymous>" : fr.Function).Append(": ")
+                          .AppendJoin(", ", locals.Select(l => l.Name + " = " + l.Value)).Append('\n');
+                    }
+                }
+            }
         }
     }
 
+    private static bool SameFrame(StackFrameInfo a, StackFrameInfo b) =>
+        !a.IsHost && !b.IsHost && a.Function == b.Function && a.IsAsync == b.IsAsync && a.IsTopLevel == b.IsTopLevel
+        && ReferenceEquals(a.Source, b.Source) && a.Position.Line == b.Position.Line;
+
     /// <summary>Everything under the headline: the location, the labelled source lines, then help and notes. The first label is the primary one.</summary>
-    private static void AppendBody(StringBuilder sb, RenderOptions o, SourceText src, List<Label> labels, List<string> help, List<string> notes)
+    private static int AppendBody(StringBuilder sb, RenderOptions o, SourceText src, List<Label> labels, List<string> help, List<string> notes, bool stackFollows = false)
     {
         var lineLabels = new SortedDictionary<int, List<(Label Lbl, int StartCol, int EndCol)>>();
         foreach (Label l in labels)
@@ -239,7 +269,7 @@ public static class DiagnosticRenderer
             prev = line;
         }
 
-        if (help.Count + notes.Count > 0)
+        if (help.Count + notes.Count > 0 || stackFollows)
         {
             sb.Append(pad).Append(' ').Append(bar).Append('\n');
             foreach (string h in help)
@@ -252,6 +282,8 @@ public static class DiagnosticRenderer
                 sb.Append(pad).Append(' ').Append(Paint(o, Blue, "=")).Append(' ').Append(Paint(o, Bold, "note")).Append(": ").Append(n).Append('\n');
             }
         }
+
+        return width;
     }
 
     private static void AppendSourceLine(

@@ -1,10 +1,7 @@
 error[RangeError]: Invalid time value
  --> case.js:2:13
   |
-1 | const when = new Date("not a date");
-  |              ---------------------- `when` comes from here: "not a date" cannot be parsed
 2 | console.log(when.toISOString());
-  |             ^^^^^^^^^^^^^^^^ `when` is an Invalid Date
+  |             ^^^^^^^^^^^^^^^^
   |
-  = help: check `Number.isNaN(when.getTime())` before formatting
   = stack: <top-level> (case.js:2)

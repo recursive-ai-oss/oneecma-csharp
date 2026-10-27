@@ -6,4 +6,4 @@ error[TypeError]: Shop.OrderApi.Describe: no overload accepts (boolean)
   |
   = note: overload: Shop.OrderApi.Describe(int id)
   = note: overload: Shop.OrderApi.Describe(string name)
-  = stack: Shop.OrderApi.Describe [.NET] ← <anonymous> (case.js:1)
+  = stack: Shop.OrderApi.Describe [.NET] ← <top-level> (case.js:1)

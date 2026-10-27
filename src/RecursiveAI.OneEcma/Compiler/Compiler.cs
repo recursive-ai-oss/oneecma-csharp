@@ -93,6 +93,9 @@ internal sealed partial class Compiler
         internal List<int> SpanE = new(64);
         internal List<int> PosL = new(64);
         internal int CurP = -1;
+        internal int ValS = -1;
+        internal int ValE;
+        internal Dictionary<int, (int, int)>? ValSpans;
         internal int StmtStart = -1;
         internal List<JsValue> Consts = [];
         internal Dictionary<object, int> ConstIndex = new();
@@ -151,6 +154,11 @@ internal sealed partial class Compiler
         f.SpanS.Add(f.CurS);
         f.SpanE.Add(f.CurE);
         f.PosL.Add(f.CurP >= 0 ? f.CurP : f.CurS);
+        if (f.ValS >= 0 && op is Op.InitSlot or Op.StoreSlot or Op.StoreSlotChecked or Op.InitGlobalLexical or Op.StoreGlobal or Op.DefineField)
+        {
+            // Where the stored value was written, so a traced replay can say where a binding or property got its value.
+            (f.ValSpans ??= new())[f.Ops.Count - 1] = (f.ValS, f.ValE);
+        }
         AdjustDepth(op, a, b);
         return f.Ops.Count - 1;
     }
@@ -532,6 +540,7 @@ internal sealed partial class Compiler
             SpanStart = [.. f.SpanS],
             SpanEnd = [.. f.SpanE],
             Pos = [.. f.PosL],
+            ValueSpans = f.ValSpans,
             Consts = [.. f.Consts],
             Names = [.. f.Names],
             Functions = [.. f.Funcs],

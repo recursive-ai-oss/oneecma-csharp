@@ -347,7 +347,10 @@ internal sealed partial class Compiler
                 if (d.Id is Identifier id)
                 {
                     ExprNamed(d.Init, id.Name);
+                    _f.ValS = d.Init.Start;
+                    _f.ValE = d.Init.End;
                     StoreIdent(id.Name);
+                    _f.ValS = -1;
                 }
                 else
                 {
@@ -368,9 +371,12 @@ internal sealed partial class Compiler
                     else
                     {
                         ExprNamed(d.Init, id.Name);
+                        _f.ValS = d.Init.Start;
+                        _f.ValE = d.Init.End;
                     }
 
                     InitIdent(id.Name);
+                    _f.ValS = -1;
                 }
                 else
                 {

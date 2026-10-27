@@ -23,6 +23,18 @@ internal static class ErrorReport
         }
 
         Diagnostic d = Build(kind, code, headline, frames);
+        if (Agent.CurrentOrNull?.Trace is { } trace && v.Ref is JsError)
+        {
+            try
+            {
+                Explain.Apply(d, headline, trace);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException and not JsLimitException)
+            {
+                // An explanation is a bonus: if building it fails, the plain report stands.
+            }
+        }
+
         HostErrors.Decorate(d, v);
         return d;
     }

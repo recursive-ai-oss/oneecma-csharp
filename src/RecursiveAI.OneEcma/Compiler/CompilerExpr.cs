@@ -1223,7 +1223,10 @@ internal sealed partial class Compiler
                         else
                         {
                             ExprNamed(prop.Value, name);
+                            _f.ValS = prop.Start;
+                            _f.ValE = prop.End;
                             Emit(Op.DefineField, NameConst(name));
+                            _f.ValS = -1;
                         }
                     }
                     else

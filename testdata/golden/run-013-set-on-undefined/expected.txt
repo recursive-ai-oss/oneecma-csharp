@@ -1,10 +1,10 @@
 error[TypeError]: Cannot set properties of undefined (setting 'name')
- --> case.js:2:1
+ --> case.js:2:7
   |
 1 | const state = {};
   |               -- `state` comes from here: {}
 2 | state.user.name = "ada";
-  | ^^^^^^^^^^ `state.user` is undefined
+  |       ^^^^ `state.user` is undefined
   |
   = help: create it first: `state.user = {};`
   = stack: <top-level> (case.js:2)

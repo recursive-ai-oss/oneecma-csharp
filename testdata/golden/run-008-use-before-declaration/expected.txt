@@ -4,7 +4,7 @@ error[ReferenceError]: Cannot access 'limit' before initialization
 1 | console.log(limit);
   |             ^^^^^ `limit` is used before its declaration runs
 2 | const limit = 10;
-  |       ---------- `limit` is declared here
+  |       ----- `limit` is declared here
   |
   = help: move the declaration above its first use
   = stack: <top-level> (case.js:1)

@@ -6,4 +6,4 @@ error[TypeError]: Shop.OrderApi.GetOrder: called on an incompatible receiver (th
   |
   = help: call the method on the object, as in obj.method(...), or bind it first: obj.method.bind(obj)
   = note: host function: Shop.OrderApi.GetOrder
-  = stack: Shop.OrderApi.GetOrder [.NET] ← <anonymous> (case.js:3)
+  = stack: Shop.OrderApi.GetOrder [.NET] ← <top-level> (case.js:3)

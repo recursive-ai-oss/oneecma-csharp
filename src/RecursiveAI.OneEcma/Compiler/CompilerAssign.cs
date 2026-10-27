@@ -60,7 +60,14 @@ internal sealed partial class Compiler
                 }
 
                 _f.CurP = OperatorPos(a.Left.End);
+                if (a.Operator == AssignOp.Assign)
+                {
+                    _f.ValS = a.Right.Start;
+                    _f.ValE = a.Right.End;
+                }
+
                 StoreIdent(id.Name);
+                _f.ValS = -1;
                 return;
 
             case MemberExpression { Object: SuperExpression } sm:

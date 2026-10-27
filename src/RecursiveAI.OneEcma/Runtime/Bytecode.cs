@@ -182,6 +182,9 @@ internal sealed class FunctionCode
     /// <summary>The offset a stack trace reports for each instruction (V8's position: a property name, an operator, a callee).</summary>
     internal int[] Pos = [];
     internal int[] SpanEnd = [];
+
+    /// <summary>For a store into a binding or an object-literal property: the span of the value written (instruction index to start and end).</summary>
+    internal Dictionary<int, (int Start, int End)>? ValueSpans;
     internal JsValue[] Consts = [];
     internal string[] Names = [];
     internal FunctionCode[] Functions = [];
@@ -329,10 +332,15 @@ internal sealed class Frame
             type = null;
         }
 
+        bool tracing = Agent.CurrentOrNull?.Trace is not null;
         return new StackFrameInfo(name, Code.Source, span, async, IsConstruct)
         {
             Pos = Code.Pos.Length > pc ? Code.Pos[pc] : -1,
             TypeName = type,
+            IsTopLevel = top,
+            Locals = tracing ? Diagnostics.Explain.LocalsOf(this) : null,
+            ScopeEnv = tracing ? Env : null,
+            ScopeRealm = tracing ? Realm : null,
         };
     }
 

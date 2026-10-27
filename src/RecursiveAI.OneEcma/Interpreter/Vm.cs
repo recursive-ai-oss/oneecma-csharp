@@ -7,13 +7,13 @@ namespace RecursiveAI.OneEcma;
 /// <summary>Hooks the interpreter calls around every operation; the lean run uses the empty implementation, so the call vanishes.</summary>
 internal interface ITracer
 {
-    void OnOp(Frame frame, int pc);
+    void OnOp(Frame frame, Instr ins, int pc, JsValue[] st, int sp);
 }
 
 internal struct NoTrace : ITracer
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly void OnOp(Frame frame, int pc)
+    public readonly void OnOp(Frame frame, Instr ins, int pc, JsValue[] st, int sp)
     {
     }
 }
@@ -202,7 +202,7 @@ internal static partial class Vm
 
     // ---- the dispatch loop ----------------------------------------------------------------------
 
-    internal static JsValue Run(Agent ag, Frame entry) => Run<NoTrace>(ag, entry);
+    internal static JsValue Run(Agent ag, Frame entry) => ag.Trace is null ? Run<NoTrace>(ag, entry) : Run<RecordingTrace>(ag, entry);
 
     private static JsException TypeErr(string m) => Errors.Type(m);
 
@@ -304,7 +304,7 @@ internal static partial class Vm
                     Instr ins = code[pc];
                     f.Pc = pc;
                     pc++;
-                    tracer.OnOp(f, pc - 1);
+                    tracer.OnOp(f, ins, pc - 1, st, sp);
                     switch (ins.Op)
                     {
                         case Op.Nop:

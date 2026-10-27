@@ -6,4 +6,4 @@ error[TypeError]: Shop.OrderApi.AddOrder: argument 'order.id' is missing; expect
   |
   = help: pass an integer (System.Int32) as 'order.id'
   = note: host function: Shop.OrderApi.AddOrder(Order order)
-  = stack: Shop.OrderApi.AddOrder [.NET] ← <anonymous> (case.js:3)
+  = stack: Shop.OrderApi.AddOrder [.NET] ← <top-level> (case.js:3)

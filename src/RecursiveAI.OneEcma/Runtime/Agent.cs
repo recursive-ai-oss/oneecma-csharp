@@ -87,6 +87,18 @@ public sealed record StackFrameInfo(string Function, SourceText Source, Span Spa
     /// <summary>True for a built-in function between script frames, shown as <c>at Array.map (&lt;anonymous&gt;)</c>.</summary>
     public bool IsNative { get; init; }
 
+    /// <summary>True for the top-level code of a script, module or eval, which a report shows as <c>&lt;top-level&gt;</c>.</summary>
+    public bool IsTopLevel { get; init; }
+
+    /// <summary>The bindings visible in this frame's function (or script) scope with a short preview of each value, present only in a report built by a traced replay; capped (see the JSON documentation).</summary>
+    public IReadOnlyList<LocalInfo>? Locals { get; init; }
+
+    /// <summary>The scope the frame was executing in, kept for the explainer of a traced replay.</summary>
+    internal Env? ScopeEnv { get; init; }
+
+    /// <summary>The realm of the frame.</summary>
+    internal Realm? ScopeRealm { get; init; }
+
     /// <summary>The 1-based line and column V8 reports: <see cref="Pos"/> when known, else the span start.</summary>
     public LinePosition Position => Source.GetPosition(Pos >= 0 ? Pos : Span.Start);
 }
