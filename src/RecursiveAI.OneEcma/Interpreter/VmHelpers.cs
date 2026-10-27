@@ -311,9 +311,16 @@ internal static partial class Vm
         return default;
     }
 
-    private static JsValue LoadDynamic(Frame f, string name, out JsValue thisV, bool forCall)
+    private static JsValue LoadDynamic(Frame f, string name, out JsValue thisV, bool forCall) => LoadFromDyn(ResolveDynamic(f, name), name, out thisV, forCall);
+
+    /// <summary>The reference of a by-name lookup, resolved once so that a later read or write uses the same binding (ECMA-262 6.2.5 Reference Record).</summary>
+    private sealed class DynRefBox
     {
-        DynRef d = ResolveDynamic(f, name);
+        internal DynRef R;
+    }
+
+    private static JsValue LoadFromDyn(DynRef d, string name, out JsValue thisV, bool forCall)
+    {
         thisV = default;
         switch (d.Kind)
         {
@@ -359,9 +366,11 @@ internal static partial class Vm
         }
     }
 
-    private static void StoreDynamic(Frame f, string name, JsValue v, bool strict, bool init, bool fromVarEnv = false)
+    private static void StoreDynamic(Frame f, string name, JsValue v, bool strict, bool init, bool fromVarEnv = false) =>
+        StoreToDyn(f, ResolveDynamic(f, name, fromVarEnv), name, v, strict, init);
+
+    private static void StoreToDyn(Frame f, DynRef d, string name, JsValue v, bool strict, bool init)
     {
-        DynRef d = ResolveDynamic(f, name, fromVarEnv);
         switch (d.Kind)
         {
             case DynKind.Slot:
@@ -709,10 +718,31 @@ internal static partial class Vm
 
         if (o.IsNullish)
         {
-            throw Errors.Type("Cannot read properties of " + (o.IsNull ? "null" : "undefined") + " (reading '" + (k.IsSymbol ? k.ToString() : Ops.ToStr(k)) + "')");
+            throw Errors.Type("Cannot read properties of " + (o.IsNull ? "null" : "undefined") + KeySuffix("reading", k));
         }
 
         return Ops.GetV(o, Ops.ToPropertyKey(k));
+    }
+
+    /// <summary>The " (reading 'key')" part of the message. A key object is never converted (that would run script code): plain objects print as #&lt;Object&gt;, others leave the part out.</summary>
+    private static string KeySuffix(string verb, JsValue k)
+    {
+        string text;
+        if (k.Ref is JsObject ko)
+        {
+            if (ko.GetType() != typeof(JsObject) || ko.Shape.Lookup("toString", out _) >= 0)
+            {
+                return string.Empty;
+            }
+
+            text = "#<Object>";
+        }
+        else
+        {
+            text = k.IsSymbol ? k.ToString() : Ops.ToStr(k);
+        }
+
+        return " (" + verb + " '" + text + "')";
     }
 
     internal static void SetElem(JsValue o, JsValue k, JsValue v, bool strict)
@@ -739,7 +769,7 @@ internal static partial class Vm
 
         if (o.IsNullish)
         {
-            throw Errors.Type("Cannot set properties of " + (o.IsNull ? "null" : "undefined") + " (setting '" + (k.IsSymbol ? k.ToString() : Ops.ToStr(k)) + "')");
+            throw Errors.Type("Cannot set properties of " + (o.IsNull ? "null" : "undefined") + KeySuffix("setting", k));
         }
 
         Ops.SetV(o, Ops.ToPropertyKey(k), v, strict);

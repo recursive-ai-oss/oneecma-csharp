@@ -11,6 +11,9 @@ internal sealed partial class Compiler
         BinaryOp? compound = CompoundOp(a.Operator);
         switch (left)
         {
+            case Identifier dynId when Resolve(dynId.Name).Kind == RefKind.Dynamic:
+                AssignDynamic(a, dynId, discard, logical, compound);
+                return;
             case Identifier id:
                 if (a.Operator == AssignOp.Assign)
                 {
@@ -87,6 +90,50 @@ internal sealed partial class Compiler
                 BindTarget(left, BindMode.Assign);
                 return;
         }
+    }
+
+    /// <summary>Assignment to a name that is looked up at run time (with, direct eval): resolve once, then read and write through that reference.</summary>
+    private void AssignDynamic(AssignmentExpression a, Identifier id, bool discard, bool logical, BinaryOp? compound)
+    {
+        int nm = NameConst(id.Name);
+        int strictBit = _f.Strict ? 1 : 0;
+        Emit(Op.ResolveDynRef, nm);
+        if (a.Operator == AssignOp.Assign)
+        {
+            ExprNamed(a.Right, id.Name);
+        }
+        else if (logical)
+        {
+            Emit(Op.Dup);
+            Emit(Op.GetDynRef, nm);
+            JumpLabel shortCircuit = NewLabel();
+            JumpLabel done = NewLabel();
+            Jump(LogicalJump(a.Operator), shortCircuit);
+            ExprNamed(a.Right, id.Name);
+            Emit(Op.PutDynRef, nm, strictBit | 2);
+            Jump(Op.Jmp, done);
+            _f.Depth++;
+            Mark(shortCircuit);
+            Emit(Op.Swap);
+            Emit(Op.Pop);
+            Mark(done);
+            if (discard)
+            {
+                Emit(Op.Pop);
+            }
+
+            return;
+        }
+        else
+        {
+            Emit(Op.Dup);
+            Emit(Op.GetDynRef, nm);
+            Expr(a.Right);
+            SetSpan(a);
+            Emit(BinOp(compound!.Value));
+        }
+
+        Emit(Op.PutDynRef, nm, strictBit | (discard ? 0 : 2));
     }
 
     private static Op LogicalJump(AssignOp op) => op switch
@@ -219,8 +266,9 @@ internal sealed partial class Compiler
                 Mark(shortL);
                 if (keyItems == 1)
                 {
-                    Emit(Op.Rot3);
+                    Emit(Op.Swap);
                     Emit(Op.Pop);
+                    Emit(Op.Swap);
                     Emit(Op.Pop);
                 }
                 else
@@ -285,6 +333,33 @@ internal sealed partial class Compiler
         bool keepOld = !u.IsPrefix && !discard;
         switch (u.Argument)
         {
+            case Identifier dynId when Resolve(dynId.Name).Kind == RefKind.Dynamic:
+                {
+                    // The reference is resolved before the read and used for the write (6.2.5.6 PutValue), even if the binding is gone by then.
+                    int nm = NameConst(dynId.Name);
+                    int strictBit = _f.Strict ? 1 : 0;
+                    Emit(Op.ResolveDynRef, nm);
+                    Emit(Op.Dup);
+                    Emit(Op.GetDynRef, nm);
+                    Emit(Op.ToNumeric);
+                    int t = NewTemp();
+                    if (keepOld)
+                    {
+                        Emit(Op.Dup);
+                        Emit(Op.StoreLocal, t);
+                    }
+
+                    Emit(op);
+                    Emit(Op.PutDynRef, nm, strictBit | (u.IsPrefix && !discard ? 2 : 0));
+                    if (keepOld)
+                    {
+                        Emit(Op.LoadLocal, t);
+                    }
+
+                    FreeTemp(t);
+                    return;
+                }
+
             case Identifier id:
                 LoadIdent(id.Name);
                 Emit(Op.ToNumeric);

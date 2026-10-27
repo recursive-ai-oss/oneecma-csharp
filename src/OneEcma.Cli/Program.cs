@@ -194,6 +194,11 @@ internal static class Program
             Console.Error.Write(e.Report is { } r ? r.ToString() : e.Message);
             return 1;
         }
+        catch (InvalidOperationException e)
+        {
+            Console.Error.WriteLine("error[InternalError]: " + e.Message);
+            return 70;
+        }
     }
 
     private static int Usage()

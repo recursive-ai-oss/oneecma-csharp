@@ -88,7 +88,10 @@ internal sealed partial class Compiler
             }
         }
 
-        CScope? top = EnterScope(fn.Scope, true, needsArguments ? ["arguments"] : null, fn.HasDirectEval, paramsTdz);
+        // ECMA-262 10.2.11 steps 27-28: with parameter expressions the body's vars live in their own environment, so closures
+        // made in the parameter list never see them.
+        bool splitBody = paramsTdz && fn.Body is BlockStatement;
+        CScope? top = EnterScope(fn.Scope, true, needsArguments ? ["arguments"] : null, fn.HasDirectEval, paramsTdz, splitBody ? static b => b.Kind == BindingKind.Parameter : null);
         _f.FunctionTopScope = top;
 
         // Function parameters (10.2.11 FunctionDeclarationInstantiation).
@@ -137,6 +140,23 @@ internal sealed partial class Compiler
 
         if (fn.Body is BlockStatement body)
         {
+            if (splitBody)
+            {
+                CScope? bodyTop = EnterScope(fn.Scope, true, null, fn.HasDirectEval, false, static b => b.Kind != BindingKind.Parameter || b.AlsoVar);
+                foreach (Binding b in fn.Scope.Bindings)
+                {
+                    // A var that shares a parameter's name starts with the parameter's value.
+                    if ((b.Kind == BindingKind.Parameter && b.AlsoVar) || (needsArguments && b.Name == "arguments" && b.Kind != BindingKind.Parameter))
+                    {
+                        if (bodyTop is not null && top!.Slots!.TryGetValue(b.Name, out int fromSlot) && bodyTop.Slots!.TryGetValue(b.Name, out int toSlot))
+                        {
+                            Emit(Op.LoadSlot, 1, fromSlot);
+                            Emit(Op.InitSlot, 0, toSlot);
+                        }
+                    }
+                }
+            }
+
             HoistFunctions(body.Body);
             if (fn.IsGenerator)
             {

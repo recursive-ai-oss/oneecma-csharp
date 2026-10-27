@@ -174,7 +174,7 @@ internal sealed partial class Compiler
             case Op.NewObject: case Op.NewArray: case Op.NewRegExp: case Op.TemplateObject: case Op.MakeClosure: case Op.ImportMeta:
             case Op.CreateArguments: case Op.CollectRest: case Op.GetMethod:
             case Op.GetIterator: case Op.GetAsyncIterator: case Op.IterNext: case Op.IterStep: case Op.IterRest: case Op.ForInNext:
-            case Op.AsyncIterNextStart: case Op.AsyncIterCloseStart: case Op.GetSuper:
+            case Op.AsyncIterNextStart: case Op.AsyncIterCloseStart: case Op.GetSuper: case Op.ResolveDynRef:
                 return 1;
             case Op.Dup2: case Op.LoadDynCall:
                 return 2;
@@ -198,6 +198,7 @@ internal sealed partial class Compiler
             case Op.SuperCall: return a < 0 ? 1 : 1 - a;
             case Op.NewClass: return (b & 1) != 0 ? 1 : 2;
             case Op.YieldStar: return -2;
+            case Op.PutDynRef: return (b & 2) != 0 ? -1 : -2;
             case Op.ImportCallOp: return a == 1 ? -1 : 0;
             default: return 0;
         }
@@ -322,7 +323,7 @@ internal sealed partial class Compiler
     };
 
     /// <summary>Builds the runtime layout for an AST scope; returns null when the scope needs no environment.</summary>
-    private CScope? EnterScope(Scope? ast, bool functionTop = false, IEnumerable<string>? extraNames = null, bool forceMaterialize = false, bool paramsTdz = false)
+    private CScope? EnterScope(Scope? ast, bool functionTop = false, IEnumerable<string>? extraNames = null, bool forceMaterialize = false, bool paramsTdz = false, Predicate<Binding>? filter = null)
     {
         if (ast is null && extraNames is null && !forceMaterialize)
         {
@@ -336,6 +337,11 @@ internal sealed partial class Compiler
         {
             foreach (Binding b in ast.Bindings)
             {
+                if (filter is not null && !filter(b))
+                {
+                    continue;
+                }
+
                 if (names.Contains(b.Name))
                 {
                     continue;
@@ -343,6 +349,12 @@ internal sealed partial class Compiler
 
                 names.Add(b.Name);
                 byte k = KindOf(b, ast.Kind);
+                if (b.Kind == BindingKind.Parameter && paramsTdz)
+                {
+                    // Parameters are in their temporal dead zone until initialized, so default-value code reads them checked (10.2.11 step 21).
+                    k = ScopeInfo.KLet;
+                }
+
                 kinds.Add(k);
                 tdz.Add(k is ScopeInfo.KLet or ScopeInfo.KConst || (b.Kind == BindingKind.Parameter && paramsTdz));
             }

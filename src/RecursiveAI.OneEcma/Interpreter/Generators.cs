@@ -151,6 +151,13 @@ internal static class Generators
         if (f.AwaitedInStar)
         {
             f.AwaitedInStar = false;
+            if (f.Mode == ResumeMode.Throw)
+            {
+                // The awaited inner result was rejected: that is an abrupt completion of the yield* itself (15.5.5 step 7.a.vi).
+                f.Mode = ResumeMode.Next;
+                throw new JsException(received);
+            }
+
             inner = received;
             mode = f.StarMode;
         }

@@ -656,6 +656,13 @@ internal sealed partial class Compiler
     private void LoadPrivateName(string name)
     {
         Ref r = Resolve("#" + name);
+        if (r.Kind == RefKind.Dynamic)
+        {
+            // Direct eval code finds the enclosing class's private names by name at run time.
+            Emit(Op.LoadDyn, NameConst("#" + name));
+            return;
+        }
+
         Emit(Op.LoadSlot, r.Hops, r.Slot);
     }
 

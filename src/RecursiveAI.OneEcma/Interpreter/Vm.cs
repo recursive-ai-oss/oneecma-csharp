@@ -485,6 +485,25 @@ internal static partial class Vm
                         case Op.StoreDyn:
                             StoreDynamic(f, fc.Names[ins.A], st[--sp], ins.B != 0, false);
                             break;
+                        case Op.ResolveDynRef:
+                            st[sp++] = new JsValue(new DynRefBox { R = ResolveDynamic(f, fc.Names[ins.A]) }, 0);
+                            break;
+                        case Op.GetDynRef:
+                            st[sp - 1] = LoadFromDyn(((DynRefBox)st[sp - 1].Ref!).R, fc.Names[ins.A], out _, false);
+                            break;
+                        case Op.PutDynRef:
+                            {
+                                JsValue pv = st[--sp];
+                                var box = (DynRefBox)st[--sp].Ref!;
+                                StoreToDyn(f, box.R, fc.Names[ins.A], pv, (ins.B & 1) != 0, false);
+                                if ((ins.B & 2) != 0)
+                                {
+                                    st[sp++] = pv;
+                                }
+
+                                break;
+                            }
+
                         case Op.StoreVarDyn:
                             // B.3.3.3: the copy of a block function goes to the variable environment, past block and with scopes.
                             StoreDynamic(f, fc.Names[ins.A], st[--sp], false, false, true);
