@@ -34,6 +34,7 @@ internal sealed partial class Compiler
 
     private void Stmt(Node s, List<string>? labels = null)
     {
+        EnsureStack();
         int ss = _f.CurS;
         int se = _f.CurE;
         SetSpan(s);

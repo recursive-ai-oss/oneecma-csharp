@@ -59,11 +59,24 @@ internal sealed partial class Compiler
     /// <summary>Compiles an expression, leaving exactly one value on the operand stack.</summary>
     private void Expr(Node n)
     {
+        EnsureStack();
         int s = _f.CurS;
         int e = _f.CurE;
         SetSpan(n);
         ExprCore(n);
         SetSpan(s, e);
+    }
+
+    /// <summary>
+    /// Compiling recurses over the syntax tree. Source can nest far deeper than the host stack allows, so stop with the same
+    /// catchable RangeError a script gets for runaway recursion instead of overflowing the host stack.
+    /// </summary>
+    private static void EnsureStack()
+    {
+        if (!System.Runtime.CompilerServices.RuntimeHelpers.TryEnsureSufficientExecutionStack())
+        {
+            throw Errors.Range("Maximum call stack size exceeded");
+        }
     }
 
     private void ExprCore(Node n)
@@ -385,31 +398,44 @@ internal sealed partial class Compiler
 
     private void Logical(LogicalExpression l, bool tail = false)
     {
-        JumpLabel end = NewLabel();
-        Expr(l.Left);
-        switch (l.Operator)
+        // Left-nested chains (a || b || c ...) can be 100,000 deep: walk the spine with a loop.
+        var spine = new Stack<LogicalExpression>();
+        Node cur = l;
+        while (cur is LogicalExpression lx)
         {
-            case LogicalOp.And:
-                Jump(Op.JmpIfFalseKeep, end);
-                break;
-            case LogicalOp.Or:
-                Jump(Op.JmpIfTrueKeep, end);
-                break;
-            default:
-                Jump(Op.JmpIfNotNullishKeep, end);
-                break;
+            spine.Push(lx);
+            cur = lx.Left;
         }
 
-        if (tail)
+        Expr(cur);
+        while (spine.Count > 0)
         {
-            ExprTail(l.Right);
-        }
-        else
-        {
-            Expr(l.Right);
-        }
+            LogicalExpression x = spine.Pop();
+            JumpLabel end = NewLabel();
+            switch (x.Operator)
+            {
+                case LogicalOp.And:
+                    Jump(Op.JmpIfFalseKeep, end);
+                    break;
+                case LogicalOp.Or:
+                    Jump(Op.JmpIfTrueKeep, end);
+                    break;
+                default:
+                    Jump(Op.JmpIfNotNullishKeep, end);
+                    break;
+            }
 
-        Mark(end);
+            if (tail && spine.Count == 0)
+            {
+                ExprTail(x.Right);
+            }
+            else
+            {
+                Expr(x.Right);
+            }
+
+            Mark(end);
+        }
     }
 
     /// <summary>
@@ -628,28 +654,45 @@ internal sealed partial class Compiler
             return;
         }
 
-        Expr(m.Object);
-        if (m.IsOptional)
+        // A chain like a.b.c.d... can be 100,000 links long: walk its spine with a loop instead of recursing.
+        var spine = new Stack<MemberExpression>();
+        Node cur = m;
+        while (cur is MemberExpression mx && mx.Object is not SuperExpression)
         {
-            Emit(Op.JmpNullishUndef);
-            PatchChain();
+            spine.Push(mx);
+            cur = mx.Object;
         }
 
-        SetSpan(m.Object);
-        if (m.Property is PrivateIdentifier pi)
+        Expr(cur);
+        while (spine.Count > 0)
         {
-            LoadPrivateName(pi.Name);
-            Emit(Op.PrivateGet);
-        }
-        else if (m.Computed)
-        {
-            Expr(m.Property);
-            SetSpan(m.Object);
-            Emit(Op.GetElem);
-        }
-        else
-        {
-            Emit(Op.GetProp, NameConst(((Identifier)m.Property).Name), NewCache());
+            MemberExpression x = spine.Pop();
+            if (x.IsOptional)
+            {
+                Emit(Op.JmpNullishUndef);
+                PatchChain();
+            }
+
+            int s = _f.CurS;
+            int e = _f.CurE;
+            SetSpan(x.Object);
+            if (x.Property is PrivateIdentifier pi)
+            {
+                LoadPrivateName(pi.Name);
+                Emit(Op.PrivateGet);
+            }
+            else if (x.Computed)
+            {
+                Expr(x.Property);
+                SetSpan(x.Object);
+                Emit(Op.GetElem);
+            }
+            else
+            {
+                Emit(Op.GetProp, NameConst(((Identifier)x.Property).Name), NewCache());
+            }
+
+            SetSpan(s, e);
         }
     }
 
@@ -667,8 +710,14 @@ internal sealed partial class Compiler
     }
 
     /// <summary>The text V8 prints for a callee in "x is not a function".</summary>
-    private static string CalleeText(Node n)
+    private static string CalleeText(Node n, int depth = 0)
     {
+        if (depth > 16)
+        {
+            // Messages stay short and the walk stays shallow however long the chain is.
+            return "(intermediate value)";
+        }
+
         switch (n)
         {
             case Identifier id:
@@ -679,7 +728,7 @@ internal sealed partial class Compiler
                 return "super";
             case MemberExpression m:
                 {
-                    string o = CalleeText(m.Object);
+                    string o = CalleeText(m.Object, depth + 1);
                     if (m.Property is PrivateIdentifier pi)
                     {
                         return o + ".#" + pi.Name;
@@ -700,9 +749,9 @@ internal sealed partial class Compiler
                 }
 
             case CallExpression c:
-                return CalleeText(c.Callee) + "(...)";
+                return CalleeText(c.Callee, depth + 1) + "(...)";
             case ChainExpression ch:
-                return CalleeText(ch.Expression);
+                return CalleeText(ch.Expression, depth + 1);
             case StringLiteral sl:
                 return "\"" + sl.Value + "\"";
             case NumberLiteral nl:
