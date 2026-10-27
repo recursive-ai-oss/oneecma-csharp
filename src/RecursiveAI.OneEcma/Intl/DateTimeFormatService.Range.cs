@@ -37,6 +37,22 @@ internal sealed partial class DateTimeFormatService
         else if (fa.Millisecond != fb.Millisecond) { rank = 8; letter = 'S'; }
         else { rank = 99; letter = ' '; }
 
+        bool hasTime = _tokens.Any(t => t.Letter is 'h' or 'H' or 'K' or 'k' or 'm' or 's' or 'S' or 'a' or 'b' or 'B');
+
+        if (_widen is not null && rank is >= 1 and <= 3)
+        {
+            bool hasYear = _tokens.Any(t => t.Letter is 'y' or 'Y' or 'u' or 'r');
+            bool hasMonth = _tokens.Any(t => t.Letter is 'M' or 'L');
+            bool hasDay = _tokens.Any(t => t.Letter is 'd');
+            bool addDay = rank <= 3 && !hasDay && hasTime && _tokens.Any(t => t.Letter is 'E' or 'c' or 'e');
+            bool addMonth = rank <= 2 && !hasMonth && (hasDay || addDay);
+            bool addYear = rank == 1 && !hasYear && (hasDay || addDay);
+            if (addYear || addMonth || addDay)
+            {
+                return _widen(addYear, addMonth, addDay).FormatRangeToParts(start, end);
+            }
+        }
+
         int smallest = SmallestRank();
         if (rank > smallest)
         {
@@ -45,7 +61,6 @@ internal sealed partial class DateTimeFormatService
         }
 
         bool hasDate = _tokens.Any(t => t.Letter is 'G' or 'y' or 'Y' or 'u' or 'M' or 'L' or 'd' or 'E' or 'c' or 'e');
-        bool hasTime = _tokens.Any(t => t.Letter is 'h' or 'H' or 'K' or 'k' or 'm' or 's' or 'S' or 'a' or 'b' or 'B');
         string fallback = _data.GetString("gregorian", "dateTimeFormats", "intervalFormats", "intervalFormatFallback") ?? "{0} \u2013 {1}";
         bool dayLevel = rank <= 3;
 
@@ -57,13 +72,13 @@ internal sealed partial class DateTimeFormatService
             return FallbackParts(PatternToken.Parse(combined), a, b, fa, fb, fallback);
         }
 
-        if (hasDate && hasTime && !dayLevel && _datePart is not null && _timePart is not null)
+        if (hasDate && hasTime && !dayLevel && SplitDateTime() is var (datePattern, timePattern, joiner))
         {
             // Same day: the date once, the time as an interval.
-            List<PatternToken> dateTokens = PatternToken.Parse(_datePart), timeTokens = PatternToken.Parse(_timePart);
+            List<PatternToken> dateTokens = PatternToken.Parse(datePattern), timeTokens = PatternToken.Parse(timePattern);
             List<DateTimePart> time = IntervalParts(timeTokens, a, b, fa, fb, letter, fallback);
             List<DateTimePart> date = FormatWith(dateTokens, a, fa, "shared");
-            return Combine(_glue!, time, date);
+            return Combine(joiner, time, date);
         }
 
         if (hasDate && hasTime)
@@ -72,6 +87,38 @@ internal sealed partial class DateTimeFormatService
         }
 
         return IntervalParts(_tokens, a, b, fa, fb, letter, fallback);
+    }
+
+    /// <summary>The date pattern, the time pattern and the joining pattern behind a format that shows both, or null when it has no such split.</summary>
+    private (string Date, string Time, string Glue)? SplitDateTime()
+    {
+        if (_datePart is not null && _timePart is not null)
+        {
+            return (_datePart, _timePart, _glue!);
+        }
+
+        if (_skeleton is null)
+        {
+            return null;
+        }
+
+        var date = new StringBuilder();
+        var time = new StringBuilder();
+        foreach (PatternToken t in PatternToken.Parse(_skeleton))
+        {
+            int f = DateSkeleton.FieldOf(t.Letter);
+            (f >= 0 && ((1 << f) & DateSkeleton.DateMask) != 0 ? date : time).Append(t.Letter, t.Count);
+        }
+
+        if (date.Length == 0 || time.Length == 0)
+        {
+            return null;
+        }
+
+        DateTimePatternGenerator gen = DateTimePatternGenerator.For(_dataLocale);
+        string datePattern = gen.GetBestPattern(date.ToString());
+        string timePattern = ReplaceHourLetter(gen.GetBestPattern(time.ToString()), _hourLetter, true);
+        return (datePattern, timePattern, gen.RangeGlueFor(Math.Min(2, DateTimePatternGenerator.GlueStyle(DateSkeleton.Parse(_skeleton)))));
     }
 
     private static List<DateTimePart> Combine(string glue, List<DateTimePart> time, List<DateTimePart> date)
@@ -135,7 +182,7 @@ internal sealed partial class DateTimeFormatService
     {
         var result = new List<DateTimePart>();
         int i0 = fallback.IndexOf("{0}", StringComparison.Ordinal), i1 = fallback.IndexOf("{1}", StringComparison.Ordinal);
-        List<DateTimePart> first = FormatWith(tokens, a, fa, "startRange"), second = FormatWith(tokens, b, fb, "endRange");
+        List<DateTimePart> first = SharedEdges(FormatWith(tokens, a, fa, "startRange")), second = SharedEdges(FormatWith(tokens, b, fb, "endRange"));
         void Lit(string s)
         {
             if (s.Length > 0)
@@ -161,7 +208,23 @@ internal sealed partial class DateTimeFormatService
             Lit(fallback[(i0 + 3)..]);
         }
 
-        return result;
+        return Merge(result);
+    }
+
+    /// <summary>Literal text before the first field and after the last one belongs to the whole range, not to either date.</summary>
+    private static List<DateTimePart> SharedEdges(List<DateTimePart> parts)
+    {
+        for (int i = 0; i < parts.Count && parts[i].Type == "literal"; i++)
+        {
+            parts[i] = parts[i] with { Source = "shared" };
+        }
+
+        for (int i = parts.Count - 1; i >= 0 && parts[i].Type == "literal"; i--)
+        {
+            parts[i] = parts[i] with { Source = "shared" };
+        }
+
+        return parts;
     }
 
     /// <summary>
@@ -333,7 +396,11 @@ internal sealed partial class DateTimeFormatService
 
     private static IEnumerable<string> Alternatives(string skeleton)
     {
-        if (skeleton.Contains("MMMM", StringComparison.Ordinal))
+        if (skeleton == "MMMM")
+        {
+            // A bare long month has no interval pattern: the two months go around the fallback pattern.
+        }
+        else if (skeleton.Contains("MMMM", StringComparison.Ordinal))
         {
             yield return skeleton.Replace("MMMM", "MMM", StringComparison.Ordinal);
         }
@@ -365,9 +432,37 @@ internal sealed partial class DateTimeFormatService
             }
 
             char c = Canon(t.Letter);
+            if (c == 'a')
+            {
+                int di = own.FindIndex(x => x.IsField && x.Letter is 'a' or 'b' or 'B');
+                if (di >= 0)
+                {
+                    if (own[di].Letter != 'a' && sb.Length > 0 && sb[^1] == '\u202f')
+                    {
+                        // The flexible day periods are spelled after an ordinary space.
+                        sb[^1] = ' ';
+                    }
+
+                    sb.Append(own[di].Letter, own[di].Count);
+                    continue;
+                }
+            }
+            else if (c is 'z' or 'v' or 'O' or 'V')
+            {
+                // The zone style is the format's own, whatever style the interval pattern spells.
+                int oi = own.FindIndex(x => x.IsField && x.Letter is 'z' or 'v' or 'O' or 'V');
+                if (oi >= 0) { sb.Append(own[oi].Letter, own[oi].Count); continue; }
+            }
+            else if (c is 'd' or 'M' && t.Count <= 2 && (c == 'd' || !widths.TryGetValue(c, out var mw) || mw.Count <= 2))
+            {
+                // Numeric day and month keep the interval pattern's own width.
+                sb.Append(t.Letter, t.Count);
+                continue;
+            }
+
             if (widths.TryGetValue(c, out var w))
             {
-                bool textual = c is 'E' or 'G' || (c == 'M' && (t.Count >= 3 || w.Count >= 3));
+                bool textual = c == 'M' && (t.Count >= 3 || w.Count >= 3);
                 if (c is 'h' or 'H')
                 {
                     sb.Append(w.Letter, w.Count);

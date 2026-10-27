@@ -141,7 +141,6 @@ internal sealed partial class DateTimeFormatService
 
         // Build the skeleton the options describe (ECMA-402 11.1.2 and UTS #35 skeleton letters).
         char hourLetter = hc switch { "h11" => 'K', "h12" => 'h', "h24" => 'k', _ => 'H' };
-        char finalLetter = hourLetter;
         var sk = new System.Text.StringBuilder();
         sk.Append(weekday switch { "narrow" => "EEEEE", "short" => "EEE", "long" => "EEEE", _ => "" });
         sk.Append(era switch { "narrow" => "GGGGG", "short" => "G", "long" => "GGGG", _ => "" });
@@ -163,8 +162,18 @@ internal sealed partial class DateTimeFormatService
         sk.Append(options.TimeZoneName switch { "short" => "z", "long" => "zzzz", "shortOffset" => "O", "longOffset" => "OOOO", "shortGeneric" => "v", "longGeneric" => "vvvv", _ => "" });
 
         string pattern = DateTimePatternGenerator.For(r.DataLocale).GetBestPattern(sk.ToString());
-        svc.SetPattern(ReplaceHourLetter(pattern, finalLetter, hour is not null));
+        svc.SetPattern(ReplaceHourLetter(pattern, hourLetter, hour is not null));
+        svc._skeleton = sk.ToString();
+        svc._hourLetter = hourLetter;
         svc.ResolveFromPattern();
+
+        // A range whose dates differ in a field the format does not show gets that field added (year, then month).
+        svc._widen = (addYear, addMonth, addDay) => Create(locales, options with
+        {
+            Year = addYear && year is null ? "numeric" : options.Year,
+            Month = addMonth && month is null ? "numeric" : options.Month,
+            Day = addDay && day is null ? "numeric" : options.Day,
+        }, defaultLocale, defaultTimeZone, zones, required, defaults);
         return svc;
     }
 
@@ -259,7 +268,6 @@ internal sealed partial class DateTimeFormatService
         string? datePattern = dateStyle is null ? null : _data.GetString("gregorian", "dateFormats", dateStyle);
         string? timePattern = timeStyle is null ? null : _data.GetString("gregorian", "timeFormats", timeStyle);
         char hourLetter = hc switch { "h11" => 'K', "h12" => 'h', "h24" => 'k', _ => 'H' };
-        char finalLetter = hourLetter;
         if (timePattern is not null)
         {
             string current = HourCycleOfPattern(timePattern);
@@ -278,7 +286,7 @@ internal sealed partial class DateTimeFormatService
                     sk.Append(t.Letter is 'h' or 'H' or 'K' or 'k' ? hourLetter : t.Letter, t.Count);
                 }
 
-                timePattern = ReplaceHourLetter(DateTimePatternGenerator.For(_dataLocale).GetBestPattern(sk.ToString()), finalLetter, true);
+                timePattern = ReplaceHourLetter(DateTimePatternGenerator.For(_dataLocale).GetBestPattern(sk.ToString()), hourLetter, true);
             }
             else
             {
@@ -295,7 +303,7 @@ internal sealed partial class DateTimeFormatService
             SetPattern(DateTimePatternGenerator.Glue(glue, timePattern, datePattern));
             _datePart = datePattern;
             _timePart = timePattern;
-            _glue = glue;
+            _glue = DateTimePatternGenerator.For(_dataLocale).RangeGlueFor(style);
         }
         else
         {

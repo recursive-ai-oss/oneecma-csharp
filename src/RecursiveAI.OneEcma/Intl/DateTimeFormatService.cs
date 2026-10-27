@@ -49,7 +49,9 @@ internal sealed partial class DateTimeFormatService
     private List<PatternToken> _tokens = [];
     private bool _hasMinute, _hasSecond;
     private string _dataLocale = "";
-    private string? _datePart, _timePart, _glue;
+    private string? _datePart, _timePart, _glue, _skeleton;
+    private char _hourLetter = 'H';
+    private Func<bool, bool, bool, DateTimeFormatService>? _widen;
 
     private DateTimeFormatService(ITimeZoneSource zones) => _zones = zones;
 

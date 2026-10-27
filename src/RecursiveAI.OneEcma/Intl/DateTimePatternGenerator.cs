@@ -289,6 +289,13 @@ internal sealed class DateSkeleton
                 distance += 0x1000;
                 missing |= 1 << i;
             }
+            else if (i == Hour && (Chars[i] is 'h' or 'K') != (request.Chars[i] is 'h' or 'K'))
+            {
+                // A 12-hour pattern is no stand-in for a 24-hour request (or the reverse): its day period would come along.
+                distance += 0x11000;
+                missing |= 1 << i;
+                extra |= 1 << i;
+            }
             else
             {
                 distance += Math.Abs(mine - other);
@@ -313,6 +320,7 @@ internal sealed class DateTimePatternGenerator
     private readonly List<(DateSkeleton Skeleton, string Pattern)> _entries = [];
     private readonly string[] _appendItems = new string[DateSkeleton.FieldCount];
     private readonly string[] _dateTimeGlue = new string[4];   // full, long, medium, short
+    private readonly string[] _rangeGlue = new string[4];      // the same without the "at" wording, used between a date and a time interval
     private readonly string _decimal;
     private readonly string[] _fieldNames = new string[DateSkeleton.FieldCount];
 
@@ -382,6 +390,7 @@ internal sealed class DateTimePatternGenerator
         {
             // The "at time" patterns join a date and a time into one phrase ("July 4, 2024 at 3:00 PM").
             _dateTimeGlue[i] = data.GetString("gregorian", "dateTimeFormats-atTime", "standard", styles[i]) ?? data.GetString("gregorian", "dateTimeFormats", styles[i]) ?? "{1} {0}";
+            _rangeGlue[i] = data.GetString("gregorian", "dateTimeFormats", styles[i]) ?? "{1} {0}";
         }
 
         // Fields CLDR has no append pattern for (day period, fractional seconds, ...) use the root pattern.
@@ -447,22 +456,26 @@ internal sealed class DateTimePatternGenerator
             return date;
         }
 
-        // The glue depends on how much of the month is spelled out (UTS #35, "Missing Skeleton Fields").
-        int style = 3;
-        if (request.Lengths[DateSkeleton.Month] == 4)
-        {
-            style = request.Lengths[DateSkeleton.Weekday] > 0 ? 0 : 1;
-        }
-        else if (request.Lengths[DateSkeleton.Month] == 3)
-        {
-            style = 2;
-        }
-
+        int style = GlueStyle(request);
         datePart = date;
         timePart = time;
         glue = _dateTimeGlue[style];
         return Glue(glue, time, date);
     }
+
+    /// <summary>The joining style for a skeleton, by how much of the month is spelled out (UTS #35, "Missing Skeleton Fields"): 0 full ... 3 short.</summary>
+    internal static int GlueStyle(DateSkeleton request)
+    {
+        if (request.Lengths[DateSkeleton.Month] == 4)
+        {
+            return request.Lengths[DateSkeleton.Weekday] > 0 ? 0 : 1;
+        }
+
+        return request.Lengths[DateSkeleton.Month] == 3 ? 2 : 3;
+    }
+
+    /// <summary>The plain date-time joining pattern of one style, as used between a date and a time range.</summary>
+    internal string RangeGlueFor(int style) => _rangeGlue[style];
 
     /// <summary>The date-time joining pattern of one style (0 full, 1 long, 2 medium, 3 short).</summary>
     internal string GlueFor(int style) => _dateTimeGlue[style];
