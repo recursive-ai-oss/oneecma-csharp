@@ -1,6 +1,8 @@
 using RecursiveAI.OneEcma;
 using RecursiveAI.OneEcma.Diagnostics;
+using RecursiveAI.OneEcma.SourceMaps;
 using RecursiveAI.OneEcma.Syntax;
+using RecursiveAI.OneEcma.Text;
 
 namespace RecursiveAI.OneEcma.Cli;
 
@@ -8,14 +10,16 @@ internal static class Program
 {
     private const string UsageText =
         "usage: oneecma run <file>\n" +
-        "       oneecma check [--module] [--repair [--out <path>]] <file>\n" +
+        "       oneecma check [--module] [--format text|json] [--source-map <map>] [--repair [--out <path>]] <file>\n" +
         "       oneecma repl\n";
 
     private static int Check(ScriptEngine engine, string[] args)
     {
         bool module = false;
         bool repair = false;
+        bool json = false;
         string? outPath = null;
+        string? mapPath = null;
         string? path = null;
         for (int i = 1; i < args.Length; i++)
         {
@@ -29,6 +33,18 @@ internal static class Program
                     break;
                 case "--out" when i + 1 < args.Length:
                     outPath = args[++i];
+                    break;
+                case "--source-map" when i + 1 < args.Length:
+                    mapPath = args[++i];
+                    break;
+                case "--format" when i + 1 < args.Length:
+                    string format = args[++i];
+                    if (format is not ("text" or "json"))
+                    {
+                        return Usage();
+                    }
+
+                    json = format == "json";
                     break;
                 default:
                     if (path is not null || args[i].StartsWith("--", StringComparison.Ordinal))
@@ -50,37 +66,94 @@ internal static class Program
         var options = new ParseOptions { Goal = module ? ParseGoal.Module : ParseGoal.Script, FileName = path };
         bool ansi = !Console.IsErrorRedirected && Environment.GetEnvironmentVariable("NO_COLOR") is null;
         var render = new RenderOptions { Ansi = ansi };
-        if (!repair)
-        {
-            IReadOnlyList<Diagnostic> diagnostics = engine.Check(source, options);
-            if (diagnostics.Count == 0)
-            {
-                return 0;
-            }
 
-            Console.Error.Write(DiagnosticRenderer.RenderAll(diagnostics, render));
-            return 1;
+        IReadOnlyList<Diagnostic> diagnostics;
+        IReadOnlyList<AppliedRepair> repairs = [];
+        RepairResult? result = null;
+        if (repair)
+        {
+            result = engine.CheckAndRepair(source, options);
+            diagnostics = result.Diagnostics;
+            repairs = result.Repairs;
+        }
+        else
+        {
+            diagnostics = engine.Check(source, options);
         }
 
-        RepairResult result = engine.CheckAndRepair(source, options);
-        Console.Error.Write(DiagnosticRenderer.RenderRepairResult(result, render));
-        if (!result.Parses)
+        // Only a file that has something to report needs its source map.
+        if (diagnostics.Count > 0)
+        {
+            diagnostics = ApplySourceMap(new SourceText(source, path), mapPath, diagnostics);
+        }
+
+        bool failed = diagnostics.Any(d => d.Severity == Severity.Error);
+        string? repaired = result is { Changed: true } ? result.RepairedSource : null;
+        if (json)
+        {
+            Console.Out.WriteLine(DiagnosticJson.Render(diagnostics, repairs, repaired));
+        }
+        else if (result is null)
+        {
+            if (diagnostics.Count > 0)
+            {
+                Console.Error.Write(DiagnosticRenderer.RenderAll(diagnostics, render));
+            }
+        }
+        else
+        {
+            Console.Error.Write(DiagnosticRenderer.RenderRepairs(repairs, diagnostics, render));
+        }
+
+        if (failed || (repair && result is not null && !result.Parses))
         {
             return 1;
         }
 
         // The repaired source goes to the file or to stdout, so `oneecma check --repair a.js > fixed.js` works.
-        if (outPath is not null)
+        if (repair)
         {
-            File.WriteAllText(outPath, result.RepairedSource);
-        }
-        else
-        {
-            Console.Out.Write(result.RepairedSource);
+            if (outPath is not null)
+            {
+                File.WriteAllText(outPath, result!.RepairedSource);
+            }
+            else if (!json)
+            {
+                Console.Out.Write(result!.RepairedSource);
+            }
         }
 
         return 0;
     }
+
+    /// <summary>
+    /// Moves diagnostics about generated code to the original source when a source map is given with --source-map or the file
+    /// ends with a sourceMappingURL comment (a data: URL, or a file next to it). A map that cannot be used adds warnings, never errors.
+    /// </summary>
+    private static IReadOnlyList<Diagnostic> ApplySourceMap(SourceText generated, string? mapPath, IReadOnlyList<Diagnostic> diagnostics)
+    {
+        SourceMapParseResult? loaded;
+        if (mapPath is not null)
+        {
+            loaded = SourceMap.Parse(SourceMapLoader.StripXssiPrefix(File.ReadAllText(mapPath)), mapPath, null, mapPath);
+        }
+        else
+        {
+            loaded = SourceMapLoader.Load(generated, ReadFile);
+        }
+
+        if (loaded is null)
+        {
+            return diagnostics;
+        }
+
+        var all = new List<Diagnostic>(diagnostics.Count);
+        all.AddRange(loaded.Map is null ? diagnostics : SourceMapReports.RemapAll(diagnostics, loaded.Map, ReadFile));
+        all.AddRange(loaded.ToDiagnostics());
+        return all;
+    }
+
+    private static string? ReadFile(string path) => File.Exists(path) ? File.ReadAllText(path) : null;
 
     private static int Usage()
     {

@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "format": "oneecma.report",
+  "summary": {
+    "errors": 1,
+    "warnings": 0,
+    "repairs": 0
+  },
+  "diagnostics": [
+    {
+      "kind": "SyntaxError",
+      "code": "unterminated-template",
+      "severity": "error",
+      "headline": "Unexpected end of input",
+      "source": {
+        "name": "case.js",
+        "length": 37
+      },
+      "span": {
+        "start": 33,
+        "end": 36,
+        "line": 3,
+        "column": 1,
+        "endLine": 3,
+        "endColumn": 4
+      },
+      "label": "a markdown fence: this backtick starts a template literal that never ends",
+      "secondary": [],
+      "notes": [],
+      "help": [
+        "remove the line that contains only ```"
+      ],
+      "fixes": [
+        {
+          "description": "remove the fence line",
+          "edits": [
+            {
+              "start": 33,
+              "length": 3,
+              "line": 3,
+              "column": 1,
+              "text": ""
+            }
+          ]
+        }
+      ],
+      "recovery": []
+    }
+  ]
+}

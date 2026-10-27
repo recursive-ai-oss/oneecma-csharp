@@ -1,0 +1,84 @@
+{
+  "version": 1,
+  "format": "oneecma.report",
+  "summary": {
+    "errors": 1,
+    "warnings": 0,
+    "repairs": 0
+  },
+  "diagnostics": [
+    {
+      "kind": "SyntaxError",
+      "code": "unexpected-token",
+      "severity": "error",
+      "headline": "Unexpected identifier 'auto'",
+      "source": {
+        "name": "case.js",
+        "length": 72
+      },
+      "span": {
+        "start": 28,
+        "end": 32,
+        "line": 2,
+        "column": 15,
+        "endLine": 2,
+        "endColumn": 19
+      },
+      "label": "the template literal ended at the backtick before this word",
+      "secondary": [
+        {
+          "span": {
+            "start": 12,
+            "end": 13,
+            "line": 1,
+            "column": 13,
+            "endLine": 1,
+            "endColumn": 14
+          },
+          "message": "the template literal starts here"
+        }
+      ],
+      "notes": [
+        "not repaired automatically: the closing backtick could also be the one that is missing"
+      ],
+      "help": [
+        "escape the inner backticks as \\` or remove them"
+      ],
+      "fixes": [
+        {
+          "description": "escape the inner backticks",
+          "edits": [
+            {
+              "start": 27,
+              "length": 0,
+              "line": 2,
+              "column": 14,
+              "text": "\\"
+            },
+            {
+              "start": 32,
+              "length": 0,
+              "line": 2,
+              "column": 19,
+              "text": "\\"
+            }
+          ]
+        }
+      ],
+      "recovery": [
+        {
+          "action": "insertedToken",
+          "span": {
+            "start": 28,
+            "end": 28,
+            "line": 2,
+            "column": 15,
+            "endLine": 2,
+            "endColumn": 15
+          },
+          "text": ";"
+        }
+      ]
+    }
+  ]
+}

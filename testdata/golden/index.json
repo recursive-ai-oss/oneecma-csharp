@@ -62,6 +62,7 @@
   "run-025-call-missing-handler",
   "run-026-string-too-long",
   "lim-001-infinite-loop",
-  "lim-002-catastrophic-regex"
+  "lim-002-catastrophic-regex",
+  "map-001-syntax-error-in-generated-code"
  ]
 }

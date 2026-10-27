@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "format": "oneecma.report",
+  "summary": {
+    "errors": 1,
+    "warnings": 0,
+    "repairs": 0
+  },
+  "diagnostics": [
+    {
+      "kind": "SyntaxError",
+      "code": "invalid-token",
+      "severity": "error",
+      "headline": "Invalid or unexpected token",
+      "source": {
+        "name": "case.js",
+        "length": 39
+      },
+      "span": {
+        "start": 13,
+        "end": 18,
+        "line": 1,
+        "column": 14,
+        "endLine": 1,
+        "endColumn": 19
+      },
+      "label": "these are typographic quotes (U+2018, U+2019), not `'`",
+      "secondary": [],
+      "notes": [],
+      "help": [
+        "use straight quotes: `const name = 'Ada';`"
+      ],
+      "fixes": [
+        {
+          "description": "replace the typographic quotes with straight quotes",
+          "edits": [
+            {
+              "start": 13,
+              "length": 1,
+              "line": 1,
+              "column": 14,
+              "text": "'"
+            },
+            {
+              "start": 17,
+              "length": 1,
+              "line": 1,
+              "column": 18,
+              "text": "'"
+            }
+          ]
+        }
+      ],
+      "recovery": []
+    }
+  ]
+}

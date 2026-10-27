@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "format": "oneecma.report",
+  "summary": {
+    "errors": 1,
+    "warnings": 0,
+    "repairs": 0
+  },
+  "diagnostics": [
+    {
+      "kind": "SyntaxError",
+      "code": "missing-catch-or-finally",
+      "severity": "error",
+      "headline": "Missing catch or finally after try",
+      "source": {
+        "name": "case.js",
+        "length": 72
+      },
+      "span": {
+        "start": 48,
+        "end": 49,
+        "line": 4,
+        "column": 1,
+        "endLine": 4,
+        "endColumn": 2
+      },
+      "label": "the `try` block ends here with no `catch` or `finally`",
+      "secondary": [
+        {
+          "span": {
+            "start": 31,
+            "end": 36,
+            "line": 2,
+            "column": 1,
+            "endLine": 2,
+            "endColumn": 6
+          },
+          "message": "this `try` needs one of them"
+        }
+      ],
+      "notes": [],
+      "help": [
+        "add `catch (err) { ... }` after the block"
+      ],
+      "fixes": [
+        {
+          "description": "add a catch clause",
+          "edits": [
+            {
+              "start": 49,
+              "length": 0,
+              "line": 4,
+              "column": 2,
+              "text": " catch (err) {\n}"
+            }
+          ]
+        }
+      ],
+      "recovery": []
+    }
+  ]
+}

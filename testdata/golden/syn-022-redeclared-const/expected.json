@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "format": "oneecma.report",
+  "summary": {
+    "errors": 1,
+    "warnings": 0,
+    "repairs": 0
+  },
+  "diagnostics": [
+    {
+      "kind": "SyntaxError",
+      "code": "redeclaration",
+      "severity": "error",
+      "headline": "Identifier 'el' has already been declared",
+      "source": {
+        "name": "case.js",
+        "length": 45
+      },
+      "span": {
+        "start": 20,
+        "end": 26,
+        "line": 2,
+        "column": 7,
+        "endLine": 2,
+        "endColumn": 13
+      },
+      "label": "declared again here",
+      "secondary": [
+        {
+          "span": {
+            "start": 6,
+            "end": 12,
+            "line": 1,
+            "column": 7,
+            "endLine": 1,
+            "endColumn": 13
+          },
+          "message": "first declared here"
+        }
+      ],
+      "notes": [
+        "not repaired automatically: removing `const` turns a declaration into an error for `const`"
+      ],
+      "help": [
+        "rename one of them, or assign with `el = 2` if `el` should change"
+      ],
+      "fixes": [],
+      "recovery": []
+    }
+  ]
+}

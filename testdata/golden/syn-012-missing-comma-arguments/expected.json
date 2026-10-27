@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "format": "oneecma.report",
+  "summary": {
+    "errors": 1,
+    "warnings": 0,
+    "repairs": 0
+  },
+  "diagnostics": [
+    {
+      "kind": "SyntaxError",
+      "code": "missing-paren-after-args",
+      "severity": "error",
+      "headline": "missing ) after argument list",
+      "source": {
+        "name": "case.js",
+        "length": 67
+      },
+      "span": {
+        "start": 54,
+        "end": 55,
+        "line": 3,
+        "column": 3,
+        "endLine": 3,
+        "endColumn": 4
+      },
+      "label": "expected `,` before this argument",
+      "secondary": [
+        {
+          "span": {
+            "start": 54,
+            "end": 55,
+            "line": 3,
+            "column": 3,
+            "endLine": 3,
+            "endColumn": 4
+          },
+          "message": "the previous argument ends here"
+        }
+      ],
+      "notes": [],
+      "help": [
+        "add `,` after `1`"
+      ],
+      "fixes": [],
+      "recovery": [
+        {
+          "action": "insertedToken",
+          "span": {
+            "start": 55,
+            "end": 55,
+            "line": 3,
+            "column": 4,
+            "endLine": 3,
+            "endColumn": 4
+          },
+          "text": ","
+        }
+      ]
+    }
+  ]
+}
