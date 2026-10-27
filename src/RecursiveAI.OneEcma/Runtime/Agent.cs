@@ -247,16 +247,39 @@ internal sealed class Agent
     /// <summary>Accounts for an allocation of about <paramref name="bytes"/> bytes before it happens.</summary>
     internal void Alloc(long bytes)
     {
+        if (_describingLimit > 0)
+        {
+            return;
+        }
+
         _allocated += bytes;
-        if (_allocated > Limits.MaxAllocatedBytes && _describingLimit == 0)
+        if (_allocated > Limits.MaxAllocatedBytes)
         {
             throw Limit(LimitKind.Memory, "Execution exceeded the allocation limit of " + Limits.MaxAllocatedBytes.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + " bytes");
         }
     }
 
-    // Describing a limit lists frame locals, and previewing a string local can flatten a rope, which is charged here. Without this the
-    // charge would raise the same limit again from inside its own description, without end.
+    // Describing a limit or explaining an error reads frame locals and values, which can flatten ropes. That work belongs to the report,
+    // not to the script: it is not charged (so it cannot raise a limit from inside its own description, nor make a traced replay hit a
+    // limit the recorded run did not), and it leaves no cache behind that would hide a later charge.
     private int _describingLimit;
+
+    /// <summary>True while a report is being built; allocation is not charged and ropes flatten without caching.</summary>
+    internal bool Diagnosing => _describingLimit > 0;
+
+    /// <summary>Runs <paramref name="work"/> as diagnostics work (see <see cref="Diagnosing"/>).</summary>
+    internal T Diagnose<T>(Func<T> work)
+    {
+        _describingLimit++;
+        try
+        {
+            return work();
+        }
+        finally
+        {
+            _describingLimit--;
+        }
+    }
 
     internal JsLimitException Limit(LimitKind kind, string message)
     {

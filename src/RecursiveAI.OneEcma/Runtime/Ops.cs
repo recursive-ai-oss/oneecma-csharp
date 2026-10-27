@@ -1242,6 +1242,10 @@ internal static class Ops
     {
         value = default;
         JsValue r;
+
+        // Every native loop over a user iterator steps through here, so charging the step here bounds all of them: a built-in that keeps
+        // calling next() while the iterator never reports done ends with a fuel, clock or cancellation limit instead of running on.
+        Agent.Current.Tick();
         try
         {
             r = Call(rec.Next, Obj(rec.Iterator));

@@ -158,6 +158,10 @@ internal static partial class Builtins
             {
                 while (Ops.IteratorStepValue(rec, out JsValue next))
                 {
+                    // Each element makes a promise, a pair of reaction functions and a list slot; charge for that work and memory, since the
+                    // user's next() is only one call's worth of fuel.
+                    Agent.Current.Charge(16);
+                    Agent.Current.Alloc(kind == "race" ? 160 : 400);
                     int i = index++;
                     values.Add(default);
                     JsValue np = Ops.Call(resolveFn, c, [next]);
