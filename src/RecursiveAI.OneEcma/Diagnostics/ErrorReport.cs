@@ -22,7 +22,9 @@ internal static class ErrorReport
             headline = "Uncaught " + Describe(v);
         }
 
-        return Build(kind, code, headline, frames);
+        Diagnostic d = Build(kind, code, headline, frames);
+        HostErrors.Decorate(d, v);
+        return d;
     }
 
     internal static Diagnostic ForLimit(JsLimitException e) => Build("Limit", "limit:" + e.Kind.ToString().ToLowerInvariant(), e.Message, e.Frames);

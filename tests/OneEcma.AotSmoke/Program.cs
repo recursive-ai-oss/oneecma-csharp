@@ -156,6 +156,32 @@ if (runner.ToDisplayString(intlJs) != "1.234,50\u00A0\u20AC|1 Jan 1970|en-Latn-U
     return 1;
 }
 
+// Host bindings: an exported service called from script, with a callback, a promise and boundary errors.
+var hostEngine = new ScriptEngine();
+RecursiveAI.OneEcma.AotSmoke.JsExports.InstallAll(hostEngine.MainRealm);
+hostEngine.MainRealm.DefineData(hostEngine.Global, "scheduler", hostEngine.MainRealm.Wrap(new RecursiveAI.OneEcma.AotSmoke.Scheduler()));
+JsValue hosted = await hostEngine.EvaluateAsync(
+    "(async () => { const planned = scheduler.plan({ name: 'build', cost: 4, mode: 'slow' });\n" +
+    "const n = await scheduler.runAsync(job => job.cost, planned);\n" +
+    "let message = ''; try { scheduler.plan({ name: 'x', cost: 'many' }); } catch (e) { message = e.message; }\n" +
+    "return [planned.cost, planned.mode, n, message].join('|'); })()", "host.js");
+string hostedText = hostEngine.ToDisplayString(hosted);
+if (hostedText != "8|Slow|9|RecursiveAI.OneEcma.AotSmoke.Scheduler.Plan: argument 'job.cost' must be an integer (System.Int32), got string \"many\"")
+{
+    Console.Error.WriteLine("smoke: host binding gave " + hostedText);
+    return 1;
+}
+
+try
+{
+    hostEngine.Evaluate("scheduler.fail()", "host.js");
+    Console.Error.WriteLine("smoke: expected the .NET exception to reach script");
+    return 1;
+}
+catch (JsException e) when (e.InnerException is InvalidOperationException)
+{
+}
+
 try
 {
     runner.Evaluate("const o = {};\no.missing.x;", "smoke.js");

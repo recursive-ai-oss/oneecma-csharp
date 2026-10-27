@@ -5,8 +5,16 @@ namespace RecursiveAI.OneEcma;
 /// <summary>A JavaScript exception in flight, or one that reached the host: carries the thrown value and, for Error objects, the captured frames.</summary>
 public sealed class JsException : Exception
 {
-    internal JsException(JsValue value)
+    /// <summary>Creates an exception that throws <paramref name="value"/> into script; host callbacks use it to throw a script value.</summary>
+    /// <param name="value">The value to throw, usually an error made with <see cref="JsRealm.NewError"/>.</param>
+    public JsException(JsValue value)
         : base(Describe(value))
+    {
+        Value = value;
+    }
+
+    internal JsException(JsValue value, Exception? inner)
+        : base(Describe(value), inner)
     {
         Value = value;
     }

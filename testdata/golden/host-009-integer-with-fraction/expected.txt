@@ -1,0 +1,9 @@
+error[TypeError]: Shop.OrderApi.GetOrder: argument 'id' must be an integer (System.Int32), got number 1.5
+ --> case.js:2:1
+  |
+2 | api.getOrder(half);
+  | ^^^^^^^^^^^^ `id` is number 1.5, expected an integer (System.Int32)
+  |
+  = help: round it first: Math.round(value)
+  = note: host function: Shop.OrderApi.GetOrder(int id)
+  = stack: Shop.OrderApi.GetOrder [.NET] ← <anonymous> (case.js:2)

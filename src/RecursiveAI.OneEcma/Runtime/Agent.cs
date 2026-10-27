@@ -72,6 +72,12 @@ public sealed class JsLimitException : Exception
 /// <param name="IsConstruct">True when the frame is a <c>new</c> call.</param>
 public sealed record StackFrameInfo(string Function, SourceText Source, Span Span, bool IsAsync = false, bool IsConstruct = false)
 {
+    /// <summary>True for a .NET frame between script frames (a host method); then <see cref="Function"/> is the member name, <see cref="Source"/> names the file when known and <see cref="HostLine"/> is its line (0 when unknown).</summary>
+    public bool IsHost { get; init; }
+
+    /// <summary>The 1-based line of a .NET frame, or 0 when the runtime has no line information.</summary>
+    public int HostLine { get; init; }
+
     /// <summary>The 1-based line and column of the span start.</summary>
     public LinePosition Position => Source.GetPosition(Span.Start);
 }
