@@ -81,9 +81,10 @@ internal sealed partial class Compiler
         if (needsArguments)
         {
             Binding? existing = fn.Scope.Lookup("arguments");
-            if (existing is not null && existing.Kind != BindingKind.Var && existing.Kind != BindingKind.AnnexBFunctionVar)
+            // 10.2.11 steps 17-18: a parameter named "arguments" always shadows the object; a lexical or function declaration
+            // of that name does so only when there are no parameter expressions.
+            if (existing is not null && existing.Kind != BindingKind.Var && existing.Kind != BindingKind.AnnexBFunctionVar && (existing.Kind == BindingKind.Parameter || !paramsTdz))
             {
-                // A parameter, lexical declaration or function named "arguments" shadows the object (10.2.11 step 22).
                 needsArguments = false;
             }
         }
@@ -93,6 +94,10 @@ internal sealed partial class Compiler
         bool splitBody = paramsTdz && fn.Body is BlockStatement;
         CScope? top = EnterScope(fn.Scope, true, needsArguments ? ["arguments"] : null, fn.HasDirectEval, paramsTdz, splitBody ? static b => b.Kind == BindingKind.Parameter : null);
         _f.FunctionTopScope = top;
+        if (splitBody && top?.Info is not null)
+        {
+            top.Info.IsParamScope = true;
+        }
 
         // Function parameters (10.2.11 FunctionDeclarationInstantiation).
         if (needsArguments)

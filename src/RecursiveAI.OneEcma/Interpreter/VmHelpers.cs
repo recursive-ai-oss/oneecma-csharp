@@ -521,6 +521,20 @@ internal static partial class Vm
             }
         }
 
+        // 19.2.1.3 step 3.d: eval in a parameter expression runs with the parameter environment as its lexical environment
+        // and the function environment as its variable environment, so any name the parameter environment holds (a parameter
+        // or the arguments object) collides with a var of the same name.
+        if (varEnv?.Info is { IsParamScope: true })
+        {
+            foreach (string n in names)
+            {
+                if (varEnv.Info.IndexOf(n) >= 0)
+                {
+                    throw Errors.Syntax("Identifier '" + n + "' has already been declared");
+                }
+            }
+        }
+
         if (varEnv is null)
         {
             Realm r = f.Realm;
