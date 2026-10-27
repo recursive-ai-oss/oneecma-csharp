@@ -235,7 +235,6 @@ internal sealed class Lexer
             case ',': _pos++; return Punct(TokenType.Comma, start, flags);
             case ':': _pos++; return Punct(TokenType.Colon, start, flags);
             case '~': _pos++; return Punct(TokenType.Tilde, start, flags);
-            case '@': _pos++; return Punct(TokenType.At, start, flags);
             case '.':
                 if (_pos + 1 < _s.Length && char.IsAsciiDigit(_s[_pos + 1]))
                 {
@@ -702,7 +701,7 @@ internal sealed class Lexer
             text = text.Replace("_", "", StringComparison.Ordinal);
         }
 
-        value = double.Parse(text, NumberStyles.Float, CultureInfo.InvariantCulture);
+        value = double.Parse(text, NumberStyles.Float, NumberFormatInfo.InvariantInfo);
         return FinishNumeric(TokenType.Number, start, f, null, value);
     }
 
@@ -1028,7 +1027,7 @@ internal sealed class Lexer
             {
                 _error(start, _pos, "unterminated-template", Messages.UnterminatedTemplate);
                 raw.Append(_s, chunk, _pos - chunk);
-                return new Token(TokenType.Template, start, _pos, f | TokenFlags.Unterminated | TokenFlags.TemplateTail, cooked.ToString(), raw.ToString());
+                return new Token(TokenType.Template, start, _pos, f | TokenFlags.Unterminated | TokenFlags.TemplateTail, (f & TokenFlags.InvalidEscape) != 0 ? null : cooked.ToString(), raw.ToString(), 0, escError, escErrorStart);
             }
 
             char c = _s[_pos];

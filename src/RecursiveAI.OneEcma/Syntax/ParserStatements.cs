@@ -346,7 +346,7 @@ internal sealed partial class Parser
         _inPrologue = false;
         Expression e = ParseExpression(noIn: false);
         string? directive = null;
-        if (mayBeDirective && e is StringLiteral && !e.IsParenthesized && e.Start == first.Start && e.End == first.End)
+        if (mayBeDirective && e is StringLiteral && !e.IsParenthesized && e.Start == first.Start && e.End == first.End && first.End - first.Start >= 2)
         {
             directive = _s.Substring(first.Start + 1, first.End - first.Start - 2);
         }

@@ -11,6 +11,14 @@ public class ScriptEngineTests
     [Fact]
     public void NullSourceIsAnArgumentError()
     {
-        Assert.Throws<ArgumentNullException>(() => new ScriptEngine().Check(null!, TestContext.Current.CancellationToken));
+        Assert.Throws<ArgumentNullException>(() => new ScriptEngine().Check(null!, null, TestContext.Current.CancellationToken));
+    }
+
+    [Fact]
+    public void CheckReturnsNothingForValidSourceAndDiagnosticsForInvalid()
+    {
+        var engine = new ScriptEngine();
+        Assert.Empty(engine.Check("let a = 1;", null, TestContext.Current.CancellationToken));
+        Assert.NotEmpty(engine.Check("let a = ;", null, TestContext.Current.CancellationToken));
     }
 }

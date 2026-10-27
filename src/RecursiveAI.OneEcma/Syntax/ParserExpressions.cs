@@ -1038,8 +1038,11 @@ internal sealed partial class Parser
             return;
         }
 
-        string before = _s.Substring(0, _prevEnd);
-        System.Text.RegularExpressions.Match decl = System.Text.RegularExpressions.Regex.Match(before, @"(?:^|[;{}\n])\s*(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=$");
+        // Only a bounded window before the token is searched: scanning the whole prefix for every error
+        // would make a long file full of errors quadratic. A leading newline stands for the file start.
+        int from = Math.Max(0, _prevEnd - 300);
+        string before = string.Concat(from == 0 ? "\n" : "", _s.AsSpan(from, _prevEnd - from));
+        System.Text.RegularExpressions.Match decl = System.Text.RegularExpressions.Regex.Match(before, @"[;{}\n]\s*(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=$");
         if (decl.Success)
         {
             d.Help.Add("give `" + decl.Groups[1].Value + "` a value, or remove the declaration");
@@ -1141,7 +1144,7 @@ internal sealed partial class Parser
 
         if (radix == 10)
         {
-            return BigInteger.Parse(text, NumberStyles.None, CultureInfo.InvariantCulture);
+            return BigInteger.Parse(text, NumberStyles.None, NumberFormatInfo.InvariantInfo);
         }
 
         BigInteger v = BigInteger.Zero;

@@ -4,6 +4,8 @@ using System.Text;
 // Reads pinned UCD files and writes compact range tables as C#.
 // usage: UcdGen <ucd-dir> <version> <output.cs>
 // Properties are listed in `specs`; adding one is a one-line change.
+// The pinned version is 17.0.0: the pinned test262 suite generates its Unicode tests from it and the
+// reference Node v24 ships it. Every table moves together when the pinned suite moves.
 
 string ucd = args[0];
 string version = args[1];

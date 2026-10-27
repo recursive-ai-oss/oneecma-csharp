@@ -307,7 +307,7 @@ internal static partial class SyntaxHints
             {
                 if (depth == 0)
                 {
-                    return Regex.IsMatch(text[..i], @"\bclass\b[^{};]*$");
+                    return Regex.IsMatch(text[Math.Max(0, i - 300)..i], @"\bclass\b[^{};]*$");
                 }
 
                 depth--;
@@ -346,8 +346,8 @@ internal static partial class SyntaxHints
         }
 
         Relocate(d, new Span(s, end + 1),
-            "these are typographic quotes (U+" + ((int)openQ).ToString("X4", System.Globalization.CultureInfo.InvariantCulture) + ", U+"
-            + ((int)closeQ).ToString("X4", System.Globalization.CultureInfo.InvariantCulture) + "), not `" + straight + "`");
+            "these are typographic quotes (U+" + ((int)openQ).ToString("X4", System.Globalization.NumberFormatInfo.InvariantInfo) + ", U+"
+            + ((int)closeQ).ToString("X4", System.Globalization.NumberFormatInfo.InvariantInfo) + "), not `" + straight + "`");
         string fixedLine = (text[lineStart..s] + straight + text.Substring(s + 1, end - s - 1) + straight + text[(end + 1)..lineEnd]).Trim();
         d.Help.Add("use straight quotes: `" + fixedLine + "`");
         d.Fixes.Add(new SuggestedFix("replace the typographic quotes with straight quotes",

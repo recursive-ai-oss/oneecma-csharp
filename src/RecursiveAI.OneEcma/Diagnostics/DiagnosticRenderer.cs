@@ -69,7 +69,7 @@ public static class DiagnosticRenderer
         if (errors > 1)
         {
             sb.Append('\n');
-            string text = "aborting due to " + errors.ToString(CultureInfo.InvariantCulture) + (allSyntax ? " syntax errors" : " errors");
+            string text = "aborting due to " + errors.ToString(NumberFormatInfo.InvariantInfo) + (allSyntax ? " syntax errors" : " errors");
             sb.Append(Paint(options, Red, "error")).Append(Paint(options, Bold, ": " + text)).Append('\n');
         }
 
@@ -113,12 +113,12 @@ public static class DiagnosticRenderer
         }
 
         var shown = new List<int>(lineLabels.Keys);
-        int width = shown[^1].ToString(CultureInfo.InvariantCulture).Length;
+        int width = shown[^1].ToString(NumberFormatInfo.InvariantInfo).Length;
         string pad = new(' ', width);
         LinePosition loc = d.Position;
         sb.Append(pad).Append(Paint(o, Blue, "-->")).Append(' ').Append(src.Name).Append(':')
-          .Append(loc.Line.ToString(CultureInfo.InvariantCulture)).Append(':')
-          .Append(loc.Column.ToString(CultureInfo.InvariantCulture)).Append('\n');
+          .Append(loc.Line.ToString(NumberFormatInfo.InvariantInfo)).Append(':')
+          .Append(loc.Column.ToString(NumberFormatInfo.InvariantInfo)).Append('\n');
         string bar = Paint(o, Blue, "|");
         sb.Append(pad).Append(' ').Append(bar).Append('\n');
 
@@ -204,7 +204,7 @@ public static class DiagnosticRenderer
 
         string display = shownText.ToString();
         string visible = RenderWindow(display, view, viewEnd);
-        string number = line.ToString(CultureInfo.InvariantCulture).PadLeft(width);
+        string number = line.ToString(NumberFormatInfo.InvariantInfo).PadLeft(width);
         sb.Append(Paint(o, Blue, number)).Append(' ').Append(Paint(o, Blue, "|")).Append(' ')
           .Append(cutLeft ? "…" : "").Append(visible).Append(cutRight ? "…" : "").Append('\n');
 
