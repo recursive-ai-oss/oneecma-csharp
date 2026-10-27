@@ -404,6 +404,13 @@ internal sealed class LoggedHost(IJsHost inner, Recorder rec) : IJsHost
         inner.WeakTargetsCollected(ids);
     }
 
+    public bool WantsWeakCollection()
+    {
+        // The decision itself is not logged: a policy point that says yes is followed by a Weak event (written by the collection
+        // point), and every other event after the end of a job drain is the tag of the next entry call, never a Weak.
+        return rec.Replaying ? rec.Reader!.Peek == LogTag.Weak : inner.WantsWeakCollection();
+    }
+
     public IReadOnlyList<long>? ReplayWeakCollection()
     {
         if (!rec.Replaying)

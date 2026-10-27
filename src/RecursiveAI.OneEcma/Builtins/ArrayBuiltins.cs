@@ -75,9 +75,6 @@ internal static partial class Builtins
         proto.DefineDirect(new PropertyKey(WellKnown.Unscopables), JsValue.FromObject(unscopables), PropFlags.Configurable);
     }
 
-    /// <summary>The property key text of an array index; charges one step so loops over huge array-likes end in a limit.</summary>
-    private static string IdxKey(long i) => Alg.Key(i).String!;
-
     /// <summary>Resolves a relative index argument for the string methods that share the array clamping rule.</summary>
     private static long RelIndex(JsValue v, long len, long dflt) => Alg.Relative(v, len, dflt);
 }
@@ -153,8 +150,13 @@ internal static class ArrayProto
             throw Errors.Type((items.IsNull ? "object null" : "undefined") + " is not iterable (cannot read property Symbol(Symbol.iterator))");
         }
 
-        JsValue usingIterator = Ops.GetMethod(items, new PropertyKey(WellKnown.Iterator));
-        if (!usingIterator.IsUndefined)
+        JsValue usingIterator = Ops.GetV(items, new PropertyKey(WellKnown.Iterator));
+        if (!usingIterator.IsNullish && !Ops.IsCallable(usingIterator))
+        {
+            throw Errors.Type("%Array%.from requires that the property of the first argument, items[Symbol.iterator], when exists, be a function");
+        }
+
+        if (!usingIterator.IsNullish)
         {
             JsObject arr = Ops.IsConstructor(t) ? Ops.Construct((JsObject)t.Ref!, default) : Alg.ArrayCreate(0);
             IteratorRecord rec = Ops.GetIteratorFromMethod(items, usingIterator);

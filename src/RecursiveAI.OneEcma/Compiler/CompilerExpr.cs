@@ -808,6 +808,14 @@ internal sealed partial class Compiler
                 return CalleeText(c.Callee, depth + 1) + "(...)";
             case ChainExpression ch:
                 return CalleeText(ch.Expression, depth + 1);
+            case NullLiteral:
+                return "null";
+            case BooleanLiteral bl:
+                return bl.Value ? "true" : "false";
+            case RegExpLiteral rl:
+                return "/" + rl.Pattern + "/" + rl.Flags;
+            case ObjectLiteral ol:
+                return ol.Properties.Count == 0 ? "{}" : "{(intermediate value)}";
             case StringLiteral sl:
                 return "\"" + sl.Value + "\"";
             case NumberLiteral nl:
@@ -1285,7 +1293,7 @@ internal sealed partial class Compiler
         if (y.IsDelegate)
         {
             Expr(y.Argument!);
-            Emit(Op.GetIterator, asyncGen ? 1 : 0, NameConst("yield*"));
+            Emit(Op.GetIterator, asyncGen ? 1 : 0, NameConst("\u0002"));
             Emit(Op.PushUndef);
             JumpLabel ret = NewLabel();
             JumpLabel end = NewLabel();

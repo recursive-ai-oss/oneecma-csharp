@@ -110,9 +110,33 @@ The VM runs JS-to-JS calls on an explicit frame stack, so JS recursion does not 
 
 ## The host
 
-`IJsHost` (public, frozen) is the only way out. A built-in that needs the time, randomness, the locale, the zone, a module or output asks `Agent.Current.Host`: `CurrentTimeMs()` (Date), `MonotonicMs()` (limits, `performance.now`), `NextRandom()` (`Math.random`), `DefaultLocale`, `TimeZoneId`, `ResolveModule`, `Print`, `JobEnqueued`, `PromiseRejectionTracker`, `InitializeImportMeta`. Never call `DateTime.Now`, `Stopwatch`, `Random` or the environment yourself; `HostDefaults.cs` is the one file that may. Anything new that is nondeterministic becomes a new `IJsHost` member with a default in `DefaultHost` (additive, so existing hosts keep compiling) and a line here.
+`IJsHost` (public, frozen) is the only way out. A built-in that needs the time, randomness, the locale, the zone, a module or output asks `Agent.Current.Host`: `CurrentTimeMs()` (Date), `MonotonicMs()` (limits, `performance.now`), `NextRandom()` (`Math.random`), `DefaultLocale`, `TimeZoneId`, `ResolveModule`, `Print`, `JobEnqueued`, `PromiseRejectionTracker`, `InitializeImportMeta`, `WantsWeakCollection`. Never call `DateTime.Now`, `Stopwatch`, `Random` or the environment yourself; `HostDefaults.cs` is the one file that may. Anything new that is nondeterministic becomes a new `IJsHost` member with a default in `DefaultHost` (additive, so existing hosts keep compiling) and a line here.
 
 Promise jobs go through `Agent.EnqueueJob(Action)`; never run a reaction synchronously. `WeakRef` and `FinalizationRegistry` observations are scheduled by the engine through the job queue, never by GC timing.
+
+### Wording that names an object or a value
+
+Every row below was recorded from Node v24 (`testdata/errors/cases.txt`, ids `iter-*` and `fnstr-*`) and is compared with the engine on each test run.
+
+- **Object label** (`Ops.ObjectLabel`), used by `Cannot delete property 'k' of L`, `Cannot set property k of L which has only a getter` and, inside quotes, `Cannot assign to read only property 'k' of object 'L'`:
+  a function is its `Function.prototype.toString` text (and the message says `function '...'` instead of `object '...'`); an Error is `Name: message`; an array, String/Number/Boolean/Symbol/BigInt wrapper, Date, RegExp or typed array is `[object Class]`; anything else is `#<C>` where C is the name of the constructor function found by reading `constructor` along the prototype chain without running script (a script function's own declared name wins over a redefined `name`), or `[object Object]` when there is none (null prototype, `constructor` not a function). A Proxy is `#<Object>`.
+- **Store to a string primitive** (strict): `length` and indices below the length give `Cannot assign to read only property 'k' of string 's'`; any other key gives `Cannot create property 'k' on string 's'`.
+- **`Object.defineProperty` on a non-extensible object** adding a new key: `Cannot define property k, object is not extensible`; any other refusal: `Cannot redefine property: k`.
+- **Value kind** (`Ops.KindText`): `undefined`, `object null`, `symbol`, `bigint`, `function`, `object`, `string "s"`, `number 5`, `boolean true`. Used by `X is not iterable (cannot read property Symbol(Symbol.iterator))` from built-ins, `yield*`, array-pattern parameters and assignment patterns, and by `X is not a function` when `GetMethod` finds a non-callable (`Symbol.toPrimitive`, `Symbol.hasInstance`, `Symbol.asyncIterator`).
+- **Source text** in `X is not iterable` for `for-of`, spread and declaration initializers: an identifier, member chain, `null`, `true`/`false`, a number, a regular expression literal, `{}` (`{(intermediate value)}` with properties), `this`. A declaration whose initializer is any other expression, and every nested or assignment pattern, uses the value kind instead. A nullish spread argument in a call reads `X is not iterable (cannot read property undefined)` (`null` for null); a non-iterable non-nullish one reads `Spread syntax requires ...iterable[Symbol.iterator] to be a function`.
+- **`Array.from`** with a `Symbol.iterator` that is neither nullish nor callable: `%Array%.from requires that the property of the first argument, items[Symbol.iterator], when exists, be a function`.
+- **`Function.prototype.toString`**: script functions give their source; native functions `function name() { [native code] }` with the name they were created with (a later `name` redefinition is not shown; getters read `get size`, symbol-named ones `[Symbol.replace]`); bound functions, Proxies with a callable target and the revoker give `function () { [native code] }`; a Proxy with a non-callable target throws TypeError. The `at` frame of a call on a Proxy receiver names the type `Proxy`.
+
+### Weak-reference collection points
+
+Every `WeakRef` and `FinalizationRegistry` target is held strongly until a collection point; only there do unreachable targets die. Two things create one:
+
+- A script calling `$262.gc()` (the conformance host).
+- The host, through `IJsHost.WantsWeakCollection()`. The engine asks it once per job-queue drain (`Agent.RunJobs`, which ends every `Evaluate`, `EvaluateModule` and `RunJobs` entry call), after the last job and the idle hook, and only if a weak target has ever been created. On true it runs a collection point, then drains any cleanup jobs that queued. The interface default is false, so a custom host that does nothing keeps the old behaviour.
+
+`DefaultHost` (so the CLI too) answers true once `GC.GetTotalMemory(false)` has risen by `WeakCollectionGrowthBytes` (protected virtual, default 8 MiB) above the lowest level seen at an earlier question; after a yes it measures again from the next level. A long run that creates weak targets therefore releases them as memory grows and holds them while it does not allocate. The figure is the host's, so it lives in `HostDefaults.cs`.
+
+Replay: the question is not logged. A yes is followed by the usual `Weak` event (written by the collection point itself, with the dead ids), and nothing but the tag of the next entry call follows a drain, so a replaying host answers yes exactly when the next event is `Weak`. The log format is unchanged (version 1).
 
 `EngineLimits` (public, frozen): `Fuel` (default 4e9 steps), `MaxAllocatedBytes` (2 GiB), `WallClockMs` (none), `MaxCallDepth` (10,000, catchable RangeError), `MaxNativeDepth` (120, uncatchable), `MaxStringLength`. A new limit is a new property with a default.
 

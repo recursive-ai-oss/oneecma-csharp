@@ -385,6 +385,11 @@ internal sealed class Frame
             return "BigInt";
         }
 
+        if (v.Ref is ProxyObject)
+        {
+            return "Proxy";
+        }
+
         if (v.Ref is ScriptFunction { IsClassConstructor: true } cf)
         {
             return cf.Code.Name;

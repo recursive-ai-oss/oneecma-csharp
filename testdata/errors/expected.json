@@ -1272,6 +1272,914 @@
    "name": "Error",
    "message": "[object Object]",
    "stack": "Error: [object Object]\n    at case.js:1:7"
+  },
+  "iter-for-of-number": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "5 is not iterable",
+   "stack": "TypeError: 5 is not iterable\n    at case.js:1:17"
+  },
+  "iter-for-of-object": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "{} is not iterable",
+   "stack": "TypeError: {} is not iterable\n    at case.js:1:17"
+  },
+  "iter-for-of-var": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "o is not iterable",
+   "stack": "TypeError: o is not iterable\n    at case.js:2:17"
+  },
+  "iter-for-of-undefined": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "undefined is not iterable",
+   "stack": "TypeError: undefined is not iterable\n    at case.js:1:17"
+  },
+  "iter-for-of-null": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "null is not iterable",
+   "stack": "TypeError: null is not iterable\n    at case.js:1:17"
+  },
+  "iter-for-of-bool": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "true is not iterable",
+   "stack": "TypeError: true is not iterable\n    at case.js:1:17"
+  },
+  "iter-for-of-fn": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "(intermediate value) is not iterable",
+   "stack": "TypeError: (intermediate value) is not iterable\n    at case.js:1:17"
+  },
+  "iter-spread-empty-object": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "{} is not iterable",
+   "stack": "TypeError: {} is not iterable\n    at case.js:1:13"
+  },
+  "iter-spread-number": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "n is not iterable",
+   "stack": "TypeError: n is not iterable\n    at case.js:2:13"
+  },
+  "iter-spread-call-object": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Spread syntax requires ...iterable[Symbol.iterator] to be a function",
+   "stack": "TypeError: Spread syntax requires ...iterable[Symbol.iterator] to be a function\n    at case.js:2:6"
+  },
+  "iter-spread-call-undefined": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "undefined is not iterable (cannot read property undefined)",
+   "stack": "TypeError: undefined is not iterable (cannot read property undefined)\n    at case.js:1:6"
+  },
+  "iter-new-map-number": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "number 1 is not iterable (cannot read property Symbol(Symbol.iterator))",
+   "stack": "TypeError: number 1 is not iterable (cannot read property Symbol(Symbol.iterator))\n    at new Map (<anonymous>)\n    at case.js:1:1"
+  },
+  "iter-new-set-number": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "number 1 is not iterable (cannot read property Symbol(Symbol.iterator))",
+   "stack": "TypeError: number 1 is not iterable (cannot read property Symbol(Symbol.iterator))\n    at new Set (<anonymous>)\n    at case.js:1:1"
+  },
+  "iter-new-set-object": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "object is not iterable (cannot read property Symbol(Symbol.iterator))",
+   "stack": "TypeError: object is not iterable (cannot read property Symbol(Symbol.iterator))\n    at new Set (<anonymous>)\n    at case.js:1:1"
+  },
+  "iter-new-weakmap-bool": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "boolean true is not iterable (cannot read property Symbol(Symbol.iterator))",
+   "stack": "TypeError: boolean true is not iterable (cannot read property Symbol(Symbol.iterator))\n    at new WeakMap (<anonymous>)\n    at case.js:1:1"
+  },
+  "iter-map-entry-number": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Iterator value 1 is not an entry object",
+   "stack": "TypeError: Iterator value 1 is not an entry object\n    at new Map (<anonymous>)\n    at case.js:1:1"
+  },
+  "iter-destructure-object": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "{} is not iterable",
+   "stack": "TypeError: {} is not iterable\n    at case.js:1:13"
+  },
+  "iter-destructure-number": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "5 is not iterable",
+   "stack": "TypeError: 5 is not iterable\n    at case.js:1:13"
+  },
+  "iter-destructure-null": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "null is not iterable",
+   "stack": "TypeError: null is not iterable\n    at case.js:1:13"
+  },
+  "iter-destructure-undefined": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "undefined is not iterable",
+   "stack": "TypeError: undefined is not iterable\n    at case.js:1:13"
+  },
+  "iter-destructure-var": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "src is not iterable",
+   "stack": "TypeError: src is not iterable\n    at case.js:2:14"
+  },
+  "iter-destructure-param": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "number 3 is not iterable (cannot read property Symbol(Symbol.iterator))",
+   "stack": "TypeError: number 3 is not iterable (cannot read property Symbol(Symbol.iterator))\n    at f (case.js:1:11)\n    at case.js:2:1"
+  },
+  "iter-destructure-assign": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "number 9 is not iterable (cannot read property Symbol(Symbol.iterator))",
+   "stack": "TypeError: number 9 is not iterable (cannot read property Symbol(Symbol.iterator))\n    at case.js:2:5"
+  },
+  "iter-array-from-iter-not-callable": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "%Array%.from requires that the property of the first argument, items[Symbol.iterator], when exists, be a function",
+   "stack": "TypeError: %Array%.from requires that the property of the first argument, items[Symbol.iterator], when exists, be a function\n    at Array.from (<anonymous>)\n    at case.js:1:7"
+  },
+  "iter-symbol-iterator-number": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "o is not iterable",
+   "stack": "TypeError: o is not iterable\n    at case.js:2:17"
+  },
+  "iter-symbol-iterator-spread": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "o is not iterable",
+   "stack": "TypeError: o is not iterable\n    at case.js:2:13"
+  },
+  "iter-symbol-iterator-set": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "object is not iterable (cannot read property Symbol(Symbol.iterator))",
+   "stack": "TypeError: object is not iterable (cannot read property Symbol(Symbol.iterator))\n    at new Set (<anonymous>)\n    at case.js:1:1"
+  },
+  "iter-symbol-iterator-destructure": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "o is not iterable",
+   "stack": "TypeError: o is not iterable\n    at case.js:2:11"
+  },
+  "iter-symbol-iterator-returns-number": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Result of the Symbol.iterator method is not an object",
+   "stack": "TypeError: Result of the Symbol.iterator method is not an object\n    at case.js:2:17"
+  },
+  "iter-next-not-object": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Iterator result 1 is not an object",
+   "stack": "TypeError: Iterator result 1 is not an object\n    at case.js:2:12"
+  },
+  "iter-yield-star-number": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "number 5 is not iterable (cannot read property Symbol(Symbol.iterator))",
+   "stack": "TypeError: number 5 is not iterable (cannot read property Symbol(Symbol.iterator))\n    at g (case.js:1:17)\n    at g.next (<anonymous>)\n    at case.js:2:5"
+  },
+  "iter-object-from-entries": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "number 5 is not iterable (cannot read property Symbol(Symbol.iterator))",
+   "stack": "TypeError: number 5 is not iterable (cannot read property Symbol(Symbol.iterator))\n    at Object.fromEntries (<anonymous>)\n    at case.js:1:8"
+  },
+  "iter-object-from-entries-entry": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Iterator value 1 is not an entry object",
+   "stack": "TypeError: Iterator value 1 is not an entry object\n    at Object.fromEntries (<anonymous>)\n    at case.js:1:8"
+  },
+  "iter-promise-all-reject": {
+   "threw": false,
+   "name": "TypeError",
+   "message": "number 5 is not iterable (cannot read property Symbol(Symbol.iterator))",
+   "stack": "TypeError: number 5 is not iterable (cannot read property Symbol(Symbol.iterator))\n    at Promise.all (<anonymous>)\n    at case.js:1:9"
+  },
+  "iter-array-from-async": {
+   "threw": false,
+   "primitive": "undefined"
+  },
+  "iter-toprimitive-number": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "number 1 is not a function",
+   "stack": "TypeError: number 1 is not a function\n    at case.js:2:3"
+  },
+  "iter-toprimitive-returns-object": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot convert object to primitive value",
+   "stack": "TypeError: Cannot convert object to primitive value\n    at case.js:2:3"
+  },
+  "iter-toprimitive-string": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "string \"x\" is not a function",
+   "stack": "TypeError: string \"x\" is not a function\n    at case.js:2:1"
+  },
+  "iter-valueof-tostring-objects": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot convert object to primitive value",
+   "stack": "TypeError: Cannot convert object to primitive value\n    at case.js:2:3"
+  },
+  "iter-then-getter-throws": {
+   "threw": false,
+   "name": "RangeError",
+   "message": "g",
+   "stack": "RangeError: g\n    at get then (case.js:1:46)\n    at Promise.resolve (<anonymous>)\n    at case.js:1:17"
+  },
+  "iter-hasinstance-number": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "number 1 is not a function",
+   "stack": "TypeError: number 1 is not a function\n    at case.js:2:3"
+  },
+  "iter-instanceof-nonobject": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Right-hand side of 'instanceof' is not an object",
+   "stack": "TypeError: Right-hand side of 'instanceof' is not an object\n    at case.js:1:3"
+  },
+  "iter-instanceof-object-nocall": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Right-hand side of 'instanceof' is not callable",
+   "stack": "TypeError: Right-hand side of 'instanceof' is not callable\n    at case.js:1:3"
+  },
+  "iter-species-ctor-number": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "object.constructor[Symbol.species] is not a constructor",
+   "stack": "TypeError: object.constructor[Symbol.species] is not a constructor\n    at Array.map (<anonymous>)\n    at case.js:3:3"
+  },
+  "iter-tojson-string": {
+   "threw": false,
+   "primitive": "{\"toJSON\":1}"
+  },
+  "iter-async-iterator-number": {
+   "threw": false,
+   "name": "TypeError",
+   "message": "number 1 is not a function",
+   "stack": "TypeError: number 1 is not a function\n    at case.js:1:64\n    at case.js:1:74"
+  },
+  "iter-async-for-await-number": {
+   "threw": false,
+   "name": "TypeError",
+   "message": "5 is not async iterable",
+   "stack": "TypeError: 5 is not async iterable\n    at case.js:1:38\n    at case.js:1:46"
+  },
+  "iter-regexp-exec-number": {
+   "threw": false,
+   "primitive": "undefined"
+  },
+  "iter-proxy-handler-trap-number": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "'1' returned for property 'get' of object '#<Object>' is not a function",
+   "stack": "TypeError: '1' returned for property 'get' of object '#<Object>' is not a function\n    at case.js:2:3"
+  },
+  "iter-reflect-apply-nonfn": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Function.prototype.apply was called on 1, which is a number and not a function",
+   "stack": "TypeError: Function.prototype.apply was called on 1, which is a number and not a function\n    at case.js:1:9"
+  },
+  "iter-label-delete-frozen-array": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot delete property '0' of [object Array]",
+   "stack": "TypeError: Cannot delete property '0' of [object Array]\n    at case.js:3:1"
+  },
+  "iter-label-delete-frozen-object": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot delete property 'x' of #<Object>",
+   "stack": "TypeError: Cannot delete property 'x' of #<Object>\n    at case.js:3:1"
+  },
+  "iter-label-delete-fn": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot delete property 'prototype' of function f() {}",
+   "stack": "TypeError: Cannot delete property 'prototype' of function f() {}\n    at case.js:3:1"
+  },
+  "iter-label-delete-class-instance": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot delete property 'x' of #<Foo>",
+   "stack": "TypeError: Cannot delete property 'x' of #<Foo>\n    at case.js:5:1"
+  },
+  "iter-label-delete-null-proto": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot delete property 'x' of [object Object]",
+   "stack": "TypeError: Cannot delete property 'x' of [object Object]\n    at case.js:4:1"
+  },
+  "iter-label-delete-string-index": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot delete property '0' of [object String]",
+   "stack": "TypeError: Cannot delete property '0' of [object String]\n    at case.js:2:1"
+  },
+  "iter-label-delete-array-length": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot delete property 'length' of [object Array]",
+   "stack": "TypeError: Cannot delete property 'length' of [object Array]\n    at case.js:2:1"
+  },
+  "iter-label-assign-frozen-array": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot assign to read only property '0' of object '[object Array]'",
+   "stack": "TypeError: Cannot assign to read only property '0' of object '[object Array]'\n    at case.js:3:6"
+  },
+  "iter-label-assign-frozen-array-push": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot add property 1, object is not extensible",
+   "stack": "TypeError: Cannot add property 1, object is not extensible\n    at Array.push (<anonymous>)\n    at case.js:3:3"
+  },
+  "iter-label-assign-frozen-object": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot assign to read only property 'x' of object '#<Object>'",
+   "stack": "TypeError: Cannot assign to read only property 'x' of object '#<Object>'\n    at case.js:3:5"
+  },
+  "iter-label-assign-class-instance": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot assign to read only property 'x' of object '#<Foo>'",
+   "stack": "TypeError: Cannot assign to read only property 'x' of object '#<Foo>'\n    at case.js:5:5"
+  },
+  "iter-label-assign-fn": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot assign to read only property 'name' of function 'function f() {}'",
+   "stack": "TypeError: Cannot assign to read only property 'name' of function 'function f() {}'\n    at case.js:3:8"
+  },
+  "iter-label-assign-null-proto": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot assign to read only property 'x' of object '[object Object]'",
+   "stack": "TypeError: Cannot assign to read only property 'x' of object '[object Object]'\n    at case.js:4:5"
+  },
+  "iter-label-assign-string-length": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot assign to read only property 'length' of string 'abc'",
+   "stack": "TypeError: Cannot assign to read only property 'length' of string 'abc'\n    at case.js:2:14"
+  },
+  "iter-label-assign-string-index": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot assign to read only property '0' of string 'abc'",
+   "stack": "TypeError: Cannot assign to read only property '0' of string 'abc'\n    at case.js:3:6"
+  },
+  "iter-label-assign-string-wrapper": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot assign to read only property '0' of object '[object String]'",
+   "stack": "TypeError: Cannot assign to read only property '0' of object '[object String]'\n    at case.js:3:6"
+  },
+  "iter-label-assign-number-prop": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot create property 'x' on number '5'",
+   "stack": "TypeError: Cannot create property 'x' on number '5'\n    at case.js:2:7"
+  },
+  "iter-label-assign-boolean-wrapper": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot assign to read only property 'x' of object '[object Boolean]'",
+   "stack": "TypeError: Cannot assign to read only property 'x' of object '[object Boolean]'\n    at case.js:4:5"
+  },
+  "iter-label-getter-only": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot set property x of #<Object> which has only a getter",
+   "stack": "TypeError: Cannot set property x of #<Object> which has only a getter\n    at case.js:3:5"
+  },
+  "iter-label-getter-only-array": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot set property x of [object Array] which has only a getter",
+   "stack": "TypeError: Cannot set property x of [object Array] which has only a getter\n    at case.js:4:5"
+  },
+  "iter-label-getter-only-class": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot set property x of #<Foo> which has only a getter",
+   "stack": "TypeError: Cannot set property x of #<Foo> which has only a getter\n    at case.js:3:13"
+  },
+  "iter-label-getter-only-fn": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot set property x of function f() {} which has only a getter",
+   "stack": "TypeError: Cannot set property x of function f() {} which has only a getter\n    at case.js:4:5"
+  },
+  "iter-label-getter-only-null-proto": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot set property x of [object Object] which has only a getter",
+   "stack": "TypeError: Cannot set property x of [object Object] which has only a getter\n    at case.js:4:5"
+  },
+  "iter-label-getter-only-static": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot set property x of class Foo { static get x() { return 1; } } which has only a getter",
+   "stack": "TypeError: Cannot set property x of class Foo { static get x() { return 1; } } which has only a getter\n    at case.js:3:7"
+  },
+  "iter-label-nonextensible": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot add property y, object is not extensible",
+   "stack": "TypeError: Cannot add property y, object is not extensible\n    at case.js:3:5"
+  },
+  "iter-label-nonextensible-array": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot add property 0, object is not extensible",
+   "stack": "TypeError: Cannot add property 0, object is not extensible\n    at case.js:3:6"
+  },
+  "iter-label-define-nonextensible": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot define property x, object is not extensible",
+   "stack": "TypeError: Cannot define property x, object is not extensible\n    at Object.defineProperty (<anonymous>)\n    at case.js:1:8"
+  },
+  "iter-label-define-frozen": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot redefine property: x",
+   "stack": "TypeError: Cannot redefine property: x\n    at Object.defineProperty (<anonymous>)\n    at case.js:1:8"
+  },
+  "iter-label-array-length-frozen": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot assign to read only property 'length' of object '[object Array]'",
+   "stack": "TypeError: Cannot assign to read only property 'length' of object '[object Array]'\n    at case.js:3:10"
+  },
+  "iter-label-pop-frozen": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot delete property '0' of [object Array]",
+   "stack": "TypeError: Cannot delete property '0' of [object Array]\n    at Array.pop (<anonymous>)\n    at case.js:1:20"
+  },
+  "iter-label-shift-frozen": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot assign to read only property '0' of object '[object Array]'",
+   "stack": "TypeError: Cannot assign to read only property '0' of object '[object Array]'\n    at Array.shift (<anonymous>)\n    at case.js:1:23"
+  },
+  "iter-label-splice-frozen": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot assign to read only property '0' of object '[object Array]'",
+   "stack": "TypeError: Cannot assign to read only property '0' of object '[object Array]'\n    at Array.splice (<anonymous>)\n    at case.js:1:23"
+  },
+  "iter-label-sort-frozen": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot assign to read only property '0' of object '[object Array]'",
+   "stack": "TypeError: Cannot assign to read only property '0' of object '[object Array]'\n    at Array.sort (<anonymous>)\n    at case.js:1:23"
+  },
+  "iter-label-reverse-frozen": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot assign to read only property '0' of object '[object Array]'",
+   "stack": "TypeError: Cannot assign to read only property '0' of object '[object Array]'\n    at Array.reverse (<anonymous>)\n    at case.js:1:23"
+  },
+  "iter-label-fill-frozen": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot assign to read only property '0' of object '[object Array]'",
+   "stack": "TypeError: Cannot assign to read only property '0' of object '[object Array]'\n    at Array.fill (<anonymous>)\n    at case.js:1:23"
+  },
+  "iter-label-unshift-frozen": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot add property 2, object is not extensible",
+   "stack": "TypeError: Cannot add property 2, object is not extensible\n    at Array.unshift (<anonymous>)\n    at case.js:1:23"
+  },
+  "iter-label-copywithin-frozen": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot assign to read only property '0' of object '[object Array]'",
+   "stack": "TypeError: Cannot assign to read only property '0' of object '[object Array]'\n    at Array.copyWithin (<anonymous>)\n    at case.js:1:23"
+  },
+  "iter-label-object-assign-frozen": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot assign to read only property 'a' of object '#<Object>'",
+   "stack": "TypeError: Cannot assign to read only property 'a' of object '#<Object>'\n    at Object.assign (<anonymous>)\n    at case.js:1:8"
+  },
+  "iter-label-typedarray": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot assign to read only property 'x' of object '[object Uint8Array]'",
+   "stack": "TypeError: Cannot assign to read only property 'x' of object '[object Uint8Array]'\n    at case.js:5:5"
+  },
+  "iter-label-map": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot assign to read only property 'x' of object '#<Map>'",
+   "stack": "TypeError: Cannot assign to read only property 'x' of object '#<Map>'\n    at case.js:4:5"
+  },
+  "iter-label-date": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot assign to read only property 'x' of object '[object Date]'",
+   "stack": "TypeError: Cannot assign to read only property 'x' of object '[object Date]'\n    at case.js:4:5"
+  },
+  "iter-label-error": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot assign to read only property 'x' of object 'TypeError: q'",
+   "stack": "TypeError: Cannot assign to read only property 'x' of object 'TypeError: q'\n    at case.js:4:5"
+  },
+  "iter-label-regexp": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot assign to read only property 'x' of object '[object RegExp]'",
+   "stack": "TypeError: Cannot assign to read only property 'x' of object '[object RegExp]'\n    at case.js:4:5"
+  },
+  "iter-label-arrow": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot assign to read only property 'x' of function '() => 1'",
+   "stack": "TypeError: Cannot assign to read only property 'x' of function '() => 1'\n    at case.js:4:5"
+  },
+  "iter-label-class-ctor": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot assign to read only property 'prototype' of function 'class K {}'",
+   "stack": "TypeError: Cannot assign to read only property 'prototype' of function 'class K {}'\n    at case.js:3:13"
+  },
+  "iter-label-anon-class-instance": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot assign to read only property 'x' of object '#<K>'",
+   "stack": "TypeError: Cannot assign to read only property 'x' of object '#<K>'\n    at case.js:5:5"
+  },
+  "iter-label-object-create-proto-chain": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot assign to read only property 'x' of object '#<Object>'",
+   "stack": "TypeError: Cannot assign to read only property 'x' of object '#<Object>'\n    at case.js:4:5"
+  },
+  "iter-label-symbol-key": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot assign to read only property 'Symbol(s)' of object '#<Object>'",
+   "stack": "TypeError: Cannot assign to read only property 'Symbol(s)' of object '#<Object>'\n    at case.js:4:6"
+  },
+  "iter-label-promise": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot assign to read only property 'x' of object '#<Promise>'",
+   "stack": "TypeError: Cannot assign to read only property 'x' of object '#<Promise>'\n    at case.js:4:5"
+  },
+  "iter-label-args": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot assign to read only property 'x' of object '#<Object>'",
+   "stack": "TypeError: Cannot assign to read only property 'x' of object '#<Object>'\n    at f (case.js:2:81)\n    at case.js:3:1"
+  },
+  "iter-label-ctor-name-getter": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot assign to read only property 'x' of object '#<Foo>'",
+   "stack": "TypeError: Cannot assign to read only property 'x' of object '#<Foo>'\n    at case.js:5:5"
+  },
+  "iter-label-ctor-overwritten": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot assign to read only property 'x' of object '[object Object]'",
+   "stack": "TypeError: Cannot assign to read only property 'x' of object '[object Object]'\n    at case.js:4:5"
+  },
+  "iter-label-tostringtag": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Cannot assign to read only property 'x' of object '#<Object>'",
+   "stack": "TypeError: Cannot assign to read only property 'x' of object '#<Object>'\n    at case.js:4:5"
+  },
+  "fnstr-proxy-function": {
+   "threw": false,
+   "primitive": "function () { [native code] }"
+  },
+  "fnstr-proxy-class": {
+   "threw": false,
+   "primitive": "function () { [native code] }"
+  },
+  "fnstr-proxy-arrow-string": {
+   "threw": false,
+   "primitive": "function () { [native code] }"
+  },
+  "fnstr-proxy-nested": {
+   "threw": false,
+   "primitive": "function () { [native code] }"
+  },
+  "fnstr-proxy-revoked-function": {
+   "threw": false,
+   "primitive": "function () { [native code] }"
+  },
+  "fnstr-proxy-object": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Function.prototype.toString requires that 'this' be a Function",
+   "stack": "TypeError: Function.prototype.toString requires that 'this' be a Function\n    at Proxy.toString (<anonymous>)\n    at case.js:1:29"
+  },
+  "fnstr-proxy-revoked-object": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Function.prototype.toString requires that 'this' be a Function",
+   "stack": "TypeError: Function.prototype.toString requires that 'this' be a Function\n    at Proxy.toString (<anonymous>)\n    at case.js:3:29"
+  },
+  "fnstr-proxy-object-with-apply": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Function.prototype.toString requires that 'this' be a Function",
+   "stack": "TypeError: Function.prototype.toString requires that 'this' be a Function\n    at Proxy.toString (<anonymous>)\n    at case.js:1:29"
+  },
+  "fnstr-bound": {
+   "threw": false,
+   "primitive": "function () { [native code] }"
+  },
+  "fnstr-bound-bound-native": {
+   "threw": false,
+   "primitive": "function () { [native code] }"
+  },
+  "fnstr-bound-proxy": {
+   "threw": false,
+   "primitive": "function () { [native code] }"
+  },
+  "fnstr-native": {
+   "threw": false,
+   "primitive": "function max() { [native code] }"
+  },
+  "fnstr-native-getter": {
+   "threw": false,
+   "primitive": "function get size() { [native code] }"
+  },
+  "fnstr-native-symbol-named": {
+   "threw": false,
+   "primitive": "function [Symbol.replace]() { [native code] }"
+  },
+  "fnstr-native-species-getter": {
+   "threw": false,
+   "primitive": "function get [Symbol.species]() { [native code] }"
+  },
+  "fnstr-native-has-instance": {
+   "threw": false,
+   "primitive": "function [Symbol.hasInstance]() { [native code] }"
+  },
+  "fnstr-native-renamed": {
+   "threw": false,
+   "primitive": "function max() { [native code] }"
+  },
+  "fnstr-native-values-alias": {
+   "threw": false,
+   "primitive": "function values() { [native code] }"
+  },
+  "fnstr-new-function": {
+   "threw": false,
+   "primitive": "function anonymous(a\n) {\nreturn a\n}"
+  },
+  "fnstr-async-method-getter": {
+   "threw": false,
+   "primitive": "async function () {}|m() {}|get x() { return 1; }"
+  },
+  "fnstr-not-function": {
+   "threw": true,
+   "name": "TypeError",
+   "message": "Function.prototype.toString requires that 'this' be a Function",
+   "stack": "TypeError: Function.prototype.toString requires that 'this' be a Function\n    at Object.toString (<anonymous>)\n    at case.js:1:29"
+  },
+  "fnstr-revoker": {
+   "threw": false,
+   "primitive": "function () { [native code] }"
+  },
+  "order-obj-computed-key-then-get": {
+   "threw": false,
+   "primitive": "key a,get a,default x,key b,get b|12"
+  },
+  "order-obj-assign-target-before-get": {
+   "threw": false,
+   "primitive": "key,target,get a,set t 1"
+  },
+  "order-obj-assign-target-two": {
+   "threw": false,
+   "primitive": "tgt 1,get a,set 1=1,tgt 2,get b,set 2=2"
+  },
+  "order-obj-assign-default-after-target": {
+   "threw": false,
+   "primitive": "tgt,get a,default,set 5"
+  },
+  "order-obj-rest-key-order": {
+   "threw": false,
+   "primitive": "get b,ownKeys,gopd a,get a,gopd c,get c|a,c"
+  },
+  "order-obj-rest-target-before-ownkeys": {
+   "threw": false,
+   "primitive": "tgt,get a,tgt,ownKeys,gopd b,get b"
+  },
+  "order-obj-computed-key-tostring": {
+   "threw": false,
+   "primitive": "toString,get a1"
+  },
+  "order-obj-null-source-before-key": {
+   "threw": false,
+   "primitive": "TypeError"
+  },
+  "order-obj-params-default-order": {
+   "threw": false,
+   "primitive": "dflt,da,db,dc,body"
+  },
+  "order-arr-assign-target-before-step": {
+   "threw": false,
+   "primitive": "tgt 1,next,set 1,tgt 2,next,set 2,return"
+  },
+  "order-arr-default-after-step": {
+   "threw": false,
+   "primitive": "next,d1,next,d2,return"
+  },
+  "order-arr-close-on-default-throw": {
+   "threw": false,
+   "primitive": "next,return,boom"
+  },
+  "order-arr-close-on-target-throw": {
+   "threw": false,
+   "primitive": "tgt,return,tt"
+  },
+  "order-arr-no-close-when-next-throws": {
+   "threw": false,
+   "primitive": "next,nx"
+  },
+  "order-arr-no-close-when-done": {
+   "threw": false,
+   "primitive": "next"
+  },
+  "order-arr-close-after-elision-and-end": {
+   "threw": false,
+   "primitive": "next,next,next,return2"
+  },
+  "order-arr-rest-drains-no-close": {
+   "threw": false,
+   "primitive": "next,next,next1"
+  },
+  "order-arr-rest-target-before-drain": {
+   "threw": false,
+   "primitive": "tgt,next,next"
+  },
+  "order-arr-return-result-not-object": {
+   "threw": false,
+   "primitive": "return,TypeError"
+  },
+  "order-arr-return-throws-vs-body-throw": {
+   "threw": false,
+   "primitive": "return,body"
+  },
+  "order-arr-getter-next-read-once": {
+   "threw": false,
+   "primitive": "get next"
+  },
+  "order-arr-nested-obj-in-arr": {
+   "threw": false,
+   "primitive": "next,get p,next,get p,return77"
+  },
+  "order-for-of-destructure-close": {
+   "threw": false,
+   "primitive": "next,body,return"
+  },
+  "order-param-array-default-eval": {
+   "threw": false,
+   "primitive": "dflt,da,body,body"
+  },
+  "order-assign-obj-nested-target-eval": {
+   "threw": false,
+   "primitive": "t1,get b,set 1,t2,get c,set 2"
+  },
+  "order-assign-array-computed-member-key": {
+   "threw": false,
+   "primitive": "ka,kb{\"a\":1,\"b\":2}"
+  },
+  "order-obj-rest-computed-key-once": {
+   "threw": false,
+   "primitive": "toStringb"
+  },
+  "order-arr-put-value-null-base-closes": {
+   "threw": false,
+   "primitive": "next,return,TypeError"
+  },
+  "order-arr-target-setter-throws-closes": {
+   "threw": false,
+   "primitive": "next,set,return,set boom"
+  },
+  "order-obj-assign-rest-proxy-target": {
+   "threw": false,
+   "primitive": "set a,set rest{\"b\":2,\"c\":3}"
+  },
+  "order-arr-hole-and-defaults-mixed": {
+   "threw": false,
+   "primitive": "next0,next1,db,next2,next3,dc1,20,30"
+  },
+  "locale-info-en-us": {
+   "threw": false,
+   "primitive": "[[\"gregory\"],[\"h12\"],[\"latn\"]]"
+  },
+  "locale-info-en-gb": {
+   "threw": false,
+   "primitive": "[[\"gregory\"],[\"h23\"],[\"latn\"]]"
+  },
+  "locale-info-es": {
+   "threw": false,
+   "primitive": "[[\"gregory\"],[\"h23\"],[\"latn\"]]"
+  },
+  "locale-info-es-us": {
+   "threw": false,
+   "primitive": "[[\"gregory\"],[\"h12\"],[\"latn\"]]"
+  },
+  "locale-info-fr": {
+   "threw": false,
+   "primitive": "[[\"gregory\"],[\"h23\"],[\"latn\"]]"
+  },
+  "locale-info-de": {
+   "threw": false,
+   "primitive": "[[\"gregory\"],[\"h23\"],[\"latn\"]]"
+  },
+  "locale-info-pt-br": {
+   "threw": false,
+   "primitive": "[[\"gregory\"],[\"h23\"],[\"latn\"]]"
+  },
+  "locale-info-en": {
+   "threw": false,
+   "primitive": "[[\"gregory\"],[\"h12\"],[\"latn\"]]"
+  },
+  "locale-info-es-mx": {
+   "threw": false,
+   "primitive": "[[\"gregory\"],[\"h12\"],[\"latn\"]]"
+  },
+  "locale-info-en-u-ca-buddhist": {
+   "threw": false,
+   "primitive": "[[\"buddhist\"],[\"h12\"],[\"latn\"]]"
+  },
+  "locale-info-en-u-hc-h23": {
+   "threw": false,
+   "primitive": "[[\"gregory\"],[\"h23\"],[\"latn\"]]"
+  },
+  "locale-info-en-u-nu-arab": {
+   "threw": false,
+   "primitive": "[[\"gregory\"],[\"h12\"],[\"arab\"]]"
+  },
+  "locale-info-de-ch": {
+   "threw": false,
+   "primitive": "[[\"gregory\"],[\"h23\"],[\"latn\"]]"
+  },
+  "locale-info-und": {
+   "threw": false,
+   "primitive": "[[\"gregory\"],[\"h12\"],[\"latn\"]]"
+  },
+  "order-with-var-object-pattern": {
+   "threw": false,
+   "primitive": "binding::source,binding::sourceKey,sourceKey,get source,binding::defaultValue,binding::varTarget"
+  },
+  "order-with-var-array-pattern": {
+   "threw": false,
+   "primitive": "binding::it,next,binding::defaultValue,binding::varTarget,return"
+  },
+  "order-with-assign-object-pattern": {
+   "threw": false,
+   "primitive": "binding::source,get source,binding::a,get q,binding::b"
+  },
+  "order-with-assign-array-rest": {
+   "threw": false,
+   "primitive": "binding::it,next,binding::a,next,binding::r"
+  },
+  "order-with-assign-unresolvable-strict-fn": {
+   "threw": false,
+   "primitive": "binding::src,get p,binding::undeclared,ReferenceError"
   }
  }
 }

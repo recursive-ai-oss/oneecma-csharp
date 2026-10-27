@@ -21,6 +21,9 @@ internal sealed class WeakTracker
 
     internal long NewId() => _nextId++;
 
+    /// <summary>True once any WeakRef or FinalizationRegistry target has been made. It never goes back, so it does not depend on the garbage collector.</summary>
+    internal bool HasTargets => _nextId > 1;
+
     internal void Track(WeakRefObject r) => _refs.Add(new WeakReference<WeakRefObject>(r));
 
     internal void Track(FinalizationRegistryObject r) => _registries.Add(new WeakReference<FinalizationRegistryObject>(r));

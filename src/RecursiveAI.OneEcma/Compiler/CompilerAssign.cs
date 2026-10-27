@@ -96,6 +96,7 @@ internal sealed partial class Compiler
                 }
 
                 DestructureText = SourceSlice(a.Right);
+                _iterText = "\u0002";
                 _destructureSpan = (a.Right.Start, a.Right.End);
                 BindTarget(left, BindMode.Assign);
                 return;
@@ -512,7 +513,17 @@ internal sealed partial class Compiler
         switch (t)
         {
             case Identifier id:
-                if (mode == BindMode.Init)
+                if (pre?.DynName is not null)
+                {
+                    int dv = NewTemp();
+                    Emit(Op.StoreLocal, dv);
+                    Emit(Op.LoadLocal, pre.Obj);
+                    FreeTemp(pre.Obj);
+                    Emit(Op.LoadLocal, dv);
+                    FreeTemp(dv);
+                    Emit(Op.PutDynRef, NameConst(id.Name), _f.Strict ? 1 : 0);
+                }
+                else if (mode == BindMode.Init)
                 {
                     InitIdent(id.Name);
                 }
@@ -641,6 +652,9 @@ internal sealed partial class Compiler
     {
         internal int Obj = -1;
         internal int Key = -1;
+
+        /// <summary>Set when the target is a name looked up at run time (with, direct eval): <see cref="Obj"/> then holds the resolved reference.</summary>
+        internal string? DynName;
     }
 
     /// <summary>
@@ -655,6 +669,16 @@ internal sealed partial class Compiler
         }
 
         Node? target = t is AssignmentPattern ap ? ap.Left : t;
+        if (target is Identifier dynId && Resolve(dynId.Name).Kind == RefKind.Dynamic)
+        {
+            // ECMA-262 8.6.3 KeyedBindingInitialization / 13.15.5.5: ResolveBinding runs before the value is read, so a with
+            // object's `has` trap (and any error) comes first.
+            var dyn = new PreRef { Obj = NewTemp(), DynName = dynId.Name };
+            Emit(Op.ResolveDynRef, NameConst(dynId.Name));
+            Emit(Op.StoreLocal, dyn.Obj);
+            return dyn;
+        }
+
         if (target is not MemberExpression m)
         {
             return null;
@@ -701,7 +725,9 @@ internal sealed partial class Compiler
             SetSpan(spS, spE);
         }
 
-        Emit(Op.GetIterator, 0, NameConst(_paramPattern ? "\u0002" : DestructureText));
+        // V8 names the source expression only for a plain declaration initializer; every other pattern names the value's type.
+        Emit(Op.GetIterator, 0, NameConst(_paramPattern ? "\u0002" : _iterText));
+        _iterText = "\u0002";
         SetSpan(ds, de);
         int done = NewTemp();
         Emit(Op.PushFalse);
@@ -756,8 +782,12 @@ internal sealed partial class Compiler
     // True while binding a pattern that is the value of a property of an enclosing pattern: V8 words its failure as a plain read.
     private bool _nestedPattern;
 
+    /// <summary>The text for "x is not iterable" in the next array pattern; "\u0002" asks for the value-type wording.</summary>
+    private string _iterText = "\u0002";
+
     private void ObjectPatternBind(ObjectPattern obj, BindMode mode)
     {
+        _iterText = "\u0002";
         string? first = null;
         bool hasRest = false;
         foreach (Node p in obj.Properties)

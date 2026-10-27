@@ -591,16 +591,9 @@ internal static partial class Builtins
         });
         r.Method(proto, "toString", 0, (t, a, nt) =>
         {
-            if (t.Ref is ScriptFunction sf)
-            {
-                return Ops.Str(sf.Code.SourceText);
-            }
-
             if (t.Ref is JsObject o && o.IsCallable)
             {
-                string name = o.GetOwnProperty("name", out PropertyDescriptor d) && d.Value.IsString ? d.Value.AsString : string.Empty;
-                // A bound function has no name of its own that fits the NativeFunction grammar.
-                return Ops.Str(o is BoundFunction ? "function () { [native code] }" : "function " + name + "() { [native code] }");
+                return Ops.Str(Ops.FunctionText(o));
             }
 
             throw Errors.Type("Function.prototype.toString requires that 'this' be a Function");

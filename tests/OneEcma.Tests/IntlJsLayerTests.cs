@@ -82,4 +82,47 @@ public class IntlJsLayerTests
             """);
         Assert.Equal("\u0130 \u0131 i I\ntrue", o);
     }
+
+    [Fact]
+    public void RepeatedLocaleCallsShareOneServiceAndTheCacheStaysBounded()
+    {
+        var host = new PrintHost();
+        var engine = new ScriptEngine(new ScriptEngineOptions { Host = host, InstallTest262Host = true });
+        var realm = engine.MainRealm.Inner;
+        engine.Evaluate("""
+            for (let i = 0; i < 50; i++) {
+              (1234.5).toLocaleString('de');
+              (1234.5).toLocaleString('de', { style: 'currency', currency: 'EUR' });
+              'a'.localeCompare('b', 'es');
+              new Date(0).toLocaleDateString('fr', { timeZone: 'UTC' });
+            }
+            print((1234.5).toLocaleString('de') + '|' + (1234.5).toLocaleString('de', { style: 'currency', currency: 'EUR' }) + '|' + 'a'.localeCompare('b', 'es') + '|' + new Date(0).toLocaleDateString('fr', { timeZone: 'UTC' }));
+            """, "t.js", TestContext.Current.CancellationToken);
+        Assert.Equal("1.234,5|1.234,50\u00a0\u20ac|-1|01/01/1970", host.Output.ToString().TrimEnd('\n'));
+        Assert.Equal(4, IntlJs.CachedServiceCount(realm));
+
+        // Many distinct option sets cannot grow the cache past its limit, and every result is still right.
+        engine.Evaluate("""
+            for (let d = 0; d < 6; d++) for (let m = 0; m < 20; m++) {
+              if ((1.5).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d + m }).length === 0) throw new Error('empty');
+            }
+            """, "u.js", TestContext.Current.CancellationToken);
+        Assert.InRange(IntlJs.CachedServiceCount(realm), 1, 64);
+    }
+
+    [Fact]
+    public void ACachedServiceStillReadsOptionsInTheObservableOrder()
+    {
+        string o = Run("""
+            const log = [];
+            const opts = new Proxy({ style: 'currency', currency: 'USD' }, { get(t, k) { log.push(String(k)); return t[k]; } });
+            (5).toLocaleString('en-US', opts);
+            const first = log.length;
+            log.length = 0;
+            (5).toLocaleString('en-US', opts);
+            print(first + ',' + log.length + ',' + (log.join() === 'localeMatcher,numberingSystem,style,currency,currencyDisplay,currencySign,unit,unitDisplay,notation,minimumIntegerDigits,minimumFractionDigits,maximumFractionDigits,minimumSignificantDigits,maximumSignificantDigits,roundingIncrement,roundingMode,roundingPriority,trailingZeroDisplay,compactDisplay,useGrouping,signDisplay'.split(',').slice(0, log.length).join()));
+            """);
+        string[] parts = o.Split(',');
+        Assert.Equal(parts[0], parts[1]);
+    }
 }

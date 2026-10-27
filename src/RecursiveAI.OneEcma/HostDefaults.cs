@@ -46,6 +46,37 @@ public class DefaultHost : IJsHost
     {
     }
 
+    /// <summary>
+    /// How much managed memory must have been allocated since the last weak-reference collection point (or since the lowest
+    /// level seen) before <see cref="WantsWeakCollection"/> asks for another. Default 8 MiB.
+    /// </summary>
+    protected virtual long WeakCollectionGrowthBytes => 8L << 20;
+
+    private long _weakBaseline = long.MaxValue;
+
+    /// <summary>
+    /// Asks for a collection point once managed memory has grown by <see cref="WeakCollectionGrowthBytes"/> since the lowest level
+    /// seen at an earlier question, so a long run holds weak targets only while it is not allocating. The memory figure is the
+    /// host's own and the answer is recorded by a recording engine, so a replay is exact.
+    /// </summary>
+    public virtual bool WantsWeakCollection()
+    {
+        long now = GC.GetTotalMemory(false);
+        if (now < _weakBaseline)
+        {
+            _weakBaseline = now;
+        }
+
+        if (now - _weakBaseline < WeakCollectionGrowthBytes)
+        {
+            return false;
+        }
+
+        // A collection point follows; the next question measures from the level after it.
+        _weakBaseline = long.MaxValue;
+        return true;
+    }
+
     /// <inheritdoc/>
     public virtual void JobEnqueued()
     {

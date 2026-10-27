@@ -66,14 +66,12 @@ language/statements/with/get-mutable-binding-binding-deleted-in-get-unscopables-
 language/statements/async-generator/yield-star-return-then-getter-ticks.js | core: yield* return(): tick order of the awaited result differs from the spec (27.6.3.8)
 
 # Language and core built-ins (continued)
-language/destructuring/binding/keyed-destructuring-property-reference-target-evaluation-order-with-bindings.js | core: binding-pattern evaluation order with a reference target reads the source before resolving the target (8.6.3)
 language/expressions/dynamic-import/import-attributes/2nd-param-with-enumeration-enumerable.js | core: dynamic import does not read the import attributes object through its enumerable own properties (13.3.10.1)
 
 built-ins/Function/prototype/toString/built-in-function-object.js | core: legacy RegExp accessor names such as `$&` are not valid NativeFunction syntax in Function.prototype.toString
 built-ins/Function/prototype/toString/line-terminator-normalisation-CR.js | runner: the harness include nativeFunctionMatcher.js is not loaded for this test
 
 # array-iterators
-built-ins/Iterator/from/return-method-throws-for-invalid-this.js | iterators: Iterator.from reads `constructor` of the original iterator, which the spec does not
 
 # binary-data
 # ArrayBuffer, SharedArrayBuffer, TypedArrays, Uint8Array base64/hex, DataView and Atomics. Every entry is a test that needs something outside this area or a host feature the engine does not have; none is a binary-data defect.
