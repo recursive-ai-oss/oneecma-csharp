@@ -17,6 +17,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Intl/Data/Generated/*.bin" LogicalName="oneecma-data/%(Filename)%(Extension)" />
+    <EmbeddedResource Include="RegExp/Data/*.bin" LogicalName="oneecma-regexp/%(Filename)%(Extension)" />
   </ItemGroup>
   <ItemGroup>
     <None Include="../../README.md" Pack="true" PackagePath="/" />

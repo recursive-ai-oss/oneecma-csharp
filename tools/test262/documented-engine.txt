@@ -1,10 +1,2 @@
 # Known failures of the engine backend, each with a reason. Format: <path> | <reason>.
 # Directory prefixes end in '/', '*' is a glob.
-#
-# Parse-phase negatives whose only fault is an invalid regular expression pattern body. The front end
-# validates regular expression flags itself and hands the pattern to a pluggable validator that is not
-# installed yet; with the validator these tests are expected to pass. (Tests in these directories that
-# parse valid patterns pass already, so the runner also reports them as documented-but-passing.)
-language/literals/regexp/ | pending RegExp pattern validator
-built-ins/RegExp/property-escapes/ | pending RegExp pattern validator
-built-ins/RegExp/prototype/unicodeSets/ | pending RegExp pattern validator

@@ -16,11 +16,12 @@ public enum ParseGoal
     Eval,
 }
 
-/// <summary>Called for every regular expression literal to check its pattern; returns an error description or <see langword="null"/> when the pattern is valid.</summary>
-/// <param name="pattern">The text between the slashes.</param>
+/// <summary>Called for every regular expression literal whose flags are valid, to check its pattern (ECMA-262 12.9.5 early errors).</summary>
+/// <param name="body">The text between the slashes.</param>
 /// <param name="flags">The flags, already checked to be valid and unique.</param>
-/// <returns>The part after <c>Invalid regular expression: /p/f: </c>, such as <c>Unterminated group</c>; <see langword="null"/> if valid.</returns>
-public delegate string? RegExpValidator(string pattern, string flags);
+/// <param name="bodyStart">Source offset of the first character of <paramref name="body"/>, so diagnostic spans can be shifted into the source.</param>
+/// <returns>The problems found, with spans already in source offsets; empty when the pattern is valid. The parser reports the first one, with its message as the headline.</returns>
+public delegate IReadOnlyList<RecursiveAI.OneEcma.RegExp.RegExpDiagnostic> RegExpLiteralValidator(string body, string flags, int bodyStart);
 
 /// <summary>Options for <see cref="JsParser.Parse(string, ParseOptions?, CancellationToken)"/>.</summary>
 public sealed class ParseOptions
@@ -62,8 +63,11 @@ public sealed class ParseOptions
     /// <summary>For eval code inside classes: the private names (without <c>#</c>) already declared by the enclosing classes.</summary>
     public IReadOnlyCollection<string>? PrivateNames { get; set; }
 
-    /// <summary>Checks the pattern of every regular expression literal (the flags are always checked by the parser). <see langword="null"/> accepts every pattern.</summary>
-    public RegExpValidator? RegExpValidator { get; set; }
+    /// <summary>
+    /// Checks the pattern of every regular expression literal (the flags are always checked by the parser). The default is the
+    /// engine's own validator, <see cref="RecursiveAI.OneEcma.RegExp.RegExpValidator.ValidateLiteral"/>; <see langword="null"/> accepts every pattern.
+    /// </summary>
+    public RegExpLiteralValidator? RegExpValidator { get; set; } = RecursiveAI.OneEcma.RegExp.RegExpValidator.ValidateLiteral;
 }
 
 /// <summary>The outcome of a parse: a tree and every diagnostic found.</summary>

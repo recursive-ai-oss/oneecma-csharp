@@ -17,5 +17,7 @@
   <Folder Name="/tools/">
     <Project Path="tools/OneEcma.Test262/OneEcma.Test262.csproj" />
     <Project Path="tools/LocaleDataGen/LocaleDataGen.csproj" />
+    <Project Path="tools/RegExpUnicodeGen/RegExpUnicodeGen.csproj" />
+    <Project Path="tools/RegExpTest262/RegExpTest262.csproj" />
   </Folder>
 </Solution>

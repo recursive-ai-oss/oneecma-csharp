@@ -35,7 +35,7 @@ internal sealed partial class Parser
     private bool _strict;
     private Scope _scope = null!;
     private FnState _fn = null!;
-    private RegExpValidator? _regExpValidator;
+    private RegExpLiteralValidator? _regExpValidator;
 
     internal Parser(SourceText source, ParseOptions options, CancellationToken ct)
     {

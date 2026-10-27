@@ -27,3 +27,7 @@ The three fetch/install scripts take their destination from `ONEECMA_HOME` (defa
 ## text-service differentials
 
 `tools/text-diff/` records the reference Node's `Intl.Collator` and `Intl.Segmenter` output for the committed corpora in `testdata/text/` (`gen-collation.js`, `gen-segmentation.js`; `make-collation-corpus.py` writes the collation corpus). The tests compare the engine's collator and segmenter with those recordings; the conformance tests for normalization, collation and segmentation read the Unicode test files that `tools/locale-data/fetch.sh` downloads. See `docs/text-services.md`.
+
+## RegExp tools
+
+`tools/RegExpUnicodeGen` turns the UCD 17.0.0 files pinned in its `pin.txt` (fetch with `tools/RegExpUnicodeGen/fetch.sh`) into the embedded `regexp-unicode.bin`. `tools/RegExpTest262` (`oneecma-regexp-test262 <test262-root>`) runs the test262 RegExp data tests and regex-literal validation through the engine, and `oneecma-regexp-test262 diff testdata/regexp/expected.json` replays the recorded Node differential (`testdata/regexp/` holds the cases and the recorder). Details: `docs/regexp.md`.
