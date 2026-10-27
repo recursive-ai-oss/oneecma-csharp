@@ -1,0 +1,18 @@
+{
+  "version": 3,
+  "file": "case.js",
+  "sources": [
+    "original.ts"
+  ],
+  "sourcesContent": [
+    "interface User { name: string; }\nfunction greet(user: User): string {\n  return `Hello, ${user.name}!`;\n}\nconsole.log(greet({ name: \"Ada\" } as User);\n"
+  ],
+  "names": [
+    "greet",
+    "user",
+    "console",
+    "log",
+    "name"
+  ],
+  "mappings": ";AACA,SAASA,KAAK,CAACC,IAAU,EAAU;IACjC,OAAO,UAAUA,KAAKG,OAAO;AAC/B;AACAF,QAAQC,GAAG,CAACH,KAAK,CAAC,EAAEI,MAAM,MAAM,CAAS,CAAC"
+}

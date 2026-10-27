@@ -1,0 +1,7 @@
+# Replayed intl402 checks that fail by design: <file or file#index> <reason>. The suite only ships Latin digits.
+NumberFormat/prototype/format/numbering-systems.js Only the Latin numbering system is supported; every other system falls back to latn.
+Intl/supportedValuesOf/numberingSystems-accepted-by-NumberFormat.js supportedValuesOf('numberingSystem') lists the systems of the data set; this implementation carries latn only.
+Intl/supportedValuesOf/numberingSystems-accepted-by-RelativeTimeFormat.js Same as above for RelativeTimeFormat.
+NumberFormat/prototype/resolvedOptions/resolved-numbering-system-unicode-extensions-and-options.js Expects non-Latin numbering systems (arab) to resolve; only latn is supported.
+RelativeTimeFormat/prototype/resolvedOptions/resolved-numbering-system-unicode-extensions-and-options.js Same as above for RelativeTimeFormat.
+NumberFormat/constructor-roundingIncrement-invalid.js#3 A fractional roundingIncrement (5000.1) is rejected by GetNumberOption in the option-reading layer, which converts to an integer before the service sees it.

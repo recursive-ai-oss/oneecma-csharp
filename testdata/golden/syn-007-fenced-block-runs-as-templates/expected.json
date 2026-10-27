@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "format": "oneecma.report",
+  "summary": {
+    "errors": 0,
+    "warnings": 0,
+    "repairs": 0
+  },
+  "diagnostics": []
+}

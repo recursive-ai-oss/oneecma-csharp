@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "format": "oneecma.report",
+  "summary": {
+    "errors": 1,
+    "warnings": 0,
+    "repairs": 0
+  },
+  "diagnostics": [
+    {
+      "kind": "SyntaxError",
+      "code": "invalid-token",
+      "severity": "error",
+      "headline": "Invalid or unexpected token",
+      "source": {
+        "name": "case.js",
+        "length": 48
+      },
+      "span": {
+        "start": 12,
+        "end": 13,
+        "line": 1,
+        "column": 13,
+        "endLine": 1,
+        "endColumn": 14
+      },
+      "label": "a literal `\\n` between statements; this was meant to be a line break",
+      "secondary": [],
+      "notes": [],
+      "help": [
+        "put each statement on its own line"
+      ],
+      "fixes": [
+        {
+          "description": "turn each literal `\\n` into a line break",
+          "edits": [
+            {
+              "start": 12,
+              "length": 2,
+              "line": 1,
+              "column": 13,
+              "text": "\n"
+            },
+            {
+              "start": 26,
+              "length": 2,
+              "line": 1,
+              "column": 27,
+              "text": "\n"
+            }
+          ]
+        }
+      ],
+      "recovery": []
+    }
+  ]
+}

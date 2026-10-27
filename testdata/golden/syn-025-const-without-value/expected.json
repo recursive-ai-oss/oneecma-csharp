@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "format": "oneecma.report",
+  "summary": {
+    "errors": 1,
+    "warnings": 0,
+    "repairs": 0
+  },
+  "diagnostics": [
+    {
+      "kind": "SyntaxError",
+      "code": "missing-initializer",
+      "severity": "error",
+      "headline": "Missing initializer in const declaration",
+      "source": {
+        "name": "case.js",
+        "length": 24
+      },
+      "span": {
+        "start": 6,
+        "end": 12,
+        "line": 1,
+        "column": 7,
+        "endLine": 1,
+        "endColumn": 13
+      },
+      "label": "`const` needs a value here",
+      "secondary": [],
+      "notes": [],
+      "help": [
+        "write `const total = 5;`, or use `let total;` if it is assigned later"
+      ],
+      "fixes": [],
+      "recovery": []
+    }
+  ]
+}

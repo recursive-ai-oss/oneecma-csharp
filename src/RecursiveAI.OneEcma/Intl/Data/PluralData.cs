@@ -117,8 +117,17 @@ internal readonly struct PluralOperands
             }
         }
 
+        return FromDigits(intDigits, fracDigits, exponent);
+    }
+
+    /// <summary>
+    /// Operands of the decimal <c>intDigits.fracDigits</c> with compact exponent <paramref name="exponent"/>.
+    /// Fraction digits past the 18th do not enter <c>f</c> and <c>t</c> (no CLDR rule compares them).
+    /// </summary>
+    internal static PluralOperands FromDigits(string intDigits, string fracDigits, int exponent, bool shift = true)
+    {
         // Shift the decimal point right by the exponent (UTS #35: operands are computed after the shift).
-        if (exponent > 0)
+        if (shift && exponent > 0)
         {
             int take = Math.Min(exponent, fracDigits.Length);
             intDigits += fracDigits[..take] + new string('0', exponent - take);
@@ -132,8 +141,8 @@ internal readonly struct PluralOperands
         }
 
         string trimmed = fracDigits.TrimEnd('0');
-        long f = DigitsToNumber(fracDigits, 18);
-        long t = DigitsToNumber(trimmed, 18);
+        long f = DigitsToNumber(fracDigits.Length > 18 ? fracDigits[..18] : fracDigits, 18);
+        long t = DigitsToNumber(trimmed.Length > 18 ? trimmed[..18] : trimmed, 18);
         return new PluralOperands(integer, trimmed.Length > 0, fracDigits.Length, trimmed.Length, f, t, exponent);
     }
 

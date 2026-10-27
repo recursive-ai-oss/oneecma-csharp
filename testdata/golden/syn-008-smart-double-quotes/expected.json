@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "format": "oneecma.report",
+  "summary": {
+    "errors": 1,
+    "warnings": 0,
+    "repairs": 0
+  },
+  "diagnostics": [
+    {
+      "kind": "SyntaxError",
+      "code": "invalid-token",
+      "severity": "error",
+      "headline": "Invalid or unexpected token",
+      "source": {
+        "name": "case.js",
+        "length": 22
+      },
+      "span": {
+        "start": 12,
+        "end": 19,
+        "line": 1,
+        "column": 13,
+        "endLine": 1,
+        "endColumn": 20
+      },
+      "label": "these are typographic quotes (U+201C, U+201D), not `\"`",
+      "secondary": [],
+      "notes": [],
+      "help": [
+        "use straight quotes: `console.log(\"hello\");`"
+      ],
+      "fixes": [
+        {
+          "description": "replace the typographic quotes with straight quotes",
+          "edits": [
+            {
+              "start": 12,
+              "length": 1,
+              "line": 1,
+              "column": 13,
+              "text": "\""
+            },
+            {
+              "start": 18,
+              "length": 1,
+              "line": 1,
+              "column": 19,
+              "text": "\""
+            }
+          ]
+        }
+      ],
+      "recovery": []
+    }
+  ]
+}

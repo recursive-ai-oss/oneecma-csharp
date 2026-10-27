@@ -1,7 +1,10 @@
 using RecursiveAI.OneEcma;
 using RecursiveAI.OneEcma.Diagnostics;
+using RecursiveAI.OneEcma.Intl;
 using RecursiveAI.OneEcma.TextServices;
 using RecursiveAI.OneEcma.RegExp;
+using RecursiveAI.OneEcma.SourceMaps;
+using RecursiveAI.OneEcma.Text;
 
 // Published with NativeAOT in CI: the build must produce no trim or AOT warnings and this must run.
 // RegExp: loads the embedded Unicode table (a manifest resource) and runs a property escape and a case-folded match.
@@ -35,6 +38,23 @@ if (!repaired.Parses || repaired.Repairs.Count != 2
     || !repairReport.StartsWith("repair[R001]: removed an extra closing delimiter", StringComparison.Ordinal))
 {
     Console.Error.WriteLine("smoke: unexpected repair\n" + repairReport);
+    return 1;
+}
+
+// JSON report and source map: a one-segment map sends the error in generated code back to the original file.
+string json = DiagnosticJson.Render(errors);
+if (!json.StartsWith("{\"version\":1,\"format\":\"oneecma.report\"", StringComparison.Ordinal) || !json.Contains("\"headline\":\"Unexpected token ';'\"", StringComparison.Ordinal))
+{
+    Console.Error.WriteLine("smoke: unexpected json\n" + json);
+    return 1;
+}
+
+SourceMap? map = SourceMap.Parse("{\"version\":3,\"sources\":[\"app.ts\"],\"sourcesContent\":[\"let a: number = ;\\n\"],\"names\":[],\"mappings\":\"AAAA\"}").Map;
+IReadOnlyList<Diagnostic> generatedErrors = engine.Check("let a = ;\n", new RecursiveAI.OneEcma.Syntax.ParseOptions { FileName = "app.js" });
+Diagnostic mapped = SourceMapReports.Remap(generatedErrors[0], map!);
+if (mapped.Source.Name != "app.ts" || mapped.Mapping is not { SpansAreOriginal: true } || !DiagnosticRenderer.Render(mapped).Contains("generated position: app.js:1:9", StringComparison.Ordinal))
+{
+    Console.Error.WriteLine("smoke: unexpected source map report\n" + DiagnosticRenderer.Render(mapped));
     return 1;
 }
 
@@ -73,6 +93,16 @@ foreach (TextSegment s in TextSegmenter.Enumerate("e\u0301\uD83C\uDDFA\uD83C\uDD
 if (words != 2 || graphemes != 2)
 {
     Console.Error.WriteLine($"smoke: segmentation {words} {graphemes}");
+    return 1;
+}
+
+// Intl: locale data is an embedded resource, so this checks it loads under NativeAOT.
+NumberFormatService german = NumberFormatService.Create(["de"], new NumberFormatOptions { Style = "currency", Currency = "EUR" }, "en-US");
+string money = german.Format(DecimalNumber.FromDouble(1234.5));
+DisplayNamesService names = DisplayNamesService.Create(["fr"], new DisplayNamesOptions { Type = "region" }, "en-US");
+if (money != "1.234,50\u00A0\u20AC" || names.Of("US") != "\u00C9tats-Unis")
+{
+    Console.Error.WriteLine($"smoke: intl {money} {names.Of("US")}");
     return 1;
 }
 

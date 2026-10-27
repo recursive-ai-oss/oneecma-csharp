@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "format": "oneecma.report",
+  "summary": {
+    "errors": 1,
+    "warnings": 0,
+    "repairs": 0
+  },
+  "diagnostics": [
+    {
+      "kind": "SyntaxError",
+      "code": "unexpected-token",
+      "severity": "error",
+      "headline": "Unexpected string",
+      "source": {
+        "name": "case.js",
+        "length": 38
+      },
+      "span": {
+        "start": 26,
+        "end": 33,
+        "line": 3,
+        "column": 3,
+        "endLine": 3,
+        "endColumn": 10
+      },
+      "label": "expected `,` before this element",
+      "secondary": [
+        {
+          "span": {
+            "start": 18,
+            "end": 23,
+            "line": 2,
+            "column": 3,
+            "endLine": 2,
+            "endColumn": 8
+          },
+          "message": "the previous element ends here"
+        }
+      ],
+      "notes": [],
+      "help": [
+        "add `,` after `\"ada\"`"
+      ],
+      "fixes": [],
+      "recovery": [
+        {
+          "action": "insertedToken",
+          "span": {
+            "start": 23,
+            "end": 23,
+            "line": 2,
+            "column": 8,
+            "endLine": 2,
+            "endColumn": 8
+          },
+          "text": ","
+        }
+      ]
+    }
+  ]
+}

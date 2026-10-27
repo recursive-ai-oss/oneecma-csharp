@@ -31,3 +31,7 @@ The three fetch/install scripts take their destination from `ONEECMA_HOME` (defa
 ## RegExp tools
 
 `tools/RegExpUnicodeGen` turns the UCD 17.0.0 files pinned in its `pin.txt` (fetch with `tools/RegExpUnicodeGen/fetch.sh`) into the embedded `regexp-unicode.bin`. `tools/RegExpTest262` (`oneecma-regexp-test262 <test262-root>`) runs the test262 RegExp data tests and regex-literal validation through the engine, and `oneecma-regexp-test262 diff testdata/regexp/expected.json` replays the recorded Node differential (`testdata/regexp/` holds the cases and the recorder). Details: `docs/regexp.md`.
+
+## source map conformance data
+
+`tools/source-map-tests/fetch.sh` downloads the pinned tc39/source-map-tests data (ECMA-426 conformance cases; BSD-3-Clause; only the JSON, `resources/` and `decoding/` are unpacked) to `~/oneecma/source-map-tests/<sha>` (override with `ONEECMA_SOURCE_MAP_TESTS`). Point `ONEECMA_SOURCE_MAP_TESTS` at it and `SourceMapSpecTests` runs them; without it they skip. Details: `docs/source-maps.md`.

@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "format": "oneecma.report",
+  "summary": {
+    "errors": 1,
+    "warnings": 0,
+    "repairs": 0
+  },
+  "diagnostics": [
+    {
+      "kind": "SyntaxError",
+      "code": "invalid-token",
+      "severity": "error",
+      "headline": "Invalid or unexpected token",
+      "source": {
+        "name": "case.js",
+        "length": 41
+      },
+      "span": {
+        "start": 12,
+        "end": 19,
+        "line": 1,
+        "column": 13,
+        "endLine": 1,
+        "endColumn": 20
+      },
+      "label": "this string is not closed before the end of the line",
+      "secondary": [],
+      "notes": [
+        "not repaired automatically: the closing `\"` could go before or after `)`"
+      ],
+      "help": [
+        "close the string: `console.log(\"done\");`"
+      ],
+      "fixes": [
+        {
+          "description": "close the string before the end of the statement",
+          "edits": [
+            {
+              "start": 17,
+              "length": 0,
+              "line": 1,
+              "column": 18,
+              "text": "\""
+            }
+          ]
+        }
+      ],
+      "recovery": []
+    }
+  ]
+}

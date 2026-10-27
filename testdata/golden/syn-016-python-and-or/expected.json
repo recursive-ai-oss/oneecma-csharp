@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "format": "oneecma.report",
+  "summary": {
+    "errors": 1,
+    "warnings": 0,
+    "repairs": 0
+  },
+  "diagnostics": [
+    {
+      "kind": "SyntaxError",
+      "code": "unexpected-token",
+      "severity": "error",
+      "headline": "Unexpected identifier 'and'",
+      "source": {
+        "name": "case.js",
+        "length": 73
+      },
+      "span": {
+        "start": 39,
+        "end": 42,
+        "line": 3,
+        "column": 7,
+        "endLine": 3,
+        "endColumn": 10
+      },
+      "label": "`and` is Python; JavaScript writes `&&`",
+      "secondary": [],
+      "notes": [],
+      "help": [
+        "replace `and` with `&&`"
+      ],
+      "fixes": [],
+      "recovery": [
+        {
+          "action": "insertedToken",
+          "span": {
+            "start": 39,
+            "end": 39,
+            "line": 3,
+            "column": 7,
+            "endLine": 3,
+            "endColumn": 7
+          },
+          "text": ")"
+        },
+        {
+          "action": "skippedTokens",
+          "span": {
+            "start": 39,
+            "end": 45,
+            "line": 3,
+            "column": 7,
+            "endLine": 3,
+            "endColumn": 13
+          },
+          "text": ""
+        }
+      ]
+    }
+  ]
+}

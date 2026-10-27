@@ -1,0 +1,4 @@
+fae1fa49815813088c433e8486e330e8d953a444
+# tc39/source-map-tests main, 2026-10-26 (BSD-3-Clause, Ecma International). Only the language-neutral data is used:
+# source-map-spec-tests.json, resources/ and decoding/. The browser patch directories are never unpacked.
+# archive-sha256: 538c13f2972346362e279d60576f58ffe62338352cf566b06096416731904adb (GitHub tar.gz of that commit)

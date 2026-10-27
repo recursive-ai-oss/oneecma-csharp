@@ -18,4 +18,10 @@ Rules the files follow:
 - The `node` data (`name`, `message`, positions, stack head) comes from running Node v22.22.1 as a black box on each `case.js`; no engine source was consulted. The cases are synthetic scripts written for this corpus and are edited by hand.
 - `index.json` lists the cases and the Node version that produced `meta.json`.
 
-`expected.json` (the versioned JSON report) is added next to `expected.txt` once the JSON schema exists.
+## `expected.json`
+
+Every `syn-*` case has an `expected.json` next to `expected.txt`: the versioned JSON report (`docs/diagnostic-json.md`, schema `docs/diagnostic-report.schema.json`) for the same `case.js`, written indented with a trailing newline. It comes from the engine, so spans, labels, notes and fixes are what the parser produces; a test checks that its headline, primary span and error count agree with `expected.txt`, and that line/column match an independent count over `case.js`. Regenerate after a deliberate change with `ONEECMA_UPDATE_GOLDEN=1 dotnet test --solution OneEcma.slnx --filter-class '*DiagnosticJsonTests'` and review the diff.
+
+## `map-*` cases (source maps)
+
+A `map-*` case reports an error in generated code at its original location. Files: `case.js` (the generated script, ending in a `//# sourceMappingURL=case.js.map` comment), `case.js.map` (the source map), `original.ts` (the source the author wrote, also embedded in the map's `sourcesContent`), `expected.txt` (the text report for `oneecma check case.js`), `expected.json` (the same as JSON, with a `mapping` object), `meta.json` (`node` is what Node prints for the generated file: its position is in the generated code, which the report moves to the original). The map is written by a short script from a list of token pairs, not by a bundler.

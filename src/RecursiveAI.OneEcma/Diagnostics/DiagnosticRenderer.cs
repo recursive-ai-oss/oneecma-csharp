@@ -104,9 +104,21 @@ public static class DiagnosticRenderer
     public static string RenderRepairResult(RepairResult result, RenderOptions? options = null)
     {
         ArgumentNullException.ThrowIfNull(result);
+        return RenderRepairs(result.Repairs, result.Diagnostics, options);
+    }
+
+    /// <summary>Renders applied repairs first, then diagnostics; the parts of <see cref="RenderRepairResult"/> for hosts that changed the diagnostics (for example by remapping them through a source map).</summary>
+    /// <param name="repairs">Applied repairs, first to last; may be empty.</param>
+    /// <param name="diagnostics">The diagnostics that remain; may be empty.</param>
+    /// <param name="options">Rendering options; <see langword="null"/> means plain text with defaults.</param>
+    /// <returns>The report, or an empty string when there is nothing to report.</returns>
+    public static string RenderRepairs(IReadOnlyList<AppliedRepair> repairs, IReadOnlyList<Diagnostic> diagnostics, RenderOptions? options = null)
+    {
+        ArgumentNullException.ThrowIfNull(repairs);
+        ArgumentNullException.ThrowIfNull(diagnostics);
         options ??= new RenderOptions();
         var sb = new StringBuilder();
-        foreach (AppliedRepair r in result.Repairs)
+        foreach (AppliedRepair r in repairs)
         {
             if (sb.Length > 0)
             {
@@ -116,14 +128,14 @@ public static class DiagnosticRenderer
             AppendRepair(sb, r, options);
         }
 
-        if (result.Diagnostics.Count > 0)
+        if (diagnostics.Count > 0)
         {
             if (sb.Length > 0)
             {
                 sb.Append('\n');
             }
 
-            sb.Append(RenderAll(result.Diagnostics, options));
+            sb.Append(RenderAll(diagnostics, options));
         }
 
         return sb.ToString();
