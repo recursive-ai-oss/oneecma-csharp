@@ -44,7 +44,7 @@ internal static partial class SyntaxHints
 
         int p = i - 1;
         TokenType want = c switch { ')' => TokenType.RParen, ']' => TokenType.RBracket, _ => TokenType.RBrace };
-        int[] match = TokenScan.MatchBrackets(toks);
+        int[] match = TokenScan.MatchOf(d.Source);
         if (toks[p].Type != want || match[p] < 0)
         {
             return d;
@@ -187,7 +187,7 @@ internal static partial class SyntaxHints
 
         List<Token> toks = TokenScan.Of(d.Source);
         int i = TokenScan.IndexAtOrAfter(toks, s + 1);
-        if (toks[i].Type != TokenType.String || toks[i].Start != s + 1)
+        if (toks[i].Type != TokenType.String || toks[i].Start != s + 1 || (toks[i].Flags & TokenFlags.Unterminated) != 0 || toks[i].End - toks[i].Start < 2)
         {
             return false;
         }
@@ -201,7 +201,8 @@ internal static partial class SyntaxHints
         d.MovePrimary(new Span(s, s + 1));
         d.PrimaryLabel = "an " + Q(text[s] + quote.ToString() + "..." + quote) + " string is Python; this string follows the identifier " + Q(text[s].ToString());
         int lineStart = d.Source.GetLineStart(d.Source.GetPosition(s).Line);
-        int lineEnd = LineEndOffset(d.Source, s);
+        // A string may contain U+2028, which ends a line for the line table, so take the line of its last character.
+        int lineEnd = Math.Max(LineEndOffset(d.Source, s), LineEndOffset(d.Source, Math.Max(s, str.End - 1)));
         string line = text[lineStart..s] + template + text[str.End..lineEnd];
         d.Help.Clear();
         d.Help.Add("use a template literal: " + line.Trim());

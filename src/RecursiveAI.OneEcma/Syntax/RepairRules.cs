@@ -42,7 +42,7 @@ internal sealed class RepairContext
         Text = text;
         Source = source;
         Tokens = TokenScan.Of(source);
-        Match = TokenScan.MatchBrackets(Tokens);
+        Match = TokenScan.MatchOf(source);
         Errors = errors;
         First = errors[0];
         FirstIndex = TokenScan.IndexAtOrAfter(Tokens, First.ParseOffset);

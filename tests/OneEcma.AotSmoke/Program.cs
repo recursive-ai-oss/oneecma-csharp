@@ -17,6 +17,16 @@ if (errors.Count != 2 || !report.StartsWith("error[SyntaxError]: Unexpected toke
     return 1;
 }
 
+RepairResult repaired = engine.CheckAndRepair("const row = [1, 2, 3]];\nconsole.log(\u201chi\u201d);\n");
+string repairReport = DiagnosticRenderer.RenderRepairResult(repaired);
+if (!repaired.Parses || repaired.Repairs.Count != 2
+    || repaired.RepairedSource != "const row = [1, 2, 3];\nconsole.log(\"hi\");\n"
+    || !repairReport.StartsWith("repair[R001]: removed an extra closing delimiter", StringComparison.Ordinal))
+{
+    Console.Error.WriteLine("smoke: unexpected repair\n" + repairReport);
+    return 1;
+}
+
 try
 {
     engine.Evaluate("1 + 1");

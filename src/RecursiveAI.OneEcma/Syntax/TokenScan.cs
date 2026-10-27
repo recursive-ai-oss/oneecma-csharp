@@ -12,9 +12,13 @@ namespace RecursiveAI.OneEcma.Syntax;
 internal static class TokenScan
 {
     private static readonly ConditionalWeakTable<SourceText, List<Token>> Cache = [];
+    private static readonly ConditionalWeakTable<SourceText, int[]> MatchCache = [];
 
     /// <summary>The tokens of <paramref name="source"/> (script goal), ending with the end-of-input token; cached per source.</summary>
     internal static List<Token> Of(SourceText source) => Cache.GetValue(source, s => Scan(s.Text));
+
+    /// <summary>Bracket pairing for <see cref="Of"/> of the same source, cached with it.</summary>
+    internal static int[] MatchOf(SourceText source) => MatchCache.GetValue(source, s => MatchBrackets(Of(s)));
 
     /// <summary>Scans <paramref name="text"/>; stops after 4 million tokens so a pathological input costs bounded time.</summary>
     internal static List<Token> Scan(string text)

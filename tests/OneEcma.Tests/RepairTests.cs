@@ -153,4 +153,13 @@ public class RepairTests
         d = JsParser.Parse("const total = Math.max(1, 2, 3;\nlet y = [1, 2\n\nfunction f( {\n", null, TestContext.Current.CancellationToken).Diagnostics;
         Assert.Equal(3, d.Count);
     }
+
+    [Fact]
+    public void FStringHintSurvivesAStringThatContainsALineSeparator()
+    {
+        // Found by the fuzzer: the string spans a U+2028, which the line table treats as a line end.
+        string source = "const who = \"Ada\";\nconsole.log(f\"h\u2028 {who}\"-->-->";
+        RepairResult r = Repair(source);
+        Assert.False(r.Changed);
+    }
 }
