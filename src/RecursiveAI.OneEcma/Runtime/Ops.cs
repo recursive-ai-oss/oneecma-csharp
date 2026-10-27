@@ -694,7 +694,7 @@ internal static class Ops
             case Syntax.BinaryOp.Exponent:
                 if (y.Sign < 0)
                 {
-                    throw Errors.Range("Exponent must be non-negative");
+                    throw Errors.Range("undefined must be positive"); // V8 wording as printed by the reference engine
                 }
 
                 if (y > 10_000_000)
