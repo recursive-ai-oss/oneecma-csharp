@@ -15,6 +15,7 @@
 !/Directory.Build.props
 !/Directory.Packages.props
 !/OneEcma.slnx
+!/CHANGELOG.md
 !/README.md
 !/LICENSE-MIT
 !/LICENSE-APACHE
