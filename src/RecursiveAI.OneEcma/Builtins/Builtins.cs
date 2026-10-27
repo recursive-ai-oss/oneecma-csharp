@@ -282,7 +282,10 @@ internal static partial class Builtins
                         throw Errors.Type("Iterator value " + Ops.DisplayValue(e) + " is not an entry object");
                     }
 
-                    o.CreateDataPropertyOrThrow(Ops.ToPropertyKey(eo.Get("0")), eo.Get("1"));
+                    // 20.1.2.7.1 AddEntriesFromIterable step: both items are read before the key is converted.
+                    JsValue ek = eo.Get("0");
+                    JsValue ev = eo.Get("1");
+                    o.CreateDataPropertyOrThrow(Ops.ToPropertyKey(ek), ev);
                 }
                 catch (JsException)
                 {
