@@ -6,6 +6,9 @@ public sealed partial class ScriptEngine
 {
     private JsRealm? _mainRealm;
     private readonly ConcurrentQueue<Action> _inbox = new();
+
+    /// <summary>True while a host continuation from the inbox runs and no script it called is on the stack.</summary>
+    private bool _inHostContinuation;
     private readonly object _gate = new();
     private TaskCompletionSource? _waiter;
     private HostSynchronizationContext? _hostContext;
@@ -148,9 +151,21 @@ public sealed partial class ScriptEngine
     {
         while (_inbox.TryDequeue(out Action? a))
         {
+            // Host code resumed on the engine's thread (a continuation of an async host method): no script is running, so a
+            // callback it makes is an entry call of its own in the record log.
             Guard(() =>
             {
-                a();
+                bool before = _inHostContinuation;
+                _inHostContinuation = true;
+                try
+                {
+                    a();
+                }
+                finally
+                {
+                    _inHostContinuation = before;
+                }
+
                 return 0;
             }, token);
         }

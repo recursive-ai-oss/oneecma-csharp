@@ -1,0 +1,16 @@
+{
+  "id": "run-047-function-returns-nothing",
+  "category": "rt:undefined-property",
+  "kind": "runtime",
+  "repair": null,
+  "node": {
+    "name": "TypeError",
+    "message": "Cannot read properties of undefined (reading 'name')",
+    "line": 9,
+    "column": 17,
+    "stack_head": [
+      "console.log(row.name);",
+      "                ^"
+    ]
+  }
+}

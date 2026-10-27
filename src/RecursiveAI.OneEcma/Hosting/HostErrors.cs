@@ -186,6 +186,11 @@ internal static class HostCalls
         rec.CurrentCall = rec.NextCallId++;
         rec.TaskStarted = false;
         rec.Deferred = deferred;
+        bool previousDirect = rec.InHostFn;
+        JsException? previousError = rec.LastCallbackError;
+        rec.RegisterKnown(t, a);
+        rec.InHostFn = true;
+        rec.LastCallbackError = null;
         try
         {
             JsValue result = fn(t, a);
@@ -194,7 +199,7 @@ internal static class HostCalls
         }
         catch (JsException je)
         {
-            rec.WriteHostThrow(member, je.Value);
+            rec.WriteHostThrow(member, je);
             throw;
         }
         catch (Exception e) when (e is not (JsLimitException or OperationCanceledException))
@@ -207,6 +212,8 @@ internal static class HostCalls
             rec.CurrentCall = previous;
             rec.TaskStarted = previousTask;
             rec.Deferred = previousDeferred;
+            rec.InHostFn = previousDirect;
+            rec.LastCallbackError = previousError;
             foreach (Action write in deferred)
             {
                 rec.Emit(write);
@@ -216,6 +223,20 @@ internal static class HostCalls
 
     private static JsValue Replay(Recorder rec, HostFunction fn, string member, JsValue t, ReadOnlySpan<JsValue> a)
     {
+        rec.RegisterKnown(t, a);
+
+        // Callbacks the host made into script come before the host call's own entry. They run here, in order, because the host
+        // function itself is not executed; each may call further host functions, which read their own events.
+        Queue<(JsValue Value, JsException? Thrown)>? ran = null;
+        JsException? lastThrown = null;
+        while (rec.Reader!.Peek == LogTag.Callback)
+        {
+            rec.Reader.Tag();
+            (JsValue Value, JsException? Thrown) outcome = rec.RunRecordedCallback(Agent.Current.Realm);
+            (ran ??= new()).Enqueue(outcome);
+            lastThrown = outcome.Thrown;
+        }
+
         LogReader r = rec.Expect(LogTag.HostCall);
         string recorded = r.Str();
         if (recorded != member)
@@ -224,11 +245,21 @@ internal static class HostCalls
             throw new ReplayDivergedException(rec.Divergence);
         }
 
-        JsValue v = Recorder.ReadOutcome(r, member, Agent.Current.Realm, out bool opaque, out long taskId);
+        JsValue v = Recorder.ReadOutcome(r, member, Agent.Current.Realm, out bool opaque, out long taskId, null, lastThrown);
         if (opaque)
         {
             // The recorded result was not data (a function, a host object): only the live host function can make it again.
-            return fn(t, a);
+            // Its callbacks already ran above, so it is handed their results instead of calling script a second time.
+            Queue<(JsValue Value, JsException? Thrown)>? outer = rec.Queued;
+            rec.Queued = ran;
+            try
+            {
+                return fn(t, a);
+            }
+            finally
+            {
+                rec.Queued = outer;
+            }
         }
 
         if (taskId >= 0)

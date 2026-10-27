@@ -1,0 +1,10 @@
+error[TypeError]: r.includes is not a function
+ --> case.js:2:13
+  |
+1 | const r = { content: "hello world", size: 11 };
+  |           ------------------------------------ `r` comes from here: { content, size }
+2 | console.log(r.includes("world"));
+  |             ^^^^^^^^^^ `r` is an Object, so it has no `includes`
+  |
+  = help: did you mean `r.content.includes`? (string)
+  = stack: <top-level> (case.js:2)

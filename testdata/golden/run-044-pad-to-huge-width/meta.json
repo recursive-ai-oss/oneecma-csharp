@@ -1,0 +1,16 @@
+{
+  "id": "run-044-pad-to-huge-width",
+  "category": "rt:range",
+  "kind": "runtime",
+  "repair": null,
+  "node": {
+    "name": "RangeError",
+    "message": "Invalid string length",
+    "line": 2,
+    "column": 17,
+    "stack_head": [
+      "console.log(\"7\".padStart(width, \"0\"));",
+      "                ^"
+    ]
+  }
+}

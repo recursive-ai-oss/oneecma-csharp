@@ -319,63 +319,111 @@ public static class DiagnosticRenderer
 
         map[text.Length] = col;
 
-        int view = 0;
-        int viewEnd = col;
-        bool cutLeft = false;
-        bool cutRight = false;
-        if (col > o.MaxLineWidth)
-        {
-            int anchor = labels is { Count: > 0 } ? map[Math.Min(labels[0].StartCol, text.Length)] : 0;
-            view = Math.Max(0, anchor - (o.MaxLineWidth / 3));
-            viewEnd = Math.Min(col, view + o.MaxLineWidth);
-            cutLeft = view > 0;
-            cutRight = viewEnd < col;
-        }
-
         string display = shownText.ToString();
-        string visible = RenderWindow(display, view, viewEnd);
         string number = line.ToString(NumberFormatInfo.InvariantInfo).PadLeft(width);
-        sb.Append(Paint(o, Blue, number)).Append(' ').Append(Paint(o, Blue, "|")).Append(' ')
-          .Append(cutLeft ? "…" : "").Append(visible).Append(cutRight ? "…" : "").Append('\n');
 
-        if (labels is null)
+        // The display columns each label covers on this line.
+        var spans = new List<(Label Lbl, int S, int E)>();
+        if (labels is not null)
         {
-            return;
+            foreach (var (label, startCol, endCol) in labels.OrderBy(l => l.StartCol).ThenBy(l => l.Lbl.IsPrimary ? 1 : 0))
+            {
+                int s = map[Math.Min(startCol, text.Length)];
+                int e = map[Math.Min(Math.Max(endCol, startCol + 1), text.Length)];
+                if (endCol > text.Length)
+                {
+                    e = map[text.Length] + (endCol - text.Length);
+                }
+
+                if (startCol >= text.Length)
+                {
+                    s = map[text.Length] + (startCol - text.Length);
+                    e = s + 1;
+                }
+
+                spans.Add((label, s, Math.Max(e, s + 1)));
+            }
         }
 
-        int shift = cutLeft ? 1 : 0;
-        foreach (var (label, startCol, endCol) in labels.OrderBy(l => l.StartCol).ThenBy(l => l.Lbl.IsPrimary ? 1 : 0))
+        // A line that fits is shown whole. A longer one is shown through windows: labels that fit together in one window
+        // share it, and labels too far apart get a window each (the line is printed again under the same number), so every
+        // underline sits under the text it labels. A single span wider than a window is cut at the window edge and says so.
+        int limit = Math.Max(o.MaxLineWidth, 20);
+        var groups = new List<List<(Label Lbl, int S, int E)>>();
+        if (col <= limit || spans.Count == 0)
         {
-            int s = map[Math.Min(startCol, text.Length)];
-            int e = map[Math.Min(Math.Max(endCol, startCol + 1), text.Length)];
-            if (endCol > text.Length)
+            groups.Add(spans);
+        }
+        else
+        {
+            int lo = 0;
+            int hi = 0;
+            foreach (var sp in spans)
             {
-                e = map[text.Length] + (endCol - text.Length);
+                if (groups.Count > 0 && Math.Max(hi, sp.E) - lo <= limit - 8)
+                {
+                    groups[^1].Add(sp);
+                    hi = Math.Max(hi, sp.E);
+                }
+                else
+                {
+                    groups.Add([sp]);
+                    lo = sp.S;
+                    hi = sp.E;
+                }
+            }
+        }
+
+        foreach (var group in groups)
+        {
+            int view = 0;
+            int viewEnd = col;
+            if (col > limit)
+            {
+                int gLo = group.Min(g => g.S);
+                int gHi = group.Max(g => g.E);
+                int pad = Math.Min(gLo, Math.Min(24, Math.Max(8, (limit - (gHi - gLo)) / 2)));
+                view = Math.Max(0, gLo - pad);
+                viewEnd = Math.Min(col, view + limit);
+                view = Math.Max(0, viewEnd - limit);
             }
 
-            if (startCol >= text.Length)
-            {
-                s = map[text.Length] + (startCol - text.Length);
-                e = s + 1;
-            }
+            bool cutLeft = view > 0;
+            bool cutRight = viewEnd < col;
+            string visible = RenderWindow(display, view, viewEnd);
+            sb.Append(Paint(o, Blue, number)).Append(' ').Append(Paint(o, Blue, "|")).Append(' ')
+              .Append(cutLeft ? "…" : "").Append(visible).Append(cutRight ? "…" : "").Append('\n');
 
-            if (e <= s)
+            int shift = cutLeft ? 1 : 0;
+            foreach (var (label, s0, e0) in group)
             {
-                e = s + 1;
-            }
+                int s = Math.Max(s0, view);
+                int e = cutRight ? Math.Min(e0, viewEnd) : e0;
+                bool cut = cutRight && e0 > viewEnd;
+                e = Math.Max(e, s + 1);
+                char ch = label.IsPrimary ? '^' : '-';
+                string mark = new(ch, Math.Max(1, e - s));
+                if (cut)
+                {
+                    mark = mark[..^1] + "…";
+                }
 
-            s = Math.Max(s, view);
-            e = Math.Min(Math.Max(e, s + 1), viewEnd + 1);
-            string mark = new(label.IsPrimary ? '^' : '-', Math.Max(1, e - s));
-            sb.Append(new string(' ', width + 1)).Append(Paint(o, Blue, "|")).Append(' ')
-              .Append(' ', (s - view) + shift)
-              .Append(Paint(o, label.IsPrimary ? Red : Blue, mark));
-            if (label.Message.Length > 0)
-            {
-                sb.Append(' ').Append(Paint(o, label.IsPrimary ? Red : Blue, label.Message));
-            }
+                sb.Append(new string(' ', width + 1)).Append(Paint(o, Blue, "|")).Append(' ')
+                  .Append(' ', (s - view) + shift)
+                  .Append(Paint(o, label.IsPrimary ? Red : Blue, mark));
+                string message = label.Message;
+                if (cut)
+                {
+                    message = message.Length > 0 ? message + " (underline cut at the window edge)" : "(underline cut at the window edge)";
+                }
 
-            sb.Append('\n');
+                if (message.Length > 0)
+                {
+                    sb.Append(' ').Append(Paint(o, label.IsPrimary ? Red : Blue, message));
+                }
+
+                sb.Append('\n');
+            }
         }
     }
 
