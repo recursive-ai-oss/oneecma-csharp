@@ -1,0 +1,107 @@
+TypeError: Converting circular structure to JSON
+    --> starting at object with constructor 'Object'
+    |     property 'k0' -> object with constructor 'Object'
+    --- property 'back' closes the circle
+TypeError: Converting circular structure to JSON
+    --> starting at object with constructor 'Object'
+    |     property 'k0' -> object with constructor 'Object'
+    |     property 'k1' -> object with constructor 'Object'
+    --- property 'back' closes the circle
+TypeError: Converting circular structure to JSON
+    --> starting at object with constructor 'Object'
+    |     property 'k0' -> object with constructor 'Object'
+    |     property 'k1' -> object with constructor 'Object'
+    |     property 'k2' -> object with constructor 'Object'
+    --- property 'back' closes the circle
+TypeError: Converting circular structure to JSON
+    --> starting at object with constructor 'Object'
+    |     property 'k0' -> object with constructor 'Object'
+    |     property 'k1' -> object with constructor 'Object'
+    |     ...
+    |     property 'k3' -> object with constructor 'Object'
+    --- property 'back' closes the circle
+TypeError: Converting circular structure to JSON
+    --> starting at object with constructor 'Object'
+    |     property 'k0' -> object with constructor 'Object'
+    |     property 'k1' -> object with constructor 'Object'
+    |     ...
+    |     property 'k4' -> object with constructor 'Object'
+    --- property 'back' closes the circle
+TypeError: Converting circular structure to JSON
+    --> starting at object with constructor 'Object'
+    |     property 'k0' -> object with constructor 'Object'
+    |     property 'k1' -> object with constructor 'Object'
+    |     ...
+    |     property 'k5' -> object with constructor 'Object'
+    --- property 'back' closes the circle
+TypeError: Converting circular structure to JSON
+    --> starting at object with constructor 'Object'
+    |     property 'k0' -> object with constructor 'Object'
+    |     property 'k1' -> object with constructor 'Object'
+    |     ...
+    |     property 'k9' -> object with constructor 'Object'
+    --- property 'back' closes the circle
+TypeError: Converting circular structure to JSON
+    --> starting at object with constructor 'Object'
+    |     property 'k0' -> object with constructor 'Array'
+    |     index 0 -> object with constructor 'Array'
+    |     index 0 -> object with constructor 'Array'
+    --- index 0 closes the circle
+TypeError: Converting circular structure to JSON
+    --> starting at object with constructor 'Foo'
+    --- property 'self' closes the circle
+TypeError: Converting circular structure to JSON
+    --> starting at object with constructor 'Object'
+    --- property 'x' closes the circle
+TypeError: Converting circular structure to JSON
+    --> starting at object with constructor 'Object'
+    --- property 'x' closes the circle
+TypeError: Converting circular structure to JSON
+    --> starting at object with constructor 'Object'
+    --- property 'a b' closes the circle
+TypeError: Converting circular structure to JSON
+    --> starting at object with constructor 'Object'
+    |     property '1' -> object with constructor 'Object'
+    --- property 'p' closes the circle
+TypeError: Converting circular structure to JSON
+    --> starting at object with constructor 'Object'
+    |     property 'b' -> object with constructor 'Object'
+    --- property 'c' closes the circle
+TypeError: Converting circular structure to JSON
+    --> starting at object with constructor 'Array'
+    |     index 0 -> object with constructor 'Object'
+    --- property 'c' closes the circle
+TypeError: Converting circular structure to JSON
+    --> starting at object with constructor 'Object'
+    |     property 'b' -> object with constructor 'Object'
+    --- property 'a' closes the circle
+undefined
+TypeError: Converting circular structure to JSON
+    --> starting at object with constructor 'Object'
+    |     property 'o' -> object with constructor 'Object'
+    --- property 'x' closes the circle
+SyntaxError: Unexpected token 'u', "undefined " is not valid JSON
+SyntaxError: Unexpected token 'u', " undefined" is not valid JSON
+SyntaxError: Unexpected token 'u', "[undefined]" is not valid JSON
+SyntaxError: Unexpected token 'N', "NaN " is not valid JSON
+SyntaxError: Unexpected token 'N', "[NaN]" is not valid JSON
+SyntaxError: Unexpected token 'u', "undefinedx" is not valid JSON
+SyntaxError: "Infinity" is not valid JSON
+SyntaxError: No number after minus sign in JSON at position 1 (line 1 column 2)
+SyntaxError: Expected double-quoted property name in JSON at position 7 (line 1 column 8)
+SyntaxError: Expected ',' or '}' after property value in JSON at position 6 (line 1 column 7)
+SyntaxError: Unexpected end of JSON input
+SyntaxError: Bad Unicode escape in JSON at position 11 (line 1 column 12)
+SyntaxError: Unexpected token 'x', "
+
+  [1,
+  x]" is not valid JSON
+SyntaxError: Unexpected token 'x', ..."1,
+  "b": x
+}" is not valid JSON
+SyntaxError: Expected ',' or '}' after property value in JSON at position 13 (line 3 column 3)
+SyntaxError: Unexpected token 'x', "
+[x]" is not valid JSON
+SyntaxError: Bad control character in string literal in JSON at position 4 (line 1 column 5)
+SyntaxError: Bad Unicode escape in JSON at position 5 (line 1 column 6)
+SyntaxError: Expected ',' or ']' after array element in JSON at position 31 (line 4 column 10)

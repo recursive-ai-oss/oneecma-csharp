@@ -1,0 +1,116 @@
+"[" => SyntaxError | Unexpected end of JSON input
+"[1," => SyntaxError | Unexpected end of JSON input
+"{\"a\":" => SyntaxError | Unexpected end of JSON input
+"{\"a\"" => SyntaxError | Expected ':' after property name in JSON at position 4 (line 1 column 5)
+"{\"a\":1,\"b\"" => SyntaxError | Expected ':' after property name in JSON at position 10 (line 1 column 11)
+"\"\\u12\"" => SyntaxError | Bad Unicode escape in JSON at position 5 (line 1 column 6)
+"\"\\u12zz\"" => SyntaxError | Bad Unicode escape in JSON at position 5 (line 1 column 6)
+"\"\\" => SyntaxError | Unexpected end of JSON input
+"\"\\u" => SyntaxError | Bad Unicode escape in JSON at position 3 (line 1 column 4)
+"\"" => SyntaxError | Unterminated string in JSON at position 1 (line 1 column 2)
+"-x" => SyntaxError | No number after minus sign in JSON at position 1 (line 1 column 2)
+"+1" => SyntaxError | Unexpected token '+', "+1" is not valid JSON
+".5" => SyntaxError | Unexpected token '.', ".5" is not valid JSON
+"1e+" => SyntaxError | Exponent part is missing a number in JSON at position 3 (line 1 column 4)
+"1e+x" => SyntaxError | Exponent part is missing a number in JSON at position 3 (line 1 column 4)
+"tru" => SyntaxError | Unexpected end of JSON input
+"truee" => SyntaxError | Unexpected non-whitespace character after JSON at position 4 (line 1 column 5)
+"nulll" => SyntaxError | Unexpected non-whitespace character after JSON at position 4 (line 1 column 5)
+"undefined" => SyntaxError | "undefined" is not valid JSON
+"NaN" => SyntaxError | "NaN" is not valid JSON
+"Infinity" => SyntaxError | "Infinity" is not valid JSON
+"[1 2]" => SyntaxError | Expected ',' or ']' after array element in JSON at position 3 (line 1 column 4)
+"[,]" => SyntaxError | Unexpected token ',', "[,]" is not valid JSON
+"{\"a\":1 \"b\":2}" => SyntaxError | Expected ',' or '}' after property value in JSON at position 7 (line 1 column 8)
+"{1:2}" => SyntaxError | Expected property name or '}' in JSON at position 1 (line 1 column 2)
+"\ttrue " => OK
+"'a'" => SyntaxError | Unexpected token ''', "'a'" is not valid JSON
+"1 2" => SyntaxError | Unexpected non-whitespace character after JSON at position 2 (line 1 column 3)
+" " => SyntaxError | Unexpected end of JSON input
+"x" => SyntaxError | Unexpected token 'x', "x" is not valid JSON
+" " => SyntaxError | Unexpected token ' ', " " is not valid JSON
+"00" => SyntaxError | Unexpected number in JSON at position 1 (line 1 column 2)
+"-01" => SyntaxError | Unexpected number in JSON at position 2 (line 1 column 3)
+"1.e3" => SyntaxError | Unterminated fractional number in JSON at position 2 (line 1 column 3)
+"1.5.5" => SyntaxError | Unexpected non-whitespace character after JSON at position 3 (line 1 column 4)
+"1ee" => SyntaxError | Exponent part is missing a number in JSON at position 2 (line 1 column 3)
+"[1,2,]" => SyntaxError | Unexpected token ']', "[1,2,]" is not valid JSON
+"{\"a\":}" => SyntaxError | Unexpected token '}', "{"a":}" is not valid JSON
+"{\"a\":1,}" => SyntaxError | Expected double-quoted property name in JSON at position 7 (line 1 column 8)
+"{,}" => SyntaxError | Expected property name or '}' in JSON at position 1 (line 1 column 2)
+"[}" => SyntaxError | Unexpected token '}', "[}" is not valid JSON
+"{]" => SyntaxError | Expected property name or '}' in JSON at position 1 (line 1 column 2)
+"\"a\tb\"" => SyntaxError | Bad control character in string literal in JSON at position 2 (line 1 column 3)
+"\"\ud800\"" => OK
+"{\"__proto__\":1}" => OK
+"tr ue" => SyntaxError | Unexpected token ' ', "tr ue" is not valid JSON
+"fals" => SyntaxError | Unexpected end of JSON input
+"true false" => SyntaxError | Unexpected non-whitespace character after JSON at position 5 (line 1 column 6)
+"0x10" => SyntaxError | Unexpected non-whitespace character after JSON at position 1 (line 1 column 2)
+"1_0" => SyntaxError | Unexpected non-whitespace character after JSON at position 1 (line 1 column 2)
+"{\"a\":1}x" => SyntaxError | Unexpected non-whitespace character after JSON at position 7 (line 1 column 8)
+"[1]]" => SyntaxError | Unexpected non-whitespace character after JSON at position 3 (line 1 column 4)
+"\"abc\" \"def\"" => SyntaxError | Unexpected non-whitespace character after JSON at position 6 (line 1 column 7)
+"-" => SyntaxError | No number after minus sign in JSON at position 1 (line 1 column 2)
+"- 1" => SyntaxError | No number after minus sign in JSON at position 1 (line 1 column 2)
+"1." => SyntaxError | Unterminated fractional number in JSON at position 2 (line 1 column 3)
+"1.e" => SyntaxError | Unterminated fractional number in JSON at position 2 (line 1 column 3)
+"é" => SyntaxError | Unexpected token 'é', "é" is not valid JSON
+"😀" => SyntaxError | Unexpected token '�', "😀" is not valid JSON
+"\"\\ud800\"" => OK
+"xxxxxxxxxxxxxxxxxxx" => SyntaxError | Unexpected token 'x', "xxxxxxxxxxxxxxxxxxx" is not valid JSON
+"xxxxxxxxxxxxxxxxxxxx" => SyntaxError | Unexpected token 'x', "xxxxxxxxxxxxxxxxxxxx" is not valid JSON
+"xxxxxxxxxxxxxxxxxxxxx" => SyntaxError | Unexpected token 'x', "xxxxxxxxxx"... is not valid JSON
+"xxxxxxxxxxxxxxxxxxxxxx" => SyntaxError | Unexpected token 'x', "xxxxxxxxxx"... is not valid JSON
+"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" => SyntaxError | Unexpected token 'x', "xxxxxxxxxx"... is not valid JSON
+"012345678901234567890123456789x" => SyntaxError | Unexpected number in JSON at position 1 (line 1 column 2)
+"x012345678901234567890123456789" => SyntaxError | Unexpected token 'x', "x012345678"... is not valid JSON
+"[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,x" => SyntaxError | Unexpected token 'x', ..."1,1,1,1,1,x" is not valid JSON
+"[1,1,1,1,x" => SyntaxError | Unexpected token 'x', "[1,1,1,1,x" is not valid JSON
+"[1,2,3,4,5,6,7,8,9,x]" => SyntaxError | Unexpected token 'x', ..."5,6,7,8,9,x]" is not valid JSON
+"[1,2,3,4,5,6,7,8,9,10,11,x]" => SyntaxError | Unexpected token 'x', ..."8,9,10,11,x]" is not valid JSON
+"{\"a\":1,\"b\":2,\"c\":3,\"d\":4, e}" => SyntaxError | Expected double-quoted property name in JSON at position 26 (line 1 column 27)
+"\"abcdefghijklmnopqrstuvwxyz\" x" => SyntaxError | Unexpected non-whitespace character after JSON at position 29 (line 1 column 30)
+"abcdefghijklmnopqrstuvwxyz" => SyntaxError | Unexpected token 'a', "abcdefghij"... is not valid JSON
+reviver non-callable ok
+Unexpected token 'x', "x" is not valid JSON
+reviver non-callable ok
+1 __proto__
+["1!","2!",{"a":"3!"}]
+{"a":"2"}
+":source:1,:9"
+[true,"-0"]
+"1e3"
+"\"a\\u0041\""
+"{\n  \"a\": [\n    1,\n    {\n      \"b\": 2\n    }\n  ],\n  \"c\": \"x\"\n}"
+"{\n--\"a\": 1,\n--\"b\": [\n----1,\n----2\n--]\n}"
+"{\"c\":3,\"a\":1}"
+"{\"a\":2,\"b\":4}"
+"\"  𐀀\\ud800 \\u001f\\\"\\\\\""
+"[null,null,null]"
+"{\"a\":1,\"b\":\"s\",\"c\":false,\"d\":false}"
+"null0null1e+21null"
+"undefined|undefined|undefined"
+"{\n          \"a\": 1\n}"
+"{\nabcdefghij\"a\": 1\n}"
+"[]{}[\n  []\n]"
+"{\n \"a\": [],\n \"b\": {}\n}"
+"{\n   \"a\": 1\n}"
+"{\nxx\"a\": 1\n}"
+"{\"0\":3,\"1\":2,\"a\":1}"
+"{\"own\":2}"
+"\"k=\""
+"{\"x\":\"k=x\"}"
+"[\"k=0\"]"
+"{\"a\":\"5\"}"
+"{\"a\":\"big5\"}"
+"{\"a\":1}"
+"{\"1\":\"x\"}"
+"\"root:x\""
+"[true,\"object\"]"
+"{}"
+"{}"
+"\"😀\""
+"{\"\\ud800\":1}"
+parse 1000 ok
+parse 100000 ok
