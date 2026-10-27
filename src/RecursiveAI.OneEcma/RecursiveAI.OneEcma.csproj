@@ -13,6 +13,7 @@
   </PropertyGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="OneEcma.Tests" />
+    <InternalsVisibleTo Include="OneEcma.AotSmoke" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Intl/Data/Generated/*.bin" LogicalName="oneecma-data/%(Filename)%(Extension)" />
