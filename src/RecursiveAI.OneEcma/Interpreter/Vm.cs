@@ -875,7 +875,7 @@ internal static partial class Vm
                                 {
                                     if (arr.Count == arr.Dense.Length)
                                     {
-                                        Array.Resize(ref arr.Dense, Math.Max(4, arr.Count * 2));
+                                        arr.GrowDense(Math.Max(4L, arr.Count * 2L));
                                     }
 
                                     arr.Dense[arr.Count++] = JsValue.Hole;

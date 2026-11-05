@@ -53,7 +53,15 @@ internal static class ReplayFuzz
             return "limit " + limit.Kind + ": " + limit.Message;
         }
 
-        return "value: " + engine.ToDisplayString(value);
+        // Showing a value can itself run into a limit (joining a billion-hole array); that must read the same on both sides.
+        try
+        {
+            return "value: " + engine.ToDisplayString(value);
+        }
+        catch (JsLimitException e)
+        {
+            return "value, display hit " + e.Kind;
+        }
     }
 
     private static JsValue TaskFor(ScriptEngine engine, ReadOnlySpan<JsValue> a)

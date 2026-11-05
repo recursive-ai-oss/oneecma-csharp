@@ -28,7 +28,13 @@ public sealed class EngineLimits
     /// <summary>Step budget: one unit per call, per loop back-edge and per unit of work in long-running built-ins. Default 4e9.</summary>
     public long Fuel { get; set; } = 4_000_000_000L;
 
-    /// <summary>Allocation volume in bytes (see docs/runtime.md: bytes requested, not live bytes). Default 2 GiB.</summary>
+    /// <summary>
+    /// Allocation volume in bytes, counted cumulatively as bytes requested, not live bytes: nothing is ever given back. Before the engine
+    /// allocates something whose size a script controls it adds the size to this total, and exceeding the limit ends the run with a
+    /// <see cref="LimitKind.Memory"/> report instead of allocating. Charged: array element storage (16 bytes per slot of the new capacity
+    /// each time it grows), typed-array and buffer bytes, collection entries, string characters (2 bytes each, when a rope is flattened or a
+    /// string is built), lists gathered from iterators, and property storage past 32 properties per object. Default 2 GiB.
+    /// </summary>
     public long MaxAllocatedBytes { get; set; } = 2L << 30;
 
     /// <summary>Wall-clock budget in milliseconds measured with the host monotonic clock; zero or less means none. Default none.</summary>

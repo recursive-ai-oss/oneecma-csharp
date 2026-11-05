@@ -736,6 +736,7 @@ internal static partial class Vm
 
             if (clear)
             {
+                obj.ChargeNewProperty();
                 obj.AddProperty(key, v, PropFlags.Default);
                 return;
             }

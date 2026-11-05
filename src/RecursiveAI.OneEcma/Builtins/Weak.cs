@@ -523,6 +523,7 @@ internal static partial class Builtins
             }
 
             WeakTracker w = r.Agent.Weak;
+            Agent.Current.Alloc(96);
             reg.Cells.Add(new FinalizationCell
             {
                 Slot = new WeakSlot(w.NewId(), target.Ref!),

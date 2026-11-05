@@ -790,6 +790,7 @@ internal static partial class Builtins
         var inStack = new HashSet<JsObject>(ReferenceEqualityComparer.Instance);
         Agent agent = Agent.Current;
         int limit = agent.Limits.MaxStringLength;
+        long charged = 0; // characters of the builder already billed to the allocation budget
 
         // Steps 1-4 and the type dispatch of SerializeJSONProperty (25.5.4.2). Returns false for "undefined".
         bool Resolve(JsObject holder, string key, out JsValue v)
@@ -902,6 +903,12 @@ internal static partial class Builtins
                 throw Errors.Range("Invalid string length");
             }
 
+            if (sb.Length > charged)
+            {
+                agent.Alloc((sb.Length - charged) * 2L);
+                charged = sb.Length;
+            }
+
             if (f.IsArray)
             {
                 if (f.I < f.Len)
@@ -986,7 +993,7 @@ internal static partial class Builtins
             throw Errors.Range("Invalid string length");
         }
 
-        agent.Alloc(sb.Length * 2L);
+        agent.Alloc(sb.Length * 2L); // the final string; the builder's chunks were billed as they grew
         return Ops.Str(sb.ToString());
     }
 

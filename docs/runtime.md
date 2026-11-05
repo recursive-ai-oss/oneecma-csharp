@@ -112,6 +112,20 @@ Rule: **every native loop whose trip count depends on script data calls `Tick()`
 
 Before allocating something sized by script data (a string result, an array of length n, a buffer), call `Agent.Current.Alloc(bytes)` first. It counts bytes *requested* cumulatively (not live bytes) against `EngineLimits.MaxAllocatedBytes`. Strings longer than `EngineLimits.MaxStringLength` must throw `Errors.Range("Invalid string length")`. Arrays of length over 2^32-1 throw `RangeError: Invalid array length`.
 
+**What is charged** (all before the allocation, in the same order in a recorded run and in its traced replay; nothing is charged while a report is being built):
+
+| Growth | Charge |
+|---|---|
+| Dense array storage: `JsArray.GrowDense`, the `JsArray(proto, capacity)` constructor, and the in-place growth in `push`, `unshift`, `splice`, literals, spread and rest | 16 bytes × the new capacity, each time the store is reallocated (doubling, so a loop of `n` pushes is charged about `2n × 16`). Holes that allocate nothing (`new Array(1e9)`, `length = 4e9`) are free until written. |
+| Lists built by built-ins (`Array.from`/spread/`new Set(iterable)` through `IterableToList`, sort and copy lists, `CreateListFromArrayLike`, typed-array `filter`) | 16 bytes per element |
+| Typed arrays, `ArrayBuffer`, resize, `transfer`, `set` through a snapshot, base64 and hex decoding | the byte count (`CreateBlock`); typed-array sort 32 bytes per element |
+| Map and Set entries, `FinalizationRegistry.register` | 80 and 96 bytes per new entry |
+| Strings | 2 bytes per code unit when a rope is flattened or a string is built (`repeat`, `pad*`, `replace*`, `JSON.stringify` and `join` as the builder grows, then the final string); a rope node costs 48 |
+| Object property storage | 96 bytes for each property added beyond the 32nd on one object |
+| Objects, arrays, closures, promise combinators | small constants (48-400) |
+
+A request that is over the limit throws `JsLimitException` (`LimitKind.Memory`) before anything is allocated. A request .NET cannot satisfy (more than 2^31-57 array slots, a block over the maximum) is a `RangeError`; an allocator failure while growing an array is a memory-limit report. The limit is a cumulative total of bytes requested, not live bytes: it is an upper bound on what the script asked for, and the live heap can be at most about that large, plus the old and new arrays of one reallocation. A live-bytes limit would need deterministic release accounting and is not provided.
+
 ## No host recursion that follows script depth
 
 The VM runs JS-to-JS calls on an explicit frame stack, so JS recursion does not consume the .NET stack. Native code that calls back into script (`Ops.Call`, `Construct`, a getter reached by `Get`, a Proxy trap) does consume it; the VM counts these re-entries and ends the run past `EngineLimits.MaxNativeDepth` (default 120). So:

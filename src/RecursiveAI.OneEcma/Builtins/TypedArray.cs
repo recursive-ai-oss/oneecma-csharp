@@ -461,6 +461,7 @@ internal static partial class TypedArrays
                 JsValue kv = o.GetByNumber(k);
                 if (Ops.ToBoolean(Ops.Call(cb, A(a, 1), [kv, Num(k), t])))
                 {
+                    Agent.Current.Alloc(JsArray.ElementBytes);
                     kept.Add(kv);
                 }
             }
@@ -993,8 +994,8 @@ internal static partial class TypedArrays
         if (ReferenceEquals(srcData, target.Buffer.Data))
         {
             // Overlapping views of one buffer: read from a snapshot of the source bytes.
+            Agent.Current.Alloc(srcLength * (long)source.ElementSize);
             srcData = new byte[srcLength * source.ElementSize];
-            Agent.Current.Alloc(srcData.Length);
             Array.Copy(source.Buffer.Data, source.ByteOffset, srcData, 0, srcData.Length);
             srcBase = 0;
         }
@@ -1058,6 +1059,8 @@ internal static partial class TypedArrays
     /// <summary>SortIndexedProperties over the typed array's current elements; stable.</summary>
     private static JsValue[] SortedElements(JsTypedArray o, long len, JsValue comparator)
     {
+        // The element array, the sort keys or merge buffer: about two arrays' worth, charged before either exists.
+        Agent.Current.Alloc(len * (2L * JsArray.ElementBytes));
         var items = new JsValue[len];
         for (int i = 0; i < len; i++)
         {

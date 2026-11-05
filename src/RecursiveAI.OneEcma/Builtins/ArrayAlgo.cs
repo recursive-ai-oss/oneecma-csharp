@@ -177,7 +177,7 @@ internal static class ArrayAlgo
         {
             if (ja.Count == ja.Dense.Length)
             {
-                Array.Resize(ref ja.Dense, Math.Max(4, ja.Count * 2));
+                ja.GrowDense(Math.Max(4L, ja.Count * 2L));
             }
 
             ja.Dense[ja.Count++] = v;
