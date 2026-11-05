@@ -630,8 +630,7 @@ internal static class ArrayProto
                 if (count + argCount > ja.Dense!.Length)
                 {
                     int capacity = Math.Max(count + argCount, count * 2);
-                    Agent.Current.Alloc(capacity * 16L);
-                    Array.Resize(ref ja.Dense, capacity);
+                    ja.GrowDense(capacity);
                 }
 
                 Array.Copy(ja.Dense, 0, ja.Dense, argCount, count);
@@ -878,8 +877,7 @@ internal static class ArrayProto
                 if (ja.Count + grow > ja.Dense!.Length)
                 {
                     int capacity = Math.Max(ja.Count + grow, ja.Count * 2);
-                    Agent.Current.Alloc(capacity * 16L);
-                    Array.Resize(ref ja.Dense, capacity);
+                    ja.GrowDense(capacity);
                 }
 
                 Array.Copy(ja.Dense, start + deleteCount, ja.Dense, start + itemCount, ja.Count - (start + deleteCount));
@@ -1199,6 +1197,7 @@ internal static class ArrayProto
         try
         {
             var sb = new StringBuilder();
+            long charged = 0; // characters of the builder already billed to the allocation budget
             JsValue[] fwd = [Ops.Arg(localeArgs, 0), Ops.Arg(localeArgs, 1)];
             for (long k = 0; k < len; k++)
             {
@@ -1214,8 +1213,14 @@ internal static class ArrayProto
                 }
 
                 Alg.CheckStringLength(sb.Length);
+                if (sb.Length > charged)
+                {
+                    Agent.Current.Alloc((sb.Length - charged) * 2L);
+                    charged = sb.Length;
+                }
             }
 
+            Agent.Current.Alloc(sb.Length * 2L); // the final string
             return sb.ToString();
         }
         finally

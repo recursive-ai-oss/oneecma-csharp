@@ -14,7 +14,45 @@ internal sealed class JsArray : JsObject
     internal JsArray(JsObject? proto, int capacity = 0)
         : base(proto)
     {
-        Dense = capacity == 0 ? [] : new JsValue[capacity];
+        if (capacity == 0)
+        {
+            Dense = [];
+        }
+        else
+        {
+            Agent.CurrentOrNull?.Alloc(capacity * (long)ElementBytes);
+            Dense = new JsValue[capacity];
+        }
+    }
+
+    /// <summary>Bytes one dense element occupies (a <see cref="JsValue"/>); the unit the allocation budget is charged in.</summary>
+    internal const int ElementBytes = 16;
+
+    /// <summary>Largest element count a .NET array can hold; a bigger request is an invalid array length.</summary>
+    internal const int MaxDenseCapacity = 0x7FFFFFC7;
+
+    /// <summary>
+    /// Reallocates the dense store to hold <paramref name="capacity"/> elements. The new size is charged to the allocation budget
+    /// first, so one huge request ends in a memory-limit report instead of allocating; a request .NET cannot satisfy is a
+    /// RangeError (ECMA-262 10.4.2.2: invalid array length) or, if the allocator itself fails, a memory-limit report.
+    /// </summary>
+    internal void GrowDense(long capacity)
+    {
+        Agent ag = Agent.Current;
+        ag.Alloc(capacity * ElementBytes);
+        if (capacity > MaxDenseCapacity)
+        {
+            throw Errors.Range("Invalid array length");
+        }
+
+        try
+        {
+            Array.Resize(ref Dense, (int)capacity);
+        }
+        catch (OutOfMemoryException)
+        {
+            throw ag.Limit(LimitKind.Memory, "Execution ran out of memory growing an array to " + capacity.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + " elements");
+        }
     }
 
     internal override string ClassName => "Array";
@@ -25,7 +63,8 @@ internal sealed class JsArray : JsObject
 
     internal static JsArray FromList(JsObject? proto, IReadOnlyList<JsValue> items)
     {
-        var a = new JsArray(proto, items.Count);
+        // Not billed here: callers either charged for the list they built or are host code copying values it already holds.
+        var a = new JsArray(proto) { Dense = items.Count == 0 ? [] : new JsValue[items.Count] };
         for (int i = 0; i < items.Count; i++)
         {
             a.Dense![i] = items[i];
@@ -43,7 +82,7 @@ internal sealed class JsArray : JsObject
         {
             if (Count == Dense.Length)
             {
-                Array.Resize(ref Dense, Math.Max(4, Count * 2));
+                GrowDense(Math.Max(4L, Count * 2L));
             }
 
             Dense[Count++] = v;
@@ -76,6 +115,8 @@ internal sealed class JsArray : JsObject
 
         JsValue[] d = Dense;
         int n = Count;
+        // Billed in one step before anything changes, so a limit cannot leave the array half converted.
+        ChargeNewProperties(n);
         Dense = null;
         Count = 0;
         for (int i = 0; i < n; i++)
@@ -174,7 +215,7 @@ internal sealed class JsArray : JsObject
                         {
                             if (idx >= (uint)Dense.Length)
                             {
-                                Array.Resize(ref Dense, (int)Math.Max(idx + 1, Math.Max(4, Dense.Length * 2L)));
+                                GrowDense(Math.Max(idx + 1L, Math.Max(4L, Dense.Length * 2L)));
                             }
 
                             for (int j = Count; j < (int)idx; j++)

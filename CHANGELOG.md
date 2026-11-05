@@ -4,6 +4,12 @@ All notable changes are listed here. The format follows [Keep a Changelog](https
 
 ## [Unreleased]
 
+## [1.0.1] - Unreleased
+
+### Security
+
+- **The allocation limit now bounds memory.** `EngineLimits.MaxAllocatedBytes` did not count array element storage, so scripts such as `new Array(1e9).fill(0)`, `Array.from({ length: 1e9 })` or an unbounded `push` loop could take gigabytes, or fail with a .NET `OutOfMemoryException`, before the limit fired. Growth that a script controls is now charged before the allocation happens, so one huge request ends in the usual memory-limit report: array storage (growth, `Array(n)`, `length`, `push`, `splice`, spread, rest, `concat`, `slice`, `flat` and the copying methods), typed-array and `ArrayBuffer` creation, resize, copy and sort, iterator results gathered into lists, `FinalizationRegistry` registrations, string building (`join` and `JSON.stringify` while they grow), and the property storage of objects that grow past 32 properties. An allocation .NET cannot satisfy is a `RangeError` or a memory-limit report, never an `OutOfMemoryException`. The limit still counts bytes requested, not bytes alive; see `docs/runtime.md`.
+
 ## [1.0.0] - 2026-10-27
 
 First release. OneEcma is an interpreter for .NET implementing ECMA-262 / ECMAScript®, whose product is its error reports. It is not affiliated with or endorsed by Ecma International.

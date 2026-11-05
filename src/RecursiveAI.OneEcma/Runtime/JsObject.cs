@@ -265,6 +265,7 @@ public class JsObject
             }
 
             PropFlags f = desc.ToFlags();
+            ChargeNewProperty();
             if (desc.IsAccessor)
             {
                 AddProperty(key, new JsValue(new AccessorPair(desc.Get.AsObject, desc.Set.AsObject), 0), f | PropFlags.Accessor);
@@ -348,6 +349,35 @@ public class JsObject
     }
 
     // ---- storage primitives ----------------------------------------------------------------
+
+    /// <summary>Property count from which each added property is charged to the allocation budget.</summary>
+    private const int PropertyChargeFrom = 32;
+
+    /// <summary>Estimated bytes per added property: a 16-byte slot, a shape or dictionary entry and the key.</summary>
+    private const int PropertyBytes = 96;
+
+    /// <summary>
+    /// Bills the allocation budget for a property a script is about to add. An object that keeps gaining keys (a script using one as a
+    /// map) costs a slot, a shape or dictionary entry and the key each time; small objects stay free, and built-in setup, which adds
+    /// properties through <see cref="AddProperty"/> directly, is not billed.
+    /// </summary>
+    internal void ChargeNewProperty()
+    {
+        if (Shape.Count >= PropertyChargeFrom)
+        {
+            Agent.CurrentOrNull?.Alloc(PropertyBytes);
+        }
+    }
+
+    /// <summary>Bills <paramref name="count"/> properties about to be added together; see <see cref="ChargeNewProperty"/>.</summary>
+    internal void ChargeNewProperties(int count)
+    {
+        long billable = (long)Shape.Count + count - PropertyChargeFrom;
+        if (billable > 0)
+        {
+            Agent.CurrentOrNull?.Alloc(Math.Min(billable, count) * PropertyBytes);
+        }
+    }
 
     /// <summary>Adds a property known to be absent.</summary>
     internal void AddProperty(PropertyKey key, JsValue value, PropFlags flags)

@@ -1309,6 +1309,7 @@ internal static class Ops
         while (IteratorStepValue(rec, out JsValue v))
         {
             Agent.Current.Tick();
+            Agent.Current.Alloc(JsArray.ElementBytes);
             list.Add(v);
         }
 
