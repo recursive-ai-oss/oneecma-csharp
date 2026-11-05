@@ -4,7 +4,7 @@ All notable changes are listed here. The format follows [Keep a Changelog](https
 
 ## [Unreleased]
 
-## [1.0.1] - Unreleased
+## [1.0.1] - 2026-11-05
 
 ### Security
 
@@ -28,5 +28,6 @@ First release. OneEcma is an interpreter for .NET implementing ECMA-262 / ECMASc
 - **Command line:** `oneecma run`, `check` (every syntax and early error, optional `--repair`) and `repl`, with `--format json`, `--compact` and `--locals`.
 - **Packages:** `RecursiveAI.OneEcma` (the engine, Intl included, no dependencies beyond the .NET base class library), `RecursiveAI.OneEcma.Generators` (analyzer-only) and `RecursiveAI.OneEcma.Cli` (the `oneecma` dotnet tool). NativeAOT binaries of `oneecma` for win-x64, linux-x64, linux-arm64 and osx-arm64 are attached to the GitHub release.
 
-[Unreleased]: https://github.com/recursive-ai-oss/oneecma-csharp/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/recursive-ai-oss/oneecma-csharp/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/recursive-ai-oss/oneecma-csharp/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/recursive-ai-oss/oneecma-csharp/releases/tag/v1.0.0
