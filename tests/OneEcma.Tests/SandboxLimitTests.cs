@@ -197,6 +197,48 @@ public class SandboxLimitTests
     }
 
     [Fact]
+    public void BlockedMultiplicationMatchesTheBclProductForManyShapes()
+    {
+        // A tiny block forces the split path for every product, so unbalanced, odd-length and zero-padded halves all occur.
+        int saved = BigMath.BlockBytes;
+        BigMath.BlockBytes = 16;
+        try
+        {
+            ScriptEngine engine = Engine(1L << 36);
+            JsValue v = engine.Evaluate("""
+                let seed = 12345n;
+                function rnd(bytes) { let r = 0n; for (let i = 0; i < bytes; i++) { seed = (seed * 6364136223846793005n + 1442695040888963407n) % (1n << 64n); r = (r << 8n) | (seed >> 56n); } return r; }
+                const out = [];
+                for (const [la, lb] of [[17, 17], [33, 16], [100, 3], [257, 255], [64, 1], [129, 128], [500, 40], [1000, 999]]) {
+                  for (let k = 0; k < 3; k++) {
+                    let a = rnd(la), b = rnd(lb);
+                    if (k === 1) { a = a << 136n; }            // zero low bytes
+                    if (k === 2) { b = (1n << BigInt(lb * 8)) - 1n; a = -a; }   // all-ones operand, negative sign
+                    out.push(a.toString(16) + ',' + b.toString(16) + ',' + (a * b).toString(16));
+                  }
+                }
+                out.join(';')
+                """, "mul.js", Ct);
+            foreach (string row in v.AsString.Split(';'))
+            {
+                string[] p = row.Split(',');
+                Assert.Equal(Hex(p[0]) * Hex(p[1]), Hex(p[2]));
+            }
+        }
+        finally
+        {
+            BigMath.BlockBytes = saved;
+        }
+
+        static System.Numerics.BigInteger Hex(string s)
+        {
+            bool neg = s.StartsWith('-');
+            var r = System.Numerics.BigInteger.Parse("0" + (neg ? s[1..] : s), System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.InvariantCulture);
+            return neg ? -r : r;
+        }
+    }
+
+    [Fact]
     public void OrdinaryBigIntArithmeticStillWorks()
     {
         ScriptEngine engine = Engine(8L << 20);

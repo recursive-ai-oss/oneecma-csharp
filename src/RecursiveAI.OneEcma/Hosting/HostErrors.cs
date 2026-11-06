@@ -53,7 +53,7 @@ internal static class HostErrors
     /// <see cref="Exception.InnerException"/> if the error reaches C# uncaught.
     /// </summary>
     internal static JsException FromException(Exception e, string member, IReadOnlyList<StackFrameInfo>? scriptFrames = null)
-        => FromParts(e.GetType().Name, e.GetType().FullName ?? e.GetType().Name, e.Message, ParseFrames(e), e, member, scriptFrames);
+        => e is OutOfMemoryException ? throw Agent.Current.MemoryExhausted() : FromParts(e.GetType().Name, e.GetType().FullName ?? e.GetType().Name, e.Message, ParseFrames(e), e, member, scriptFrames);
 
     /// <summary>The same from a recorded exception: its type names, message and .NET frames (a replay has no live exception).</summary>
     internal static JsException FromParts(string typeName, string fullName, string message, List<StackFrameInfo> frames, Exception? cause, string member, IReadOnlyList<StackFrameInfo>? scriptFrames)
@@ -166,7 +166,9 @@ internal static class HostCalls
         {
             try
             {
-                return fn(t, a);
+                JsValue unrecorded = fn(t, a);
+                ValueCodec.Charge(Agent.Current, unrecorded);
+                return unrecorded;
             }
             catch (Exception e) when (e is not (JsException or JsLimitException or OperationCanceledException))
             {
@@ -195,6 +197,13 @@ internal static class HostCalls
         {
             JsValue result = fn(t, a);
             rec.WriteHostCallValue(member, result);
+            if (!rec.TaskStarted)
+            {
+                // The host's answer has entered the engine and the log holds a copy (the log is size-capped): both count. The entry is
+                // written first so that a replay, which reads the entry and then charges, stops at the same call.
+                ValueCodec.Charge(Agent.Current, result);
+            }
+
             return result;
         }
         catch (JsException je)
@@ -254,7 +263,9 @@ internal static class HostCalls
             rec.Queued = ran;
             try
             {
-                return fn(t, a);
+                JsValue again = fn(t, a);
+                ValueCodec.Charge(Agent.Current, again);
+                return again;
             }
             finally
             {
@@ -271,6 +282,7 @@ internal static class HostCalls
             return JsValue.FromObject(p);
         }
 
+        ValueCodec.Charge(Agent.Current, v);
         return v;
     }
 }

@@ -49,7 +49,7 @@ internal static partial class IntlJs
             {
                 string x = Ops.ToStr(A(a2, 0));
                 string y = Ops.ToStr(A(a2, 1));
-                return Ops.Num(Math.Sign(((CollatorState)c.Data!).Collator.Compare(x, y)));
+                return Ops.Num(Math.Sign(Builtins.CollateCompare(((CollatorState)c.Data!).Collator, x, y)));
             });
             return JsValue.FromObject(c.Bound);
         });

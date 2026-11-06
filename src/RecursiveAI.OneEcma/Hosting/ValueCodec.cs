@@ -17,6 +17,75 @@ internal static class ValueCodec
         Undefined, Null, False, True, Number, String, BigInt, Array, Object, Ref,
     }
 
+    /// <summary>
+    /// Charges the allocation budget for a value that has just crossed from .NET into the engine: the engine's copy and the copy
+    /// the record log keeps (4 bytes per string character plus a header), BigInt digits, 16 bytes per array element, 96 per object
+    /// property, and a flat 64 for anything that is not data. It looks at the same nodes <see cref="CanEncode"/> does, so a
+    /// recorded run and its replay, which reads the same value back from the log, charge the same amount.
+    /// </summary>
+    internal static void Charge(Agent ag, JsValue v)
+    {
+        if (!v.IsString && !v.IsObject && !v.IsBigInt)
+        {
+            return;
+        }
+
+        if (v.IsString)
+        {
+            ag.Alloc((4L * v.AsString.Length) + 32);
+            return;
+        }
+
+        long bytes = 0;
+        var seen = new HashSet<JsObject>(ReferenceEqualityComparer.Instance);
+        var pending = new Stack<JsValue>();
+        pending.Push(v);
+        int nodes = 0;
+        var keys = new List<PropertyKey>();
+        while (pending.Count > 0 && nodes++ < MaxNodes)
+        {
+            JsValue cur = pending.Pop();
+            if (cur.IsString)
+            {
+                bytes += (4L * cur.AsString.Length) + 32;
+            }
+            else if (cur.IsBigInt)
+            {
+                bytes += (8L * BigMath.Words((System.Numerics.BigInteger)cur.Ref!)) + 32;
+            }
+            else if (cur.IsObject)
+            {
+                var o = (JsObject)cur.Ref!;
+                if (!seen.Add(o))
+                {
+                    continue;
+                }
+
+                if (!IsPlain(o))
+                {
+                    bytes += 64;
+                    continue;
+                }
+
+                bytes += 48;
+                keys.Clear();
+                o.OwnKeys(keys);
+                foreach (PropertyKey k in keys)
+                {
+                    if (k.IsSymbol || (o is JsArray && k.String == "length") || !o.GetOwnProperty(k, out PropertyDescriptor d) || d.IsAccessor)
+                    {
+                        continue;
+                    }
+
+                    bytes += o is JsArray ? 16 : 96 + (2L * (k.String?.Length ?? 0));
+                    pending.Push(d.Value);
+                }
+            }
+        }
+
+        ag.Alloc(bytes);
+    }
+
     internal static bool CanEncode(JsValue v)
     {
         var seen = new HashSet<JsObject>(ReferenceEqualityComparer.Instance);

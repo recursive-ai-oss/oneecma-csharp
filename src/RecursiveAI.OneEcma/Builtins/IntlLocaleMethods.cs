@@ -23,7 +23,7 @@ internal static partial class IntlJs
             string s = Ops.ToStr(t);
             string that = Ops.ToStr(A(a, 0));
             CollatorState c = CreateCollator(Locales(A(a, 1)), A(a, 2), shared: true);
-            return Ops.Num(Math.Sign(c.Collator.Compare(s, that)));
+            return Ops.Num(Math.Sign(Builtins.CollateCompare(c.Collator, s, that)));
         });
 
         JsValue lower = r.StringPrototype.Get("toLowerCase");
