@@ -84,7 +84,11 @@ public class AllocationLimitTests
         Assert.NotNull(e.Report);
         Assert.Equal("Limit", e.Report.Kind);
         Assert.Contains("allocation limit", e.Report.Headline, StringComparison.Ordinal);
-        Assert.True(GC.GetTotalMemory(false) < 1L << 30, name + " held far more than the limit allows");
+        // Live memory after a full collection: garbage left by other tests in the same process does not count, what this engine
+        // still holds does (it is kept alive below). The bound is loose because tests in parallel hold live memory too.
+        long live = GC.GetTotalMemory(forceFullCollection: true);
+        GC.KeepAlive(engine);
+        Assert.True(live < 1L << 30, name + " held far more than the limit allows (" + (live >> 20) + " MiB live)");
     }
 
     [Fact]
