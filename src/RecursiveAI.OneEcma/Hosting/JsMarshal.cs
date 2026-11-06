@@ -952,13 +952,14 @@ public static class JsMarshal
                     promise.Reject(je.Value);
                 }
 
-                // What the host's task produced enters the engine here (and in the log, below): charged before either copy is kept.
+                Log(inCall, () => rec!.LogSettlement(callId, promise));
+
+                // What the host's task produced has entered the engine and the log: charged once the settlement is logged, so that a
+                // replay, which reads the settlement and then charges, stops at the same place.
                 if (promise.State == JsPromiseState.Fulfilled)
                 {
                     ValueCodec.Charge(Agent.Current, promise.Result);
                 }
-
-                Log(inCall, () => rec!.LogSettlement(callId, promise));
             }
             else
             {

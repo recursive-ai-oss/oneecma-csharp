@@ -196,13 +196,14 @@ internal static class HostCalls
         try
         {
             JsValue result = fn(t, a);
+            rec.WriteHostCallValue(member, result);
             if (!rec.TaskStarted)
             {
-                // The host's answer enters the engine, and the log keeps a copy: both count, before the copy is made.
+                // The host's answer has entered the engine and the log holds a copy (the log is size-capped): both count. The entry is
+                // written first so that a replay, which reads the entry and then charges, stops at the same call.
                 ValueCodec.Charge(Agent.Current, result);
             }
 
-            rec.WriteHostCallValue(member, result);
             return result;
         }
         catch (JsException je)
