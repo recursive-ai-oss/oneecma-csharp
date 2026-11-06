@@ -15,6 +15,10 @@ public class CollectionsProxyTests
 
         public override void Print(string text) => Output.Append(text).Append('\n');
 
+        // Collect only when the script asks ($262.gc()): the default policy follows process-wide memory growth, which other tests in
+        // the same process can trigger, and these tests count collections exactly.
+        public override bool WantsWeakCollection() => false;
+
         void IJsHost.WeakTargetsCollected(IReadOnlyList<long> ids) => Collections.Add(ids.ToArray());
 
         IReadOnlyList<long>? IJsHost.ReplayWeakCollection() => Replay;
