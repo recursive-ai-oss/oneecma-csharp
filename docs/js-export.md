@@ -83,7 +83,7 @@ error[TypeError]: Shop.OrderApi.AddOrder: argument 'order.lineItems[1].price' mu
   |
   = help: convert the string first: Number("7.25")
   = note: host function: Shop.OrderApi.AddOrder(Order order)
-  = stack: Shop.OrderApi.AddOrder [.NET] ← <anonymous> (case.js:6)
+  = stack: Shop.OrderApi.AddOrder [.NET] ← <top-level> (case.js:6)
 ```
 
 | Situation | Headline after `<Member>: ` |
@@ -141,6 +141,8 @@ JsObject slow = JsonSchemaTools.DefineAsync(realm, "slow", schemaJson, async arg
 JsObject checkedCall = JsonSchemaTools.Validated(realm, "name", schemaJson, existingFunction, thisValue);   // wrap an exported method
 realm.DefineData(realm.Global, "createOrder", JsValue.FromObject(fn), JsAttributes.Method);
 ```
+
+The `JsonElement` a `DefineAsync` handler receives is valid only until the handler first awaits: read what you need from it, or keep `arg.Clone()`, before the first `await`.
 
 Typed overloads take `JsonTypeInfo<T>` from a `System.Text.Json` source-generated context, so they are AOT-safe; the context's naming policy decides the
 .NET property names (use camel case to match schemas). The script value is converted to JSON by own enumerable properties (functions, symbols and `undefined`

@@ -4,6 +4,11 @@ All notable changes are listed here. The format follows [Keep a Changelog](https
 
 ## [Unreleased]
 
+### Documentation
+
+- Corrected the 1.0.0 description of limits: fuel, memory and wall clock end the run with a report like any other error; call depth and string length throw a `RangeError` the script can catch (reported like any other error if it is not caught); cancellation works through a `CancellationToken`, and the call throws `OperationCanceledException` with no report.
+- The README's `[JsExport]` example now sets up the host in `ScriptEngineOptions.Configure`, so the replay that explains a failure sees the same globals; `docs/js-export.md` shows top-level frames as `<top-level>` and notes that a `DefineAsync` handler's `JsonElement` is valid only until its first `await`.
+
 ## [1.0.1] - 2026-11-05
 
 ### Security

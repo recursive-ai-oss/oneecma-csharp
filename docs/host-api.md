@@ -19,7 +19,7 @@ returned by a host method resumes script on that thread when the engine is pumpe
 | `JsPromise` | A promise made in C#: `Value`, `State`, `Result`, `Resolve`, `Reject`, `OnSettled`. |
 | `HostFunction` / `HostConstructor` | Delegates for host functions `(this, args) -> value` and constructors `(args, newTarget) -> value`. |
 | `JsException` | A thrown script value. `new JsException(value)` throws a script value from a host function; `Report` is the `Diagnostic`; `InnerException` is the original .NET exception when the error came from one. |
-| `JsLimitException` | A limit (fuel, memory, time, depth) ended the run. |
+| `JsLimitException` | A limit (fuel, memory, wall clock, native re-entry depth) ended the run; `Report` is the `Diagnostic`. Call depth and string length are a catchable `RangeError` instead, and cancellation throws `OperationCanceledException`. |
 | `IJsHost` | Clock, randomness, locale, modules, printing: everything environmental. `DefaultHost` is the system implementation; `InMemoryModuleHost` serves modules from strings. |
 
 ## Values, properties and functions

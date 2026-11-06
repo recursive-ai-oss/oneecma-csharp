@@ -124,10 +124,14 @@ public class Cart
     public decimal Total(Item item) => item.Quantity * item.Price;
 }
 
-var host = new ScriptEngine();
-JsRealm realm = host.MainRealm;
-JsExports.InstallAll(realm);                                   // generated
-realm.DefineData(realm.Global, "cart", realm.Wrap(new Cart()));
+var host = new ScriptEngine(new ScriptEngineOptions
+{
+    Configure = e =>                                           // also runs in the replay that explains a failure
+    {
+        JsExports.InstallAll(e.MainRealm);                     // generated
+        e.MainRealm.DefineData(e.Global, "cart", e.MainRealm.Wrap(new Cart()));
+    },
+});
 
 host.Evaluate("cart.total({ sku: 'pen', quantity: 3, price: 1.5 })", "a.js");     // 4.5
 host.Evaluate("cart.total({ sku: 'pen', quantity: '3', price: 1.5 })", "bad.js");
@@ -192,7 +196,7 @@ oneecma repl                             multi-line input, top-level await, .exi
 
 A script reaches only what the host passes in: the engine has no file, network, process or environment access of its own. Every source of nondeterminism (clock, randomness, host-call results, job order) enters through `IJsHost` and is recorded, so a failed run is replayed exactly to build its report.
 
-`EngineLimits` bounds fuel (steps charged at calls, loop back-edges, RegExp backtracking and long-running built-ins), allocated memory, wall-clock time, call depth and string length. A limit ends the run with a report like any other error. Cancellation is a `CancellationToken` on every computing entry point. Parsing and the executor use explicit stacks or depth counters, so deep nesting in a script cannot overflow the .NET stack. Defaults are in the XML docs of `EngineLimits` and in [docs/runtime.md](docs/runtime.md).
+`EngineLimits` bounds fuel (steps charged at calls, loop back-edges, RegExp backtracking and long-running built-ins), allocated memory, wall-clock time, call depth and string length. Fuel, memory, wall clock and native re-entry depth end the run with a `JsLimitException` carrying a report like any other error; call depth and string length throw a `RangeError` the script can catch. Cancellation is a `CancellationToken` on every computing entry point; a cancelled call throws `OperationCanceledException` and carries no report. Parsing and the executor use explicit stacks or depth counters, so deep nesting in a script cannot overflow the .NET stack. Defaults are in the XML docs of `EngineLimits` and in [docs/runtime.md](docs/runtime.md).
 
 ## Auto-repair
 
