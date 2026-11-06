@@ -4,6 +4,12 @@ All notable changes are listed here. The format follows [Keep a Changelog](https
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-11-05
+
+### Security
+
+- **The replay that explains an error is bounded.** After an uncaught runtime error the engine replays the run with tracing to add where values came from, the frame locals and suggestions. That replay had no budget of its own, and capturing a stack previewed every local in full, which listed all the keys of any object held in a local. A script that built a large object while creating errors (for example, one rejected promise per iteration) made the replay quadratic in time and memory, far beyond what the original run cost. Large objects (more than 200 own properties) are now previewed by their size, and the tracing has a deterministic budget counted in work done and entries kept, not in time. When the budget is spent the replay stops, the plain report stands with its headline unchanged, and it gains `= note: explanation unavailable: the explanation exceeded its work budget`. The replay already used the run's fuel, allocation and wall-clock limits and now also stops when the host cancels.
+
 ## [1.0.1] - 2026-11-05
 
 ### Security
@@ -28,6 +34,7 @@ First release. OneEcma is an interpreter for .NET implementing ECMA-262 / ECMASc
 - **Command line:** `oneecma run`, `check` (every syntax and early error, optional `--repair`) and `repl`, with `--format json`, `--compact` and `--locals`.
 - **Packages:** `RecursiveAI.OneEcma` (the engine, Intl included, no dependencies beyond the .NET base class library), `RecursiveAI.OneEcma.Generators` (analyzer-only) and `RecursiveAI.OneEcma.Cli` (the `oneecma` dotnet tool). NativeAOT binaries of `oneecma` for win-x64, linux-x64, linux-arm64 and osx-arm64 are attached to the GitHub release.
 
-[Unreleased]: https://github.com/recursive-ai-oss/oneecma-csharp/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/recursive-ai-oss/oneecma-csharp/compare/v1.0.2...HEAD
+[1.0.2]: https://github.com/recursive-ai-oss/oneecma-csharp/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/recursive-ai-oss/oneecma-csharp/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/recursive-ai-oss/oneecma-csharp/releases/tag/v1.0.0

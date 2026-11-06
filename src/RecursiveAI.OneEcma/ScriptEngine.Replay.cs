@@ -14,6 +14,8 @@ public sealed class ReplayOptions
     /// <summary>The recorded run's setting of <see cref="ScriptEngineOptions.ProperTailCalls"/>.</summary>
     public bool ProperTailCalls { get; set; }
 
+    internal long TraceWorkBudget { get; set; }
+
     /// <summary>The recorded run's setting of <see cref="ScriptEngineOptions.InstallTest262Host"/>.</summary>
     public bool InstallTest262Host { get; set; }
 
@@ -38,6 +40,9 @@ public sealed class ReplayResult
 
     /// <summary>The report of <see cref="Exception"/> (also in <c>Exception.Report</c>), or null.</summary>
     public Diagnostic? Report => Exception?.Report;
+
+    /// <summary>True when a traced replay stopped because its explanation ran out of work budget.</summary>
+    internal bool BudgetSpent { get; set; }
 
     /// <summary>The limit the last entry call hit, or null.</summary>
     public JsLimitException? Limit { get; internal set; }
@@ -86,6 +91,7 @@ public sealed partial class ScriptEngine
                 Configure = options.Configure,
                 ReplayRecorder = rec,
                 TraceReplay = options.Trace,
+                TraceWorkBudget = options.TraceWorkBudget,
                 ExplainErrors = false,
             });
             result.Engine = engine;
@@ -98,6 +104,12 @@ public sealed partial class ScriptEngine
         catch (FormatException e)
         {
             result.Divergence = "the log is damaged: " + e.Message;
+        }
+        catch (JsLimitException e) when (TraceState.IsBudget(e))
+        {
+            // Tracing costs more than running; when it spends its budget the replay stops, and what it learned so far is not used.
+            result.BudgetSpent = true;
+            result.Divergence = "the traced replay exceeded its work budget";
         }
 
         result.Divergence ??= rec.Divergence;
@@ -213,7 +225,7 @@ public sealed partial class ScriptEngine
         {
             result.Exception = e;
         }
-        catch (JsLimitException e)
+        catch (JsLimitException e) when (!TraceState.IsBudget(e))
         {
             result.Limit = e;
         }
@@ -547,8 +559,13 @@ public sealed partial class ScriptEngine
                     InstallTest262Host = _agent.InstallTest262Host,
                     Configure = _options?.Configure,
                     StopAfterEntry = stopAfter,
-                });
-                if (r.Divergence is not null)
+                    TraceWorkBudget = _options?.TraceWorkBudget ?? 0,
+                }, _entryToken);
+                if (r.BudgetSpent)
+                {
+                    lost = TraceState.BudgetMessage;
+                }
+                else if (r.Divergence is not null)
                 {
                     lost = "the replay diverged from the recorded run: " + r.Divergence;
                 }

@@ -74,7 +74,7 @@ dotnet add package RecursiveAI.OneEcma.Generators   # [JsExport] host bindings (
 dotnet tool install -g RecursiveAI.OneEcma.Cli      # the `oneecma` command
 ```
 
-All three packages are on nuget.org (latest 1.0.1). `RecursiveAI.OneEcma.Generators` is an analyzer: it is referenced like any package but adds nothing to your output or dependencies. NativeAOT `oneecma` binaries for win-x64, linux-x64, linux-arm64 and osx-arm64, with sha256 files, are attached to each [GitHub release](https://github.com/recursive-ai-oss/oneecma-csharp/releases). To work on the library itself, build from source (below).
+All three packages are on nuget.org (latest 1.0.2). `RecursiveAI.OneEcma.Generators` is an analyzer: it is referenced like any package but adds nothing to your output or dependencies. NativeAOT `oneecma` binaries for win-x64, linux-x64, linux-arm64 and osx-arm64, with sha256 files, are attached to each [GitHub release](https://github.com/recursive-ai-oss/oneecma-csharp/releases). To work on the library itself, build from source (below).
 
 ## Use the library
 

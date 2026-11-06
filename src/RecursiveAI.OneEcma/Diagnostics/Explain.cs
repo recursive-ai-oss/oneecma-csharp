@@ -18,6 +18,9 @@ internal static partial class Explain
     private const int MaxPreview = 60;
     private const int MaxKeys = 6;
 
+    /// <summary>Objects with more own properties than this are previewed by their count.</summary>
+    private const int MaxPreviewKeys = 200;
+
     // ---- locals ----------------------------------------------------------------------------------
 
     internal static IReadOnlyList<LocalInfo>? LocalsOf(Frame f) => Agent.CurrentOrNull is { } ag ? ag.Diagnose(() => LocalsOfCore(f)) : LocalsOfCore(f);
@@ -74,6 +77,7 @@ internal static partial class Explain
     /// <summary>A short rendering of a value: literals for primitives, <c>{ key, key }</c> for an object, <c>Array (3 items)</c> for an array.</summary>
     internal static string Preview(JsValue v)
     {
+        Agent.CurrentOrNull?.Trace?.Spend(4);
         switch (v.Ref)
         {
             case null: return "undefined";
@@ -89,11 +93,21 @@ internal static partial class Explain
             case JsObject o:
                 {
                     string prefix = ClassPrefix(o);
-                    List<string> keys = OwnKeys(o);
                     if (o is ProxyObject)
                     {
                         return "Proxy";
                     }
+
+                    // Frame locals are previewed whenever a traced run builds a stack, which is every error it creates. Listing and sorting
+                    // the keys of an object that has grown into a big map each time made a loop of errors quadratic, so a big object is
+                    // shown by its size.
+                    if (o is not JsArray && o.Shape.LiveCount > MaxPreviewKeys)
+                    {
+                        Agent.CurrentOrNull?.Trace?.Spend(8);
+                        return (prefix.Length > 0 ? prefix + " " : string.Empty) + "{ " + o.Shape.LiveCount.ToString(NumberFormatInfo.InvariantInfo) + " properties }";
+                    }
+
+                    List<string> keys = OwnKeys(o);
 
                     var sb = new StringBuilder(prefix);
                     if (prefix.Length > 0)
@@ -213,6 +227,7 @@ internal static partial class Explain
 
         var keys = new List<PropertyKey>();
         o.OwnKeys(keys);
+        Agent.CurrentOrNull?.Trace?.Spend(keys.Count);
         foreach (PropertyKey k in keys)
         {
             if (k.String is { } s && o.GetOwnProperty(k, out PropertyDescriptor d) && d.Enumerable && !(o is JsArray && k.TryGetIndex(out _)))
