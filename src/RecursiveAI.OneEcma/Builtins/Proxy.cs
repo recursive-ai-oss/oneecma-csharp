@@ -690,6 +690,7 @@ internal static partial class Builtins
             throw Errors.Type("Cannot create proxy with a non-object as target or handler");
         }
 
+        Agent.Current.Alloc(160);
         return new ProxyObject(t, h);
     }
 }

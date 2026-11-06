@@ -15,6 +15,7 @@ internal static partial class IntlJs
         JsValue p = Ops.ToPrimitive(v, "number");
         if (p.IsBigInt)
         {
+            BigMath.ChargeDecimalConversion((BigInteger)p.Ref!);
             return DecimalNumber.FromBigInteger((BigInteger)p.Ref!);
         }
 

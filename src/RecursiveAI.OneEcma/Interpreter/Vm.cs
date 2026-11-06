@@ -1178,7 +1178,7 @@ internal static partial class Vm
                                 else
                                 {
                                     JsValue n = Ops.ToNumeric(a);
-                                    st[sp - 1] = n.IsNumber ? JsValue.FromNumber(-n.Num) : JsValue.FromBigInt(-(BigInteger)n.Ref!);
+                                    st[sp - 1] = n.IsNumber ? JsValue.FromNumber(-n.Num) : JsValue.FromBigInt(BigMath.Neg((BigInteger)n.Ref!));
                                 }
 
                                 break;
@@ -1193,7 +1193,7 @@ internal static partial class Vm
                         case Op.BitNot:
                             {
                                 JsValue n = Ops.ToNumeric(st[sp - 1]);
-                                st[sp - 1] = n.IsNumber ? JsValue.FromNumber(~Ops.ToInt32(n.Num)) : JsValue.FromBigInt(-(BigInteger)n.Ref! - 1);
+                                st[sp - 1] = n.IsNumber ? JsValue.FromNumber(~Ops.ToInt32(n.Num)) : JsValue.FromBigInt(BigMath.Neg((BigInteger)n.Ref!) - 1);
                                 break;
                             }
 
@@ -1210,14 +1210,14 @@ internal static partial class Vm
                         case Op.Inc:
                             {
                                 JsValue a = st[sp - 1];
-                                st[sp - 1] = a.IsNumber ? JsValue.FromNumber(a.Num + 1) : JsValue.FromBigInt((BigInteger)a.Ref! + 1);
+                                st[sp - 1] = a.IsNumber ? JsValue.FromNumber(a.Num + 1) : JsValue.FromBigInt(BigMath.Step((BigInteger)a.Ref!, 1));
                                 break;
                             }
 
                         case Op.Dec:
                             {
                                 JsValue a = st[sp - 1];
-                                st[sp - 1] = a.IsNumber ? JsValue.FromNumber(a.Num - 1) : JsValue.FromBigInt((BigInteger)a.Ref! - 1);
+                                st[sp - 1] = a.IsNumber ? JsValue.FromNumber(a.Num - 1) : JsValue.FromBigInt(BigMath.Step((BigInteger)a.Ref!, -1));
                                 break;
                             }
 

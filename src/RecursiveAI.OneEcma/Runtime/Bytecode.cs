@@ -188,8 +188,13 @@ internal sealed class Env
         }
     }
 
+    /// <summary>Estimated bytes of an environment record without its slots (parent, info, flags, header); each slot is a 16-byte value.</summary>
+    internal const int EnvBytes = 80;
+
     internal Env(Env? parent, ScopeInfo info)
     {
+        // 9.1.1.1 / 9.1.1.3: a fresh declarative or function environment is billed; one taken from the free list is not (it is not new memory).
+        Agent.CurrentOrNull?.Alloc(EnvBytes + (16L * info.Template.Length));
         Parent = parent;
         Info = info;
         Slots = info.Template.Length == 0 ? [] : (JsValue[])info.Template.Clone();
@@ -197,6 +202,7 @@ internal sealed class Env
 
     internal Env(Env? parent, JsObject withObject)
     {
+        Agent.CurrentOrNull?.Alloc(EnvBytes);
         Parent = parent;
         WithObject = withObject;
         Slots = [];
@@ -204,6 +210,7 @@ internal sealed class Env
 
     private Env(Env parent, ScopeInfo info, JsValue[] slots)
     {
+        Agent.CurrentOrNull?.Alloc(EnvBytes + (16L * slots.Length));
         Parent = parent.Parent;
         Info = info;
         Slots = slots;
@@ -360,11 +367,18 @@ internal sealed class Frame
     /// <summary>Set once something outside the call chain can reach this frame (an arrow function keeps its defining frame for <c>this</c>), which forbids reuse.</summary>
     internal bool Escaped;
 
+    /// <summary>Estimated bytes of a frame besides its value stack: the fields, a handler list slot and the array header.</summary>
+    internal const int FrameBytes = 240;
+
     internal Frame(FunctionCode code, Realm realm)
     {
+        // An activation record is billed when it is created; frames reused from a code's free list are not new memory. Generator and
+        // async frames are never reused, so each suspended one is billed here.
+        int slots = code.NumLocals + code.StackSize + 2;
+        Agent.CurrentOrNull?.Alloc(FrameBytes + (16L * slots));
         Code = code;
         Realm = realm;
-        Stack = new JsValue[code.NumLocals + code.StackSize + 2];
+        Stack = new JsValue[slots];
         Base = code.NumLocals;
         Sp = Base;
         ThisFrame = this;

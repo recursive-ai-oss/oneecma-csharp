@@ -140,13 +140,27 @@ internal sealed partial class Realm
         // V8 captures the frames when the error is created and formats `stack` ("Name: message" then one line per frame) when it is
         // first read, so the text is rendered once now and again on the first read, which sees a name or message set in between.
         e.Frames = Agent.CaptureFrames(10, skipUntil);
-        e.DefineDirect("stack", JsValue.FromString(Errors.FormatStack(Errors.Header(e), e.Frames)), PropFlags.Hidden);
+        string stackText = Errors.FormatStack(Errors.Header(e), e.Frames);
+        // The error object, its captured frames and the stack text (rendered twice, see above).
+        Agent.Alloc(256 + (96L * e.Frames.Count) + (4L * stackText.Length));
+        e.DefineDirect("stack", JsValue.FromString(stackText), PropFlags.Hidden);
         e.StackPending = true;
     }
 
     // ---- helpers for defining built-ins -----------------------------------------------------------
 
-    internal NativeFunction Fn(string name, int length, NativeFn fn) => new(this, name, length, fn);
+    /// <summary>Estimated bytes of a function object made while a script runs: the object, its two property slots, the delegate and the state it captures.</summary>
+    internal const int NativeFunctionBytes = 192;
+
+    /// <summary>A function object whose cost the caller bills itself (the resolving functions of a promise are billed with the reaction that retains them).</summary>
+    internal NativeFunction FnUncharged(string name, int length, NativeFn fn) => new(this, name, length, fn);
+
+    /// <summary>A built-in function created at run time (resolving functions, a revoker, a promise combinator's element function), charged to the allocation budget.</summary>
+    internal NativeFunction Fn(string name, int length, NativeFn fn)
+    {
+        Agent.CurrentOrNull?.Alloc(NativeFunctionBytes);
+        return new(this, name, length, fn);
+    }
 
     internal NativeFunction Method(JsObject target, string name, int length, NativeFn fn)
     {

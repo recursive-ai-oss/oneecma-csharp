@@ -46,6 +46,7 @@ internal static partial class IntlJs
         {
             BigInteger x = t.IsBigInt ? (BigInteger)t.Ref! : t.Ref is JsPrimitiveObject { ClassName: "BigInt" } p && p.Value.IsBigInt ? (BigInteger)p.Value.Ref!
                 : throw Errors.Type("BigInt.prototype.toLocaleString requires that 'this' be a BigInt");
+            BigMath.ChargeDecimalConversion(x);
             NumberFormatService nf = CreateNumberFormat(Locales(A(a, 0)), A(a, 1), shared: true);
             return Ops.Str(Svc(() => nf.Format(DecimalNumber.FromBigInteger(x))));
         });

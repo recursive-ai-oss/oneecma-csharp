@@ -4,6 +4,15 @@ All notable changes are listed here. The format follows [Keep a Changelog](https
 
 ## [Unreleased]
 
+### Security
+
+- **Four more ways past the sandbox limits are closed.**
+  - **Symbol registry:** `Symbol.for` charges each new registry entry (the key and the symbol) to the allocation budget before inserting it.
+  - **Job queue:** every queued job and every promise reaction, with the result capability it keeps alive, is charged when it is made and given back when it runs; promises are charged when created. A loop such as `for (;;) Promise.resolve().then(() => {})` now ends in a memory-limit report.
+  - **BigInt:** multiplication, division and remainder, `**`, shifts, bitwise operators, `toString(radix)`, `toLocaleString`, `BigInt(string)`, `parseInt` of long digit strings, `asIntN`/`asUintN` and BigInt-to-Number conversion now charge fuel in proportion to operand size before they run, and charge their results to the allocation budget. An operation that cannot fit in the remaining fuel never starts. Multiplication and `**` run in blocks and poll cancellation and `WallClockMs` between them, so a squaring loop ends within a fraction of a second of the wall-clock limit; division and conversion to digits of small numbers cannot be interrupted, so one of them above about 1.5 seconds of estimated work ends the run with a step-limit report instead.
+  - **Closures and environments:** script and bound function objects (including classes and the lazily created `prototype` object), environment records, call frames that are not reused (arrow functions, generators and async functions keep theirs), arguments objects, generator objects, error objects with their captured stack, `WeakRef`, `Proxy`, RegExp compilation of script-built patterns and Intl objects are charged at estimates of their real size. A closure-heavy loop stops within about 1.5 times `MaxAllocatedBytes`.
+  - Code that makes many short-lived closures, errors or promises now spends the allocation budget faster than before, since the budget counts bytes requested, not bytes alive; see `docs/runtime.md` for the estimates.
+
 ## [1.0.1] - 2026-11-05
 
 ### Security

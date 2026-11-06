@@ -777,6 +777,8 @@ internal static partial class Builtins
             Agent ag = Agent.Current;
             if (!ag.SymbolRegistry.TryGetValue(key, out JsSymbol? s))
             {
+                // GlobalSymbolRegistry (20.4.2.2): the entry holds the key string, the symbol, and a dictionary slot.
+                ag.Alloc((key.Length * 2L) + Agent.SymbolRegistryEntryBytes);
                 s = new JsSymbol(key) { RegistryKey = key };
                 ag.SymbolRegistry[key] = s;
             }

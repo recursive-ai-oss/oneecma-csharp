@@ -214,7 +214,7 @@ internal static class Ops
             case JsSymbol:
                 throw Errors.Type("Cannot convert a Symbol value to a string");
             case BigInteger b:
-                return b.ToString(Inv);
+                return Builtins.BigIntToString(b, 10);
             case JsObject:
                 return ToStr(ToPrimitive(v, "string"));
             default:
@@ -681,23 +681,27 @@ internal static class Ops
     {
         switch (op)
         {
-            case Syntax.BinaryOp.Add: return JsValue.FromBigInt(x + y);
-            case Syntax.BinaryOp.Subtract: return JsValue.FromBigInt(x - y);
-            case Syntax.BinaryOp.Multiply: return JsValue.FromBigInt(x * y);
+            case Syntax.BinaryOp.Add:
+                BigMath.ChargeLinear(x, y);
+                return JsValue.FromBigInt(x + y);
+            case Syntax.BinaryOp.Subtract:
+                BigMath.ChargeLinear(x, y);
+                return JsValue.FromBigInt(x - y);
+            case Syntax.BinaryOp.Multiply: return JsValue.FromBigInt(BigMath.Multiply(x, y));
             case Syntax.BinaryOp.Divide:
                 if (y.IsZero)
                 {
                     throw Errors.Range("Division by zero");
                 }
 
-                return JsValue.FromBigInt(BigInteger.Divide(x, y));
+                return JsValue.FromBigInt(BigMath.Divide(x, y));
             case Syntax.BinaryOp.Remainder:
                 if (y.IsZero)
                 {
                     throw Errors.Range("Division by zero");
                 }
 
-                return JsValue.FromBigInt(BigInteger.Remainder(x, y));
+                return JsValue.FromBigInt(BigMath.Remainder(x, y));
             case Syntax.BinaryOp.Exponent:
                 if (y.Sign < 0)
                 {
@@ -710,14 +714,20 @@ internal static class Ops
                 }
 
                 Agent.Current.Alloc((long)(BigInteger.Log(BigInteger.Abs(x) + 1, 2) * (double)y / 8));
-                return JsValue.FromBigInt(BigInteger.Pow(x, (int)y));
+                return JsValue.FromBigInt(BigMath.Pow(x, (int)y));
             case Syntax.BinaryOp.ShiftLeft: return JsValue.FromBigInt(Shift(x, y));
             case Syntax.BinaryOp.ShiftRight: return JsValue.FromBigInt(Shift(x, -y));
             case Syntax.BinaryOp.UnsignedShiftRight:
                 throw Errors.Type("BigInts have no unsigned right shift, use >> instead");
-            case Syntax.BinaryOp.BitwiseAnd: return JsValue.FromBigInt(x & y);
-            case Syntax.BinaryOp.BitwiseOr: return JsValue.FromBigInt(x | y);
-            default: return JsValue.FromBigInt(x ^ y);
+            case Syntax.BinaryOp.BitwiseAnd:
+                BigMath.ChargeLinear(x, y);
+                return JsValue.FromBigInt(x & y);
+            case Syntax.BinaryOp.BitwiseOr:
+                BigMath.ChargeLinear(x, y);
+                return JsValue.FromBigInt(x | y);
+            default:
+                BigMath.ChargeLinear(x, y);
+                return JsValue.FromBigInt(x ^ y);
         }
     }
 
@@ -739,10 +749,7 @@ internal static class Ops
         }
 
         int n = (int)by;
-        if (n > 0)
-        {
-            Agent.Current.Alloc(n / 8);
-        }
+        BigMath.ChargeShift(x, n);
 
         return n >= 0 ? x << n : x >> -n;
     }
@@ -1329,7 +1336,7 @@ internal static class Ops
             case string s: return "\"" + s + "\"";
             case Rope rp: return "\"" + rp.Flatten() + "\"";
             case JsSymbol sym: return sym.ToString();
-            case BigInteger b: return b.ToString(Inv) + "n";
+            case BigInteger b: return Builtins.BigIntToString(b, 10) + "n";
             case JsObject o:
                 if (o.IsCallable)
                 {

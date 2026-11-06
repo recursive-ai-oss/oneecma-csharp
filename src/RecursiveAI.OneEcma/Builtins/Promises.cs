@@ -25,6 +25,9 @@ internal sealed class Reaction
     internal JsValue OnRejected;
     internal Action<JsValue>? NativeFulfilled;
     internal Action<JsValue>? NativeRejected;
+
+    /// <summary>Bytes billed when this reaction was made; given back when it fires.</summary>
+    internal int Charged;
 }
 
 internal sealed class PromiseCapability
@@ -37,13 +40,24 @@ internal sealed class PromiseCapability
 /// <summary>Promise abstract operations (ECMA-262 27.2.1 to 27.2.5).</summary>
 internal static class Promises
 {
-    internal static PromiseObject NewPromise(Realm r) => new(r.PromisePrototype);
+    internal const int PromiseBytes = 112;
+
+    internal const int ReactionBytes = 96;
+
+    /// <summary>What a reaction's result capability keeps alive besides its promise: the record and the two resolving functions.</summary>
+    internal const int CapabilityBytes = 64 + (2 * 192);
+
+    internal static PromiseObject NewPromise(Realm r)
+    {
+        Agent.Current.Alloc(PromiseBytes);
+        return new(r.PromisePrototype);
+    }
 
     /// <summary>CreateResolvingFunctions (27.2.1.3).</summary>
     internal static (JsObject Resolve, JsObject Reject) ResolvingFunctions(Realm r, PromiseObject p)
     {
         bool already = false;
-        var resolve = r.Fn(string.Empty, 1, (t, a, nt) =>
+        var resolve = r.FnUncharged(string.Empty, 1, (t, a, nt) =>
         {
             if (already)
             {
@@ -54,7 +68,7 @@ internal static class Promises
             ResolveWith(p, Ops.Arg(a, 0));
             return default;
         });
-        var reject = r.Fn(string.Empty, 1, (t, a, nt) =>
+        var reject = r.FnUncharged(string.Empty, 1, (t, a, nt) =>
         {
             if (already)
             {
@@ -170,6 +184,7 @@ internal static class Promises
     /// <summary>PromiseReactionJob (27.2.2.1).</summary>
     private static void RunReaction(Reaction r, JsValue arg, bool fulfilled)
     {
+        Agent.Current.Release(r.Charged);
         if (fulfilled ? r.NativeFulfilled is not null : r.NativeRejected is not null)
         {
             (fulfilled ? r.NativeFulfilled : r.NativeRejected)!(arg);
@@ -209,8 +224,11 @@ internal static class Promises
     /// <summary>PerformPromiseThen (27.2.5.4.1).</summary>
     internal static void PerformThen(PromiseObject p, JsValue onFulfilled, JsValue onRejected, PromiseCapability? cap)
     {
+        int charged = ReactionBytes + (cap is null ? 0 : CapabilityBytes);
+        Agent.Current.Alloc(charged);
         var r = new Reaction
         {
+            Charged = charged,
             Capability = cap,
             OnFulfilled = Ops.IsCallable(onFulfilled) ? onFulfilled : default,
             OnRejected = Ops.IsCallable(onRejected) ? onRejected : default,
@@ -219,8 +237,11 @@ internal static class Promises
     }
 
     /// <summary>Await's continuation: PerformPromiseThen with native handlers and no result capability.</summary>
-    internal static void ThenNative(PromiseObject p, Action<JsValue> ok, Action<JsValue> err) =>
-        AddReaction(p, new Reaction { NativeFulfilled = ok, NativeRejected = err });
+    internal static void ThenNative(PromiseObject p, Action<JsValue> ok, Action<JsValue> err)
+    {
+        Agent.Current.Alloc(ReactionBytes);
+        AddReaction(p, new Reaction { NativeFulfilled = ok, NativeRejected = err, Charged = ReactionBytes });
+    }
 
     private static void AddReaction(PromiseObject p, Reaction r)
     {
@@ -263,7 +284,7 @@ internal static class Promises
         }
 
         var cap = new PromiseCapability();
-        var executor = r.Fn(string.Empty, 2, (t, a, nt) =>
+        var executor = r.FnUncharged(string.Empty, 2, (t, a, nt) =>
         {
             if (!cap.Resolve.IsUndefined || !cap.Reject.IsUndefined)
             {

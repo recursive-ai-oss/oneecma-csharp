@@ -268,17 +268,16 @@ internal static class NumberConv
             return false;
         }
 
-        BigInteger v = BigInteger.Zero;
-        for (; p < s.Length; p++)
+        for (int q = p; q < s.Length; q++)
         {
-            int d = DigitValue(s[p]);
+            int d = DigitValue(s[q]);
             if (d < 0 || d >= radix)
             {
                 return false;
             }
-
-            v = (v * radix) + d;
         }
+
+        BigInteger v = BigMath.ParseDigits(s.AsSpan(p), radix, DigitValue);
 
         result = neg ? -v : v;
         return true;
