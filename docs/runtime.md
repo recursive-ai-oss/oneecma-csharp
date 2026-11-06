@@ -106,7 +106,7 @@ Never throw another .NET exception type on purpose; an unexpected one becomes an
 
 ## Fuel, memory and time
 
-`Agent.Current.Tick()` spends one unit of fuel; `Charge(n)` spends n. At the end of each 4096-unit chunk the agent polls the cancellation token and the wall clock, and throws `JsLimitException` when fuel, time or cancellation says stop. Script cannot catch it.
+`Agent.Current.Tick()` spends one unit of fuel; `Charge(n)` spends n. At the end of each 4096-unit chunk the agent polls the cancellation token and the wall clock, and stops the run when one says stop: fuel or time throws `JsLimitException`, and cancellation throws `OperationCanceledException` (no report). Script cannot catch either.
 
 Rule: **every native loop whose trip count depends on script data calls `Tick()` once per iteration** (or `Charge(n)` with n the unit count for a bulk operation), including loops that only call into non-charging code. That covers `sort`, `join`, `repeat`, `padStart`, `flat`, `fill`, `indexOf`, `copyWithin`, `splice`, string building, iteration helpers, and RegExp backtracking. Calls into script (`Ops.Call`) are charged by the VM already. A loop of a few constant iterations needs nothing.
 
