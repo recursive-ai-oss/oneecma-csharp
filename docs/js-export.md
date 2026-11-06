@@ -103,7 +103,8 @@ name of the error and its place in `err.stack` follow V8.
 Nesting of by-value types is limited to 64 levels in both directions, so a script object that contains itself or a cyclic .NET graph ends in an error (`TypeError` naming the path, or `RangeError` copying to script) instead of overflowing the stack.
 
 A .NET exception thrown by an exported member arrives as `Error: <TypeName>: <message>` with `dotnetType`, and as `JsException.InnerException` in C#. Its report lists the .NET
-frames (with file and line when debug information exists, method names only under NativeAOT) before the script frames.
+frames (with file and line when debug information exists, method names only under NativeAOT) before the script frames. The one
+exception is `OutOfMemoryException`: it ends the run with `LimitKind.Memory` and a report, and script cannot catch it ([runtime.md](runtime.md), "Out of memory").
 
 ## Build-time diagnostics
 

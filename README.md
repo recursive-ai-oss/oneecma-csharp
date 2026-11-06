@@ -151,7 +151,7 @@ error[TypeError]: Cart.Total: argument 'item.quantity' must be an integer (Syste
   = stack: Cart.Total [.NET] ← <top-level> (bad.js:1)
 ```
 
-Exceptions cross in both directions: a .NET exception inside a host call reaches script as an `Error` that carries the .NET type, and a script throw reaching C# is a `JsException` with the full report; reports interleave script and .NET frames. [samples/OrderHost](samples/OrderHost) is a larger worked example, and [docs/js-export.md](docs/js-export.md) lists what can be exported and the generator's diagnostics.
+Exceptions cross in both directions: a .NET exception inside a host call reaches script as an `Error` that carries the .NET type (except `OutOfMemoryException`, which ends the run with a memory-limit report script cannot catch), and a script throw reaching C# is a `JsException` with the full report; reports interleave script and .NET frames. [samples/OrderHost](samples/OrderHost) is a larger worked example, and [docs/js-export.md](docs/js-export.md) lists what can be exported and the generator's diagnostics.
 
 ### Tools from a JSON Schema
 

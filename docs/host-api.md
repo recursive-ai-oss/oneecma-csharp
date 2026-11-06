@@ -44,7 +44,7 @@ JsObject math = realm.Get(realm.Global, "Math").AsObject!;
 JsValue max = realm.Call(realm.Get(math, "max"), JsValue.Undefined, JsValue.FromNumber(1), JsValue.FromNumber(9));
 ```
 
-- `NewFunction(name, length, fn)` makes a function; a .NET exception thrown inside it reaches script as an `Error` (below).
+- `NewFunction(name, length, fn)` makes a function; a .NET exception thrown inside it reaches script as an `Error` (below), except an `OutOfMemoryException`, which ends the run with `LimitKind.Memory`.
 - `NewConstructor(name, length, construct, out prototype, basePrototype)` makes a class: calling without `new` is a TypeError, a script
   `class X extends Host` works, and `PrototypeFor(newTarget, fallback)` gives subclasses their prototype.
 - `NewSymbol(description)`, `WellKnownSymbol("iterator")`, `NewError("RangeError", message)` create the values they say.
@@ -140,7 +140,7 @@ members the type exports on its prototype. Only exported members exist in script
 
 | Direction | What happens |
 |---|---|
-| .NET exception in a host function | Script sees `Error` with message `<TypeName>: <message>` and a non-enumerable `dotnetType` (the full type name). It is catchable. If it reaches C# uncaught it is `JsException` whose `InnerException` is the original and whose `Report` lists the .NET frames. |
+| .NET exception in a host function | Script sees `Error` with message `<TypeName>: <message>` and a non-enumerable `dotnetType` (the full type name). It is catchable. If it reaches C# uncaught it is `JsException` whose `InnerException` is the original and whose `Report` lists the .NET frames. Exception: an `OutOfMemoryException` ends the run instead, as `JsLimitException` (`LimitKind.Memory`) with a report, and script cannot catch it (see [runtime.md](runtime.md), "Out of memory"). |
 | Script throw reaching C# | `JsException` with `Value`, `Report`, `Frames`. |
 | Argument conversion failure | `TypeError`, message `<Member>: argument '<path>' must be <expected>, got <actual>` (see `js-export.md`). |
 | A `JsException` thrown by a host function | Passes through unchanged (`throw new JsException(realm.NewError("RangeError", "…"))`). |
