@@ -162,13 +162,7 @@ internal static class StripFuzz
                 continue;
             }
 
-            int p = b - 1;
-            while (p >= 0 && char.IsWhiteSpace(code[p]))
-            {
-                p--;
-            }
-
-            if (p >= 0 && code[p] == ')' && ControlHeaderEndsAt(code, p))
+            if (!InScope(code, b))
             {
                 continue;
             }
@@ -188,6 +182,49 @@ internal static class StripFuzz
 
         return null;
     }
+
+    // Only a boundary that follows something that can end an expression is a place where a missing ';' could join two statements.
+    // After a label, "else", "{", an operator or a control-statement header, TypeScript would not be valid, and a ';' there changes the
+    // program on purpose. Before a string, a ';' changes whether the string is a directive.
+    private static bool InScope(string code, int b)
+    {
+        int p = b - 1;
+        while (p >= 0 && char.IsWhiteSpace(code[p]))
+        {
+            p--;
+        }
+
+        if (p < 0 || !(char.IsLetterOrDigit(code[p]) || code[p] is '_' or '$' or ')' or ']' or '}' or '`' or '\'' or '"'))
+        {
+            return false;
+        }
+
+        if (code[p] == ')' && ControlHeaderEndsAt(code, p))
+        {
+            return false;
+        }
+
+        int w = p;
+        while (w >= 0 && (char.IsLetterOrDigit(code[w]) || code[w] is '_' or '$'))
+        {
+            w--;
+        }
+
+        if (w < p && Array.IndexOf(Keywords, code.Substring(w + 1, p - w)) >= 0)
+        {
+            return false;
+        }
+
+        int n = b;
+        while (n < code.Length && (code[n] == ' ' || char.IsWhiteSpace(code[n])))
+        {
+            n++;
+        }
+
+        return !(n < code.Length && code[n] is '\'' or '"');
+    }
+
+    private static readonly string[] Keywords = ["else", "do", "return", "throw", "typeof", "void", "delete", "new", "case", "default", "extends", "in", "of", "instanceof", "import", "export", "await", "yield", "try", "finally", "static", "async", "get", "set"];
 
     // Crude: the text before the matching "(" ends with if/for/while/with.
     private static bool ControlHeaderEndsAt(string code, int close)
