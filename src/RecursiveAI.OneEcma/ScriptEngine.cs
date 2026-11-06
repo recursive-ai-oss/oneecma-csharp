@@ -54,6 +54,9 @@ public sealed class ScriptEngineOptions
 
     internal bool TraceReplay { get; set; }
 
+    /// <summary>Overrides the work budget of the explanation replay (0 keeps the default); tests use a small one.</summary>
+    internal long TraceWorkBudget { get; set; }
+
     /// <summary>When true the global object gets the test-harness additions <c>print</c> and <c>$262</c>. Default false.</summary>
     public bool InstallTest262Host { get; set; }
 }
@@ -92,7 +95,7 @@ public sealed partial class ScriptEngine
         _agent = new Agent(new LoggedHost(options?.Host ?? new DefaultHost(), _recorder), options?.Limits ?? new EngineLimits()) { InstallTest262Host = options?.InstallTest262Host ?? false, ProperTailCalls = options?.ProperTailCalls ?? false, Recorder = _recorder };
         if (options?.TraceReplay == true)
         {
-            _agent.Trace = new TraceState();
+            _agent.Trace = new TraceState(options.TraceWorkBudget);
         }
 
         _throwOnUnhandled = options?.ThrowOnUnhandledRejection ?? true;
@@ -344,6 +347,9 @@ public sealed partial class ScriptEngine
 
     private int _active;
 
+    /// <summary>The token of the latest entry call, so the replay that explains its failure stops when the host cancels.</summary>
+    private CancellationToken _entryToken;
+
     internal T Guard<T>(Func<T> body, CancellationToken token, Realm? realm = null)
     {
         if (_active > 0)
@@ -353,6 +359,7 @@ public sealed partial class ScriptEngine
         }
 
         _active++;
+        _entryToken = token;
         Agent? old = Agent.Enter(_agent);
         _agent.SetCancellation(token);
         _agent.Frame = null;

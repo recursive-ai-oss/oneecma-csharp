@@ -87,6 +87,57 @@ internal sealed class TraceState
     /// <summary>The longest chain of origins kept for one value.</summary>
     internal const int MaxChain = 8;
 
+    // The explanation is a bonus, so it gets a budget of its own. Work is counted in units (one per traced operation, plus the number of
+    // keys, locals and slots the explainer looks at), and retained counts the entries the tracer keeps alive. Both are plain counters, not
+    // clocks, so the same run always spends the same and gives the same report. Fuel still bounds the replay as it bounds the recording;
+    // this bounds what tracing adds on top of it.
+    internal const long DefaultWorkBudget = 500_000_000;
+    internal const long RetainBudget = 1_000_000;
+
+    /// <summary>The message of the limit that stops a replay whose explanation ran out of budget.</summary>
+    internal const string BudgetMessage = "the explanation exceeded its work budget";
+
+    private readonly long _workBudget;
+
+    internal TraceState(long workBudget = 0) => _workBudget = workBudget > 0 ? workBudget : DefaultWorkBudget;
+
+    private long _work;
+    private long _retained;
+    private bool _exhausted;
+
+    internal static bool IsBudget(JsLimitException e) => e.Kind == LimitKind.Fuel && e.Message == BudgetMessage;
+
+    /// <summary>Counts <paramref name="units"/> of explanation work; past the budget the replay ends with a limit that the explainer turns into a note.</summary>
+    internal void Spend(long units)
+    {
+        if (_exhausted)
+        {
+            return;
+        }
+
+        _work += units;
+        if (_work > _workBudget)
+        {
+            Exhaust();
+        }
+    }
+
+    /// <summary>Counts one more entry the tracer keeps alive.</summary>
+    private void Retain()
+    {
+        if (!_exhausted && ++_retained > RetainBudget)
+        {
+            Exhaust();
+        }
+    }
+
+    private void Exhaust()
+    {
+        // Set first: building the limit's frames previews locals, which spends again and must not recurse.
+        _exhausted = true;
+        throw Agent.Current.Limit(LimitKind.Fuel, BudgetMessage);
+    }
+
     private readonly ConditionalWeakTable<Env, Origin?[]> _bindings = new();
     private readonly Dictionary<string, Origin> _globals = new(StringComparer.Ordinal);
     private readonly ConditionalWeakTable<JsObject, Dictionary<string, Origin>> _props = new();
@@ -215,6 +266,7 @@ internal sealed class TraceState
     /// <summary>Called before every operation of a traced replay: finishes the read or call that the previous operation of this frame started, then starts the next one.</summary>
     internal void Observe(Frame frame, Instr ins, int pc, JsValue[] st, int sp)
     {
+        Spend(1);
         if (_getFrame is not null)
         {
             Frame gf = _getFrame;
@@ -241,6 +293,7 @@ internal sealed class TraceState
             _newFrame = null;
             if (ReferenceEquals(nf, frame) && pc == _newPc + 1 && sp >= 1 && st[sp - 1].Ref is JsDate { Tv: double tv } made && double.IsNaN(tv))
             {
+                Retain();
                 _madeDates.AddOrUpdate(made, new MadeDate(frame.Code.Source, frame.Code.SpanStart[_newPc], frame.Code.SpanEnd[_newPc], _newArg));
             }
         }
@@ -365,6 +418,7 @@ internal sealed class TraceState
         FunctionCode fc = frame.Code;
         if (result.Ref is JsArray filtered && call.Fn.Ref is NativeFunction { } nf && NativeName(nf) == "filter" && call.This.Ref is JsArray input)
         {
+            Retain();
             _filtered.AddOrUpdate(filtered, new FilterResult(fc.Source, fc.SpanStart[call.Pc], fc.SpanEnd[call.Pc], input.Length, filtered.Length));
             return;
         }
@@ -470,6 +524,11 @@ internal sealed class TraceState
         var origin = new Origin(f.Code.Source, span.Start, span.End, Trim(prior));
         if (value.Ref is JsObject o)
         {
+            if (prior is null)
+            {
+                Retain();
+            }
+
             _objects.AddOrUpdate(o, origin);
         }
 
@@ -500,6 +559,11 @@ internal sealed class TraceState
 
             case Op.InitGlobalLexical:
             case Op.StoreGlobal:
+                if (!_globals.ContainsKey(fc.Names[ins.A]))
+                {
+                    Retain();
+                }
+
                 _globals[fc.Names[ins.A]] = origin;
                 break;
             case Op.DefineField:
@@ -507,7 +571,14 @@ internal sealed class TraceState
                 if (sp >= 2 && st[sp - 2].Ref is JsObject target)
                 {
                     Dictionary<string, Origin> d = _props.GetOrCreateValue(target);
-                    d[fc.Names[ins.A]] = origin;
+                    if (d.TryAdd(fc.Names[ins.A], origin))
+                    {
+                        Retain();
+                    }
+                    else
+                    {
+                        d[fc.Names[ins.A]] = origin;
+                    }
                 }
 
                 break;
@@ -516,7 +587,15 @@ internal sealed class TraceState
                 if (sp >= 3 && st[sp - 3].Ref is JsObject elemTarget && (st[sp - 2].IsString || st[sp - 2].IsNumber))
                 {
                     Dictionary<string, Origin> d = _props.GetOrCreateValue(elemTarget);
-                    d[st[sp - 2].IsString ? st[sp - 2].AsString : Ops.NumberToStr(st[sp - 2].Num)] = origin;
+                    string elemKey = st[sp - 2].IsString ? st[sp - 2].AsString : Ops.NumberToStr(st[sp - 2].Num);
+                    if (d.TryAdd(elemKey, origin))
+                    {
+                        Retain();
+                    }
+                    else
+                    {
+                        d[elemKey] = origin;
+                    }
                 }
 
                 break;
