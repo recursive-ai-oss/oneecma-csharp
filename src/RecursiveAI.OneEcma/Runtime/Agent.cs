@@ -31,7 +31,7 @@ public sealed class EngineLimits
     /// parsing and conversion to digits are charged the same way), so one operation that would exceed what is left ends the run before
     /// it starts, and a long multiplication or exponentiation polls cancellation and the wall clock as it goes. Division and the
     /// digit conversion of numbers under 2,048 words cannot be interrupted, so one of those is refused above 100 million steps
-    /// (about a second and a half). Default 4e9.
+    /// (about a second and a half). Comparing, hashing or collating strings of 4,096 characters or more costs fuel in proportion to their length (equality and ordering about one step per 64 characters, a collation compare 12 steps per character), so a loop of long compares reaches the wall-clock poll. Default 4e9.
     /// </summary>
     public long Fuel { get; set; } = 4_000_000_000L;
 
@@ -44,7 +44,7 @@ public sealed class EngineLimits
     /// their real footprint: script and bound function objects (a closure about 220 bytes), environment records and call frames when a new
     /// one is made (frames and environments reused after a call are free), generator and async frames, arguments objects, promises,
     /// reactions and every queued job, global symbol registry entries, error objects with their captured stack, <c>WeakRef</c>, <c>Proxy</c>,
-    /// RegExp compilation, Intl objects, and the result of every BigInt operation on numbers over 64 words. Default 2 GiB.
+    /// RegExp compilation, Intl objects, the result of every BigInt operation on numbers over 64 words, the sort keys of a long collation compare while it runs, and every value a host function returns or a host task delivers (strings, BigInts, arrays and objects by size). A .NET <see cref="OutOfMemoryException"/> that reaches the engine ends the run as a memory limit too. Default 2 GiB.
     /// </summary>
     public long MaxAllocatedBytes { get; set; } = 2L << 30;
 

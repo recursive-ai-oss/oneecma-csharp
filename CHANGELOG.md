@@ -4,6 +4,14 @@ All notable changes are listed here. The format follows [Keep a Changelog](https
 
 ## [Unreleased]
 
+### Security
+
+- **Long-string work is charged.** `===`, `==`, `<` and the other string comparisons, `Map` and `Set` keys, the default `sort`, `localeCompare` and `Intl.Collator.prototype.compare` now spend fuel in proportion to the length they scan (strings under 4,096 characters stay free), so a loop of long compares reaches the wall-clock poll: a 1 second limit ends a `s.localeCompare(s + 'a')` or `a === b` loop on 15-million-character strings within about 100 ms instead of seconds late.
+- **Collation no longer takes unbounded memory.** A collation compare of two long strings charges the sort keys it builds (96 bytes per character) to `MaxAllocatedBytes` before it builds them, and gives the charge back when it ends. A compare that cannot fit ends in a memory-limit report; one that cannot finish in time (about 8 million characters together) ends in a step-limit or wall-clock report instead of running for tens of seconds.
+- **Values a host hands to the engine are charged.** What a host function returns, a host task delivers, or a replay reads back from the log counts against `MaxAllocatedBytes` as it enters (strings, BigInts, arrays and objects by size), so a host function that returns large strings in a loop ends in a memory report instead of exhausting the process.
+- **Out of memory is a limit, never a script error.** A .NET `OutOfMemoryException` from a host function, constructor, task or an uncharged engine allocation now ends the run with a memory-limit report; a script `catch` or `finally` cannot see it.
+- **BigInt multiplication polls the clock about ten times as often.** Multiplication and `**` now split large operands (Karatsuba) into pieces of 128 KiB, so a squaring loop ends within about 50 ms of `WallClockMs` instead of 250 ms. The fuel charged is unchanged.
+
 ## [1.1.0] - 2026-11-05
 
 ### Added
