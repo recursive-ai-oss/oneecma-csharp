@@ -230,6 +230,26 @@ public class SandboxLimitTests
         Assert.Equal(e.Report!.Headline, r.Limit.Report!.Headline);
     }
 
+    // A traced replay cannot reuse frames and environments the way the recorded run does, so it counts what the pool would have
+    // supplied; the charge for a call-heavy loop must come out the same on both sides.
+    [Theory]
+    [InlineData("function f() { return } const keep = []; for (;;) keep.push(f(1, 2, 3));")]
+    [InlineData("function f(a) { let x = a; { let y = x; return () => y; } } const keep = []; for (let i = 0; ; i++) { f(i); keep.push(i); }")]
+    [InlineData("function f(a) { const g = (b) => a + b; return g(1); } const keep = []; for (let i = 0; ; i++) keep.push(f(i));")]
+    [InlineData("function r(n) { return n ? r(n - 1) + 1 : 0; } const keep = []; for (;;) keep.push(r(40));")]
+    [InlineData("function f(a, b = a) { for (let i = 0; i < 2; i++) { setTimeoutLike = () => i; } return b; } var setTimeoutLike; const keep = []; for (;;) keep.push(f(1));")]
+    public void ReplayChargesCallsLikeTheRecordedRun(string script)
+    {
+        var limits = new EngineLimits { MaxAllocatedBytes = 24L << 20, Fuel = 300_000 };
+        var engine = new ScriptEngine(new ScriptEngineOptions { Limits = limits, ExplainErrors = false });
+        var e = Assert.Throws<JsLimitException>(() => engine.Evaluate(script, "calls.js", Ct));
+        ReplayResult r = ScriptEngine.Replay(engine.RecordLog, new ReplayOptions { Limits = new EngineLimits { MaxAllocatedBytes = 24L << 20, Fuel = 300_000 }, Trace = true }, Ct);
+        Assert.Null(r.Divergence);
+        Assert.NotNull(r.Limit);
+        Assert.Equal(e.Kind, r.Limit.Kind);
+        Assert.Equal(e.Report!.Headline, r.Limit.Report!.Headline);
+    }
+
     // ---- a 256 MiB allocation limit with 30 s of wall clock -------------------------------------
     // These run for up to half a minute each; run them one at a time with explicit tests enabled.
 

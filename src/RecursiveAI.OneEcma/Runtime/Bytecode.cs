@@ -103,6 +103,13 @@ internal sealed class ScopeInfo
     internal Env[]? FreeEnvs;
     internal int FreeCount;
 
+    /// <summary>
+    /// Environments a traced replay would have pooled had it pooled: the replay keeps every frame for its locals, so it cannot reuse
+    /// them, but it must charge the allocation budget exactly as the recorded run did, which paid only for environments the pool
+    /// could not supply.
+    /// </summary>
+    internal int VirtualFree;
+
     internal const byte KVar = 0;
     internal const byte KLet = 1;
     internal const byte KConst = 2;
@@ -166,7 +173,27 @@ internal sealed class Env
             return e;
         }
 
-        return new Env(parent, info);
+        if (info.VirtualFree > 0)
+        {
+            info.VirtualFree--;
+            return new Env(parent, info, charge: false);
+        }
+
+        return new Env(parent, info, charge: true);
+    }
+
+    /// <summary>What <see cref="Release"/> would have pooled, counted without pooling (traced replay; see <see cref="ScopeInfo.VirtualFree"/>).</summary>
+    internal static void NoteReleased(Env? e)
+    {
+        while (e is not null && !e.Captured && e.Info is { } info)
+        {
+            if (info.FreeCount + info.VirtualFree < ScopeInfo.MaxFree)
+            {
+                info.VirtualFree++;
+            }
+
+            e = e.Parent;
+        }
     }
 
     /// <summary>Puts the environments a finished call created, innermost first, on their scopes' free lists, stopping at the first one a closure holds.</summary>
@@ -191,10 +218,14 @@ internal sealed class Env
     /// <summary>Estimated bytes of an environment record without its slots (parent, info, flags, header); each slot is a 16-byte value.</summary>
     internal const int EnvBytes = 80;
 
-    internal Env(Env? parent, ScopeInfo info)
+    internal Env(Env? parent, ScopeInfo info, bool charge = true)
     {
         // 9.1.1.1 / 9.1.1.3: a fresh declarative or function environment is billed; one taken from the free list is not (it is not new memory).
-        Agent.CurrentOrNull?.Alloc(EnvBytes + (16L * info.Template.Length));
+        if (charge)
+        {
+            Agent.CurrentOrNull?.Alloc(EnvBytes + (16L * info.Template.Length));
+        }
+
         Parent = parent;
         Info = info;
         Slots = info.Template.Length == 0 ? [] : (JsValue[])info.Template.Clone();
@@ -305,6 +336,9 @@ internal sealed class FunctionCode
     internal Frame[]? FreeFrames;
     internal int FreeCount;
 
+    /// <summary>Frames a traced replay would have recycled, counted without keeping them; see <see cref="ScopeInfo.VirtualFree"/>.</summary>
+    internal int VirtualFree;
+
     internal string SourceText => Source.Text.Substring(SrcStart, SrcEnd - SrcStart);
 }
 
@@ -370,12 +404,16 @@ internal sealed class Frame
     /// <summary>Estimated bytes of a frame besides its value stack: the fields, a handler list slot and the array header.</summary>
     internal const int FrameBytes = 240;
 
-    internal Frame(FunctionCode code, Realm realm)
+    internal Frame(FunctionCode code, Realm realm, bool charge = true)
     {
         // An activation record is billed when it is created; frames reused from a code's free list are not new memory. Generator and
         // async frames are never reused, so each suspended one is billed here.
         int slots = code.NumLocals + code.StackSize + 2;
-        Agent.CurrentOrNull?.Alloc(FrameBytes + (16L * slots));
+        if (charge)
+        {
+            Agent.CurrentOrNull?.Alloc(FrameBytes + (16L * slots));
+        }
+
         Code = code;
         Realm = realm;
         Stack = new JsValue[slots];
@@ -420,6 +458,19 @@ internal sealed class Frame
         c.FreeFrames[c.FreeCount++] = f;
     }
 
+    /// <summary>What <see cref="Recycle"/> would have kept, counted without keeping the frame (traced replay; see <see cref="ScopeInfo.VirtualFree"/>).</summary>
+    internal static void NoteRecycled(Frame f)
+    {
+        FunctionCode c = f.Code;
+        if (f.Escaped || c.IsAsync || c.IsGenerator || f.IsEntry || c.Kind is FunctionKind.Eval or FunctionKind.Script or FunctionKind.Module || c.FreeCount + c.VirtualFree >= MaxFreePerCode)
+        {
+            return;
+        }
+
+        Env.NoteReleased(f.Env);
+        c.VirtualFree++;
+    }
+
     /// <summary>A frame for <paramref name="code"/>: a recycled one when available, else a new one.</summary>
     internal static Frame Obtain(FunctionCode code, Realm realm)
     {
@@ -438,6 +489,12 @@ internal sealed class Frame
             f.ArgOff = 0;
             f.ArgCount = 0;
             return f;
+        }
+
+        if (code.VirtualFree > 0)
+        {
+            code.VirtualFree--;
+            return new Frame(code, realm, charge: false);
         }
 
         return new Frame(code, realm);

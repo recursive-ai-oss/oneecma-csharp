@@ -1402,6 +1402,10 @@ internal static partial class Vm
                                 {
                                     Frame.Recycle(done);
                                 }
+                                else
+                                {
+                                    Frame.NoteRecycled(done);
+                                }
 
                                 break;
                             }
