@@ -4,12 +4,15 @@ All notable changes are listed here. The format follows [Keep a Changelog](https
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-11-05
+
 ### Added
 
 - **`ScriptEngine.StripTypes`** (with `TypeStripOptions` and `TypeStripResult`) turns TypeScript that uses only erasable syntax into JavaScript. Erased text becomes spaces and every line break and other character stays in place, so a line and column in the result is the same in the `.ts` source and reports need no source map. It erases annotations, type parameters and arguments, `as`/`as const`/`satisfies`/`!`, `interface`, `type` and `declare` declarations, overload signatures, index signatures, `implements`, access modifiers, `abstract` members, and `import type`/`export type`/inline `type` specifiers (an `import { type A }` keeps its side-effect import). `enum`, namespaces with values, constructor parameter properties, `import x = require()`, `export =`, `<T>x` casts and parameter decorators are refused, each with a report that names the construct and suggests the plain-JavaScript form. See `docs/typescript.md`.
 
 ### Security
 
+- **The explanation of a failed run is bounded.** The traced replay that explains an uncaught error had no bound of its own, and a script that built a very large object while creating errors made it take minutes and gigabytes. Large objects are now previewed by their size, and the replay has a deterministic work budget: when it is spent, the plain report stands with `= note: explanation unavailable: the explanation exceeded its work budget`. The replay also honours the entry call's cancellation token. See `docs/runtime.md`.
 - **Four more ways past the sandbox limits are closed.**
   - **Symbol registry:** `Symbol.for` charges each new registry entry (the key and the symbol) to the allocation budget before inserting it.
   - **Job queue:** every queued job and every promise reaction, with the result capability it keeps alive, is charged when it is made and given back when it runs; promises are charged when created. A loop such as `for (;;) Promise.resolve().then(() => {})` now ends in a memory-limit report.
@@ -46,6 +49,7 @@ First release. OneEcma is an interpreter for .NET implementing ECMA-262 / ECMASc
 - **Command line:** `oneecma run`, `check` (every syntax and early error, optional `--repair`) and `repl`, with `--format json`, `--compact` and `--locals`.
 - **Packages:** `RecursiveAI.OneEcma` (the engine, Intl included, no dependencies beyond the .NET base class library), `RecursiveAI.OneEcma.Generators` (analyzer-only) and `RecursiveAI.OneEcma.Cli` (the `oneecma` dotnet tool). NativeAOT binaries of `oneecma` for win-x64, linux-x64, linux-arm64 and osx-arm64 are attached to the GitHub release.
 
-[Unreleased]: https://github.com/recursive-ai-oss/oneecma-csharp/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/recursive-ai-oss/oneecma-csharp/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/recursive-ai-oss/oneecma-csharp/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/recursive-ai-oss/oneecma-csharp/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/recursive-ai-oss/oneecma-csharp/releases/tag/v1.0.0
