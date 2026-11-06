@@ -47,6 +47,35 @@ internal static class Program
             return failure is null ? 0 : 1;
         }
 
+        // limit-probe <file> <alloc-MiB> <wall-ms> <fuel>: run one script under those limits and print one line (outcome, time).
+        if (args.Length == 5 && args[0] == "limit-probe")
+        {
+            var limits = new EngineLimits { MaxAllocatedBytes = long.Parse(args[2], CultureInfo.InvariantCulture) << 20, WallClockMs = double.Parse(args[3], CultureInfo.InvariantCulture), Fuel = long.Parse(args[4], CultureInfo.InvariantCulture) };
+            var engine = new ScriptEngine(new ScriptEngineOptions { Limits = limits, ExplainErrors = false });
+            long t0 = Stopwatch.GetTimestamp();
+            string outcome;
+            try
+            {
+                engine.Evaluate(File.ReadAllText(args[1]), "probe.js");
+                outcome = "completed";
+            }
+            catch (JsLimitException e)
+            {
+                outcome = "limit:" + e.Kind;
+            }
+            catch (JsException e)
+            {
+                outcome = "js-error:" + e.Message;
+            }
+            catch (OperationCanceledException)
+            {
+                outcome = "cancelled";
+            }
+
+            Console.WriteLine(outcome + " " + (long)Stopwatch.GetElapsedTime(t0).TotalMilliseconds + "ms");
+            return 0;
+        }
+
         // replay <seconds> <outdir> [seed] [seeddir...]: record each mutant, replay the log with tracing, compare outcomes.
         // replay-file <path>: check one input.
         if (args.Length >= 3 && args[0] == "replay")

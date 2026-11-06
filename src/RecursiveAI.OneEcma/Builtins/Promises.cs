@@ -49,7 +49,7 @@ internal static class Promises
 
     internal static PromiseObject NewPromise(Realm r)
     {
-        Agent.Current.Alloc(PromiseBytes);
+        Agent.CurrentOrNull?.Alloc(PromiseBytes);
         return new(r.PromisePrototype);
     }
 
@@ -184,7 +184,7 @@ internal static class Promises
     /// <summary>PromiseReactionJob (27.2.2.1).</summary>
     private static void RunReaction(Reaction r, JsValue arg, bool fulfilled)
     {
-        Agent.Current.Release(r.Charged);
+        Agent.CurrentOrNull?.Release(r.Charged);
         if (fulfilled ? r.NativeFulfilled is not null : r.NativeRejected is not null)
         {
             (fulfilled ? r.NativeFulfilled : r.NativeRejected)!(arg);
@@ -225,7 +225,7 @@ internal static class Promises
     internal static void PerformThen(PromiseObject p, JsValue onFulfilled, JsValue onRejected, PromiseCapability? cap)
     {
         int charged = ReactionBytes + (cap is null ? 0 : CapabilityBytes);
-        Agent.Current.Alloc(charged);
+        Agent.CurrentOrNull?.Alloc(charged);
         var r = new Reaction
         {
             Charged = charged,
@@ -239,7 +239,7 @@ internal static class Promises
     /// <summary>Await's continuation: PerformPromiseThen with native handlers and no result capability.</summary>
     internal static void ThenNative(PromiseObject p, Action<JsValue> ok, Action<JsValue> err)
     {
-        Agent.Current.Alloc(ReactionBytes);
+        Agent.CurrentOrNull?.Alloc(ReactionBytes);
         AddReaction(p, new Reaction { NativeFulfilled = ok, NativeRejected = err, Charged = ReactionBytes });
     }
 

@@ -110,8 +110,8 @@ internal static partial class RegExpBuiltins
         }
 
         // A script can build patterns of any length; the compiled program is a few words per source character.
-        Agent.Current.Alloc(512 + (pattern.Length * 48L));
-        Agent.Current.Charge(pattern.Length >> 3);
+        Agent.CurrentOrNull?.Alloc(512 + (pattern.Length * 48L));
+        Agent.CurrentOrNull?.Charge(pattern.Length >> 3);
         RegExpCompileResult res = RegExpProgram.Compile(pattern, flags);
         if (res.Program is null)
         {
