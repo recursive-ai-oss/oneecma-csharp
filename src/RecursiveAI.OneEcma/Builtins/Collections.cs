@@ -9,6 +9,17 @@ internal sealed class SameValueZeroComparer : IEqualityComparer<JsValue>
 
     public bool Equals(JsValue x, JsValue y) => Ops.SameValueZero(x, y);
 
+    // Hashing a string reads all of it every time, so a long key costs fuel in proportion to its length.
+    private static int HashText(string s)
+    {
+        if (s.Length >= Agent.LongTextChars)
+        {
+            Agent.CurrentOrNull?.Charge(s.Length >> 4);
+        }
+
+        return s.GetHashCode(StringComparison.Ordinal);
+    }
+
     public int GetHashCode(JsValue v)
     {
         if (v.IsNumber)
@@ -19,8 +30,8 @@ internal sealed class SameValueZeroComparer : IEqualityComparer<JsValue>
 
         return v.Ref switch
         {
-            string s => s.GetHashCode(StringComparison.Ordinal),
-            Rope r => r.Flatten().GetHashCode(StringComparison.Ordinal),
+            string s => HashText(s),
+            Rope r => HashText(r.Flatten()),
             BigInteger b => b.GetHashCode(),
             null => 1,
             _ => System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(v.Ref),

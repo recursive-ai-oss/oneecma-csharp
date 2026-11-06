@@ -384,6 +384,7 @@ internal sealed class Recorder
                     throw Diverged("a settled task value", LogTag.Settle);
                 }
 
+                ValueCodec.Charge(Agent.Current, v);
                 Promises.ResolveWith(p, v);
             }
             catch (JsException je)

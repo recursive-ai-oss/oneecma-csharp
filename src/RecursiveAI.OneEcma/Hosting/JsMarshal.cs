@@ -952,6 +952,12 @@ public static class JsMarshal
                     promise.Reject(je.Value);
                 }
 
+                // What the host's task produced enters the engine here (and in the log, below): charged before either copy is kept.
+                if (promise.State == JsPromiseState.Fulfilled)
+                {
+                    ValueCodec.Charge(Agent.Current, promise.Result);
+                }
+
                 Log(inCall, () => rec!.LogSettlement(callId, promise));
             }
             else

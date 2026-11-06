@@ -386,7 +386,7 @@ internal static class ArrayAlgo
                 MergeSort(keyed, n, (x, y) =>
                 {
                     Agent.Current.Tick();
-                    return string.CompareOrdinal(x.Text, y.Text);
+                    return Ops.CompareStrings(x.Text, y.Text);
                 });
                 for (int i = 0; i < n; i++)
                 {
@@ -398,7 +398,7 @@ internal static class ArrayAlgo
                 MergeSort(defined, n, (x, y) =>
                 {
                     Agent.Current.Tick();
-                    return string.CompareOrdinal(Ops.ToStr(x), Ops.ToStr(y));
+                    return Ops.CompareStrings(Ops.ToStr(x), Ops.ToStr(y));
                 });
             }
         }

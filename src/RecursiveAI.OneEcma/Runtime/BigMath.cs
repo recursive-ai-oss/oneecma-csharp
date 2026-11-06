@@ -15,8 +15,8 @@ internal static class BigMath
     /// <summary>Operands up to this many 32-bit words (together) are computed without any accounting.</summary>
     private const int SmallWords = 64;
 
-    /// <summary>Largest operand, in bytes, multiplied in one piece (about a quarter of a second); bigger ones are split in blocks of this size.</summary>
-    internal static int BlockBytes = 1 << 19;
+    /// <summary>Largest operand, in bytes, multiplied in one BCL call (a few tens of milliseconds); bigger ones are split until the pieces are this size.</summary>
+    internal static int BlockBytes = 1 << 17;
 
     internal static long Words(BigInteger x) => (x.GetBitLength() + 31) >> 5;
 
@@ -81,69 +81,59 @@ internal static class BigMath
 
     private static BigInteger MultiplyCore(Agent ag, BigInteger x, BigInteger y)
     {
-        int block = BlockBytes;
         if (x.IsZero || y.IsZero)
         {
             return BigInteger.Zero;
         }
 
-        if (Words(x) * 4 <= block && Words(y) * 4 <= block)
+        if (Words(x) * 4 <= BlockBytes && Words(y) * 4 <= BlockBytes)
         {
             return x * y;
         }
 
         byte[] a = BigInteger.Abs(x).ToByteArray(isUnsigned: true, isBigEndian: false);
         byte[] b = BigInteger.Abs(y).ToByteArray(isUnsigned: true, isBigEndian: false);
-        bool negative = (x.Sign < 0) != (y.Sign < 0);
-        int na = (a.Length + block - 1) / block;
-        int nb = (b.Length + block - 1) / block;
-        var ab = new BigInteger[na];
-        var bb = new BigInteger[nb];
-        for (int i = 0; i < na; i++)
-        {
-            ab[i] = new BigInteger(a.AsSpan(i * block, Math.Min(block, a.Length - (i * block))), isUnsigned: true);
-        }
-
-        for (int i = 0; i < nb; i++)
-        {
-            bb[i] = new BigInteger(b.AsSpan(i * block, Math.Min(block, b.Length - (i * block))), isUnsigned: true);
-        }
-
-        // Schoolbook over blocks: the column k of the product is the sum of A[i] * B[k - i]; its low block is final once the carry
-        // from the column below is in. Each block product is bounded, so the interrupt poll between them keeps latency short.
-        var res = new byte[a.Length + b.Length + 1];
-        BigInteger carry = BigInteger.Zero;
-        int shiftBits = 8 * block;
-        for (int k = 0; k < na + nb - 1; k++)
-        {
-            BigInteger acc = carry;
-            int lo = Math.Max(0, k - (nb - 1));
-            int hi = Math.Min(k, na - 1);
-            for (int i = lo; i <= hi; i++)
-            {
-                acc += ab[i] * bb[k - i];
-                ag.CheckInterrupts();
-            }
-
-            WriteLow(res, k * block, acc, block);
-            carry = acc >> shiftBits;
-        }
-
-        WriteLow(res, (na + nb - 1) * block, carry, int.MaxValue);
-        var product = new BigInteger(res, isUnsigned: true);
-        return negative ? -product : product;
+        BigInteger product = Karatsuba(ag, a, b);
+        return (x.Sign < 0) != (y.Sign < 0) ? -product : product;
     }
 
-    private static void WriteLow(byte[] dest, int offset, BigInteger value, int max)
+    // Karatsuba over the operands' little-endian bytes. The BCL multiplies a pair no bigger than BlockBytes in one call (a few tens
+    // of milliseconds); anything bigger is split until the pieces are that size, and cancellation and the wall clock are polled
+    // before every such call. The recursion halves the larger operand each level, so its depth is the log of the size ratio.
+    private static BigInteger Karatsuba(Agent ag, ReadOnlySpan<byte> a, ReadOnlySpan<byte> b)
     {
-        if (value.IsZero || offset >= dest.Length)
+        if (a.Length < b.Length)
         {
-            return;
+            ReadOnlySpan<byte> t = a;
+            a = b;
+            b = t;
         }
 
-        byte[] t = value.ToByteArray(isUnsigned: true, isBigEndian: false);
-        int n = Math.Min(Math.Min(t.Length, max), dest.Length - offset);
-        Array.Copy(t, 0, dest, offset, n);
+        if (a.Length <= BlockBytes)
+        {
+            ag.CheckInterrupts();
+            return new BigInteger(a, isUnsigned: true) * new BigInteger(b, isUnsigned: true);
+        }
+
+        int k = (a.Length + 1) / 2;
+        if (b.Length <= k)
+        {
+            // Unbalanced: the product is a sum of two shorter products.
+            BigInteger low = Karatsuba(ag, a[..k], b);
+            BigInteger high = Karatsuba(ag, a[k..], b);
+            return (high << (8 * k)) + low;
+        }
+
+        ReadOnlySpan<byte> a0 = a[..k];
+        ReadOnlySpan<byte> a1 = a[k..];
+        ReadOnlySpan<byte> b0 = b[..k];
+        ReadOnlySpan<byte> b1 = b[k..];
+        BigInteger z0 = Karatsuba(ag, a0, b0);
+        BigInteger z2 = Karatsuba(ag, a1, b1);
+        byte[] sa = (new BigInteger(a0, isUnsigned: true) + new BigInteger(a1, isUnsigned: true)).ToByteArray(isUnsigned: true, isBigEndian: false);
+        byte[] sb = (new BigInteger(b0, isUnsigned: true) + new BigInteger(b1, isUnsigned: true)).ToByteArray(isUnsigned: true, isBigEndian: false);
+        BigInteger z1 = Karatsuba(ag, sa, sb) - z0 - z2;
+        return (z2 << (16 * k)) + (z1 << (8 * k)) + z0;
     }
 
     // ---- division -------------------------------------------------------------------------------------

@@ -391,6 +391,13 @@ public sealed partial class ScriptEngine
             e.Report ??= ErrorReport.ForLimit(e);
             throw;
         }
+        catch (OutOfMemoryException)
+        {
+            // An allocation no charge covered failed: the run ends as a memory limit, with a report, as any other.
+            JsLimitException limit = _agent.MemoryExhausted();
+            limit.Report ??= ErrorReport.ForLimit(limit);
+            throw limit;
+        }
         catch (Exception e) when (e is not OperationCanceledException)
         {
             throw new InvalidOperationException("Internal engine error: " + e.GetType().Name + ": " + e.Message, e);

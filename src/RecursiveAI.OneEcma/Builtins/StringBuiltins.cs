@@ -11,6 +11,46 @@ internal static partial class Builtins
     [ThreadStatic]
     private static TextCollator? t_rootCollator;
 
+    /// <summary>Estimated steps one character of two compared strings costs the collator (elements, weights and the key compare), by measurement.</summary>
+    internal const long CollateStepsPerChar = 12;
+
+    /// <summary>Estimated bytes the collator holds per character while it builds the two sort keys (code points, elements, key bytes), above what was measured.</summary>
+    internal const long CollateBytesPerChar = 96;
+
+    /// <summary>
+    /// Compares with a collator, charging for what the comparison will do before it does it. A pair of short strings is cheap and
+    /// free of the extra charge. For a long pair the work is fuel (refused up front when one comparison could not finish in time) and
+    /// the transient sort keys count against the allocation budget while they exist, so one comparison cannot take more than the limit.
+    /// </summary>
+    internal static int CollateCompare(TextCollator collator, string x, string y)
+    {
+        long n = (long)x.Length + y.Length;
+        if (n < 2048)
+        {
+            Cost(n);
+            return collator.Compare(x, y);
+        }
+
+        Agent ag = Agent.Current;
+        ag.Charge(n >> 6);
+        if (x.AsSpan().SequenceEqual(y))
+        {
+            return 0;
+        }
+
+        long bytes = n * CollateBytesPerChar;
+        ag.Alloc(bytes);
+        try
+        {
+            ag.ChargeWork(n * CollateStepsPerChar, false);
+            return collator.Compare(x, y);
+        }
+        finally
+        {
+            ag.Release(bytes);
+        }
+    }
+
     /// <summary>Charges fuel in proportion to the work a built-in does over <paramref name="units"/> characters.</summary>
     private static void Cost(long units)
     {
@@ -389,9 +429,8 @@ internal static partial class Builtins
         {
             string s = ThisStr(t, "localeCompare");
             string that = Ops.ToStr(A(a, 0));
-            Cost((long)s.Length + that.Length);
             t_rootCollator ??= TextCollator.Create("und");
-            int c = t_rootCollator.Compare(s, that);
+            int c = CollateCompare(t_rootCollator, s, that);
             return Ops.Num(Math.Sign(c));
         });
         r.Method(proto, "normalize", 0, (t, a, nt) =>

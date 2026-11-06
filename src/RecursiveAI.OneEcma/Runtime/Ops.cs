@@ -309,6 +309,42 @@ internal static class Ops
 
     internal static bool IsConstructor(JsValue v) => v.Ref is JsObject o && o.IsConstructor;
 
+    /// <summary>
+    /// String equality (7.2.15 step 5 / 7.2.14 step 1.c). Equal lengths are the only case that scans, and a scan of a long string
+    /// costs fuel in proportion to its length, so a loop of long comparisons reaches the clock poll like any other loop.
+    /// </summary>
+    internal static bool StringsEqual(string x, string y)
+    {
+        if (x.Length != y.Length)
+        {
+            return false;
+        }
+
+        if (x.Length >= Agent.LongTextChars && !ReferenceEquals(x, y))
+        {
+            Agent.CurrentOrNull?.Charge(x.Length >> 6);
+        }
+
+        return string.Equals(x, y, StringComparison.Ordinal);
+    }
+
+    /// <summary>Orders two strings by UTF-16 code unit (7.2.13 step 3 and the default sort), charging fuel for the common prefix it had to scan.</summary>
+    internal static int CompareStrings(string x, string y)
+    {
+        int p = x.AsSpan().CommonPrefixLength(y.AsSpan());
+        if (p >= Agent.LongTextChars)
+        {
+            Agent.CurrentOrNull?.Charge(p >> 6);
+        }
+
+        if (p == x.Length || p == y.Length)
+        {
+            return x.Length.CompareTo(y.Length);
+        }
+
+        return x[p] < y[p] ? -1 : 1;
+    }
+
     internal static bool SameValue(JsValue a, JsValue b)
     {
         if (a.IsNumber)
@@ -333,7 +369,7 @@ internal static class Ops
     {
         if (a.IsString)
         {
-            return b.IsString && a.AsString == b.AsString;
+            return b.IsString && StringsEqual(a.AsString, b.AsString);
         }
 
         if (a.Ref is BigInteger x)
@@ -366,7 +402,7 @@ internal static class Ops
 
             if (a.IsString && b.IsString)
             {
-                return a.AsString == b.AsString;
+                return StringsEqual(a.AsString, b.AsString);
             }
 
             if (a.IsNullish)
@@ -478,7 +514,7 @@ internal static class Ops
 
         if (px.IsString && py.IsString)
         {
-            return string.CompareOrdinal(px.AsString, py.AsString) < 0 ? 1 : 0;
+            return CompareStrings(px.AsString, py.AsString) < 0 ? 1 : 0;
         }
 
         if (px.IsBigInt && py.IsString)

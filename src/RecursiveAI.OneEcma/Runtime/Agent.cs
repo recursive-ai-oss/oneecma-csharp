@@ -243,6 +243,19 @@ internal sealed class Agent
         }
     }
 
+    /// <summary>
+    /// The limit that stands for a .NET <see cref="OutOfMemoryException"/> reaching the engine: the host or the runtime could not
+    /// satisfy an allocation the budget did not cover. Script cannot catch it, and the run ends like any other memory limit.
+    /// </summary>
+    internal JsLimitException MemoryExhausted()
+    {
+        Recorder?.Log.MarkNotReplayable("the process ran out of memory");
+        return Limit(LimitKind.Memory, "Execution exceeded the allocation limit of " + Limits.MaxAllocatedBytes.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + " bytes: the process ran out of memory");
+    }
+
+    /// <summary>Strings at least this long cost fuel in proportion to their length when compared or hashed.</summary>
+    internal const int LongTextChars = 4096;
+
     /// <summary>Polls cancellation and the wall clock without spending fuel; long native kernels call it between pieces of work.</summary>
     internal void CheckInterrupts()
     {
