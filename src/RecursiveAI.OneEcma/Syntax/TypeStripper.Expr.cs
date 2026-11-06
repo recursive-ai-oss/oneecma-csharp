@@ -451,7 +451,9 @@ internal sealed partial class TypeStripper
             return false;
         }
 
-        Erase(_p, end);
+        // "f<T>" newline "[0]": TypeScript ends the statement after the instantiation, but blanked, the '[' would index f.
+        Token after = Tok(end);
+        _edits.Add(new Edit(Tok(_p).Start, Tok(end - 1).End, after.NewlineBefore && after.Type == TokenType.LBracket ? EditKind.BlankSemicolon : EditKind.Blank));
         _p = end;
         return true;
     }

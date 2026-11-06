@@ -15,7 +15,7 @@ internal sealed partial class TypeStripper
 {
     private const int MaxDepth = 300;
 
-    private enum EditKind : byte { Blank, BlankSemicolon, MoveArrow }
+    private enum EditKind : byte { Blank, BlankSemicolon, SemicolonAt, MoveArrow }
 
     private readonly record struct Edit(int Start, int End, EditKind Kind);
 
@@ -194,24 +194,70 @@ internal sealed partial class TypeStripper
         _edits.Add(new Edit(Tok(firstToken).Start, Tok(endToken - 1).End, hazard ? EditKind.BlankSemicolon : EditKind.Blank));
     }
 
+    // ECMA-262 12.10 (automatic semicolon insertion): a statement that ends at a line break continues into the next line when
+    // the next token can continue an expression. A TypeScript declaration is a statement of its own, so once it is blanked the line
+    // before it and the line after it are no longer separated. Blanking is then not enough: a ';' is written over the first column
+    // of the erased text. A ';' that was in the source is never erased: it terminates or guards, and stays in the output.
     private bool EraseStatement(int firstToken, int endToken)
     {
-        if (Tok(endToken).Type == TokenType.Semicolon)
+        if (endToken - 1 > firstToken && Tok(endToken - 1).Type == TokenType.Semicolon)
         {
-            endToken++;
+            endToken--;
         }
 
         Erase(firstToken, endToken);
+        GuardBoundary(firstToken, endToken);
         _p = endToken;
         return true;
     }
+
+    // A class member (or a modifier run in front of one) erased at the start of a member: same hazard, with '[' and '*' as the tokens
+    // a member can start with.
+    private void EraseMember(int firstToken, int endToken)
+    {
+        if (endToken - 1 > firstToken && Tok(endToken - 1).Type == TokenType.Semicolon)
+        {
+            endToken--;
+        }
+
+        Erase(firstToken, endToken);
+        GuardBoundary(firstToken, endToken);
+    }
+
+    private void GuardBoundary(int firstToken, int endToken)
+    {
+        int at = Tok(firstToken).Start;
+        _boundaries.Add(at);
+        if (firstToken > 0 && ValueEnds(Tok(firstToken - 1)) && ContinuesExpression(Tok(endToken)))
+        {
+            _edits.Add(new Edit(at, at + 1, EditKind.SemicolonAt));
+        }
+    }
+
+    // The offsets of the first column of every statement-level or member-level erasure (a ';' may have been written there).
+    internal List<int> Boundaries => _boundaries;
+
+    private readonly List<int> _boundaries = [];
+
+    private static bool ValueEnds(Token t) => t.Type is
+        TokenType.Identifier or TokenType.PrivateName or TokenType.Number or TokenType.BigInt or TokenType.String or TokenType.Template
+        or TokenType.RegExp or TokenType.RParen or TokenType.RBracket or TokenType.RBrace or TokenType.This or TokenType.Null
+        or TokenType.True or TokenType.False or TokenType.Super or TokenType.PlusPlus or TokenType.MinusMinus or TokenType.Bang
+        or TokenType.Gt;
+
+    // Tokens that can follow a complete expression and carry it on (so no semicolon is inserted before them at a line break).
+    private bool ContinuesExpression(Token n) =>
+        (n.Type == TokenType.Template && IsTemplateStart(n))
+        || IsBinaryOrAssignment(n.Type)
+        || n.Type is TokenType.LParen or TokenType.LBracket or TokenType.Dot or TokenType.QuestionDot or TokenType.Question or TokenType.Comma
+            or TokenType.Slash or TokenType.SlashAssign or TokenType.RegExp or TokenType.In or TokenType.Instanceof or TokenType.Gt;
 
     internal string Apply()
     {
         var buf = _text.ToCharArray();
         foreach (Edit e in _edits)
         {
-            if (e.Kind == EditKind.MoveArrow)
+            if (e.Kind is EditKind.MoveArrow)
             {
                 continue;
             }
@@ -227,6 +273,14 @@ internal sealed partial class TypeStripper
                         break;
                     }
                 }
+            }
+        }
+
+        foreach (Edit e in _edits)
+        {
+            if (e.Kind == EditKind.SemicolonAt)
+            {
+                buf[e.Start] = ';';
             }
         }
 

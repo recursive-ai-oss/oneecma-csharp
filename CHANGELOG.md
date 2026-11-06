@@ -4,6 +4,12 @@ All notable changes are listed here. The format follows [Keep a Changelog](https
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-11-05
+
+### Fixed
+
+- **`ScriptEngine.StripTypes` no longer joins statements that TypeScript keeps apart.** When an erased declaration (`type`, `interface`, `declare ...`, an overload signature, a type-only namespace, `import type`/`export type`, or an erased class member such as `declare x: T` or an index signature) sat between a line that ended without a semicolon and a line starting with `(`, `[`, a template or an operator, the blanked text let the next line continue the previous statement: `let x = f` / `type T = number` / `(g)()` ran as `f(g)()`. A `;` is now written over the first column of the erased declaration when it is needed (ECMA-262 12.10), and positions stay the same. A semicolon in the source is never erased any more: one that ends a declaration, or that guards the next line (`;[1, 2].forEach(...)`), stays in the output. A type-argument list at the end of a line before a `[` gets the same guard. See `docs/typescript.md`.
+
 ### Security
 
 - **Long-string work is charged.** `===`, `==`, `<` and the other string comparisons, `Map` and `Set` keys, the default `sort`, `localeCompare` and `Intl.Collator.prototype.compare` now spend fuel in proportion to the length they scan (strings under 4,096 characters stay free), so a loop of long compares reaches the wall-clock poll: a 1 second limit ends a `s.localeCompare(s + 'a')` or `a === b` loop on 15-million-character strings within about 100 ms instead of seconds late.
@@ -11,6 +17,10 @@ All notable changes are listed here. The format follows [Keep a Changelog](https
 - **Values a host hands to the engine are charged.** What a host function returns, a host task delivers, or a replay reads back from the log counts against `MaxAllocatedBytes` as it enters (strings, BigInts, arrays and objects by size), so a host function that returns large strings in a loop ends in a memory report instead of exhausting the process.
 - **Out of memory is a limit, never a script error.** A .NET `OutOfMemoryException` from a host function, constructor, task or an uncharged engine allocation now ends the run with a memory-limit report; a script `catch` or `finally` cannot see it.
 - **BigInt multiplication polls the clock about ten times as often.** Multiplication and `**` now split large operands (Karatsuba) into pieces of 128 KiB, so a squaring loop ends within about 50 ms of `WallClockMs` instead of 250 ms. The fuel charged is unchanged.
+
+### Documentation
+
+- The TypeScript examples import `RecursiveAI.OneEcma.Syntax`; the 1.1.0 note on closure-heavy loops gives the measured live-memory factor (about 1.1 times the limit on x64, under 2 times on arm64); `docs/runtime.md` says that cancellation throws `OperationCanceledException`, not `JsLimitException`.
 
 ## [1.1.0] - 2026-11-05
 
@@ -57,7 +67,8 @@ First release. OneEcma is an interpreter for .NET implementing ECMA-262 / ECMASc
 - **Command line:** `oneecma run`, `check` (every syntax and early error, optional `--repair`) and `repl`, with `--format json`, `--compact` and `--locals`.
 - **Packages:** `RecursiveAI.OneEcma` (the engine, Intl included, no dependencies beyond the .NET base class library), `RecursiveAI.OneEcma.Generators` (analyzer-only) and `RecursiveAI.OneEcma.Cli` (the `oneecma` dotnet tool). NativeAOT binaries of `oneecma` for win-x64, linux-x64, linux-arm64 and osx-arm64 are attached to the GitHub release.
 
-[Unreleased]: https://github.com/recursive-ai-oss/oneecma-csharp/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/recursive-ai-oss/oneecma-csharp/compare/v1.1.1...HEAD
+[1.1.1]: https://github.com/recursive-ai-oss/oneecma-csharp/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/recursive-ai-oss/oneecma-csharp/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/recursive-ai-oss/oneecma-csharp/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/recursive-ai-oss/oneecma-csharp/releases/tag/v1.0.0
