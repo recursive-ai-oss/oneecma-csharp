@@ -3,8 +3,8 @@
 `ScriptEngine.StripTypes(source, options, cancellationToken)` turns TypeScript that uses only **erasable** syntax into JavaScript the engine runs. It is separate from auto-repair ([repair-table.md](repair-table.md)): repair acts on source that does not parse, stripping acts on source that is valid TypeScript. Nothing is type-checked; types are skipped, never resolved.
 
 ```csharp
-TypeStripResult r = ScriptEngine.StripTypes(File.ReadAllText("decider.ts"), new TypeStripOptions { FileName = "decider.ts" });
-if (r.Success) { /* run r.Code as a module or script, named decider.ts */ }
+TypeStripResult r = ScriptEngine.StripTypes(File.ReadAllText("orders.ts"), new TypeStripOptions { FileName = "orders.ts" });
+if (r.Success) { /* run r.Code as a module or script, named orders.ts */ }
 else foreach (Diagnostic d in r.Diagnostics) Console.Error.WriteLine(d);
 ```
 

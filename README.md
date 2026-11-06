@@ -219,7 +219,7 @@ Each rule, with examples, is in [docs/repair-table.md](docs/repair-table.md).
 `ScriptEngine.StripTypes` runs `.ts` files that use only erasable syntax. It blanks annotations, generics, `as`/`satisfies`/`!`, `interface`/`type`/`declare` declarations, overload signatures, `implements`, access modifiers and `import type`/inline `type` specifiers, and keeps every other character where it was, so reports and `err.stack` point at the original line and column with no source map:
 
 ```csharp
-TypeStripResult r = ScriptEngine.StripTypes(File.ReadAllText("decider.ts"), new TypeStripOptions { FileName = "decider.ts" });
+TypeStripResult r = ScriptEngine.StripTypes(File.ReadAllText("orders.ts"), new TypeStripOptions { FileName = "orders.ts" });
 // r.Code is JavaScript (null on failure); r.Diagnostics explains what was refused
 ```
 

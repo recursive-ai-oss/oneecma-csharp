@@ -16,7 +16,7 @@ public class TypeStripFixtureTests
     // An order-review module written the way application code is: shared types from another file (type-only import, so it
     // leaves no import behind), interfaces, aliases, generics, `as const`, `satisfies`, optional parameters, a class with typed
     // fields and access modifiers, and an async function with a typed return.
-    internal const string Decider = """
+    internal const string OrderRouter = """
         import type { Order, Rule } from './types';
 
         type Verdict = 'approve' | 'review' | 'reject';
@@ -50,7 +50,7 @@ public class TypeStripFixtureTests
           return order.customer!.name.length;
         }
 
-        class Decider {
+        class OrderRouter {
           private readonly seen: string[] = [];
           protected count = 0;
           public label: string;
@@ -74,13 +74,13 @@ public class TypeStripFixtureTests
         }
 
         export async function reviewAll(orders: Order[]): Promise<string[]> {
-          const decider = new Decider('main');
+          const router = new OrderRouter('main');
           const out: string[] = [];
           for (const o of orders) {
-            const d = await Promise.resolve(decider.decide(o));
+            const d = await Promise.resolve(router.decide(o));
             out.push(`${d.order.id}:${d.verdict}:${d.score}:${d.reasons.join('+')}`);
           }
-          out.push('total=' + decider.total);
+          out.push('total=' + router.total);
           return out;
         }
 
@@ -99,7 +99,7 @@ public class TypeStripFixtureTests
 
     private static string StripOrFail(string source)
     {
-        TypeStripResult r = ScriptEngine.StripTypes(source, new TypeStripOptions { FileName = "decider.ts" }, Ct);
+        TypeStripResult r = ScriptEngine.StripTypes(source, new TypeStripOptions { FileName = "orders.ts" }, Ct);
         Assert.True(r.Success, string.Join("\n", r.Diagnostics.Select(d => DiagnosticRenderer.Render(d))));
         return r.Code!;
     }
@@ -107,11 +107,11 @@ public class TypeStripFixtureTests
     [Fact]
     public void StripsAndRunsAsAModuleWithNoImportLeft()
     {
-        string code = StripOrFail(Decider);
+        string code = StripOrFail(OrderRouter);
         Assert.DoesNotContain("import", code, StringComparison.Ordinal);
-        Assert.Equal(Decider.Split('\n').Length, code.Split('\n').Length);
-        var engine = new ScriptEngine(new ScriptEngineOptions { Host = new FileHost("decider.ts", code) });
-        JsValue ns = engine.EvaluateModule("decider.ts", Ct);
+        Assert.Equal(OrderRouter.Split('\n').Length, code.Split('\n').Length);
+        var engine = new ScriptEngine(new ScriptEngineOptions { Host = new FileHost("orders.ts", code) });
+        JsValue ns = engine.EvaluateModule("orders.ts", Ct);
         engine.RunJobs(Ct);
         Assert.Equal(Expected, engine.GetProperty(ns.AsObject!, "output").ToString());
     }
@@ -119,18 +119,18 @@ public class TypeStripFixtureTests
     [Fact]
     public void RuntimeErrorsReportTheTypeScriptLineAndColumn()
     {
-        string source = Decider.Replace("/*FAIL*/", "explode(orders[2]);", StringComparison.Ordinal);
+        string source = OrderRouter.Replace("/*FAIL*/", "explode(orders[2]);", StringComparison.Ordinal);
         string code = StripOrFail(source);
-        var engine = new ScriptEngine(new ScriptEngineOptions { Host = new FileHost("decider.ts", code) });
-        JsException e = Assert.Throws<JsException>(() => engine.EvaluateModule("decider.ts", Ct));
+        var engine = new ScriptEngine(new ScriptEngineOptions { Host = new FileHost("orders.ts", code) });
+        JsException e = Assert.Throws<JsException>(() => engine.EvaluateModule("orders.ts", Ct));
         Assert.Contains("Cannot read properties of undefined (reading 'name')", e.Report!.Headline, StringComparison.Ordinal);
         string[] lines = source.Split('\n');
         int line = e.Report.Position.Line;
         Assert.StartsWith("  return order.customer!.name.length;", lines[line - 1], StringComparison.Ordinal);
         // The column indexes the same character in the original: it is the start of the failing read.
         Assert.StartsWith("customer!.name", lines[line - 1][(e.Report.Position.Column - 1)..], StringComparison.Ordinal);
-        Assert.Equal("decider.ts", e.Report.Source.Name);
-        Assert.Contains("decider.ts:" + line + ":", DiagnosticRenderer.Render(e.Report), StringComparison.Ordinal);
+        Assert.Equal("orders.ts", e.Report.Source.Name);
+        Assert.Contains("orders.ts:" + line + ":", DiagnosticRenderer.Render(e.Report), StringComparison.Ordinal);
     }
 
     [Fact]
