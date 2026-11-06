@@ -243,6 +243,9 @@ internal sealed class Agent
         }
     }
 
+    /// <summary>The headline of a run that ended on a real out-of-memory failure; it names no figure, because the budget did not trip.</summary>
+    internal const string MemoryExhaustedHeadline = "Execution ran out of memory: the process could not allocate more";
+
     /// <summary>
     /// The limit that stands for a .NET <see cref="OutOfMemoryException"/> reaching the engine: the host or the runtime could not
     /// satisfy an allocation the budget did not cover. Script cannot catch it, and the run ends like any other memory limit.
@@ -250,7 +253,7 @@ internal sealed class Agent
     internal JsLimitException MemoryExhausted()
     {
         Recorder?.Log.MarkNotReplayable("the process ran out of memory");
-        return Limit(LimitKind.Memory, "Execution exceeded the allocation limit of " + Limits.MaxAllocatedBytes.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + " bytes: the process ran out of memory");
+        return Limit(LimitKind.Memory, MemoryExhaustedHeadline);
     }
 
     /// <summary>Strings at least this long cost fuel in proportion to their length when compared or hashed.</summary>
