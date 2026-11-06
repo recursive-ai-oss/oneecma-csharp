@@ -135,6 +135,21 @@ if (runner.ToDisplayString(answer) != "44" || runner.ToDisplayString(runner.Eval
 }
 
 // Binary data: typed arrays over a resizable buffer, DataView, Atomics and base64.
+// Type stripping: annotations and a type-only import vanish, positions stay, and the result runs.
+var stripped = ScriptEngine.StripTypes("import type { T } from './t';\nconst n: number = (41 as number);\nfunction id<U>(x: U): U { return x; }\nid<number>(n) + 1", new RecursiveAI.OneEcma.Syntax.TypeStripOptions { Module = false });
+if (stripped.Success || stripped.Diagnostics.Count == 0)
+{
+    Console.Error.WriteLine("smoke: a script cannot hold an import, but strip returned " + stripped.Success);
+    return 1;
+}
+
+var strippedModule = ScriptEngine.StripTypes("const n: number = (41 as number);\nfunction id<U>(x: U): U { return x; }\nid<number>(n) + 1", new RecursiveAI.OneEcma.Syntax.TypeStripOptions { Module = false });
+if (!strippedModule.Success || runner.ToDisplayString(runner.Evaluate(strippedModule.Code!)) != "42")
+{
+    Console.Error.WriteLine("smoke: strip gave " + strippedModule.Code);
+    return 1;
+}
+
 JsValue binary = runner.Evaluate(
     "const rab = new ArrayBuffer(4, { maxByteLength: 8 }); const all = new Float16Array(rab); rab.resize(8);\n" +
     "const dv = new DataView(rab); dv.setUint16(0, 0x3c00, true);\n" +

@@ -61,6 +61,20 @@ internal static class Program
             return failure is null ? 0 : 1;
         }
 
+        // strip <seconds> <outdir> [seed] [seeddir...]: seeded mutation fuzzing of the TypeScript type stripper.
+        // strip-file <path>: check one input.
+        if (args.Length >= 3 && args[0] == "strip")
+        {
+            return StripFuzz.RunRandom(int.Parse(args[1], CultureInfo.InvariantCulture), args[2], args.Length > 3 ? int.Parse(args[3], CultureInfo.InvariantCulture) : 1, args.Skip(4));
+        }
+
+        if (args.Length == 2 && args[0] == "strip-file")
+        {
+            string? failure = StripFuzz.Check(File.ReadAllText(args[1]), 30000);
+            Console.WriteLine(failure ?? "ok");
+            return failure is null ? 0 : 1;
+        }
+
         // json <seconds> [seed] [outdir]: seeded generation and mutation of JSON text through parse, reviver and stringify.
         // json-file <path>: one text, for replaying a finding.
         if (args.Length >= 2 && args[0] == "json")
