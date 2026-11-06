@@ -83,7 +83,7 @@ internal static partial class Explain
             case null: return "undefined";
             case string str: return "\"" + Clip(str, 30) + "\"";
             case Rope rope: return "\"" + (rope.Length > 30 ? rope.Head(29) + "…" : rope.Head(30)) + "\"";
-            case BigInteger b: return b.ToString(NumberFormatInfo.InvariantInfo) + "n";
+            case BigInteger b: return (b.GetBitLength() > 4096 ? "<BigInt of " + b.GetBitLength().ToString(NumberFormatInfo.InvariantInfo) + " bits>" : b.ToString(NumberFormatInfo.InvariantInfo)) + "n";
             case JsSymbol s: return s.ToString();
             case JsArray a: return "Array (" + Items((int)Math.Min(a.Length, int.MaxValue)) + ")";
             case JsFunction fn: return (fn is ScriptFunction { IsClassConstructor: true } ? "class " : "function ") + FunctionName(fn);

@@ -118,9 +118,17 @@ internal sealed class ScriptFunction : JsFunction
     internal string ModuleId = "";
     internal ModuleRecord? Module;
 
+    /// <summary>Estimated bytes of a script function object: fields, three property slots and the shape reference.</summary>
+    internal const int ClosureBytes = 224;
+
+    /// <summary>Estimated bytes of the <c>prototype</c> object made when it is first needed (10.2.5 MakeConstructor).</summary>
+    internal const int PrototypeObjectBytes = 160;
+
     internal ScriptFunction(Realm realm, FunctionCode code, Env? env, JsObject proto, bool withPrototype, bool readOnlyPrototype = false, bool lazyPrototype = false)
         : base(realm.FunctionShape(proto, withPrototype ? (lazyPrototype ? 3 : readOnlyPrototype ? 2 : 1) : 0), realm)
     {
+        // 10.2.3 OrdinaryFunctionCreate: the object and its slots are billed when it is made.
+        Agent.CurrentOrNull?.Alloc(ClosureBytes);
         Lazy = withPrototype && lazyPrototype;
         Code = code;
         Env = env;
@@ -152,6 +160,7 @@ internal sealed class ScriptFunction : JsFunction
         }
 
         Lazy = false;
+        Agent.CurrentOrNull?.Alloc(PrototypeObjectBytes);
         var p = new JsObject(Realm.ObjectPrototype);
         p.AddProperty("constructor", JsValue.FromObject(this), PropFlags.Hidden);
         Shape = Realm.FunctionShape(Shape.Proto!, 1);
@@ -247,6 +256,8 @@ internal sealed class BoundFunction : JsFunction
     internal BoundFunction(Realm realm, JsObject target, JsValue boundThis, JsValue[] boundArgs, JsObject? proto)
         : base(Shape.RootFor(proto), realm)
     {
+        // 10.4.1.3 BoundFunctionCreate: the object plus a copy of the bound arguments.
+        Agent.CurrentOrNull?.Alloc(192 + (boundArgs.Length * 16L));
         Target = target;
         BoundThis = boundThis;
         BoundArgs = boundArgs;

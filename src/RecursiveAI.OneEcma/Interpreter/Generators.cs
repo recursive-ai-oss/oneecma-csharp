@@ -67,6 +67,7 @@ internal static class Generators
         bool isAsync = f.Code.IsAsync;
         JsObject fallback = isAsync ? r.AsyncGeneratorPrototype : r.GeneratorPrototype;
         JsObject proto = f.Func is { } fn && fn.Get("prototype").Ref is JsObject po ? po : fallback;
+        Agent.Current.Alloc(isAsync ? 256 : 128); // the generator object (and for async generators its request queue)
         if (isAsync)
         {
             var g = new JsAsyncGenerator(proto, f);

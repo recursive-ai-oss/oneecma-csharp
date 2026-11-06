@@ -19,6 +19,8 @@ internal sealed class JsIntl : JsObject
     internal JsIntl(JsObject? proto, string kind)
         : base(proto)
     {
+        // A service holds resolved options and pattern data, a few KB for the date and number formats.
+        Agent.CurrentOrNull?.Alloc(1024);
         Kind = kind;
     }
 }

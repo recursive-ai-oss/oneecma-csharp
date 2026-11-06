@@ -455,6 +455,7 @@ internal static partial class Builtins
 
             WeakTracker w = r.Agent.Weak;
             JsObject p = Ops.GetPrototypeFromConstructor(nt, x => x.Intrinsics["%WeakRef.prototype%"]);
+            r.Agent.Alloc(160); // the WeakRef object, its slot and the tracker entry
             var wr = new WeakRefObject(p, new WeakSlot(w.NewId(), A(a, 0).Ref!));
             w.Track(wr);
             w.AddToKept(A(a, 0).Ref!);

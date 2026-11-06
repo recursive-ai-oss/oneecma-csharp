@@ -25,7 +25,14 @@ public enum LimitKind
 /// <summary>Resource limits for one engine. Hitting fuel, memory, wall clock, cancellation or native depth ends the run and cannot be caught by script.</summary>
 public sealed class EngineLimits
 {
-    /// <summary>Step budget: one unit per call, per loop back-edge and per unit of work in long-running built-ins. Default 4e9.</summary>
+    /// <summary>
+    /// Step budget: one unit per call, per loop back-edge and per unit of work in long-running built-ins. BigInt arithmetic is charged
+    /// by operand size before it runs (a multiplication of two <c>n</c>-word numbers costs about <c>n</c>-squared over 400 steps; division,
+    /// parsing and conversion to digits are charged the same way), so one operation that would exceed what is left ends the run before
+    /// it starts, and a long multiplication or exponentiation polls cancellation and the wall clock as it goes. Division and the
+    /// digit conversion of numbers under 2,048 words cannot be interrupted, so one of those is refused above 100 million steps
+    /// (about a second and a half). Default 4e9.
+    /// </summary>
     public long Fuel { get; set; } = 4_000_000_000L;
 
     /// <summary>
@@ -33,7 +40,11 @@ public sealed class EngineLimits
     /// allocates something whose size a script controls it adds the size to this total, and exceeding the limit ends the run with a
     /// <see cref="LimitKind.Memory"/> report instead of allocating. Charged: array element storage (16 bytes per slot of the new capacity
     /// each time it grows), typed-array and buffer bytes, collection entries, string characters (2 bytes each, when a rope is flattened or a
-    /// string is built), lists gathered from iterators, and property storage past 32 properties per object. Default 2 GiB.
+    /// string is built), lists gathered from iterators, and property storage past 32 properties per object. Also charged, at estimates of
+    /// their real footprint: script and bound function objects (a closure about 220 bytes), environment records and call frames when a new
+    /// one is made (frames and environments reused after a call are free), generator and async frames, arguments objects, promises,
+    /// reactions and every queued job, global symbol registry entries, error objects with their captured stack, <c>WeakRef</c>, <c>Proxy</c>,
+    /// RegExp compilation, Intl objects, and the result of every BigInt operation on numbers over 64 words. Default 2 GiB.
     /// </summary>
     public long MaxAllocatedBytes { get; set; } = 2L << 30;
 
@@ -193,6 +204,12 @@ internal sealed class Agent
     /// <summary>Promises rejected while nobody was waiting on them, in rejection order; the entry point reports what is left after the jobs ran.</summary>
     internal readonly List<PromiseObject> UnhandledRejections = [];
 
+    /// <summary>Estimated bytes of one global-symbol-registry entry besides the key's characters: the symbol (with its description reference), the dictionary entry and the key string header.</summary>
+    internal const int SymbolRegistryEntryBytes = 160;
+
+    /// <summary>Estimated bytes one queued job holds: the queue slot, the delegate and the closure it captures.</summary>
+    internal const int JobBytes = 128;
+
     internal readonly Dictionary<string, JsSymbol> SymbolRegistry = new(StringComparer.Ordinal);
 
     internal long Allocated => _allocated;
@@ -224,6 +241,60 @@ internal sealed class Agent
         {
             Refill();
         }
+    }
+
+    /// <summary>Polls cancellation and the wall clock without spending fuel; long native kernels call it between pieces of work.</summary>
+    internal void CheckInterrupts()
+    {
+        if (_describingLimit > 0)
+        {
+            return;
+        }
+
+        if (_cancel.IsCancellationRequested)
+        {
+            throw Limit(LimitKind.Cancelled, "Execution was cancelled");
+        }
+
+        if (_deadline > 0 && PollClock() > _deadline)
+        {
+            throw Limit(LimitKind.WallClock, "Execution exceeded the wall-clock limit of " + Limits.WallClockMs.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + " ms");
+        }
+    }
+
+    /// <summary>Largest amount of work (in steps) one kernel that cannot be interrupted midway may be charged; about a second and a half.</summary>
+    internal const long MaxUninterruptibleWork = 100_000_000;
+
+    // Roughly what one step costs in wall time, used to refuse a kernel that cannot finish before the deadline.
+    private const double MsPerStep = 0.000015;
+
+    /// <summary>
+    /// Charges <paramref name="steps"/> of fuel for a native kernel whose cost grows with its operands, before it runs. A kernel that
+    /// would exceed the remaining fuel never starts. One that cannot be interrupted midway (<paramref name="interruptible"/> false)
+    /// is also refused when it is larger than <see cref="MaxUninterruptibleWork"/> or could not finish before the wall-clock deadline;
+    /// an interruptible one polls <see cref="CheckInterrupts"/> itself between pieces.
+    /// </summary>
+    internal void ChargeWork(long steps, bool interruptible)
+    {
+        if (_describingLimit > 0 || steps <= 0)
+        {
+            return;
+        }
+
+        if (!interruptible)
+        {
+            if (steps > MaxUninterruptibleWork)
+            {
+                throw Limit(LimitKind.Fuel, "Execution exceeded the step limit: one BigInt operation needs about " + steps.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + " steps and may take at most " + MaxUninterruptibleWork.ToString(System.Globalization.NumberFormatInfo.InvariantInfo));
+            }
+
+            if (_deadline > 0 && steps > 65536 && PollClock() + (steps * MsPerStep) > _deadline)
+            {
+                throw Limit(LimitKind.WallClock, "Execution exceeded the wall-clock limit of " + Limits.WallClockMs.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + " ms");
+            }
+        }
+
+        Charge(steps);
     }
 
     private void Refill()
@@ -373,8 +444,21 @@ internal sealed class Agent
         return new StackFrameInfo(name, Frame.NativeSource, new Span(0, 0), false, isNew) { IsNative = true, TypeName = isNew || thisValue.IsNullish ? null : Frame.TypeNameOf(thisValue) };
     }
 
+    /// <summary>Gives back bytes that were charged for something that has now gone (a job that ran, a reaction that fired); the total never goes below zero.</summary>
+    internal void Release(long bytes)
+    {
+        if (_describingLimit > 0)
+        {
+            return;
+        }
+
+        _allocated = Math.Max(0, _allocated - bytes);
+    }
+
     internal void EnqueueJob(Action job)
     {
+        // 9.5 HostEnqueuePromiseJob: a queued job is retained until it runs, so a loop that queues without yielding grows without bound.
+        Alloc(JobBytes);
         Jobs.Enqueue(job);
         Host.JobEnqueued();
     }
@@ -389,6 +473,7 @@ internal sealed class Agent
             while (Jobs.Count > 0)
             {
                 Action job = Jobs.Dequeue();
+                Release(JobBytes); // the queue holds a job only until it runs
                 Tick();
                 job();
                 Weak.ClearKept();

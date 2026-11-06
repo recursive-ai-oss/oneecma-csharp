@@ -285,13 +285,7 @@ internal static partial class Builtins
             }
 
             // Exact accumulation, then one correct rounding.
-            var big = BigInteger.Zero;
-            for (int k = begin; k < i; k++)
-            {
-                big = (big * radix) + NumberConv.DigitValue(input[k]);
-            }
-
-            v = BigIntToDouble(big);
+            v = BigIntToDouble(BigMath.ParseDigits(input.AsSpan(begin, i - begin), radix, NumberConv.DigitValue));
         }
 
         return neg ? -v : v;
@@ -313,16 +307,16 @@ internal static partial class Builtins
             return u;
         }
 
-        foreach (char c in digits)
-        {
-            b = (b << bits) | NumberConv.DigitValue(c);
-        }
-
+        b = BigMath.ParseDigits(digits, 1 << bits, NumberConv.DigitValue);
         return BigIntToDouble(b);
     }
 
     /// <summary>The Number value of a BigInt (21.1.1.1 step 2.b): nearest double, ties to even; infinity beyond the range.</summary>
-    internal static double BigIntToDouble(BigInteger v) => ScaledBigToDouble(v, 0);
+    internal static double BigIntToDouble(BigInteger v)
+    {
+        BigMath.ChargeLinear(v);
+        return ScaledBigToDouble(v, 0);
+    }
 
     /// <summary>The double nearest to v × 2^scale (ties to even), computed from the top 64 bits and a sticky bit.</summary>
     private static double ScaledBigToDouble(BigInteger v, int scale)
@@ -399,7 +393,7 @@ internal static partial class Builtins
             return JsValue.FromBigInt(AsN(bits, v, signed: false));
         });
         r.Method(biproto, "valueOf", 0, (t, a, nt) => JsValue.FromBigInt(ThisBigInt(t, "valueOf")));
-        r.Method(biproto, "toLocaleString", 0, (t, a, nt) => Ops.Str(ThisBigInt(t, "toLocaleString").ToString(Inv)));
+        r.Method(biproto, "toLocaleString", 0, (t, a, nt) => Ops.Str(BigIntToString(ThisBigInt(t, "toLocaleString"), 10)));
         r.Method(biproto, "toString", 0, (t, a, nt) =>
         {
             BigInteger b = ThisBigInt(t, "toString");
@@ -454,6 +448,7 @@ internal static partial class Builtins
         }
 
         Agent.Current.Alloc(bits / 8);
+        BigMath.ChargeShift(v, bits);
         BigInteger mod = BigInteger.One << (int)bits;
         BigInteger res = v & (mod - 1);
         if (signed && !(res >> (int)(bits - 1)).IsZero)
@@ -467,7 +462,9 @@ internal static partial class Builtins
     /// <summary>BigInt::toString (6.1.6.2.23) in any radix, in time proportional to the digit count.</summary>
     internal static string BigIntToString(BigInteger b, int radix)
     {
-        if (radix == 10)
+        // The BCL's decimal conversion is quadratic and cannot be interrupted, so it only serves sizes where that is short; a bigger
+        // number goes through the digit-chunk loop below, which polls between chunks.
+        if (radix == 10 && BigMath.Words(b) <= 2048)
         {
             Cost((long)b.GetBitLength());
             return b.ToString(Inv);
@@ -481,7 +478,9 @@ internal static partial class Builtins
         const string Digits = "0123456789abcdefghijklmnopqrstuvwxyz";
         BigInteger v = BigInteger.Abs(b);
         long bitLength = (long)v.GetBitLength();
-        Agent.Current.Alloc((bitLength / 2) + 16);
+        Agent ag = Agent.Current;
+        int log2Radix = 31 - BitOperations.LeadingZeroCount((uint)radix);
+        ag.Alloc(((bitLength / log2Radix) * 4) + 16);
         Cost(bitLength * 4);
         var sb = new StringBuilder();
         if ((radix & (radix - 1)) == 0)
@@ -516,8 +515,17 @@ internal static partial class Builtins
             }
 
             var bigBase = new BigInteger(chunkBase);
+            // Each chunk divides the whole remaining value: about words^2 / 16 steps in all, charged before the first division.
+            long words = BigMath.Words(v);
+            ag.ChargeWork((words * words / 16) + words, true);
+            int rounds = 0;
             while (!v.IsZero)
             {
+                if ((++rounds & 31) == 0)
+                {
+                    ag.CheckInterrupts();
+                }
+
                 v = BigInteger.DivRem(v, bigBase, out BigInteger rem);
                 ulong rv = (ulong)rem;
                 for (int k = 0; k < chunk; k++)

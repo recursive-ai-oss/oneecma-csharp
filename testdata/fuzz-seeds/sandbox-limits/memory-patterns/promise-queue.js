@@ -1,0 +1,1 @@
+for (;;) Promise.resolve().then(() => {});

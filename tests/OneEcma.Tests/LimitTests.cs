@@ -83,7 +83,7 @@ public class LimitTests
     [Fact]
     public void PromiseJobFloodEndsWithAFuelReport()
     {
-        var e = Assert.Throws<JsLimitException>(() => Engine(l => l.Fuel = 2_000_000).Evaluate("function again() { Promise.resolve().then(again); }\nagain();", cancellationToken: Ct));
+        var e = Assert.Throws<JsLimitException>(() => Engine(l => { l.Fuel = 2_000_000; l.MaxAllocatedBytes = 1L << 40; }).Evaluate("function again() { Promise.resolve().then(again); }\nagain();", cancellationToken: Ct));
         Assert.Equal(LimitKind.Fuel, e.Kind);
     }
 

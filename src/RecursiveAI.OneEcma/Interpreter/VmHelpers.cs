@@ -608,6 +608,8 @@ internal static partial class Vm
     {
         Realm r = f.Realm;
         int n = f.ArgCount;
+        // 10.4.4.6/7: the object, a slot and a key string per argument, and the mapping when mapped.
+        Agent.Current.Alloc(200 + (n * 72L) + (map is null ? 0 : n * 4L));
         JsArguments a = new(r.ObjectPrototype);
         if (map is not null)
         {

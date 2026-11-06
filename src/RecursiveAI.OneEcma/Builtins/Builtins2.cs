@@ -33,6 +33,7 @@ internal static partial class Builtins
                 throw Errors.Type("Promise resolver " + Ops.DisplayValue(A(a, 0)) + " is not a function");
             }
 
+            Agent.CurrentOrNull?.Alloc(Promises.PromiseBytes);
             var p = new PromiseObject(Ops.GetPrototypeFromConstructor(nt, x => x.PromisePrototype));
             (JsObject res, JsObject rej) = Promises.ResolvingFunctions(r, p);
             try
