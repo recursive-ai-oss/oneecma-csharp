@@ -4,6 +4,10 @@ All notable changes are listed here. The format follows [Keep a Changelog](https
 
 ## [Unreleased]
 
+### Fixed
+
+- **`ScriptEngine.StripTypes` no longer joins statements that TypeScript keeps apart.** When an erased declaration (`type`, `interface`, `declare ...`, an overload signature, a type-only namespace, `import type`/`export type`, or an erased class member such as `declare x: T` or an index signature) sat between a line that ended without a semicolon and a line starting with `(`, `[`, a template or an operator, the blanked text let the next line continue the previous statement: `let x = f` / `type T = number` / `(g)()` ran as `f(g)()`. A `;` is now written over the first column of the erased declaration when it is needed (ECMA-262 12.10), and positions stay the same. A semicolon in the source is never erased any more: one that ends a declaration, or that guards the next line (`;[1, 2].forEach(...)`), stays in the output. A type-argument list at the end of a line before a `[` gets the same guard. See `docs/typescript.md`.
+
 ## [1.1.0] - 2026-11-05
 
 ### Added

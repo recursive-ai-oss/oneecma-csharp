@@ -136,6 +136,18 @@ internal sealed partial class TypeStripper
             Erase(m, m + 1);
         }
 
+        // Modifiers blanked at the start of a member: "a = 1" newline "private [k] = 2" must not become "a = 1[k] = 2".
+        if (erasable.Count > 0 && erasable[0] == st)
+        {
+            int firstKept = st;
+            while (erasable.Contains(firstKept))
+            {
+                firstKept++;
+            }
+
+            GuardBoundary(st, firstKept);
+        }
+
         // [key: string]: T;
         if (Cur.Type == TokenType.LBracket && Tok(_p + 1).Type == TokenType.Identifier && Tok(_p + 2).Type == TokenType.Colon)
         {
@@ -143,12 +155,12 @@ internal sealed partial class TypeStripper
             if (Tok(close + 1).Type == TokenType.Colon)
             {
                 int end = TypeFull(close + 2);
-                if (Tok(end).Type is TokenType.Semicolon or TokenType.Comma)
+                if (Tok(end).Type == TokenType.Comma)
                 {
                     end++;
                 }
 
-                Erase(st, end);
+                EraseMember(st, end);
                 _p = end;
                 return;
             }
@@ -189,12 +201,12 @@ internal sealed partial class TypeStripper
             {
                 // A method signature without a body: an overload or an abstract method.
                 int end = _p;
-                if (Tok(end).Type is TokenType.Semicolon or TokenType.Comma)
+                if (Tok(end).Type == TokenType.Comma)
                 {
                     end++;
                 }
 
-                Erase(st, end);
+                EraseMember(st, end);
                 _p = end;
             }
 
@@ -212,11 +224,12 @@ internal sealed partial class TypeStripper
             ParseAssign();
         }
 
-        EatSemicolon();
         if (whole)
         {
-            Erase(st, _p);
+            EraseMember(st, _p);
         }
+
+        EatSemicolon();
     }
 
     // ---- types ----------------------------------------------------------------------------------------------------------------------

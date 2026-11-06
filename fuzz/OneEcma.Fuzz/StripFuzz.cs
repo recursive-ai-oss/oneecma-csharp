@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Globalization;
 using RecursiveAI.OneEcma.Syntax;
+using RecursiveAI.OneEcma.Text;
 
 namespace RecursiveAI.OneEcma.Fuzz;
 
@@ -8,7 +9,7 @@ namespace RecursiveAI.OneEcma.Fuzz;
 /// Type-stripper fuzzing. Seeds are TypeScript snippets plus any .js/.ts files under the given directories; every mutant goes
 /// through <see cref="ScriptEngine.StripTypes"/> as a module and as a script. Checked: only cancellation may escape; a result
 /// is either code or at least one diagnostic; code has the length and line breaks of the input and differs from it only by
-/// blanks and the few tokens the stripper writes; code parses; a second pass is safe; one call is fast.
+/// blanks and the few tokens the stripper writes; code parses; a second pass is safe; writing a ";" at an erased statement boundary does not change the parse; one call is fast.
 /// usage: strip &lt;seconds&gt; &lt;outdir&gt; [seed] [seeddir...]; strip-file &lt;path&gt; checks one input.
 /// </summary>
 internal static class StripFuzz
@@ -133,6 +134,94 @@ internal static class StripFuzz
         return s.Length > 100_000 ? s[..100_000] : s;
     }
 
+    // ECMA-262 12.10: where the stripper erased a whole declaration (or the modifiers at the start of a class member), a ';' written there
+    // must not change the program. If it does, the stripper left two statements joined that TypeScript keeps apart. A boundary whose
+    // previous token is the ")" of an if/for/while/with header (invalid TypeScript) is skipped.
+    private static string? CheckBoundaries(string text, string code, bool module)
+    {
+        var stripper = new TypeStripper(new SourceText(text, "f.ts"), default);
+        stripper.Run();
+        if (stripper.Diagnostics.Count > 0 || !stripper.HasEdits || stripper.Apply() != code)
+        {
+            return null;
+        }
+
+        var options = new ParseOptions { Goal = module ? ParseGoal.Module : ParseGoal.Script };
+        ParseResult baseline = JsParser.Parse(code, options);
+        if (baseline.HasErrors)
+        {
+            return null;
+        }
+
+        string baseFp = AstFingerprint.Of(baseline.Program);
+        int checkedBoundaries = 0;
+        foreach (int b in stripper.Boundaries.Distinct())
+        {
+            if (b >= code.Length || code[b] != ' ' || checkedBoundaries++ >= 12)
+            {
+                continue;
+            }
+
+            int p = b - 1;
+            while (p >= 0 && char.IsWhiteSpace(code[p]))
+            {
+                p--;
+            }
+
+            if (p >= 0 && code[p] == ')' && ControlHeaderEndsAt(code, p))
+            {
+                continue;
+            }
+
+            string variant = string.Concat(code.AsSpan(0, b), ";", code.AsSpan(b + 1));
+            ParseResult v = JsParser.Parse(variant, options);
+            if (v.HasErrors)
+            {
+                continue;
+            }
+
+            if (AstFingerprint.Of(v.Program) != baseFp)
+            {
+                return "a statement boundary at " + b + " joins two statements: writing ';' there changes the parse";
+            }
+        }
+
+        return null;
+    }
+
+    // Crude: the text before the matching "(" ends with if/for/while/with.
+    private static bool ControlHeaderEndsAt(string code, int close)
+    {
+        int depth = 0;
+        for (int i = close; i >= 0; i--)
+        {
+            if (code[i] == ')')
+            {
+                depth++;
+            }
+            else if (code[i] == '(' && --depth == 0)
+            {
+                int j = i - 1;
+                while (j >= 0 && char.IsWhiteSpace(code[j]))
+                {
+                    j--;
+                }
+
+                foreach (string kw in new[] { "if", "for", "while", "with", "await" })
+                {
+                    if (j + 1 >= kw.Length && string.CompareOrdinal(code, j + 1 - kw.Length, kw, 0, kw.Length) == 0)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        }
+
+        return false;
+    }
+
     internal static string? Check(string text, int maxMs)
     {
         foreach (bool module in new[] { true, false })
@@ -193,6 +282,15 @@ internal static class StripFuzz
             if (ScriptEngine.Check(code, new ParseOptions { Goal = module ? ParseGoal.Module : ParseGoal.Script }).Count > 0)
             {
                 return "output does not parse";
+            }
+
+            if (module)
+            {
+                string? asi = CheckBoundaries(text, code, module);
+                if (asi is not null)
+                {
+                    return asi;
+                }
             }
 
             // The output is JavaScript, where "a<b>(c)" is a comparison but TypeScript reads a call, so a second pass may legitimately

@@ -90,34 +90,34 @@ public class TypeStripTests
     {
         const string iface = "interface A<T> extends B {\n  x: number;\n  m(): void;\n}";
         Erased(iface + "\nlet y = 1;", Gone(iface.Split('\n')[0]) + "\n" + Gone("  x: number;") + "\n" + Gone("  m(): void;") + "\n" + Gone("}") + "\nlet y = 1;");
-        Erased("type A = { a: string };\nlet z = 1;", Gone("type A = { a: string };") + "\nlet z = 1;");
-        Erased("export interface P { a: 1 }\nexport type Q<T> = T extends string ? 'a' : 'b';\nexport const k = 1;", Gone("export interface P { a: 1 }") + "\n" + Gone("export type Q<T> = T extends string ? 'a' : 'b';") + "\nexport const k = 1;");
-        Erased("type F = (a: number) => void;\nlet z = 1;", Gone("type F = (a: number) => void;") + "\nlet z = 1;");
-        Erased("type R = readonly string[] | Record<string, unknown>;", Gone("type R = readonly string[] | Record<string, unknown>;"));
+        Erased("type A = { a: string };\nlet z = 1;", Gone("type A = { a: string }") + ";" + "\nlet z = 1;");
+        Erased("export interface P { a: 1 }\nexport type Q<T> = T extends string ? 'a' : 'b';\nexport const k = 1;", Gone("export interface P { a: 1 }") + "\n" + Gone("export type Q<T> = T extends string ? 'a' : 'b'") + ";" + "\nexport const k = 1;");
+        Erased("type F = (a: number) => void;\nlet z = 1;", Gone("type F = (a: number) => void") + ";" + "\nlet z = 1;");
+        Erased("type R = readonly string[] | Record<string, unknown>;", Gone("type R = readonly string[] | Record<string, unknown>") + ";");
     }
 
     [Fact]
     public void DeclareDeclarationsAreErased()
     {
         Erased("declare const x: number;\ndeclare function f(a: string): void;\ndeclare class C { m(): void; x: number }\ndeclare module 'm' { export const y: number; }\ndeclare global { interface W {} }\ndeclare enum E { A }\nlet z = 1;",
-            Gone("declare const x: number;") + "\n" + Gone("declare function f(a: string): void;") + "\n" + Gone("declare class C { m(): void; x: number }") + "\n" + Gone("declare module 'm' { export const y: number; }") + "\n" + Gone("declare global { interface W {} }") + "\n" + Gone("declare enum E { A }") + "\nlet z = 1;");
+            Gone("declare const x: number") + ";" + "\n" + Gone("declare function f(a: string): void") + ";" + "\n" + Gone("declare class C { m(): void; x: number }") + "\n" + Gone("declare module 'm' { export const y: number; }") + "\n" + Gone("declare global { interface W {} }") + "\n" + Gone("declare enum E { A }") + "\nlet z = 1;");
     }
 
     [Fact]
     public void OverloadSignaturesAreErased() => Erased(
         "function f(a: string): string;\nfunction f(a: number): number;\nfunction f(a) { return a; }\nexport function g(): void;\nexport function g() {}",
-        Gone("function f(a: string): string;") + "\n" + Gone("function f(a: number): number;") + "\nfunction f(a) { return a; }\n" + Gone("export function g(): void;") + "\nexport function g() {}");
+        Gone("function f(a: string): string") + ";" + "\n" + Gone("function f(a: number): number") + ";" + "\nfunction f(a) { return a; }\n" + Gone("export function g(): void") + ";" + "\nexport function g() {}");
 
     [Fact]
     public void ImportTypeVanishesAndInlineTypeKeepsTheImport()
     {
-        Erased("import type { X } from './y';\nexport const a = 1;", Gone("import type { X } from './y';") + "\nexport const a = 1;");
-        Erased("import type D from './y';\nimport type * as N from './z';", Gone("import type D from './y';") + "\n" + Gone("import type * as N from './z';"));
+        Erased("import type { X } from './y';\nexport const a = 1;", Gone("import type { X } from './y'") + ";" + "\nexport const a = 1;");
+        Erased("import type D from './y';\nimport type * as N from './z';", Gone("import type D from './y'") + ";" + "\n" + Gone("import type * as N from './z'") + ";");
         Erased("import { type A, b } from 'm';", "import { " + Gone("type A, ") + "b } from 'm';");
         Erased("import { a, type B } from 'm';", "import { a" + Gone(", type B") + " } from 'm';");
         Erased("import { type A } from 'm';", "import { " + Gone("type A") + " } from 'm';");
         Erased("import d, { type A, b as c } from 'm';", "import d, { " + Gone("type A, ") + "b as c } from 'm';");
-        Erased("export type { A } from 'm';\nexport type * from 'n';", Gone("export type { A } from 'm';") + "\n" + Gone("export type * from 'n';"));
+        Erased("export type { A } from 'm';\nexport type * from 'n';", Gone("export type { A } from 'm'") + ";" + "\n" + Gone("export type * from 'n'") + ";");
         Erased("const b = 1; export { type A, b };", "const b = 1; export { " + Gone("type A, ") + "b };");
         Erased("import { type } from 'm';", "import { type } from 'm';");
         Erased("import type from 'm';", "import type from 'm';");
@@ -134,12 +134,12 @@ public class TypeStripTests
             "  " + Gone("public ") + "static s" + Gone("?: string") + ";",
             "  y" + Gone("?: string") + ";",
             "  z" + Gone("!: number") + ";",
-            "  " + Gone("declare w: number;"),
+            "  " + Gone("declare w: number") + ";",
             "  " + Gone("protected override ") + "m(a" + Gone(": T") + ")" + Gone(": T") + " { return a; }",
-            "  " + Gone("abstract q(): void;"),
-            "  " + Gone("foo(a: T): T;"),
+            "  " + Gone("abstract q(): void") + ";",
+            "  " + Gone("foo(a: T): T") + ";",
             "  foo(a) { return a; }",
-            "  " + Gone("[key: string]: unknown;"),
+            "  " + Gone("[key: string]: unknown") + ";",
             "  get g()" + Gone(": number") + " { return 1; }",
             "}");
         Assert.Equal(lines.Length, expected.Split('\n').Length);
@@ -149,7 +149,7 @@ public class TypeStripTests
     [Fact]
     public void AbstractClassAndExportDefault()
     {
-        Erased("export abstract class A { abstract m(): void; n() {} }", "export " + Gone("abstract ") + "class A { " + Gone("abstract m(): void;") + " n() {} }");
+        Erased("export abstract class A { abstract m(): void; n() {} }", "export " + Gone("abstract ") + "class A { " + Gone("abstract m(): void") + ";" + " n() {} }");
         Erased("export default interface I {}\nexport default class {}", Gone("export default interface I {}") + "\nexport default class {}");
     }
 
