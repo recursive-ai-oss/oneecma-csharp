@@ -165,6 +165,17 @@ public class StringAndBoundaryLimitTests
         Assert.Equal(LimitKind.Memory, e.Kind);
         Assert.NotNull(e.Report);
         Assert.False(scriptCaught);
+
+        // A real allocation failure under a generous limit is not the budget tripping: the headline names no limit.
+        Assert.Equal("Execution ran out of memory: the process could not allocate more", e.Report.Headline);
+        Assert.DoesNotContain("allocation limit", e.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain((1L << 30).ToString(System.Globalization.CultureInfo.InvariantCulture), e.Report.Headline, StringComparison.Ordinal);
+
+        // The budget tripping still says so, with its figure.
+        ScriptEngine small = Engine(4L << 20);
+        var trip = Assert.Throws<JsLimitException>(() => small.Evaluate("const keep = []; for (;;) keep.push(new Array(1000).fill(0));", "budget.js", Ct));
+        Assert.Equal(LimitKind.Memory, trip.Kind);
+        Assert.Equal("Execution exceeded the allocation limit of 4194304 bytes", trip.Report!.Headline);
     }
 
     [Fact]

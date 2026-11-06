@@ -4,6 +4,10 @@ All notable changes are listed here. The format follows [Keep a Changelog](https
 
 ## [Unreleased]
 
+### Fixed
+
+- **A real out-of-memory failure no longer reports the allocation limit.** When .NET could not allocate (an `OutOfMemoryException` from a host function, task or an uncharged engine allocation), the report said "Execution exceeded the allocation limit of N bytes" even far below that limit. It now reads "Execution ran out of memory: the process could not allocate more"; the kind is still `LimitKind.Memory`, script still cannot catch it, and the budget message appears only when `MaxAllocatedBytes` actually trips.
+
 ## [1.1.1] - 2026-11-05
 
 ### Fixed
