@@ -218,6 +218,17 @@ print(doubled);
 
 Each rule, with examples, is in [docs/repair-table.md](docs/repair-table.md).
 
+## TypeScript
+
+`ScriptEngine.StripTypes` runs `.ts` files that use only erasable syntax. It blanks annotations, generics, `as`/`satisfies`/`!`, `interface`/`type`/`declare` declarations, overload signatures, `implements`, access modifiers and `import type`/inline `type` specifiers, and keeps every other character where it was, so reports and `err.stack` point at the original line and column with no source map:
+
+```csharp
+TypeStripResult r = ScriptEngine.StripTypes(File.ReadAllText("orders.ts"), new TypeStripOptions { FileName = "orders.ts" });
+// r.Code is JavaScript (null on failure); r.Diagnostics explains what was refused
+```
+
+Constructs that need generated code (`enum`, namespaces with values, constructor parameter properties, `import x = require()`, `export =`, `<T>x` casts, parameter decorators) are refused with a report that suggests the plain-JavaScript form. Nothing is type-checked. Details: [docs/typescript.md](docs/typescript.md).
+
 ## Conformance
 
 Pass rates on the [test262](https://github.com/tc39/test262) suite pinned in `tools/test262/pin.txt`, run by `tools/OneEcma.Test262` in strict and sloppy variants. Every failing test is listed with its reason in `tools/test262/documented-engine.txt`; documented failures stay in the denominator.

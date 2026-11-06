@@ -4,6 +4,10 @@ All notable changes are listed here. The format follows [Keep a Changelog](https
 
 ## [Unreleased]
 
+### Added
+
+- **`ScriptEngine.StripTypes`** (with `TypeStripOptions` and `TypeStripResult`) turns TypeScript that uses only erasable syntax into JavaScript. Erased text becomes spaces and every line break and other character stays in place, so a line and column in the result is the same in the `.ts` source and reports need no source map. It erases annotations, type parameters and arguments, `as`/`as const`/`satisfies`/`!`, `interface`, `type` and `declare` declarations, overload signatures, index signatures, `implements`, access modifiers, `abstract` members, and `import type`/`export type`/inline `type` specifiers (an `import { type A }` keeps its side-effect import). `enum`, namespaces with values, constructor parameter properties, `import x = require()`, `export =`, `<T>x` casts and parameter decorators are refused, each with a report that names the construct and suggests the plain-JavaScript form. See `docs/typescript.md`.
+
 ### Documentation
 
 - Corrected the 1.0.0 description of limits: fuel, memory and wall clock end the run with a report like any other error; call depth and string length throw a `RangeError` the script can catch (reported like any other error if it is not caught); cancellation works through a `CancellationToken`, and the call throws `OperationCanceledException` with no report.

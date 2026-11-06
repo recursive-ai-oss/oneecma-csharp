@@ -8,6 +8,7 @@ These files describe behaviour the specifications leave open, the formats the en
 - [js-export.md](js-export.md): `[JsExport]` bindings, boundary errors, generator diagnostics and the JSON-Schema tool helper.
 - [repair-table.md](repair-table.md): the auto-repair table (version 2): each rule, its example and when it applies.
 - [source-maps.md](source-maps.md): ECMA-426 source maps and how reports use them.
+- [typescript.md](typescript.md): `ScriptEngine.StripTypes`, which turns erasable TypeScript into JavaScript that keeps every line and column.
 
 ## Reports and diagnostics
 
