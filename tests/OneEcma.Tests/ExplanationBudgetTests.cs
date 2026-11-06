@@ -5,7 +5,9 @@ namespace RecursiveAI.OneEcma.Tests;
 /// <summary>
 /// The replay that explains an error has a budget of its own, counted in work rather than time. When it runs out the plain report
 /// stands and says why; scripts that fail in ordinary ways keep their explanations.
+/// The class runs alone because the default host decides when to collect weak targets from process-wide memory growth.
 /// </summary>
+[Collection(nameof(ManagedMemorySensitive))]
 public class ExplanationBudgetTests
 {
     private static CancellationToken Ct => TestContext.Current.CancellationToken;
